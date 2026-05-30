@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR" data-theme="light">
+<html lang="pt-BR" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -167,6 +167,21 @@ body {
 @keyframes pulse { 0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--live) 65%,transparent);} 70%{box-shadow:0 0 0 11px transparent;} 100%{box-shadow:0 0 0 0 transparent;} }
 .destaque-count { margin-left:auto; font-size:11px; font-weight:700; color:var(--text-dim); }
 
+/* ===== BARRA HOJE / TODAS ===== */
+.hoje-bar {
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+  flex-wrap:wrap; margin:2px 0 16px; padding:11px 15px;
+  background:var(--surface); border:1.5px solid var(--border); border-radius:var(--r-md);
+}
+.hoje-info { display:flex; align-items:center; gap:8px; font-size:13px; color:var(--text-mute); font-weight:600; }
+.hoje-info b { color:var(--text); }
+.hoje-btn {
+  background:transparent; border:1.5px solid var(--ccaa-blue); color:var(--ccaa-blue);
+  border-radius:99px; padding:7px 15px; font-family:inherit; font-size:12.5px; font-weight:700;
+  cursor:pointer; transition:all .15s; white-space:nowrap;
+}
+.hoje-btn:hover { background:var(--ccaa-blue); color:#fff; }
+
 /* ===== TÍTULO DE SEÇÃO (grupo) — maior e sticky ===== */
 .grupo-title {
   position:sticky; top:84px; z-index:20;
@@ -209,17 +224,65 @@ body {
 
 .turma-actions { display:flex; flex-direction:column; gap:7px; flex-shrink:0; }
 .turma-cta, .turma-copy {
-  border:none; border-radius:var(--r-xs); padding:10px 14px;
-  font-family:inherit; font-size:12px; font-weight:800; letter-spacing:.02em;
-  display:flex; align-items:center; gap:5px; cursor:pointer; transition:all .15s;
+  border:none; border-radius:var(--r-xs); padding:13px 19px;
+  font-family:inherit; font-size:14px; font-weight:800; letter-spacing:.02em;
+  display:flex; align-items:center; gap:6px; cursor:pointer; transition:all .15s;
   box-shadow:0 2px 6px rgba(15,45,95,0.18); white-space:nowrap; color:#fff;
 }
 .turma-cta { background:var(--blue-deep); }
 .turma.is-live .turma-cta { background:var(--live); }
 .turma-copy { background:var(--ccaa-blue); }
 .turma-cta:hover, .turma-copy:hover:not(.disabled) { filter:brightness(1.1); transform:scale(1.03); }
-.turma-cta svg, .turma-copy svg { width:13px; height:13px; }
+.turma-cta svg, .turma-copy svg { width:15px; height:15px; }
 .turma-copy.disabled { opacity:.4; cursor:not-allowed; box-shadow:none; }
+
+/* Botão Entrar bloqueado (fora de horário) */
+.turma-cta.bloqueado {
+  background:var(--surface-2); color:var(--text-dim);
+  border:1.4px solid var(--border-strong); box-shadow:none; cursor:not-allowed;
+  font-size:11px; font-weight:700;
+}
+.turma-cta.bloqueado:hover { filter:none; transform:none; }
+.turma-cta.bloqueado svg { width:12px; height:12px; }
+
+/* Estrela "minha turma" */
+.turma { position:relative; }
+.star {
+  position:absolute; top:11px; right:12px; z-index:3;
+  background:transparent; border:none; cursor:pointer; padding:3px;
+  color:var(--text-dim); transition:color .15s, transform .15s;
+}
+.star:hover { color:var(--soon); transform:scale(1.18); }
+.star.ativa { color:var(--soon); }
+.star svg { width:19px; height:19px; display:block; }
+.turma.is-minha { border-color:var(--soon); }
+/* dá espaço pro nome não colidir com a estrela */
+.turma-info { padding-right:26px; }
+.turma-actions { padding-top:2px; }
+
+/* Seção "Sua turma" */
+.destaque-minha { background:color-mix(in srgb, var(--soon) 9%, var(--surface)); border-color:color-mix(in srgb, var(--soon) 40%, transparent); }
+.destaque-minha h2 { color:var(--soon); }
+.ico-star { width:18px; height:18px; color:var(--soon); }
+.destaque-trocar {
+  margin-left:auto; background:transparent; border:1.4px solid var(--border-strong);
+  color:var(--text-mute); border-radius:99px; padding:4px 13px;
+  font-family:inherit; font-size:12px; font-weight:700; cursor:pointer; transition:all .15s;
+}
+.destaque-trocar:hover { border-color:var(--soon); color:var(--soon); }
+/* na seção minha, a estrela do card fica escondida (já está marcada) */
+.destaque-minha .star { display:none; }
+.destaque-minha .turma-info { padding-right:0; }
+
+/* Banner de convite */
+.convite {
+  display:flex; align-items:center; gap:10px; margin-bottom:14px; padding:12px 15px;
+  background:color-mix(in srgb, var(--soon) 8%, var(--surface));
+  border:1.3px dashed color-mix(in srgb, var(--soon) 45%, transparent);
+  border-radius:var(--r-md); font-size:13px; color:var(--text-mute); font-weight:500;
+}
+.convite svg { width:20px; height:20px; color:var(--soon); flex-shrink:0; }
+.convite b { color:var(--text); font-weight:700; }
 
 /* ===== EMPTY ===== */
 .empty { text-align:center; padding:50px 20px; color:var(--text-dim); }
@@ -243,6 +306,9 @@ body {
 @keyframes slideUp { from{transform:translateY(100%);} to{transform:none;} }
 .modal-grab { width:40px; height:4px; background:var(--border-strong); border-radius:99px; margin:0 auto 18px; }
 .modal h3 { font-family:'Bricolage Grotesque',sans-serif; font-size:20px; font-weight:800; color:var(--text); margin-bottom:6px; }
+.modal-dados { display:flex; flex-direction:column; gap:3px; margin:6px 0 14px; padding:11px 13px; background:var(--surface-2); border:1px solid var(--border); border-radius:var(--r-sm); }
+.modal-dados .md-linha { font-size:13px; color:var(--text-mute); font-weight:600; }
+.modal-dados .md-linha b { color:var(--ccaa-blue); }
 .modal-aviso { font-size:13.5px; color:var(--text-mute); margin-bottom:16px; line-height:1.55; }
 .modal-aviso b { color:var(--text); }
 .modal-field { margin-bottom:16px; }
@@ -301,6 +367,7 @@ body {
 
   <div class="filters" id="filters"></div>
 
+  <section id="minhaSection"></section>
   <section id="agoraSection"></section>
   <section id="breveSection"></section>
   <main id="content"></main>
@@ -322,6 +389,7 @@ body {
   <div class="modal">
     <div class="modal-grab"></div>
     <h3 id="modalTitle">Entrar na aula</h3>
+    <div class="modal-dados" id="modalDados"></div>
     <p class="modal-aviso" id="modalAviso"></p>
     <div class="modal-field">
       <label for="modalNome">Seu nome (aparece pro professor)</label>
@@ -444,6 +512,7 @@ const TURMAS = [
 
 const CONFIG = {
   whatsappRecepcao: '555330251919',
+  senha: '551',
   janelaAntes: 10,      // min antes do inicio que libera "ao vivo"
   janelaAgora: 60,      // <= 60 min => seção AGORA; > 60 min (mesmo dia) => EM BREVE
   ultimaVerificacao: '28/05/2026'
@@ -459,6 +528,11 @@ let FLAT = [];
 TURMAS.forEach((g,gi)=>g.turmas.forEach((t,ti)=>{ FLAT.push({...t, grupo:g.grupo, cat:g.cat, idx:FLAT.length}); }));
 
 // ===== STATUS =====
+// Horário sempre em Brasília, independente do relógio do dispositivo
+function nowBR(){
+  try { return new Date(new Date().toLocaleString('en-US',{timeZone:'America/Sao_Paulo'})); }
+  catch(e){ return new Date(); }
+}
 function parseHM(s){ const [h,m]=s.split(':').map(Number); return h*60+m; }
 function statusTurma(t, now){
   const dia = now.getDay();
@@ -480,18 +554,32 @@ function proximoDia(dias, hoje){
 }
 
 // ===== RENDER =====
-let filtroAtual='Todos', termo='';
+let filtroAtual='Todos', termo='', mostrarTodas=false, minhaTurma=null;
 function norm(s){ return (s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,''); }
 
+function fmtAbre(t, st){
+  const hora = fmtHora(t.inicio);
+  if(st.tipo==='soon'||st.tipo==='breve') return 'Abre '+hora;
+  const prox = proximoDia(t.dias, nowBR().getDay());
+  return 'Abre '+prox.replace('Amanhã','amanhã')+' '+hora;
+}
 function turmaCard(t, status){
   const live = status.tipo==='live';
   const semLink = !t.link || t.link.includes('COLE_');
+  const ehMinha = (t.nome===minhaTurma);
   const stClass = status.tipo==='live'?'status-live':(status.tipo==='soon'||status.tipo==='breve'?'status-soon':'status-scheduled');
   const meta = [];
   if(t.nivel) meta.push('<span class="nivel">'+t.nivel+'</span>');
   if(t.sala) meta.push('<span class="sala"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-4"/></svg>'+t.sala+'</span>');
+  // Botão Entrar: ativo só quando ao vivo; senão bloqueado mostrando quando abre
+  const btnEntrar = (live && !semLink)
+    ? `<button class="turma-cta" data-idx="${t.idx}">Entrar<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg></button>`
+    : `<button class="turma-cta bloqueado" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>${semLink?'Sem link':fmtAbre(t,status)}</button>`;
   return `
-  <div class="turma ${live?'is-live':''}" data-idx="${t.idx}">
+  <div class="turma ${live?'is-live':''} ${ehMinha?'is-minha':''}" data-idx="${t.idx}">
+    <button class="star ${ehMinha?'ativa':''}" data-star="${t.idx}" title="${ehMinha?'Sua turma':'Marcar como minha turma'}">
+      <svg viewBox="0 0 24 24" fill="${ehMinha?'currentColor':'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.1 8.6 22 9.3 17 14.1 18.2 21 12 17.5 5.8 21 7 14.1 2 9.3 8.9 8.6 12 2"/></svg>
+    </button>
     <div class="turma-info">
       <div class="turma-name">${t.nome}</div>
       ${t.teacher
@@ -502,64 +590,135 @@ function turmaCard(t, status){
       <div class="turma-status ${stClass}">${status.label}</div>
     </div>
     <div class="turma-actions">
-      <button class="turma-cta" data-idx="${t.idx}">Entrar<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg></button>
-      <button class="turma-copy ${semLink?'disabled':''}" data-link="${t.link}" title="${semLink?'Link ainda não configurado':'Copiar link Zoom'}">Copiar<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+      ${btnEntrar}
+      <button class="turma-copy ${semLink?'disabled':''}" data-idx="${t.idx}" title="${semLink?'Link ainda não configurado':'Copiar dados da aula'}">Copiar<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
     </div>
   </div>`;
 }
 
 function render(){
-  const now = new Date();
+  const now = nowBR();
   const visiveis = FLAT.filter(t=>{
     if(filtroAtual!=='Todos' && t.cat!==filtroAtual) return false;
     if(termo){ const q=norm(termo); if(!(norm(t.nome).includes(q)||norm(t.teacher).includes(q)||norm(t.horario).includes(q)||norm(t.grupo).includes(q))) return false; }
     return true;
   }).map(t=>({t, st:statusTurma(t, now)}));
 
-  // AGORA = live + soon
+  const aEl=document.getElementById('agoraSection');
+  const bEl=document.getElementById('breveSection');
+  const mEl=document.getElementById('minhaSection');
+  const content=document.getElementById('content');
+  const hojeDia = now.getDay();
+  const buscando = termo || filtroAtual!=='Todos';
+
+  // === SEÇÃO "SUA TURMA" ===
+  const minhaT = minhaTurma ? FLAT.find(t=>t.nome===minhaTurma) : null;
+  const focoMinha = minhaT && !buscando && !mostrarTodas;  // modo foco: só a turma do aluno
+  if(minhaT && !buscando){
+    const st=statusTurma(minhaT, now);
+    mEl.innerHTML = `<div class="destaque destaque-minha"><div class="destaque-head"><svg class="ico-star" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.1 8.6 22 9.3 17 14.1 18.2 21 12 17.5 5.8 21 7 14.1 2 9.3 8.9 8.6 12 2"/></svg><h2>Sua turma</h2><button class="destaque-trocar" id="btnTrocarTurma">Trocar</button></div>${turmaCard(minhaT, st)}</div>`;
+  } else mEl.innerHTML='';
+
+  // No modo foco, esconde Agora/Em breve (a turma do aluno já é o destaque)
   const agora = visiveis.filter(x=>x.st.tipo==='live'||x.st.tipo==='soon');
   const breve = visiveis.filter(x=>x.st.tipo==='breve');
 
-  const aEl=document.getElementById('agoraSection');
-  const bEl=document.getElementById('breveSection');
-  const buscando = termo || filtroAtual!=='Todos';
-
-  if(agora.length && !buscando){
+  if(agora.length && !buscando && !focoMinha){
     aEl.innerHTML = `<div class="destaque destaque-agora"><div class="destaque-head"><span class="dot dot-live"></span><h2>Agora</h2><span class="destaque-count">${agora.length} ${agora.length>1?'turmas':'turma'}</span></div>${agora.map(x=>turmaCard(x.t,x.st)).join('')}</div>`;
   } else aEl.innerHTML='';
 
-  if(breve.length && !buscando){
+  if(breve.length && !buscando && !focoMinha){
     bEl.innerHTML = `<div class="destaque destaque-breve"><div class="destaque-head"><span class="dot dot-soon"></span><h2>Em breve</h2><span class="destaque-count">hoje &middot; ${breve.length}</span></div>${breve.map(x=>turmaCard(x.t,x.st)).join('')}</div>`;
   } else bEl.innerHTML='';
 
-  // Lista completa por grupo
-  const content=document.getElementById('content');
-  if(!visiveis.length){
-    content.innerHTML = `<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.3-4.3"/></svg><p>Nenhuma turma encontrada</p></div>`;
-    bindCards(content); return;
+  // === MODO FOCO: só a turma do aluno + atalho para o resto ===
+  if(focoMinha){
+    content.innerHTML = `<div class="hoje-bar"><span class="hoje-info">É essa a sua turma?</span><button class="hoje-btn" id="toggleHoje">Não, ver todas as turmas</button></div>`;
+    bindMinha(); bindToggle();
+    return;
   }
-  let html='';
+
+  // === LISTA COMPLETA ===
+  // Banner de convite (quem ainda não escolheu turma)
+  let bannerHTML='';
+  if(!minhaTurma && !buscando){
+    bannerHTML = `<div class="convite"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.1 8.6 22 9.3 17 14.1 18.2 21 12 17.5 5.8 21 7 14.1 2 9.3 8.9 8.6 12 2"/></svg><span>Selecione a <b>estrela</b> próxima ao link da turma, assim você poderá acessar diretamente nas próximas aulas</span></div>`;
+  }
+
+  // Por padrão mostra só as turmas de hoje
+  let lista = visiveis;
+  let mostrandoSoHoje = false;
+  if(!buscando && !mostrarTodas){
+    lista = visiveis.filter(x=>x.t.dias.includes(hojeDia));
+    mostrandoSoHoje = true;
+  }
+
+  let toggleHTML='';
+  if(!buscando){
+    const totalHoje = visiveis.filter(x=>x.t.dias.includes(hojeDia)).length;
+    if(mostrandoSoHoje){
+      toggleHTML = `<div class="hoje-bar"><span class="hoje-info"><span class="dot dot-soon"></span>Mostrando as <b>${totalHoje}</b> ${totalHoje===1?'aula de hoje':'aulas de hoje'}</span><button class="hoje-btn" id="toggleHoje">Ver todas as ${visiveis.length} turmas</button></div>`;
+    } else {
+      toggleHTML = `<div class="hoje-bar"><span class="hoje-info">Mostrando <b>todas</b> as turmas</span><button class="hoje-btn" id="toggleHoje">${minhaTurma?'Voltar pra minha turma':'Ver só as de hoje'}</button></div>`;
+    }
+  }
+
+  if(!lista.length){
+    const msg = mostrandoSoHoje ? 'Nenhuma aula hoje' : 'Nenhuma turma encontrada';
+    content.innerHTML = bannerHTML + toggleHTML + `<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.3-4.3"/></svg><p>${msg}</p></div>`;
+    bindToggle(); bindCards(content); return;
+  }
+  let html=bannerHTML+toggleHTML;
   TURMAS.forEach(g=>{
-    const doGrupo = visiveis.filter(x=>x.t.grupo===g.grupo);
+    const doGrupo = lista.filter(x=>x.t.grupo===g.grupo);
     if(!doGrupo.length) return;
     html += `<div class="grupo-title">${g.grupo}<span class="grupo-count">${doGrupo.length}</span></div>`;
     html += doGrupo.map(x=>turmaCard(x.t,x.st)).join('');
   });
   content.innerHTML=html;
+  bindToggle();
+  bindMinha();
+  bindCards(document.getElementById('minhaSection'));
   bindCards(document.getElementById('agoraSection'));
   bindCards(document.getElementById('breveSection'));
   bindCards(content);
 }
 
+function bindToggle(){
+  const b=document.getElementById('toggleHoje');
+  if(b) b.addEventListener('click',()=>{ mostrarTodas=!mostrarTodas; render(); });
+}
+function bindMinha(){
+  const t=document.getElementById('btnTrocarTurma');
+  if(t) t.addEventListener('click',()=>{ minhaTurma=null; Store.set('ccaa_minha_turma',''); mostrarTodas=true; render(); });
+}
+
+// ===== TEXTO DE CÓPIA (com contexto) =====
+const ABREV_DIA = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+function fmtDias(dias){ return dias.map(d=>ABREV_DIA[d]).join('/'); }
+function fmtHora(hm){ const [h,m]=hm.split(':').map(Number); return m===0 ? h+'h' : h+'h'+String(m).padStart(2,'0'); }
+function textoCopia(t){
+  return `${t.nome} (${fmtDias(t.dias)} - ${fmtHora(t.inicio)} até ${fmtHora(t.fim)})\nSenha de acesso: ${CONFIG.senha}\n${t.link}`;
+}
+
 // ===== BIND =====
 function bindCards(c){
-  c.querySelectorAll('.turma').forEach(el=>el.addEventListener('click',e=>{ if(e.target.closest('.turma-copy'))return; abrirModal(el.dataset.idx); }));
-  c.querySelectorAll('.turma-cta').forEach(el=>el.addEventListener('click',e=>{ e.stopPropagation(); abrirModal(el.closest('.turma').dataset.idx); }));
+  if(!c) return;
+  c.querySelectorAll('.star').forEach(btn=>btn.addEventListener('click',e=>{
+    e.stopPropagation();
+    const t=FLAT[+btn.dataset.star];
+    if(minhaTurma===t.nome){ minhaTurma=null; Store.set('ccaa_minha_turma',''); }
+    else { minhaTurma=t.nome; Store.set('ccaa_minha_turma',t.nome); mostrarTodas=false; }
+    render();
+  }));
+  c.querySelectorAll('.turma').forEach(el=>el.addEventListener('click',e=>{ if(e.target.closest('.turma-copy')||e.target.closest('.star')||e.target.closest('.turma-cta'))return; abrirModal(el.dataset.idx); }));
+  c.querySelectorAll('.turma-cta:not(.bloqueado)').forEach(el=>el.addEventListener('click',e=>{ e.stopPropagation(); abrirModal(el.closest('.turma').dataset.idx); }));
   c.querySelectorAll('.turma-copy:not(.disabled)').forEach(btn=>btn.addEventListener('click',e=>{
     e.stopPropagation();
-    const link=btn.dataset.link;
+    const t=FLAT[+btn.dataset.idx];
+    const texto=textoCopia(t);
     const ok=()=>{ const o=btn.innerHTML; btn.innerHTML='Copiado!<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>'; btn.style.background='#0A2347'; setTimeout(()=>{btn.innerHTML=o;btn.style.background='';},2000); };
-    navigator.clipboard.writeText(link).then(ok).catch(()=>{ const ta=document.createElement('textarea'); ta.value=link; ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); ok(); });
+    navigator.clipboard.writeText(texto).then(ok).catch(()=>{ const ta=document.createElement('textarea'); ta.value=texto; ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); ok(); });
   }));
 }
 
@@ -567,18 +726,30 @@ function bindCards(c){
 let turmaAtual=null;
 function abrirModal(idx){
   const t=FLAT[+idx]; turmaAtual=t;
-  const st=statusTurma(t,new Date());
+  const st=statusTurma(t,nowBR());
   document.getElementById('modalTitle').textContent=t.nome;
+  // Bloco de dados da aula
+  const semLink = !t.link || t.link.includes('COLE_');
+  const dadosEl=document.getElementById('modalDados');
+  if(dadosEl){
+    dadosEl.innerHTML = `<span class="md-linha">${fmtDias(t.dias)} &middot; ${fmtHora(t.inicio)} até ${fmtHora(t.fim)}</span>`
+      + (t.sala?`<span class="md-linha">${t.sala}</span>`:'')
+      + (!semLink?`<span class="md-linha">Senha de acesso: <b>${CONFIG.senha}</b></span>`:'');
+  }
   let aviso;
   if(st.tipo==='live') aviso=`Sua aula está <b>ao vivo agora</b>. Toque em entrar para abrir o Zoom`;
   else if(st.tipo==='soon') aviso=`Sua aula <b>${st.label.toLowerCase()}</b>. Você já pode entrar e aguardar o professor`;
   else if(st.tipo==='breve') aviso=`Esta turma é <b>hoje às ${t.inicio}</b>. Você pode entrar perto do horário`;
   else aviso=`Esta turma não tem aula agora. Próxima: <b>${st.label}</b>. Confira se é a sua turma antes de entrar`;
-  const semLink = !t.link || t.link.includes('COLE_');
   if(semLink) aviso += `<br><br><b>Atenção:</b> o link desta turma ainda não foi configurado. Fale com a recepção`;
   document.getElementById('modalAviso').innerHTML=aviso;
   const nome=Store.get('ccaa_nome'); if(nome) document.getElementById('modalNome').value=nome;
-  const btn=document.getElementById('btnConfirm'); btn.disabled=semLink; btn.style.opacity=semLink?'.5':'1'; btn.style.cursor=semLink?'not-allowed':'pointer';
+  const podeEntrar = (st.tipo==='live') && !semLink;
+  const btn=document.getElementById('btnConfirm');
+  btn.disabled = !podeEntrar;
+  btn.style.opacity = podeEntrar?'1':'.5';
+  btn.style.cursor = podeEntrar?'pointer':'not-allowed';
+  btn.textContent = podeEntrar ? 'Entrar no Zoom' : (semLink ? 'Sem link configurado' : 'Aula ainda não abriu');
   Store.set('ccaa_ultima_turma', t.nome);
   document.getElementById('modal').classList.add('open');
 }
@@ -638,14 +809,17 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
 
 // ===== INIT =====
 (function init(){
-  const tema=Store.get('ccaa_tema')|| (window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
+  const tema=Store.get('ccaa_tema')||'dark';
   aplicarTema(tema);
   const f=parseInt(Store.get('ccaa_fonte')||'0'); fonteIdx=isNaN(f)?0:f; aplicarFonte();
+  const mt=Store.get('ccaa_minha_turma'); if(mt && FLAT.some(t=>t.nome===mt)) minhaTurma=mt;
   document.getElementById('ultVerif').textContent='Links conferidos em '+CONFIG.ultimaVerificacao;
   renderFiltros();
   render();
   setInterval(render, 60000);
 })();
 </script>
+</body>
+</html>
 </body>
 </html>
