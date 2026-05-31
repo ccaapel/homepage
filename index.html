@@ -1167,7 +1167,7 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
 <script>
 // ===== SISTEMA INTERNO =====
 // Cole aqui a URL do seu Apps Script após implantar
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxjC01jTUm6oIZGfuDdCyuguQ7wW0qAfvDMesPK2SVG6fppgMuvXbGrWQL5iqzOx56s/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz134cTKSY8i5JNp08Svwo1_KWx1V3dLs5sZp3zmtgeqeh0HDEKU51980aQHwtQBis3/exec";
 
 // JSONP — bypassa CORS do Apps Script sem backend
 let _jsonpCount = 0;
@@ -1376,7 +1376,9 @@ function normalizaTurma(t){
 
 // Resolve o formato real: prova/apoio/equiparação/nivelamento são FORMATO
 function resolverFormatoFront(formato, lessons, situation, pendente){
-  const alvo = ((formato||'')+' '+(lessons||'')+' '+(situation||'')+' '+(pendente||'')).toLowerCase();
+  formato = String(formato||'').trim();
+  if(/^(presencial|online|híbrido|hibrido)$/i.test(formato)) formato = '';
+  const alvo = (formato+' '+(lessons||'')+' '+(situation||'')+' '+(pendente||'')).toLowerCase();
   if(/\bprova\b/.test(alvo)) return 'Prova';
   if(/\bnivela/.test(alvo)) return 'Nivelamento';
   if(/\bequipara/.test(alvo)) return 'Equiparação';
