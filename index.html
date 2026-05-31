@@ -1167,7 +1167,7 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
 <script>
 // ===== SISTEMA INTERNO =====
 // Cole aqui a URL do seu Apps Script após implantar
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz134cTKSY8i5JNp08Svwo1_KWx1V3dLs5sZp3zmtgeqeh0HDEKU51980aQHwtQBis3/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx5wpDGryYHPyBXFCuSwHdpkCiaMZNosJMID7uXl5_2KrsfaLcDv14Jy-tD3lokcjk/exec";
 
 // JSONP — bypassa CORS do Apps Script sem backend
 let _jsonpCount = 0;
@@ -1406,10 +1406,18 @@ function normalizaRegistro(r){
   }
   r.turma = normalizaTurma(r.turma);
   // Mescla lessons/situation
-  const l=(r.lessons||'').trim(), s2=(r.situation||'').trim();
-  if(l && !s2) r.situation=l; else if(s2 && !l) r.lessons=s2;
+  let l=(r.lessons||'').trim(), s2=(r.situation||'').trim();
+  // Hífen sozinho = vazio
+  if(/^[-–—\s]*$/.test(l)) l='';
+  if(/^[-–—\s]*$/.test(s2)) s2='';
+  if(l && !s2) s2=l; else if(s2 && !l) l=s2;
+  r.lessons=l; r.situation=s2;
   // Formato: resolve a partir da linha inteira
   r.formato = resolverFormatoFront(r.formato, r.lessons, r.situation, r.pendente);
+  // Apoio sem conteúdo -> Material do apoio
+  if(r.formato==='Apoio' && !r.lessons && !r.situation){
+    r.lessons='Material do apoio'; r.situation='Material do apoio';
+  }
   return r;
 }
 
@@ -1676,6 +1684,26 @@ function diaSemanaISO(iso){
   const dt = new Date(+y,+m-1,+d);
   return isNaN(dt) ? '' : DIAS_SEMANA[dt.getDay()];
 }
+// Índice 0-6 do dia da semana a partir do nome ("Segunda-feira"->1)
+function indiceDia(nomeDia){
+  const norm = s => (s||'').toLowerCase().replace('-feira','').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
+  const alvo = norm(nomeDia);
+  for(let i=0;i<DIAS_SEMANA.length;i++){ if(norm(DIAS_SEMANA[i])===alvo) return i; }
+  return -1;
+}
+// A partir de uma data ISO base, acha a próxima data (>= base) que caia no dia da semana desejado
+function proximaDataNoDia(isoBase, nomeDia){
+  const alvoIdx = indiceDia(nomeDia);
+  if(alvoIdx<0) return isoBase;
+  let dt;
+  if(isoBase){ const [y,m,d]=isoBase.split('-'); dt=new Date(+y,+m-1,+d); }
+  else dt = new Date();
+  if(isNaN(dt)) dt = new Date();
+  // avança até bater o dia (no máximo 7 passos)
+  let passos=0;
+  while(dt.getDay()!==alvoIdx && passos<7){ dt.setDate(dt.getDate()+1); passos++; }
+  return `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;
+}
 // Atualiza o aviso de aba (teacher+dia) e valida a data contra o dia da aba
 function atualizarInfoAba(){
   const aba = document.getElementById('dAba').value;
@@ -1764,7 +1792,18 @@ function popularHorariosDrawer(horarioAtual, linhaAtual){
 }
 
 // Ao mudar aba ou data no drawer, recarrega os horários e revalida
-document.getElementById('dAba').addEventListener('change', ()=>{ popularHorariosDrawer('', document.getElementById('dLinha').value); atualizarInfoAba(); });
+// Ao mudar a ABA: ajusta a data para o próximo dia da semana daquela aba
+document.getElementById('dAba').addEventListener('change', ()=>{
+  const aba = document.getElementById('dAba').value;
+  const info = parseAbaFront(aba);
+  if(info.dia){
+    const baseISO = document.getElementById('dData').value;
+    document.getElementById('dData').value = proximaDataNoDia(baseISO, info.dia);
+  }
+  popularHorariosDrawer('', document.getElementById('dLinha').value);
+  atualizarInfoAba();
+});
+// Ao mudar a DATA manualmente: só revalida
 document.getElementById('dData').addEventListener('change', ()=>{ popularHorariosDrawer('', document.getElementById('dLinha').value); atualizarInfoAba(); });
 
 document.getElementById('btnNovoAgendamento').addEventListener('click', ()=> abrirDrawer(null));
