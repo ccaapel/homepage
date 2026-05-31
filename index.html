@@ -222,28 +222,30 @@ body {
 .status-soon { background:var(--soon-bg); color:var(--soon); }
 .status-scheduled { background:var(--surface-2); color:var(--text-dim); border:1px solid var(--border); }
 
-.turma-actions { display:flex; flex-direction:column; gap:7px; flex-shrink:0; }
+.turma-actions { display:flex; flex-direction:column; gap:7px; flex-shrink:0; width:116px; }
 .turma-cta, .turma-copy {
-  border:none; border-radius:var(--r-xs); padding:13px 19px;
-  font-family:inherit; font-size:14px; font-weight:800; letter-spacing:.02em;
-  display:flex; align-items:center; gap:6px; cursor:pointer; transition:all .15s;
-  box-shadow:0 2px 6px rgba(15,45,95,0.18); white-space:nowrap; color:#fff;
+  border:none; border-radius:var(--r-sm);
+  width:116px; padding:13px 8px;
+  font-family:inherit; font-size:13px; font-weight:800; letter-spacing:.01em;
+  display:flex; align-items:center; justify-content:center; gap:5px;
+  cursor:pointer; transition:all .15s;
+  box-shadow:0 2px 8px rgba(15,45,95,0.2); white-space:nowrap; color:#fff;
+  text-align:center; line-height:1; box-sizing:border-box;
 }
 .turma-cta { background:var(--blue-deep); }
 .turma.is-live .turma-cta { background:var(--live); }
 .turma-copy { background:var(--ccaa-blue); }
 .turma-cta:hover, .turma-copy:hover:not(.disabled) { filter:brightness(1.1); transform:scale(1.03); }
-.turma-cta svg, .turma-copy svg { width:15px; height:15px; }
+.turma-cta svg, .turma-copy svg { width:14px; height:14px; flex-shrink:0; }
 .turma-copy.disabled { opacity:.4; cursor:not-allowed; box-shadow:none; }
 
-/* Botão Entrar bloqueado (fora de horário) */
+/* Botão bloqueado — idêntico em tamanho, só muda cor */
 .turma-cta.bloqueado {
   background:var(--surface-2); color:var(--text-dim);
-  border:1.4px solid var(--border-strong); box-shadow:none; cursor:not-allowed;
-  font-size:11px; font-weight:700;
+  border:1.5px solid var(--border-strong); box-shadow:none; cursor:not-allowed;
 }
 .turma-cta.bloqueado:hover { filter:none; transform:none; }
-.turma-cta.bloqueado svg { width:12px; height:12px; }
+.turma-cta.bloqueado svg { width:14px; height:14px; }
 
 /* Estrela "minha turma" */
 .turma { position:relative; }
@@ -276,12 +278,13 @@ body {
 
 /* Banner de convite */
 .convite {
-  display:flex; align-items:center; gap:10px; margin-bottom:14px; padding:12px 15px;
+  display:flex; flex-direction:column; align-items:center; text-align:center; gap:8px;
+  margin-bottom:14px; padding:16px 18px;
   background:color-mix(in srgb, var(--soon) 8%, var(--surface));
   border:1.3px dashed color-mix(in srgb, var(--soon) 45%, transparent);
   border-radius:var(--r-md); font-size:13px; color:var(--text-mute); font-weight:500;
 }
-.convite svg { width:20px; height:20px; color:var(--soon); flex-shrink:0; }
+.convite svg { width:22px; height:22px; color:var(--soon); flex-shrink:0; }
 .convite b { color:var(--text); font-weight:700; }
 
 /* ===== EMPTY ===== */
@@ -329,6 +332,194 @@ body {
   .modal { border-radius:var(--r-lg); }
   .grupo-title { top:96px; }
 }
+
+/* ===== ABA INTERNA ===== */
+.interno-overlay {
+  display:none; position:fixed; inset:0; z-index:200;
+  background:var(--bg); overflow-y:auto;
+  animation: slideUp .25s cubic-bezier(.25,.8,.25,1);
+}
+.interno-overlay.open { display:block; }
+@keyframes slideUp { from{opacity:0;transform:translateY(30px);} to{opacity:1;transform:none;} }
+
+.interno-header {
+  position:sticky; top:0; z-index:10;
+  background:color-mix(in srgb, var(--surface) 92%, transparent);
+  backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--border);
+  padding:14px 16px 12px;
+  display:flex; align-items:center; gap:12px;
+}
+.interno-header h2 {
+  font-family:'Bricolage Grotesque',sans-serif; font-size:17px; font-weight:800;
+  letter-spacing:-0.02em; flex:1;
+}
+.interno-fechar {
+  background:none; border:1.5px solid var(--border-strong);
+  border-radius:9px; width:34px; height:34px; cursor:pointer;
+  color:var(--text-mute); font-size:18px; display:flex; align-items:center; justify-content:center;
+  transition:all .15s;
+}
+.interno-fechar:hover { border-color:var(--ccaa-red); color:var(--ccaa-red); }
+
+.interno-body { max-width:960px; margin:0 auto; padding:16px 16px 80px; }
+
+/* Login */
+.login-box {
+  max-width:340px; margin:60px auto; background:var(--surface);
+  border:1.5px solid var(--border); border-radius:var(--r-lg);
+  padding:32px 24px; text-align:center;
+}
+.login-box h3 { font-family:'Bricolage Grotesque',sans-serif; font-size:18px; font-weight:800; margin-bottom:6px; }
+.login-box p { font-size:13px; color:var(--text-dim); margin-bottom:20px; }
+.login-input {
+  width:100%; border:1.6px solid var(--border-strong); border-radius:var(--r-sm);
+  padding:13px 14px; font-family:inherit; font-size:15px;
+  background:var(--surface-2); color:var(--text); outline:none;
+  margin-bottom:12px; transition:border .15s;
+}
+.login-input:focus { border-color:var(--ccaa-blue); }
+.login-btn {
+  width:100%; background:var(--blue-deep); color:#fff;
+  border:none; border-radius:var(--r-sm); padding:14px;
+  font-family:inherit; font-size:14px; font-weight:700; cursor:pointer;
+  transition:all .15s;
+}
+.login-btn:hover { filter:brightness(1.12); }
+.login-erro { color:var(--ccaa-red); font-size:12.5px; margin-top:8px; display:none; }
+
+/* Filtros internos */
+.int-filtros {
+  display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px;
+}
+.int-select {
+  border:1.5px solid var(--border-strong); background:var(--surface);
+  color:var(--text); border-radius:var(--r-sm); padding:9px 12px;
+  font-family:inherit; font-size:13px; font-weight:600; cursor:pointer;
+  outline:none; min-width:140px; transition:border .15s;
+}
+.int-select:focus { border-color:var(--ccaa-blue); }
+.int-search {
+  flex:1; min-width:180px; border:1.5px solid var(--border-strong);
+  background:var(--surface); color:var(--text); border-radius:var(--r-sm);
+  padding:9px 12px; font-family:inherit; font-size:13px; outline:none;
+  transition:border .15s;
+}
+.int-search:focus { border-color:var(--ccaa-blue); }
+
+/* Botões de ação */
+.int-actions { display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap; }
+.int-btn {
+  border:none; border-radius:var(--r-sm); padding:10px 18px;
+  font-family:inherit; font-size:13px; font-weight:700; cursor:pointer;
+  display:flex; align-items:center; gap:6px; transition:all .15s;
+}
+.int-btn-novo { background:var(--blue-deep); color:#fff; }
+.int-btn-novo:hover { filter:brightness(1.12); }
+.int-btn-reload { background:var(--surface); color:var(--text-mute); border:1.5px solid var(--border-strong); }
+.int-btn-reload:hover { border-color:var(--ccaa-blue); color:var(--ccaa-blue); }
+
+/* Tabela */
+.int-table-wrap { overflow-x:auto; border-radius:var(--r-md); border:1px solid var(--border); }
+.int-table {
+  width:100%; border-collapse:collapse; font-size:12.5px;
+  min-width:900px;
+}
+.int-table th {
+  background:var(--surface-2); color:var(--text-dim); font-weight:700;
+  font-size:11px; text-transform:uppercase; letter-spacing:.06em;
+  padding:10px 12px; text-align:left; border-bottom:1px solid var(--border);
+  white-space:nowrap;
+}
+.int-table td {
+  padding:10px 12px; border-bottom:1px solid var(--border);
+  color:var(--text); vertical-align:middle;
+}
+.int-table tr:last-child td { border-bottom:none; }
+.int-table tr:hover td { background:color-mix(in srgb, var(--ccaa-blue) 4%, transparent); }
+
+/* Badges de status */
+.badge {
+  display:inline-block; font-size:11px; font-weight:700;
+  padding:3px 8px; border-radius:99px; white-space:nowrap;
+}
+.badge-realizado  { background:color-mix(in srgb,#16A34A 15%,transparent); color:#16A34A; }
+.badge-agendado   { background:color-mix(in srgb,#D97706 15%,transparent); color:#D97706; }
+.badge-cancelado  { background:color-mix(in srgb,#E23744 15%,transparent); color:#E23744; }
+.badge-remarcado  { background:color-mix(in srgb,#7C3AED 15%,transparent); color:#7C3AED; }
+.badge-faltou     { background:color-mix(in srgb,#6B7280 15%,transparent); color:#6B7280; }
+.badge-default    { background:var(--surface-2); color:var(--text-dim); border:1px solid var(--border); }
+
+/* Botões de linha */
+.row-btn {
+  background:none; border:none; cursor:pointer; padding:4px 7px;
+  border-radius:6px; font-size:12px; color:var(--text-dim);
+  transition:all .12s;
+}
+.row-btn:hover { background:var(--surface-2); color:var(--ccaa-blue); }
+.row-btn.del:hover { color:var(--ccaa-red); }
+
+/* Loading / empty */
+.int-loading {
+  text-align:center; padding:50px 20px; color:var(--text-dim);
+  font-size:14px; font-weight:600;
+}
+.int-spinner {
+  width:32px; height:32px; border:3px solid var(--border);
+  border-top-color:var(--ccaa-blue); border-radius:50%;
+  animation:spin .7s linear infinite; margin:0 auto 14px;
+}
+@keyframes spin { to{transform:rotate(360deg);} }
+
+/* Drawer de edição */
+.drawer-overlay {
+  display:none; position:fixed; inset:0; z-index:300;
+  background:rgba(0,0,0,0.55); backdrop-filter:blur(3px);
+}
+.drawer-overlay.open { display:flex; align-items:flex-end; justify-content:center; }
+.drawer {
+  background:var(--surface); border-radius:var(--r-lg) var(--r-lg) 0 0;
+  width:100%; max-width:640px; max-height:90vh; overflow-y:auto;
+  padding:24px 20px 40px;
+  animation:drawerUp .22s cubic-bezier(.25,.8,.25,1);
+}
+@keyframes drawerUp { from{transform:translateY(100%);} to{transform:translateY(0);} }
+.drawer h3 { font-family:'Bricolage Grotesque',sans-serif; font-size:17px; font-weight:800; margin-bottom:18px; }
+.drawer-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.drawer-grid .full { grid-column:1/-1; }
+.field-label { font-size:11.5px; font-weight:700; color:var(--text-dim); margin-bottom:5px; display:block; text-transform:uppercase; letter-spacing:.05em; }
+.field-input, .field-select {
+  width:100%; border:1.5px solid var(--border-strong); border-radius:var(--r-sm);
+  padding:11px 13px; font-family:inherit; font-size:14px;
+  background:var(--surface-2); color:var(--text); outline:none; transition:border .15s;
+}
+.field-input:focus, .field-select:focus { border-color:var(--ccaa-blue); }
+.drawer-actions { display:flex; gap:10px; margin-top:20px; }
+.drawer-btn-salvar {
+  flex:1; background:var(--blue-deep); color:#fff; border:none;
+  border-radius:var(--r-sm); padding:14px; font-family:inherit;
+  font-size:14px; font-weight:700; cursor:pointer; transition:all .15s;
+}
+.drawer-btn-salvar:hover { filter:brightness(1.12); }
+.drawer-btn-cancel {
+  background:var(--surface-2); color:var(--text-mute);
+  border:1.5px solid var(--border); border-radius:var(--r-sm);
+  padding:14px 20px; font-family:inherit; font-size:14px; font-weight:700;
+  cursor:pointer; transition:all .15s;
+}
+.drawer-btn-cancel:hover { border-color:var(--border-strong); }
+
+/* Toast */
+.toast {
+  position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(30px);
+  background:#1a2540; color:#fff; border-radius:10px; padding:12px 22px;
+  font-size:13.5px; font-weight:600; z-index:500; opacity:0;
+  transition:all .25s; pointer-events:none; white-space:nowrap;
+  border:1px solid rgba(255,255,255,0.1);
+}
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+.toast.ok   { border-color:rgba(22,163,74,0.4); }
+.toast.erro { background:#3a0a0a; border-color:rgba(226,55,68,0.4); }
 </style>
 </head><body>
 <div class="app">
@@ -503,9 +694,9 @@ const TURMAS = [
     grupo: "Español",
     cat: "Español",
     turmas: [
-      { nome: "Español 1.1", horario: "Segunda · 18h00 às 20h15", dias: [1], inicio: '18:00', fim: '20:15', teacher: "Raquel Corvello", nivel: "", sala: "Sala 3", link: "https://zoom.us/j/COLE_ESP1_1" },
-      { nome: "Español 1.2", horario: "Ter e Qui · 10h00 às 11h00", dias: [2,4], inicio: '10:00', fim: '11:00', teacher: "Larissa Silva", nivel: "", sala: "Sala 3", link: "https://zoom.us/j/COLE_ESP1_2" },
-      { nome: "Español VIP 1.1", horario: "Seg, Qui e Sex · 18h00 às 19h00", dias: [1,4,5], inicio: '18:00', fim: '19:00', teacher: "Larissa Silva", nivel: "", sala: "", link: "https://zoom.us/j/COLE_ESPVIP1_1" },
+      { nome: "Español 1.1", horario: "Segunda · 18h00 às 20h15", dias: [1], inicio: '18:00', fim: '20:15', teacher: "Raquel Corvello", nivel: "Básico", sala: "Sala 3", link: "https://zoom.us/j/COLE_ESP1_1" },
+      { nome: "Español 1.2", horario: "Ter e Qui · 10h00 às 11h00", dias: [2,4], inicio: '10:00', fim: '11:00', teacher: "Larissa Silva", nivel: "Básico", sala: "Sala 3", link: "https://zoom.us/j/COLE_ESP1_2" },
+      { nome: "Español VIP 1.1", horario: "Seg, Qui e Sex · 18h00 às 19h00", dias: [1,4,5], inicio: '18:00', fim: '19:00', teacher: "Larissa Silva", nivel: "Básico", sala: "", link: "https://zoom.us/j/COLE_ESPVIP1_1" },
     ]
   },
 ];
@@ -559,9 +750,12 @@ function norm(s){ return (s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]
 
 function fmtAbre(t, st){
   const hora = fmtHora(t.inicio);
-  if(st.tipo==='soon'||st.tipo==='breve') return 'Abre '+hora;
-  const prox = proximoDia(t.dias, nowBR().getDay());
-  return 'Abre '+prox.replace('Amanhã','amanhã')+' '+hora;
+  if(st.tipo==='soon'||st.tipo==='breve') return hora;
+  // próximo dia em abreviação curta (3 chars)
+  const ABREV3=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  const hoje = nowBR().getDay();
+  for(let i=1;i<=7;i++){const d=(hoje+i)%7;if(t.dias.includes(d)){const ab=i===1?'Amanhã':ABREV3[d];return ab+' '+hora;}}
+  return hora;
 }
 function turmaCard(t, status){
   const live = status.tipo==='live';
@@ -642,7 +836,7 @@ function render(){
   // Banner de convite (quem ainda não escolheu turma)
   let bannerHTML='';
   if(!minhaTurma && !buscando){
-    bannerHTML = `<div class="convite"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.1 8.6 22 9.3 17 14.1 18.2 21 12 17.5 5.8 21 7 14.1 2 9.3 8.9 8.6 12 2"/></svg><span>Selecione a <b>estrela</b> próxima ao link da turma, assim você poderá acessar diretamente nas próximas aulas</span></div>`;
+    bannerHTML = `<div class="convite"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.1 8.6 22 9.3 17 14.1 18.2 21 12 17.5 5.8 21 7 14.1 2 9.3 8.9 8.6 12 2"/></svg><span>Selecione a <b>estrela</b> próxima ao link da turma. Assim, você poderá acessar o link diretamente nas próximas aulas.</span></div>`;
   }
 
   // Por padrão mostra só as turmas de hoje
@@ -804,7 +998,7 @@ document.getElementById('btnFont').addEventListener('click',()=>{ fonteIdx=(font
 
 // ===== ACESSO INTERNO =====
 document.getElementById('btnInterno').addEventListener('click',()=>{
-  alert('CUIDADO! ÁREA RESTRITA.');
+  document.getElementById('internoOverlay').classList.add('open');
 });
 
 // ===== INIT =====
@@ -819,7 +1013,394 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
   setInterval(render, 60000);
 })();
 </script>
-</body>
-</html>
+
+<!-- ===== HTML DA ABA INTERNA ===== -->
+<div class="interno-overlay" id="internoOverlay">
+  <div class="interno-header">
+    <button class="interno-fechar" id="internoFechar" title="Fechar">✕</button>
+    <h2>Equiparações &amp; Nivelamento · 2026/1</h2>
+    <button class="int-btn int-btn-reload" id="btnReload" style="margin-left:auto">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M21 12a9 9 0 1 1-2.64-6.36L21 3v6h-6"/></svg>
+      Atualizar
+    </button>
+  </div>
+
+  <div class="interno-body" id="loginBox">
+    <div class="login-box">
+      <h3>Área Interna</h3>
+      <p>Digite a senha de acesso para continuar</p>
+      <input class="login-input" type="password" id="loginInput" placeholder="Senha" autocomplete="off">
+      <button class="login-btn" id="loginBtn">Entrar</button>
+      <div class="login-erro" id="loginErro">Senha incorreta</div>
+    </div>
+  </div>
+
+  <div class="interno-body" id="painelBox" style="display:none">
+    <div class="int-actions">
+      <button class="int-btn int-btn-novo" id="btnNovoAgendamento">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="14" height="14"><path d="M12 5v14M5 12h14"/></svg>
+        Novo agendamento
+      </button>
+    </div>
+    <div class="int-filtros">
+      <select class="int-select" id="filtroTeacher"><option value="">Todos os Teachers</option></select>
+      <select class="int-select" id="filtroStatus">
+        <option value="">Todos os Status</option>
+        <option>Agendado</option><option>Realizado</option><option>Cancelado</option>
+        <option>Remarcado</option><option>Faltou</option>
+      </select>
+      <select class="int-select" id="filtroAba"><option value="">Todas as abas</option></select>
+      <input class="int-search" type="text" id="filtroAluno" placeholder="Buscar aluno...">
+    </div>
+    <div class="int-table-wrap">
+      <div class="int-loading" id="intLoading"><div class="int-spinner"></div>Carregando dados da planilha...</div>
+      <table class="int-table" id="intTable" style="display:none">
+        <thead>
+          <tr>
+            <th>Aluno</th><th>Data</th><th>Horário</th><th>Teacher</th>
+            <th>Turma</th><th>Lessons</th><th>Situation</th>
+            <th>Status</th><th>Ag. por</th><th></th>
+          </tr>
+        </thead>
+        <tbody id="intTbody"></tbody>
+      </table>
+      <div class="int-loading" id="intVazio" style="display:none">Nenhum registro encontrado</div>
+    </div>
+  </div>
+</div>
+
+<!-- Drawer -->
+<div class="drawer-overlay" id="drawerOverlay">
+  <div class="drawer">
+    <h3 id="drawerTitulo">Novo agendamento</h3>
+    <input type="hidden" id="dLinha">
+    <input type="hidden" id="dAbaHidden">
+    <div class="drawer-grid">
+      <div class="full">
+        <label class="field-label">Aba (Teacher equiparador)</label>
+        <select class="field-select" id="dAba"></select>
+      </div>
+      <div class="full">
+        <label class="field-label">Aluno</label>
+        <input class="field-input" id="dAluno" placeholder="Nome completo do aluno">
+      </div>
+      <div>
+        <label class="field-label">Data</label>
+        <input class="field-input" type="date" id="dData">
+      </div>
+      <div>
+        <label class="field-label">Horário</label>
+        <input class="field-input" id="dHorario" placeholder="Ex: 15:30">
+      </div>
+      <div>
+        <label class="field-label">Teacher da turma</label>
+        <input class="field-input" id="dTchTurma" placeholder="Ex: Teacher Lays">
+      </div>
+      <div>
+        <label class="field-label">Turma</label>
+        <input class="field-input" id="dTurma" placeholder="Ex: T2.1">
+      </div>
+      <div>
+        <label class="field-label">Lessons</label>
+        <input class="field-input" id="dLessons" placeholder="Ex: L4 e L5">
+      </div>
+      <div>
+        <label class="field-label">Situation</label>
+        <input class="field-input" id="dSituation" placeholder="Ex: HOMEWORK">
+      </div>
+      <div>
+        <label class="field-label">Pendente</label>
+        <input class="field-input" id="dPendente" placeholder="Ex: OK">
+      </div>
+      <div>
+        <label class="field-label">Formato</label>
+        <select class="field-select" id="dFormato">
+          <option value="">—</option><option>Equiparação</option><option>Apoio</option><option>Nivelamento</option>
+        </select>
+      </div>
+      <div>
+        <label class="field-label">Híbrido</label>
+        <select class="field-select" id="dHibrido">
+          <option value="">—</option><option>Presencial</option><option>Online</option><option>Híbrido</option>
+        </select>
+      </div>
+      <div>
+        <label class="field-label">Status</label>
+        <select class="field-select" id="dStatus">
+          <option value="">—</option><option>Agendado</option><option>Realizado</option>
+          <option>Cancelado</option><option>Remarcado</option><option>Faltou</option>
+        </select>
+      </div>
+      <div>
+        <label class="field-label">Agendado por</label>
+        <select class="field-select" id="dAgendado">
+          <option value="">—</option><option>Pedro</option><option>Camila</option><option>Fran</option><option>Lays</option>
+        </select>
+      </div>
+    </div>
+    <div class="drawer-actions">
+      <button class="drawer-btn-cancel" id="drawerCancelar">Cancelar</button>
+      <button class="drawer-btn-salvar" id="drawerSalvar">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== SISTEMA INTERNO =====
+// Cole aqui a URL do seu Apps Script após implantar
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwlBiGUHhielzG9_4NE89dciok0RpJ3hCWAt1VWQo7Rs0DoZZVbWC5QDTHxQxVXrQ4e/exec";
+const SENHA_PAINEL = "ccaa2026"; // mesma do Apps Script
+
+const ABAS_DISPONIVEIS = [
+  "Valquíria: SEGUNDA-FEIRA - Sala 7",
+  "Eduarda: SEGUNDA-FEIRA - Sala 2",
+  "Laura: SEGUNDA-FEIRA - Sala 13",
+  "Laura: TERÇA-FEIRA - Sala 2",
+  "Tânia: TERÇA-FEIRA - Sala 2",
+  "Laura: QUARTA-FEIRA - Sala 2",
+  "Valquíria: QUARTA-FEIRA - Sala 13",
+  "OFF Laura: QUINTA-FEIRA - Sala 8",
+  "Laura: SEXTA-FEIRA - Sala 2",
+];
+
+let todosRegistros = [];
+let logado = false;
+
+// Toast
+function toast(msg, tipo='ok'){
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast show ' + tipo;
+  clearTimeout(el._t);
+  el._t = setTimeout(()=>{ el.className='toast'; }, 3000);
+}
+
+// Fechar interno
+document.getElementById('internoFechar').addEventListener('click', ()=>{
+  document.getElementById('internoOverlay').classList.remove('open');
+});
+
+// Login
+document.getElementById('loginBtn').addEventListener('click', fazerLogin);
+document.getElementById('loginInput').addEventListener('keydown', e=>{ if(e.key==='Enter') fazerLogin(); });
+function fazerLogin(){
+  const val = document.getElementById('loginInput').value;
+  if(val === SENHA_PAINEL){
+    logado = true;
+    document.getElementById('loginBox').style.display = 'none';
+    document.getElementById('painelBox').style.display = 'block';
+    popularAbas();
+    carregarDados();
+  } else {
+    document.getElementById('loginErro').style.display = 'block';
+    document.getElementById('loginInput').value = '';
+  }
+}
+
+// Popular selects de aba
+function popularAbas(){
+  const selFiltro = document.getElementById('filtroAba');
+  const selDrawer = document.getElementById('dAba');
+  ABAS_DISPONIVEIS.forEach(a => {
+    selFiltro.innerHTML += `<option value="${a}">${a}</option>`;
+    selDrawer.innerHTML += `<option value="${a}">${a}</option>`;
+  });
+}
+
+// Carregar dados da planilha
+async function carregarDados(){
+  document.getElementById('intLoading').style.display = 'block';
+  document.getElementById('intTable').style.display = 'none';
+  document.getElementById('intVazio').style.display = 'none';
+
+  if(SCRIPT_URL === 'COLE_AQUI_A_URL_DO_APPS_SCRIPT'){
+    // Modo demo — mostra dados de exemplo
+    todosRegistros = [
+      { id:'demo||4', aba:'Eduarda: SEGUNDA-FEIRA - Sala 2', linha:4, aluno:'Benicio Menchanca', dia:'Segunda-feira', horario:'16:30', data:'13/04/2026', teacher:'Teacher Eduarda', tchTurma:'Teacher Igor', turma:'T2.1', lessons:'L2', situation:'TODA', pendente:'OK', formato:'Equiparação', hibrido:'Presencial', status:'Realizado', agendado:'Fran' },
+      { id:'demo||5', aba:'Eduarda: SEGUNDA-FEIRA - Sala 2', linha:5, aluno:'Washington Pereira Jr.', dia:'Segunda-feira', horario:'17:00', data:'13/04/2026', teacher:'Teacher Eduarda', tchTurma:'Teacher Igor', turma:'A3.1', lessons:'L3', situation:'S1, S2, S3', pendente:'OK', formato:'Equiparação', hibrido:'Presencial', status:'Realizado', agendado:'Fran' },
+      { id:'demo||7', aba:'Valquíria: SEGUNDA-FEIRA - Sala 7', linha:7, aluno:'Raquel Corvello', dia:'Segunda-feira', horario:'17:00', data:'01/06/2026', teacher:'Teacher Valquíria', tchTurma:'Teacher Valquíria', turma:'A1.2', lessons:'5', situation:'$1,$2,$3', pendente:'', formato:'Equiparação', hibrido:'Presencial', status:'Agendado', agendado:'Camila' },
+      { id:'demo||10', aba:'Laura: SEGUNDA-FEIRA - Sala 13', linha:10, aluno:'Helena Chiattone', dia:'Segunda-feira', horario:'15:30', data:'18/05/2026', teacher:'Teacher Laura', tchTurma:'Teacher Lays', turma:'T2.1', lessons:'L4 e L5', situation:'TODAS', pendente:'OK', formato:'Apoio', hibrido:'Presencial', status:'Realizado', agendado:'Pedro' },
+    ];
+    renderTabela();
+    return;
+  }
+
+  try {
+    const url = `${SCRIPT_URL}?action=listar&senha=${encodeURIComponent(SENHA_PAINEL)}`;
+    const resp = await fetch(url);
+    const json = await resp.json();
+    if(!json.ok) throw new Error(json.erro);
+    todosRegistros = json.dados;
+    renderTabela();
+    popularFiltroTeacher();
+  } catch(e){
+    document.getElementById('intLoading').style.display = 'none';
+    toast('Erro ao carregar: ' + e.message, 'erro');
+  }
+}
+
+// Popular filtro de teacher com base nos dados
+function popularFiltroTeacher(){
+  const sel = document.getElementById('filtroTeacher');
+  const teachers = [...new Set(todosRegistros.map(r=>r.teacher).filter(Boolean))].sort();
+  teachers.forEach(t => { sel.innerHTML += `<option value="${t}">${t}</option>`; });
+}
+
+// Renderizar tabela com filtros
+function renderTabela(){
+  document.getElementById('intLoading').style.display = 'none';
+  const teacher = document.getElementById('filtroTeacher').value;
+  const status  = document.getElementById('filtroStatus').value;
+  const aba     = document.getElementById('filtroAba').value;
+  const aluno   = (document.getElementById('filtroAluno').value||'').toLowerCase();
+
+  let filtrado = todosRegistros.filter(r=>{
+    if(teacher && r.teacher !== teacher) return false;
+    if(status  && r.status.toLowerCase() !== status.toLowerCase()) return false;
+    if(aba     && r.aba !== aba) return false;
+    if(aluno   && !r.aluno.toLowerCase().includes(aluno)) return false;
+    return true;
+  });
+
+  // Ordenar por data desc
+  filtrado.sort((a,b)=>{
+    const toMs = s => { if(!s) return 0; const [d,m,y]=s.split('/'); return new Date(`${y}-${m}-${d}`).getTime(); };
+    return toMs(b.data) - toMs(a.data);
+  });
+
+  const tbody = document.getElementById('intTbody');
+  if(!filtrado.length){
+    document.getElementById('intTable').style.display = 'none';
+    document.getElementById('intVazio').style.display = 'block';
+    return;
+  }
+
+  document.getElementById('intTable').style.display = 'table';
+  document.getElementById('intVazio').style.display = 'none';
+
+  tbody.innerHTML = filtrado.map(r => {
+    const badgeClass = {
+      'realizado':'badge-realizado','agendado':'badge-agendado',
+      'cancelado':'badge-cancelado','remarcado':'badge-remarcado','faltou':'badge-faltou'
+    }[r.status.toLowerCase()] || 'badge-default';
+    return `<tr>
+      <td><b>${r.aluno}</b></td>
+      <td>${r.data}</td>
+      <td>${r.horario}</td>
+      <td style="font-size:11.5px;color:var(--text-dim)">${r.teacher}</td>
+      <td>${r.turma}</td>
+      <td>${r.lessons}</td>
+      <td style="font-size:11.5px">${r.situation}</td>
+      <td><span class="badge ${badgeClass}">${r.status||'—'}</span></td>
+      <td style="font-size:11.5px;color:var(--text-dim)">${r.agendado}</td>
+      <td>
+        <button class="row-btn" onclick="abrirDrawer(${JSON.stringify(r).replace(/"/g,'&quot;')})">✏️</button>
+        <button class="row-btn del" onclick="excluirRegistro('${r.aba.replace(/'/g,"\\'")}',${r.linha})">🗑️</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+// Filtros em tempo real
+['filtroTeacher','filtroStatus','filtroAba','filtroAluno'].forEach(id=>{
+  document.getElementById(id).addEventListener('input', renderTabela);
+  document.getElementById(id).addEventListener('change', renderTabela);
+});
+
+// Reload
+document.getElementById('btnReload').addEventListener('click', carregarDados);
+
+// ===== DRAWER =====
+function abrirDrawer(r){
+  document.getElementById('drawerTitulo').textContent = r ? 'Editar agendamento' : 'Novo agendamento';
+  document.getElementById('dLinha').value   = r ? r.linha : '';
+  document.getElementById('dAba').value     = r ? r.aba : ABAS_DISPONIVEIS[0];
+  document.getElementById('dAluno').value   = r ? r.aluno : '';
+  // Converter data dd/MM/yyyy para yyyy-MM-dd
+  if(r && r.data){
+    const p = r.data.split('/');
+    document.getElementById('dData').value = p.length===3 ? `${p[2]}-${p[1]}-${p[0]}` : '';
+  } else { document.getElementById('dData').value = ''; }
+  document.getElementById('dHorario').value   = r ? r.horario : '';
+  document.getElementById('dTchTurma').value  = r ? r.tchTurma : '';
+  document.getElementById('dTurma').value     = r ? r.turma : '';
+  document.getElementById('dLessons').value   = r ? r.lessons : '';
+  document.getElementById('dSituation').value = r ? r.situation : '';
+  document.getElementById('dPendente').value  = r ? r.pendente : '';
+  document.getElementById('dFormato').value   = r ? r.formato : '';
+  document.getElementById('dHibrido').value   = r ? r.hibrido : '';
+  document.getElementById('dStatus').value    = r ? r.status : '';
+  document.getElementById('dAgendado').value  = r ? r.agendado : '';
+  document.getElementById('drawerOverlay').classList.add('open');
+}
+
+document.getElementById('btnNovoAgendamento').addEventListener('click', ()=> abrirDrawer(null));
+document.getElementById('drawerCancelar').addEventListener('click', ()=>{
+  document.getElementById('drawerOverlay').classList.remove('open');
+});
+document.getElementById('drawerOverlay').addEventListener('click', e=>{
+  if(e.target.id==='drawerOverlay') document.getElementById('drawerOverlay').classList.remove('open');
+});
+
+document.getElementById('drawerSalvar').addEventListener('click', async ()=>{
+  const dataVal = document.getElementById('dData').value;
+  let dataFormatada = '';
+  if(dataVal){ const [y,m,d]=dataVal.split('-'); dataFormatada=`${d}/${m}/${y}`; }
+
+  const params = {
+    action:'salvar', senha:SENHA_PAINEL,
+    aba:      document.getElementById('dAba').value,
+    linha:    document.getElementById('dLinha').value,
+    aluno:    document.getElementById('dAluno').value,
+    data:     dataFormatada,
+    horario:  document.getElementById('dHorario').value,
+    tchTurma: document.getElementById('dTchTurma').value,
+    turma:    document.getElementById('dTurma').value,
+    lessons:  document.getElementById('dLessons').value,
+    situation:document.getElementById('dSituation').value,
+    pendente: document.getElementById('dPendente').value,
+    formato:  document.getElementById('dFormato').value,
+    hibrido:  document.getElementById('dHibrido').value,
+    status:   document.getElementById('dStatus').value,
+    agendado: document.getElementById('dAgendado').value,
+  };
+
+  if(SCRIPT_URL === 'COLE_AQUI_A_URL_DO_APPS_SCRIPT'){
+    toast('Configure o SCRIPT_URL para salvar na planilha', 'erro'); return;
+  }
+
+  try {
+    const qs = new URLSearchParams(params).toString();
+    const resp = await fetch(`${SCRIPT_URL}?${qs}`);
+    const json = await resp.json();
+    if(!json.ok) throw new Error(json.erro);
+    document.getElementById('drawerOverlay').classList.remove('open');
+    toast('Salvo com sucesso ✓');
+    await carregarDados();
+  } catch(e){
+    toast('Erro ao salvar: ' + e.message, 'erro');
+  }
+});
+
+// Excluir
+async function excluirRegistro(aba, linha){
+  if(!confirm('Excluir este agendamento da planilha?')) return;
+  if(SCRIPT_URL === 'COLE_AQUI_A_URL_DO_APPS_SCRIPT'){
+    toast('Configure o SCRIPT_URL para excluir da planilha', 'erro'); return;
+  }
+  try {
+    const url = `${SCRIPT_URL}?action=excluir&senha=${encodeURIComponent(SENHA_PAINEL)}&aba=${encodeURIComponent(aba)}&linha=${linha}`;
+    const resp = await fetch(url);
+    const json = await resp.json();
+    if(!json.ok) throw new Error(json.erro);
+    toast('Excluído ✓');
+    await carregarDados();
+  } catch(e){
+    toast('Erro ao excluir: ' + e.message, 'erro');
+  }
+}
+</script>
 </body>
 </html>
