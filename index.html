@@ -1050,18 +1050,23 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
         <option>Remarcado</option><option>Faltou</option>
       </select>
       <select class="int-select" id="filtroAba"><option value="">Todas as abas</option></select>
+      <select class="int-select" id="filtroFormato">
+        <option value="">Todos os Formatos</option>
+        <option>Equiparação</option><option>Apoio</option><option>Nivelamento</option><option>Prova</option>
+      </select>
       <input class="int-select" type="date" id="filtroData" title="Filtrar por data" style="min-width:150px">
       <input class="int-search" type="text" id="filtroAluno" placeholder="Buscar aluno...">
       <button class="int-btn int-btn-reload" id="btnLimparFiltros" type="button" title="Limpar filtros">Limpar</button>
     </div>
     <div id="slotsLivres" style="display:none; margin-bottom:14px; padding:12px 14px; background:color-mix(in srgb, var(--live) 8%, var(--surface)); border:1.5px solid color-mix(in srgb, var(--live) 30%, transparent); border-radius:var(--r-md); font-size:13px;"></div>
+    <div id="barraSemana" class="hoje-bar" style="display:none"></div>
     <div class="int-table-wrap">
       <div class="int-loading" id="intLoading"><div class="int-spinner"></div>Carregando dados da planilha...</div>
       <table class="int-table" id="intTable" style="display:none">
         <thead>
           <tr>
-            <th>Aluno</th><th>Data</th><th>Horário</th><th>Teacher</th>
-            <th>Turma</th><th>Lessons</th><th>Situation</th>
+            <th>Aluno</th><th>Data</th><th>Horário</th><th>Teacher turma</th>
+            <th>Turma</th><th>Lessons</th><th>Formato</th>
             <th>Status</th><th>Ag. por</th><th></th>
           </tr>
         </thead>
@@ -1103,7 +1108,8 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
       </div>
       <div>
         <label class="field-label">Turma</label>
-        <input class="field-input" id="dTurma" placeholder="Ex: T2.1">
+        <input class="field-input" id="dTurma" list="listaTurmas" placeholder="Ex: T2.1, A1.3, 5.4">
+        <datalist id="listaTurmas"></datalist>
       </div>
       <div>
         <label class="field-label">Lessons</label>
@@ -1118,15 +1124,15 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
         <input class="field-input" id="dPendente" placeholder="Ex: OK">
       </div>
       <div>
-        <label class="field-label">Formato</label>
+        <label class="field-label">Formato *</label>
         <select class="field-select" id="dFormato">
-          <option value="">—</option><option>Equiparação</option><option>Apoio</option><option>Nivelamento</option>
+          <option value="">— selecione —</option><option>Equiparação</option><option>Apoio</option><option>Nivelamento</option><option>Prova</option>
         </select>
       </div>
       <div>
-        <label class="field-label">Híbrido</label>
+        <label class="field-label">Modalidade</label>
         <select class="field-select" id="dHibrido">
-          <option value="">—</option><option>Presencial</option><option>Online</option><option>Híbrido</option>
+          <option value="">—</option><option>Presencial</option><option>Online</option>
         </select>
       </div>
       <div>
@@ -1155,7 +1161,7 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
 <script>
 // ===== SISTEMA INTERNO =====
 // Cole aqui a URL do seu Apps Script após implantar
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyX_F1d8LabQ4IOwz6Vr665j8iDR6k6iTIM5RpImQ0KexkY-N6nGSInoTMxJVUszr7m/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx0w2gx-KanljVZZTBoisyy4DHbd2Lkj9JBGaUb3jDp4IMXWwKvFLS2L1bQGl79fZg/exec";
 
 // JSONP — bypassa CORS do Apps Script sem backend
 let _jsonpCount = 0;
@@ -1289,6 +1295,7 @@ async function carregarDados(silencioso){
     (json) => {
       if(!json.ok){ document.getElementById('intLoading').style.display='none'; toast('Erro: '+json.erro,'erro'); return; }
       todosRegistros = json.dados;
+      popularTurmas();
       renderTabela();
     },
     () => { document.getElementById('intLoading').style.display='none'; toast('Erro ao carregar dados da planilha','erro'); }
@@ -1309,8 +1316,43 @@ function popularFiltroTeacher(){
   teacherFiltroPopulado = true;
 }
 
+// Popular datalist de turmas com as que já existem nos registros
+function popularTurmas(){
+  const dl = document.getElementById('listaTurmas');
+  if(!dl) return;
+  const turmas = [...new Set(todosRegistros.map(r=>r.turma).filter(Boolean))].sort();
+  dl.innerHTML = turmas.map(t=>`<option value="${t}">`).join('');
+}
+
 // Converte dd/MM/yyyy -> yyyy-MM-dd
 function dataBRtoISO(s){ if(!s) return ''; const p=s.split('/'); return p.length===3?`${p[2]}-${p[1]}-${p[0]}`:''; }
+
+// Nome + no máximo 1 sobrenome
+function nomeCurto(nome){
+  const p = (nome||'').trim().split(/\s+/);
+  return p.length<=1 ? (p[0]||'') : p[0]+' '+p[1];
+}
+// Dia da semana a partir de dd/MM/yyyy
+const DIAS_SEMANA = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+function diaDaData(dataBR){
+  const iso = dataBRtoISO(dataBR);
+  if(!iso) return '';
+  const [y,m,d] = iso.split('-');
+  const dt = new Date(+y, +m-1, +d);
+  return isNaN(dt) ? '' : DIAS_SEMANA[dt.getDay()];
+}
+// ms a partir de dd/MM/yyyy (para ordenar)
+function dataMs(s){ const iso=dataBRtoISO(s); return iso ? new Date(iso).getTime() : 0; }
+// Está dentro da semana atual (segunda a domingo)?
+function dentroDaSemana(dataBR){
+  const iso = dataBRtoISO(dataBR); if(!iso) return false;
+  const hoje = new Date(); hoje.setHours(0,0,0,0);
+  const diaSem = hoje.getDay()===0 ? 7 : hoje.getDay(); // 1=seg..7=dom
+  const ini = new Date(hoje); ini.setDate(hoje.getDate() - (diaSem-1));
+  const fim = new Date(ini); fim.setDate(ini.getDate()+6); fim.setHours(23,59,59,999);
+  const d = new Date(iso);
+  return d >= ini && d <= fim;
+}
 
 // Status que ocupam um slot (não bloqueiam: Cancelado)
 function ocupaSlot(status){
@@ -1318,32 +1360,38 @@ function ocupaSlot(status){
   return s !== 'cancelado' && s !== '';
 }
 
+let verTudoInterno = false; // false = só esta semana
+
 // Renderizar tabela com filtros
 function renderTabela(){
   document.getElementById('intLoading').style.display = 'none';
   const teacher = document.getElementById('filtroTeacher').value;
   const status  = document.getElementById('filtroStatus').value;
   const aba     = document.getElementById('filtroAba').value;
-  const dataISO = document.getElementById('filtroData').value; // yyyy-MM-dd
+  const formato = document.getElementById('filtroFormato').value;
+  const dataISO = document.getElementById('filtroData').value;
   const aluno   = (document.getElementById('filtroAluno').value||'').toLowerCase();
+  const buscandoAluno = !!aluno;
+  // Se há qualquer filtro ativo, ignora o recorte de semana
+  const temFiltro = teacher || status || aba || formato || dataISO || buscandoAluno;
 
   let filtrado = todosRegistros.filter(r=>{
     if(teacher && r.teacher !== teacher && r.tchTurma !== teacher) return false;
     if(status  && r.status.toLowerCase() !== status.toLowerCase()) return false;
     if(aba     && r.aba !== aba) return false;
+    if(formato && r.formato.toLowerCase() !== formato.toLowerCase()) return false;
     if(dataISO && dataBRtoISO(r.data) !== dataISO) return false;
     if(aluno   && !r.aluno.toLowerCase().includes(aluno)) return false;
+    // Recorte de semana só quando sem filtro e sem "ver tudo"
+    if(!temFiltro && !verTudoInterno && !dentroDaSemana(r.data)) return false;
     return true;
   });
 
-  // Painel de slots livres: só quando aba E data estão selecionadas
   renderSlotsLivres(aba, dataISO);
+  renderBarraSemana(temFiltro, filtrado.length);
 
-  // Ordenar por data desc
-  filtrado.sort((a,b)=>{
-    const toMs = s => { if(!s) return 0; const [d,m,y]=s.split('/'); return new Date(`${y}-${m}-${d}`).getTime(); };
-    return toMs(b.data) - toMs(a.data);
-  });
+  // Ordenação: buscando aluno = crescente (antigas->futuras); senão decrescente
+  filtrado.sort((a,b)=> buscandoAluno ? dataMs(a.data)-dataMs(b.data) : dataMs(b.data)-dataMs(a.data));
 
   const tbody = document.getElementById('intTbody');
   if(!filtrado.length){
@@ -1360,16 +1408,17 @@ function renderTabela(){
       'realizado':'badge-realizado','agendado':'badge-agendado',
       'cancelado':'badge-cancelado','remarcado':'badge-remarcado','faltou':'badge-faltou'
     }[r.status.toLowerCase()] || 'badge-default';
+    const dia = diaDaData(r.data);
     return `<tr>
-      <td><b>${r.aluno}</b></td>
-      <td>${r.data}</td>
+      <td><b>${nomeCurto(r.aluno)}</b></td>
+      <td>${r.data}${dia?`<br><span style="font-size:10.5px;color:var(--text-dim)">${dia}</span>`:''}</td>
       <td>${r.horario}</td>
-      <td style="font-size:11.5px;color:var(--text-dim)">${r.teacher}</td>
-      <td>${r.turma}</td>
+      <td style="font-size:11.5px;color:var(--text-dim)">${r.tchTurma||r.teacher}</td>
+      <td><b style="color:var(--ccaa-blue)">${r.turma}</b></td>
       <td>${r.lessons}</td>
-      <td style="font-size:11.5px">${r.situation}</td>
+      <td>${r.formato?`<span style="font-size:11px;font-weight:700">${r.formato}</span>`:'—'}</td>
       <td><span class="badge ${badgeClass}">${r.status||'—'}</span></td>
-      <td style="font-size:11.5px;color:var(--text-dim)">${r.agendado}</td>
+      <td style="font-size:11.5px;color:var(--text-dim)">${r.agendado||'—'}</td>
       <td>
         <button class="row-btn" onclick="abrirDrawer(${JSON.stringify(r).replace(/"/g,'&quot;')})">✏️</button>
         <button class="row-btn del" onclick="excluirRegistro('${r.aba.replace(/'/g,"\\'")}',${r.linha})">🗑️</button>
@@ -1377,6 +1426,24 @@ function renderTabela(){
     </tr>`;
   }).join('');
 }
+
+// Barra "esta semana / ver tudo"
+function renderBarraSemana(temFiltro, qtd){
+  const el = document.getElementById('barraSemana');
+  if(!el) return;
+  if(temFiltro){ el.style.display='none'; return; }
+  el.style.display='flex';
+  if(verTudoInterno){
+    el.innerHTML = `<span class="hoje-info">Mostrando <b>todos</b> os agendamentos (${qtd})</span>
+      <button class="hoje-btn" id="btnSemanaToggle">Ver só esta semana</button>`;
+  } else {
+    el.innerHTML = `<span class="hoje-info"><span class="dot dot-soon"></span>Mostrando <b>esta semana</b> (${qtd})</span>
+      <button class="hoje-btn" id="btnSemanaToggle">Ver todos os agendamentos</button>`;
+  }
+  const b = document.getElementById('btnSemanaToggle');
+  if(b) b.onclick = ()=>{ verTudoInterno=!verTudoInterno; renderTabela(); };
+}
+
 
 // Calcula slots ocupados de uma aba numa data (dd/MM/yyyy)
 function slotsOcupados(aba, dataBR){
@@ -1416,7 +1483,7 @@ function renderSlotsLivres(aba, dataISO){
 }
 
 // Filtros em tempo real
-['filtroTeacher','filtroStatus','filtroAba','filtroData','filtroAluno'].forEach(id=>{
+['filtroTeacher','filtroStatus','filtroAba','filtroFormato','filtroData','filtroAluno'].forEach(id=>{
   document.getElementById(id).addEventListener('input', renderTabela);
   document.getElementById(id).addEventListener('change', renderTabela);
 });
@@ -1426,6 +1493,7 @@ document.getElementById('btnLimparFiltros').addEventListener('click', ()=>{
   document.getElementById('filtroTeacher').value = '';
   document.getElementById('filtroStatus').value = '';
   document.getElementById('filtroAba').value = '';
+  document.getElementById('filtroFormato').value = '';
   document.getElementById('filtroData').value = '';
   document.getElementById('filtroAluno').value = '';
   renderTabela();
@@ -1521,6 +1589,16 @@ document.getElementById('drawerSalvar').addEventListener('click', async ()=>{
   let dataFormatada = '';
   if(dataVal){ const [y,m,d]=dataVal.split('-'); dataFormatada=`${d}/${m}/${y}`; }
 
+  // Formato é obrigatório
+  const formato = document.getElementById('dFormato').value;
+  if(!formato){ toast('Selecione o Formato (Equiparação, Apoio, Nivelamento ou Prova)','erro'); return; }
+
+  // Mescla Lessons + Situation: se uma vazia, replica a outra
+  let lessons   = document.getElementById('dLessons').value.trim();
+  let situation = document.getElementById('dSituation').value.trim();
+  if(lessons && !situation) situation = lessons;
+  else if(situation && !lessons) lessons = situation;
+
   const params = {
     action:'salvar', senha:SENHA_PAINEL,
     aba:      document.getElementById('dAba').value,
@@ -1530,10 +1608,10 @@ document.getElementById('drawerSalvar').addEventListener('click', async ()=>{
     horario:  document.getElementById('dHorario').value,
     tchTurma: document.getElementById('dTchTurma').value,
     turma:    document.getElementById('dTurma').value,
-    lessons:  document.getElementById('dLessons').value,
-    situation:document.getElementById('dSituation').value,
+    lessons:  lessons,
+    situation:situation,
     pendente: document.getElementById('dPendente').value,
-    formato:  document.getElementById('dFormato').value,
+    formato:  formato,
     hibrido:  document.getElementById('dHibrido').value,
     status:   document.getElementById('dStatus').value,
     agendado: document.getElementById('dAgendado').value,
@@ -1575,4 +1653,5 @@ function excluirRegistro(aba, linha){
 }
 </script>
 </body>
+</html>
 </html>
