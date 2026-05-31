@@ -1531,6 +1531,27 @@ function dentroDaSemana(dataBR){
   const d = new Date(iso);
   return d >= ini && d <= fim;
 }
+// data dd/MM/yyyy é hoje?
+function ehHoje(dataBR){
+  const iso = dataBRtoISO(dataBR); if(!iso) return false;
+  const h = new Date(); h.setHours(0,0,0,0);
+  const isoHoje = `${h.getFullYear()}-${String(h.getMonth()+1).padStart(2,'0')}-${String(h.getDate()).padStart(2,'0')}`;
+  return iso === isoHoje;
+}
+// data dd/MM/yyyy é amanhã?
+function ehAmanha(dataBR){
+  const iso = dataBRtoISO(dataBR); if(!iso) return false;
+  const a = new Date(); a.setHours(0,0,0,0); a.setDate(a.getDate()+1);
+  const isoAmanha = `${a.getFullYear()}-${String(a.getMonth()+1).padStart(2,'0')}-${String(a.getDate()).padStart(2,'0')}`;
+  return iso === isoAmanha;
+}
+// Aplica o recorte de tempo atual a uma data
+function noRecorte(dataBR){
+  if(recorteTempo==='hoje')   return ehHoje(dataBR);
+  if(recorteTempo==='amanha') return ehAmanha(dataBR);
+  if(recorteTempo==='semana') return dentroDaSemana(dataBR);
+  return true; // 'todos'
+}
 
 // Status que ocupam um slot (não bloqueiam: Cancelado)
 function ocupaSlot(status){
@@ -1538,7 +1559,8 @@ function ocupaSlot(status){
   return s !== 'cancelado' && s !== '';
 }
 
-let verTudoInterno = false; // false = só esta semana
+let recorteTempo = 'semana'; // 'hoje' | 'amanha' | 'semana' | 'todos'
+let verTudoInterno = false; // mantido p/ compat (todos)
 let ordemAsc = false; // false = mais recentes primeiro
 
 // Monta uma linha <tr>
@@ -1605,39 +1627,41 @@ function renderTabela(){
 
   const tbody = document.getElementById('intTbody');
 
-  // === Sem filtro: separa ESTA SEMANA / ANTERIORES / FUTUROS ===
+  // === Sem filtro: aplica o recorte de tempo selecionado ===
   if(!temFiltro){
-    const semana = filtrado.filter(r=>dentroDaSemana(r.data)).sort(ord);
-    if(!verTudoInterno){
-      if(!semana.length){
+    // 'todos' = duas seções (recorte da semana + fora). hoje/amanha/semana = lista única do recorte
+    if(recorteTempo === 'todos'){
+      const semana = filtrado.filter(r=>dentroDaSemana(r.data)).sort(ord);
+      const fora   = filtrado.filter(r=>!dentroDaSemana(r.data)).sort(ord);
+      if(!filtrado.length){
         document.getElementById('intTable').style.display='none';
         document.getElementById('intVazio').style.display='block';
         return;
       }
       document.getElementById('intTable').style.display='table';
       document.getElementById('intVazio').style.display='none';
-      tbody.innerHTML = semana.map(linhaRegistro).join('');
+      let html = '';
+      if(semana.length){
+        html += `<tr><td colspan="10" style="background:color-mix(in srgb,var(--soon) 14%,var(--surface));color:var(--soon);font-weight:800;font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;padding:8px 12px">Esta semana · ${semana.length}</td></tr>`;
+        html += semana.map(linhaRegistro).join('');
+      }
+      if(fora.length){
+        html += `<tr><td colspan="10" style="background:var(--surface-2);color:var(--text-dim);font-weight:800;font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;padding:8px 12px">Outros agendamentos · ${fora.length}</td></tr>`;
+        html += fora.map(linhaRegistro).join('');
+      }
+      tbody.innerHTML = html;
       return;
     }
-    // Ver tudo: duas seções
-    const fora = filtrado.filter(r=>!dentroDaSemana(r.data)).sort(ord);
-    if(!filtrado.length){
+    // hoje / amanha / semana: lista única filtrada pelo recorte
+    const lista = filtrado.filter(r=>noRecorte(r.data)).sort(ord);
+    if(!lista.length){
       document.getElementById('intTable').style.display='none';
       document.getElementById('intVazio').style.display='block';
       return;
     }
     document.getElementById('intTable').style.display='table';
     document.getElementById('intVazio').style.display='none';
-    let html = '';
-    if(semana.length){
-      html += `<tr><td colspan="10" style="background:color-mix(in srgb,var(--soon) 14%,var(--surface));color:var(--soon);font-weight:800;font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;padding:8px 12px">Esta semana · ${semana.length}</td></tr>`;
-      html += semana.map(linhaRegistro).join('');
-    }
-    if(fora.length){
-      html += `<tr><td colspan="10" style="background:var(--surface-2);color:var(--text-dim);font-weight:800;font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;padding:8px 12px">Outros agendamentos · ${fora.length}</td></tr>`;
-      html += fora.map(linhaRegistro).join('');
-    }
-    tbody.innerHTML = html;
+    tbody.innerHTML = lista.map(linhaRegistro).join('');
     return;
   }
 
@@ -1659,15 +1683,20 @@ function renderBarraSemana(temFiltro){
   if(!el) return;
   if(temFiltro){ el.style.display='none'; return; }
   el.style.display='flex';
-  if(verTudoInterno){
-    el.innerHTML = `<span class="hoje-info">Mostrando <b>todos</b> os agendamentos</span>
-      <button class="hoje-btn" id="btnSemanaToggle">Ver só esta semana</button>`;
-  } else {
-    el.innerHTML = `<span class="hoje-info"><span class="dot dot-soon"></span>Mostrando <b>esta semana</b> (seg → sex)</span>
-      <button class="hoje-btn" id="btnSemanaToggle">Ver todos os agendamentos</button>`;
+  const rotulos = { hoje:'hoje', amanha:'amanhã', semana:'esta semana (seg → sex)', todos:'todos os agendamentos' };
+  el.innerHTML = `
+    <span class="hoje-info"><span class="dot dot-soon"></span>Mostrando <b>${rotulos[recorteTempo]||''}</b></span>
+    <select class="int-select" id="selRecorte" style="min-width:170px">
+      <option value="hoje">Hoje</option>
+      <option value="amanha">Amanhã</option>
+      <option value="semana">Esta semana</option>
+      <option value="todos">Todos os agendamentos</option>
+    </select>`;
+  const sel = document.getElementById('selRecorte');
+  if(sel){
+    sel.value = recorteTempo;
+    sel.onchange = ()=>{ recorteTempo = sel.value; verTudoInterno = (recorteTempo==='todos'); renderTabela(); };
   }
-  const b = document.getElementById('btnSemanaToggle');
-  if(b) b.onclick = ()=>{ verTudoInterno=!verTudoInterno; renderTabela(); };
 }
 
 
@@ -1734,6 +1763,7 @@ document.getElementById('btnLimparFiltros').addEventListener('click', ()=>{
   document.getElementById('filtroDataFim').value = '';
   document.getElementById('filtroAluno').value = '';
   verTudoInterno = false;
+  recorteTempo = 'semana';
   ordemAsc = false;
   document.getElementById('btnOrdem').textContent = 'Data ↓';
   document.getElementById('slotsLivres').style.display = 'none';
