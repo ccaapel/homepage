@@ -1110,7 +1110,7 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
       </div>
       <div>
         <label class="field-label">Teacher da turma</label>
-        <input class="field-input" id="dTchTurma" placeholder="Ex: Teacher Lays">
+        <select class="field-select" id="dTchTurma"></select>
       </div>
       <div>
         <label class="field-label">Turma</label>
@@ -1275,6 +1275,12 @@ function popularAbas(){
     selFiltro.innerHTML += `<option value="${a}">${a}</option>`;
     selDrawer.innerHTML += `<option value="${a}">${a}</option>`;
   });
+  // Teacher da turma (dropdown no drawer)
+  const selTch = document.getElementById('dTchTurma');
+  if(selTch){
+    selTch.innerHTML = '<option value="">— selecione —</option>'
+      + TEACHERS_FIXOS.map(t=>`<option value="${t}">${t}</option>`).join('');
+  }
 }
 
 // Carregar dados da planilha
@@ -1313,8 +1319,23 @@ async function carregarDados(silencioso){
 const TEACHERS_FIXOS = [
   "Teacher Lays","Teacher Laura","Teacher Ana","Teacher Bob","Teacher Beti",
   "Teacher Amanda","Teacher Valquíria","Teacher Marcos","Teacher Giovani",
-  "Teacher Maria","Teacher Tânia","Teacher Eduarda","Teacher Igor"
+  "Teacher Maria","Teacher Tânia","Teacher Tatiana","Teacher Eduarda"
 ];
+// Lista ordenada de turmas para os seletores (T1.1 → ... → livro 11)
+function listaTurmasOrdenada(){
+  const out = [];
+  // T e A: livros 1 a 3, módulos 1 a 6
+  for(const pref of ['T','A']){
+    for(let livro=1; livro<=3; livro++){
+      for(let mod=1; mod<=6; mod++){ out.push(pref+livro+'.'+mod); }
+    }
+  }
+  // Livro 4 ao 11: só número, módulos 1 a 6
+  for(let livro=4; livro<=11; livro++){
+    for(let mod=1; mod<=6; mod++){ out.push(livro+'.'+mod); }
+  }
+  return out;
+}
 let teacherFiltroPopulado = false;
 function popularFiltroTeacher(){
   if(teacherFiltroPopulado) return;
@@ -1323,12 +1344,15 @@ function popularFiltroTeacher(){
   teacherFiltroPopulado = true;
 }
 
-// Popular datalist de turmas com as que já existem nos registros
+// Popular datalist de turmas (lista ordenada fixa + qualquer turma extra dos registros)
 function popularTurmas(){
   const dl = document.getElementById('listaTurmas');
   if(!dl) return;
-  const turmas = [...new Set(todosRegistros.map(r=>r.turma).filter(Boolean))].sort();
-  dl.innerHTML = turmas.map(t=>`<option value="${t}">`).join('');
+  const fixas = listaTurmasOrdenada();
+  // turmas que aparecem nos dados mas não estão na lista fixa (ex: VIP), adiciona no fim
+  const extras = [...new Set(todosRegistros.map(r=>r.turma).filter(Boolean))]
+    .filter(t=>!fixas.includes(t));
+  dl.innerHTML = [...fixas, ...extras].map(t=>`<option value="${t}">`).join('');
 }
 
 // Converte dd/MM/yyyy -> yyyy-MM-dd
@@ -1743,7 +1767,13 @@ function abrirDrawer(r){
     const iso = `${hoje.getFullYear()}-${String(hoje.getMonth()+1).padStart(2,'0')}-${String(hoje.getDate()).padStart(2,'0')}`;
     document.getElementById('dData').value = iso;
   }
-  document.getElementById('dTchTurma').value  = r ? r.tchTurma : '';
+  // Teacher da turma (select): se o valor do registro não existir nas opções, adiciona
+  const selTch = document.getElementById('dTchTurma');
+  const valTch = r ? (r.tchTurma||'') : '';
+  if(valTch && ![...selTch.options].some(o=>o.value===valTch)){
+    selTch.innerHTML += `<option value="${valTch}">${valTch}</option>`;
+  }
+  selTch.value = valTch;
   document.getElementById('dTurma').value     = r ? r.turma : '';
   document.getElementById('dLessons').value   = r ? r.lessons : '';
   document.getElementById('dSituation').value = r ? r.situation : '';
@@ -1863,6 +1893,7 @@ document.getElementById('drawerSalvar').addEventListener('click', async ()=>{
     toast('Configure o SCRIPT_URL para salvar na planilha', 'erro'); return;
   }
 
+  const ehNovo = !document.getElementById('dLinha').value;
   const qs = new URLSearchParams(params).toString();
   jsonpCall(
     `${SCRIPT_URL}?${qs}`,
@@ -1870,6 +1901,28 @@ document.getElementById('drawerSalvar').addEventListener('click', async ()=>{
       if(!json.ok){ toast('Erro ao salvar: '+json.erro,'erro'); return; }
       document.getElementById('drawerOverlay').classList.remove('open');
       toast('Salvo com sucesso ✓');
+
+      // Oferece +30min: só em agendamento NOVO e se houver slot seguinte livre na mesma aba/data
+      if(ehNovo){
+        const todos = HORARIOS_POR_ABA[aba] || [];
+        const idx = todos.indexOf(params.horario);
+        const proximo = (idx>=0 && idx < todos.length-1) ? todos[idx+1] : null;
+        // checa se o próximo slot está livre nessa aba+data
+        const ocupados = todosRegistros
+          .filter(rr => rr.aba===aba && rr.data===dataFormatada && ocupaSlot(rr.status))
+          .map(rr => rr.horario);
+        if(proximo && !ocupados.includes(proximo)){
+          if(confirm(`Agendamento de ${params.horario} salvo.\n\nAdicionar mais 30 min (${proximo}) para ${params.aluno||'o aluno'}?`)){
+            const params2 = Object.assign({}, params, { horario: proximo, linha: '' });
+            const qs2 = new URLSearchParams(params2).toString();
+            jsonpCall(`${SCRIPT_URL}?${qs2}`,
+              (j2)=>{ if(j2.ok){ toast(`+30 min (${proximo}) adicionado ✓`); } else { toast('Erro ao adicionar +30min','erro'); } carregarDados(false); },
+              ()=>{ toast('Erro ao adicionar +30min','erro'); carregarDados(false); }
+            );
+            return;
+          }
+        }
+      }
       carregarDados(false);
     },
     () => toast('Erro ao salvar: sem conexão','erro')
