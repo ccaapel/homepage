@@ -1155,7 +1155,40 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
 <script>
 // ===== SISTEMA INTERNO =====
 // Cole aqui a URL do seu Apps Script após implantar
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyo5uNeMRFkulbdWp_zmQ-gd1DxzugshsDar1WoPTqOFWKQqAxDfq7R6Ft6bwkUw_Pl/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyX_F1d8LabQ4IOwz6Vr665j8iDR6k6iTIM5RpImQ0KexkY-N6nGSInoTMxJVUszr7m/exec";
+
+// JSONP — bypassa CORS do Apps Script sem backend
+let _jsonpCount = 0;
+function jsonpCall(baseUrl, onSuccess, onError){
+  const cbName = '__jsonpCb' + (++_jsonpCount);
+  const timeout = setTimeout(()=>{
+    delete window[cbName];
+    const s = document.getElementById(cbName+'_s');
+    if(s) s.remove();
+    if(onError) onError('timeout');
+  }, 12000);
+
+  window[cbName] = (data) => {
+    clearTimeout(timeout);
+    delete window[cbName];
+    const s = document.getElementById(cbName+'_s');
+    if(s) s.remove();
+    onSuccess(data);
+  };
+
+  const sep = baseUrl.includes('?') ? '&' : '?';
+  const url = `${baseUrl}${sep}callback=${cbName}`;
+  const script = document.createElement('script');
+  script.id = cbName + '_s';
+  script.src = url;
+  script.onerror = ()=>{
+    clearTimeout(timeout);
+    delete window[cbName];
+    script.remove();
+    if(onError) onError('erro no script');
+  };
+  document.head.appendChild(script);
+}
 const SENHA_PAINEL = "ccaa2026"; // mesma do Apps Script
 
 const ABAS_DISPONIVEIS = [
@@ -1211,6 +1244,9 @@ function fazerLogin(){
     document.getElementById('loginBox').style.display = 'none';
     document.getElementById('painelBox').style.display = 'block';
     popularAbas();
+    popularFiltroTeacher();
+    // Filtro de data começa VAZIO para mostrar todos os registros
+    document.getElementById('filtroData').value = '';
     carregarDados();
   } else {
     document.getElementById('loginErro').style.display = 'block';
@@ -1229,10 +1265,12 @@ function popularAbas(){
 }
 
 // Carregar dados da planilha
-async function carregarDados(){
-  document.getElementById('intLoading').style.display = 'block';
-  document.getElementById('intTable').style.display = 'none';
-  document.getElementById('intVazio').style.display = 'none';
+async function carregarDados(silencioso){
+  if(!silencioso){
+    document.getElementById('intLoading').style.display = 'block';
+    document.getElementById('intTable').style.display = 'none';
+    document.getElementById('intVazio').style.display = 'none';
+  }
 
   if(SCRIPT_URL === 'COLE_AQUI_A_URL_DO_APPS_SCRIPT'){
     // Modo demo — mostra dados de exemplo
@@ -1246,18 +1284,15 @@ async function carregarDados(){
     return;
   }
 
-  try {
-    const url = `${SCRIPT_URL}?action=listar&senha=${encodeURIComponent(SENHA_PAINEL)}`;
-    const resp = await fetch(url);
-    const json = await resp.json();
-    if(!json.ok) throw new Error(json.erro);
-    todosRegistros = json.dados;
-    renderTabela();
-    popularFiltroTeacher();
-  } catch(e){
-    document.getElementById('intLoading').style.display = 'none';
-    toast('Erro ao carregar: ' + e.message, 'erro');
-  }
+  jsonpCall(
+    `${SCRIPT_URL}?action=listar&senha=${encodeURIComponent(SENHA_PAINEL)}`,
+    (json) => {
+      if(!json.ok){ document.getElementById('intLoading').style.display='none'; toast('Erro: '+json.erro,'erro'); return; }
+      todosRegistros = json.dados;
+      renderTabela();
+    },
+    () => { document.getElementById('intLoading').style.display='none'; toast('Erro ao carregar dados da planilha','erro'); }
+  );
 }
 
 // Popular filtro de teacher com base nos dados
@@ -1293,7 +1328,7 @@ function renderTabela(){
   const aluno   = (document.getElementById('filtroAluno').value||'').toLowerCase();
 
   let filtrado = todosRegistros.filter(r=>{
-    if(teacher && r.teacher !== teacher) return false;
+    if(teacher && r.teacher !== teacher && r.tchTurma !== teacher) return false;
     if(status  && r.status.toLowerCase() !== status.toLowerCase()) return false;
     if(aba     && r.aba !== aba) return false;
     if(dataISO && dataBRtoISO(r.data) !== dataISO) return false;
@@ -1397,7 +1432,15 @@ document.getElementById('btnLimparFiltros').addEventListener('click', ()=>{
 });
 
 // Reload
-document.getElementById('btnReload').addEventListener('click', carregarDados);
+document.getElementById('btnReload').addEventListener('click', ()=> carregarDados(false));
+
+// Auto-refresh silencioso a cada 30s (pausa se drawer aberto ou se digitando busca)
+setInterval(()=>{
+  if(!logado) return;
+  if(document.getElementById('drawerOverlay').classList.contains('open')) return;
+  if(document.activeElement === document.getElementById('filtroAluno')) return;
+  carregarDados(true);
+}, 30000);
 
 // ===== DRAWER =====
 function abrirDrawer(r){
@@ -1405,11 +1448,15 @@ function abrirDrawer(r){
   document.getElementById('dLinha').value   = r ? r.linha : '';
   document.getElementById('dAba').value     = r ? r.aba : ABAS_DISPONIVEIS[0];
   document.getElementById('dAluno').value   = r ? r.aluno : '';
-  // Converter data dd/MM/yyyy para yyyy-MM-dd
+  // Converter data dd/MM/yyyy para yyyy-MM-dd; novo agendamento usa HOJE
   if(r && r.data){
     const p = r.data.split('/');
     document.getElementById('dData').value = p.length===3 ? `${p[2]}-${p[1]}-${p[0]}` : '';
-  } else { document.getElementById('dData').value = ''; }
+  } else {
+    const hoje = new Date();
+    const iso = `${hoje.getFullYear()}-${String(hoje.getMonth()+1).padStart(2,'0')}-${String(hoje.getDate()).padStart(2,'0')}`;
+    document.getElementById('dData').value = iso;
+  }
   document.getElementById('dTchTurma').value  = r ? r.tchTurma : '';
   document.getElementById('dTurma').value     = r ? r.turma : '';
   document.getElementById('dLessons').value   = r ? r.lessons : '';
@@ -1496,35 +1543,35 @@ document.getElementById('drawerSalvar').addEventListener('click', async ()=>{
     toast('Configure o SCRIPT_URL para salvar na planilha', 'erro'); return;
   }
 
-  try {
-    const qs = new URLSearchParams(params).toString();
-    const resp = await fetch(`${SCRIPT_URL}?${qs}`);
-    const json = await resp.json();
-    if(!json.ok) throw new Error(json.erro);
-    document.getElementById('drawerOverlay').classList.remove('open');
-    toast('Salvo com sucesso ✓');
-    await carregarDados();
-  } catch(e){
-    toast('Erro ao salvar: ' + e.message, 'erro');
-  }
+  const qs = new URLSearchParams(params).toString();
+  jsonpCall(
+    `${SCRIPT_URL}?${qs}`,
+    (json) => {
+      if(!json.ok){ toast('Erro ao salvar: '+json.erro,'erro'); return; }
+      document.getElementById('drawerOverlay').classList.remove('open');
+      toast('Salvo com sucesso ✓');
+      carregarDados(false);
+    },
+    () => toast('Erro ao salvar: sem conexão','erro')
+  );
 });
 
 // Excluir
-async function excluirRegistro(aba, linha){
+function excluirRegistro(aba, linha){
   if(!confirm('Excluir este agendamento da planilha?')) return;
   if(SCRIPT_URL === 'COLE_AQUI_A_URL_DO_APPS_SCRIPT'){
     toast('Configure o SCRIPT_URL para excluir da planilha', 'erro'); return;
   }
-  try {
-    const url = `${SCRIPT_URL}?action=excluir&senha=${encodeURIComponent(SENHA_PAINEL)}&aba=${encodeURIComponent(aba)}&linha=${linha}`;
-    const resp = await fetch(url);
-    const json = await resp.json();
-    if(!json.ok) throw new Error(json.erro);
-    toast('Excluído ✓');
-    await carregarDados();
-  } catch(e){
-    toast('Erro ao excluir: ' + e.message, 'erro');
-  }
+  const url = `${SCRIPT_URL}?action=excluir&senha=${encodeURIComponent(SENHA_PAINEL)}&aba=${encodeURIComponent(aba)}&linha=${linha}`;
+  jsonpCall(
+    url,
+    (json) => {
+      if(!json.ok){ toast('Erro ao excluir: '+json.erro,'erro'); return; }
+      toast('Excluído ✓');
+      carregarDados(false);
+    },
+    () => toast('Erro ao excluir: sem conexão','erro')
+  );
 }
 </script>
 </body>
