@@ -1607,7 +1607,7 @@ function renderTabela(){
 
   // === Sem filtro: separa ESTA SEMANA / ANTERIORES / FUTUROS ===
   if(!temFiltro){
-    const semana = filtrado.filter(r=>dentroDaSemana(r.data)).sort((a,b)=>dataMs(a.data)-dataMs(b.data)); // seg->sex crescente
+    const semana = filtrado.filter(r=>dentroDaSemana(r.data)).sort(ord);
     if(!verTudoInterno){
       if(!semana.length){
         document.getElementById('intTable').style.display='none';
@@ -1963,16 +1963,21 @@ document.getElementById('drawerSalvar').addEventListener('click', async ()=>{
       document.getElementById('drawerOverlay').classList.remove('open');
       toast('Salvo com sucesso ✓');
 
-      // Oferece +30min: só em agendamento NOVO e se houver slot seguinte livre na mesma aba/data
+      // Oferece +30min: só em agendamento NOVO e se o próximo slot for EXATAMENTE 30 min depois e livre
       if(ehNovo){
         const todos = HORARIOS_POR_ABA[aba] || [];
         const idx = todos.indexOf(params.horario);
         const proximo = (idx>=0 && idx < todos.length-1) ? todos[idx+1] : null;
-        // checa se o próximo slot está livre nessa aba+data
+        // confirma que o próximo é 30 min após o atual (não um pulo de horário)
+        const ehTrintaMin = (h1,h2)=>{
+          if(!h1||!h2) return false;
+          const [a,b]=h1.split(':').map(Number), [c,d]=h2.split(':').map(Number);
+          return (c*60+d) - (a*60+b) === 30;
+        };
         const ocupados = todosRegistros
           .filter(rr => rr.aba===aba && rr.data===dataFormatada && ocupaSlot(rr.status))
           .map(rr => rr.horario);
-        if(proximo && !ocupados.includes(proximo)){
+        if(proximo && ehTrintaMin(params.horario, proximo) && !ocupados.includes(proximo)){
           if(confirm(`Agendamento de ${params.horario} salvo.\n\nAdicionar mais 30 min (${proximo}) para ${params.aluno||'o aluno'}?`)){
             const params2 = Object.assign({}, params, { horario: proximo, linha: '' });
             const qs2 = new URLSearchParams(params2).toString();
