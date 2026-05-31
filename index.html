@@ -362,7 +362,9 @@ body {
 }
 .interno-fechar:hover { border-color:var(--ccaa-red); color:var(--ccaa-red); }
 
-.interno-body { max-width:960px; margin:0 auto; padding:16px 16px 80px; }
+.interno-body { max-width:1400px; margin:0 auto; padding:16px 28px 80px; }
+/* Login fica centralizado e estreito mesmo com corpo largo */
+#loginBox { max-width:520px; }
 
 /* Login */
 .login-box {
@@ -1165,7 +1167,7 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
 <script>
 // ===== SISTEMA INTERNO =====
 // Cole aqui a URL do seu Apps Script após implantar
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxjAkhRQCRqETSjdMvSXlT3zsC6L_bzn3tC9aNq2biNC-JqGgAfnAjfEuWMX6GXzNE9/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxjC01jTUm6oIZGfuDdCyuguQ7wW0qAfvDMesPK2SVG6fppgMuvXbGrWQL5iqzOx56s/exec";
 
 // JSONP — bypassa CORS do Apps Script sem backend
 let _jsonpCount = 0;
@@ -1372,47 +1374,40 @@ function normalizaTurma(t){
   return t;
 }
 
-// Defesa: normaliza dados crus do Sheets (Date strings) caso o Script não tenha formatado
+// Resolve o formato real: prova/apoio/equiparação/nivelamento são FORMATO
+function resolverFormatoFront(formato, lessons, situation, pendente){
+  const alvo = ((formato||'')+' '+(lessons||'')+' '+(situation||'')+' '+(pendente||'')).toLowerCase();
+  if(/\bprova\b/.test(alvo)) return 'Prova';
+  if(/\bnivela/.test(alvo)) return 'Nivelamento';
+  if(/\bequipara/.test(alvo)) return 'Equiparação';
+  if(/\bapoio\b/.test(alvo) || /material do apoio/.test(alvo)) return 'Apoio';
+  return formato||'';
+}
+
+// Defesa: normaliza dados crus caso o Script venha desatualizado
 function normalizaRegistro(r){
-  // Horário: trata "Sat Dec 30 1899 20:23:32 GMT-0306" (offset histórico bagunça minutos)
+  // Horário: já vem como texto do Script novo; só limpa "HH:mm:ss" -> "HH:mm"
   if(r.horario){
-    const s = String(r.horario);
-    // Se já está "HH:mm" limpo, mantém
-    const limpo = s.match(/^(\d{1,2}):(\d{2})$/);
-    if(limpo){
-      r.horario = ('0'+limpo[1]).slice(-2)+':'+limpo[2];
-    } else if(/1899/.test(s)){
-      // Date de 1899 = hora pura. Extrai do PRÓPRIO texto, não via getHours (que aplica fuso do navegador)
-      const m = s.match(/\b(\d{1,2}):(\d{2})(?::\d{2})?\b/);
-      if(m){
-        // Corrige o offset histórico: GMT-0306 desloca ~6min. Arredonda para o slot de 30min mais próximo
-        let h = parseInt(m[1],10), mi = parseInt(m[2],10);
-        let tot = h*60+mi;
-        // arredonda para múltiplo de 30 (slots da planilha são de 30 em 30)
-        tot = Math.round(tot/30)*30;
-        h = Math.floor(tot/60)%24; mi = tot%60;
-        r.horario = ('0'+h).slice(-2)+':'+('0'+mi).slice(-2);
-      }
-    } else {
-      const m = s.match(/\b(\d{1,2}):(\d{2})\b/);
-      if(m) r.horario = ('0'+m[1]).slice(-2)+':'+m[2];
-    }
+    const m = String(r.horario).match(/(\d{1,2}):(\d{2})/);
+    if(m) r.horario = ('0'+m[1]).slice(-2)+':'+m[2];
   }
-  // Data: "Mon Apr 13 2026..." -> "13/04/2026"
+  // Data: "Mon Apr 13 2026..." -> "13/04/2026" (defesa p/ Script velho)
   if(r.data && !/^\d{2}\/\d{2}\/\d{4}/.test(r.data)){
     const dt = new Date(r.data);
     if(!isNaN(dt)){
       r.data = String(dt.getDate()).padStart(2,'0')+'/'+String(dt.getMonth()+1).padStart(2,'0')+'/'+dt.getFullYear();
     }
   }
-  // Turma: se vier como data ("Sun Apr 05 2026...") é leitura deslocada — limpa
+  // Turma: se vier como data, limpa; normaliza nomenclatura
   if(r.turma && (/\b(Mon|Tue|Wed|Thu|Fri|Sat|Sun)\b/.test(r.turma) || /GMT|\d{4} \d{2}:\d{2}/.test(r.turma))){
     r.turma = '';
   }
   r.turma = normalizaTurma(r.turma);
-  // Mescla lessons/situation se uma vazia
+  // Mescla lessons/situation
   const l=(r.lessons||'').trim(), s2=(r.situation||'').trim();
   if(l && !s2) r.situation=l; else if(s2 && !l) r.lessons=s2;
+  // Formato: resolve a partir da linha inteira
+  r.formato = resolverFormatoFront(r.formato, r.lessons, r.situation, r.pendente);
   return r;
 }
 
