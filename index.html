@@ -1598,7 +1598,6 @@ function renderTabela(){
   const dataFim = document.getElementById('filtroDataFim').value;
   const aluno   = (document.getElementById('filtroAluno').value||'').toLowerCase();
   const buscandoAluno = !!aluno;
-  const temFiltro = teacher || status || aba || formato || dataIni || dataFim || buscandoAluno;
 
   let filtrado = todosRegistros.filter(r=>{
     if(teacher && (r.tchTurma||'').trim() !== teacher) return false;
@@ -1614,58 +1613,47 @@ function renderTabela(){
     if(dataIni && (!iso || iso < dataIni)) return false;
     if(dataFim && (!iso || iso > dataFim)) return false;
     if(aluno   && !r.aluno.toLowerCase().includes(aluno)) return false;
+    // Recorte de tempo (hoje/amanhã/semana) — 'todos' não filtra
+    // Só aplica o recorte quando NÃO há filtro de período manual (datas) nem busca de aluno
+    if(!dataIni && !dataFim && !buscandoAluno && recorteTempo!=='todos' && !noRecorte(r.data)) return false;
     return true;
   });
 
   renderSlotsLivres(aba, dataIni||dataFim);
-  renderBarraSemana(temFiltro);
+  renderBarraSemana(); // sempre visível
 
   // Ordenação por data conforme a seta
   const ord = (a,b)=> ordemAsc ? dataMs(a.data)-dataMs(b.data) : dataMs(b.data)-dataMs(a.data);
-  // Busca de aluno sempre crescente (antigas->futuras)
   const ordAluno = (a,b)=> dataMs(a.data)-dataMs(b.data);
 
   const tbody = document.getElementById('intTbody');
 
-  // === Sem filtro: aplica o recorte de tempo selecionado ===
-  if(!temFiltro){
-    // 'todos' = duas seções (recorte da semana + fora). hoje/amanha/semana = lista única do recorte
-    if(recorteTempo === 'todos'){
-      const semana = filtrado.filter(r=>dentroDaSemana(r.data)).sort(ord);
-      const fora   = filtrado.filter(r=>!dentroDaSemana(r.data)).sort(ord);
-      if(!filtrado.length){
-        document.getElementById('intTable').style.display='none';
-        document.getElementById('intVazio').style.display='block';
-        return;
-      }
-      document.getElementById('intTable').style.display='table';
-      document.getElementById('intVazio').style.display='none';
-      let html = '';
-      if(semana.length){
-        html += `<tr><td colspan="10" style="background:color-mix(in srgb,var(--soon) 14%,var(--surface));color:var(--soon);font-weight:800;font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;padding:8px 12px">Esta semana · ${semana.length}</td></tr>`;
-        html += semana.map(linhaRegistro).join('');
-      }
-      if(fora.length){
-        html += `<tr><td colspan="10" style="background:var(--surface-2);color:var(--text-dim);font-weight:800;font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;padding:8px 12px">Outros agendamentos · ${fora.length}</td></tr>`;
-        html += fora.map(linhaRegistro).join('');
-      }
-      tbody.innerHTML = html;
-      return;
-    }
-    // hoje / amanha / semana: lista única filtrada pelo recorte
-    const lista = filtrado.filter(r=>noRecorte(r.data)).sort(ord);
-    if(!lista.length){
+  // Modo "todos" + sem filtro nenhum = duas seções (Esta semana / Outros). Senão lista única.
+  const semFiltroNenhum = !teacher && !status && !aba && !formato && !dataIni && !dataFim && !buscandoAluno;
+  if(recorteTempo==='todos' && semFiltroNenhum){
+    const semana = filtrado.filter(r=>dentroDaSemana(r.data)).sort(ord);
+    const fora   = filtrado.filter(r=>!dentroDaSemana(r.data)).sort(ord);
+    if(!filtrado.length){
       document.getElementById('intTable').style.display='none';
       document.getElementById('intVazio').style.display='block';
       return;
     }
     document.getElementById('intTable').style.display='table';
     document.getElementById('intVazio').style.display='none';
-    tbody.innerHTML = lista.map(linhaRegistro).join('');
+    let html = '';
+    if(semana.length){
+      html += `<tr><td colspan="10" style="background:color-mix(in srgb,var(--soon) 14%,var(--surface));color:var(--soon);font-weight:800;font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;padding:8px 12px">Esta semana · ${semana.length}</td></tr>`;
+      html += semana.map(linhaRegistro).join('');
+    }
+    if(fora.length){
+      html += `<tr><td colspan="10" style="background:var(--surface-2);color:var(--text-dim);font-weight:800;font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;padding:8px 12px">Outros agendamentos · ${fora.length}</td></tr>`;
+      html += fora.map(linhaRegistro).join('');
+    }
+    tbody.innerHTML = html;
     return;
   }
 
-  // === Com filtro: lista única ===
+  // Lista única
   filtrado.sort(buscandoAluno ? ordAluno : ord);
   if(!filtrado.length){
     document.getElementById('intTable').style.display='none';
@@ -1678,14 +1666,13 @@ function renderTabela(){
 }
 
 // Barra "esta semana / ver tudo"
-function renderBarraSemana(temFiltro){
+function renderBarraSemana(){
   const el = document.getElementById('barraSemana');
   if(!el) return;
-  if(temFiltro){ el.style.display='none'; return; }
   el.style.display='flex';
   const rotulos = { hoje:'hoje', amanha:'amanhã', semana:'esta semana (seg → sex)', todos:'todos os agendamentos' };
   el.innerHTML = `
-    <span class="hoje-info"><span class="dot dot-soon"></span>Mostrando <b>${rotulos[recorteTempo]||''}</b></span>
+    <span class="hoje-info"><span class="dot dot-soon"></span>Período: <b>${rotulos[recorteTempo]||''}</b></span>
     <select class="int-select" id="selRecorte" style="min-width:170px">
       <option value="hoje">Hoje</option>
       <option value="amanha">Amanhã</option>
