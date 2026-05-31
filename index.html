@@ -1054,7 +1054,9 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
         <option>Equiparação</option><option>Apoio</option><option>Nivelamento</option><option>Prova</option>
       </select>
       <select class="int-select" id="filtroAba"><option value="">Registrados</option></select>
-      <input class="int-select" type="date" id="filtroData" title="Filtrar por data" style="min-width:150px">
+      <input class="int-select" type="date" id="filtroDataIni" title="Data inicial" style="min-width:140px">
+      <input class="int-select" type="date" id="filtroDataFim" title="Data final" style="min-width:140px">
+      <button class="int-btn int-btn-reload" id="btnOrdem" type="button" title="Inverter ordem das datas">Data ↓</button>
       <input class="int-search" type="text" id="filtroAluno" placeholder="Buscar aluno...">
       <button class="int-btn int-btn-reload" id="btnLimparFiltros" type="button" title="Limpar filtros">Limpar</button>
     </div>
@@ -1251,8 +1253,9 @@ function fazerLogin(){
     document.getElementById('painelBox').style.display = 'block';
     popularAbas();
     popularFiltroTeacher();
-    // Filtro de data começa VAZIO para mostrar todos os registros
-    document.getElementById('filtroData').value = '';
+    // Filtros de data começam vazios
+    document.getElementById('filtroDataIni').value = '';
+    document.getElementById('filtroDataFim').value = '';
     carregarDados();
   } else {
     document.getElementById('loginErro').style.display = 'block';
@@ -1343,16 +1346,19 @@ function normalizaRegistro(r){
       r.data = String(dt.getDate()).padStart(2,'0')+'/'+String(dt.getMonth()+1).padStart(2,'0')+'/'+dt.getFullYear();
     }
   }
+  // Turma: se vier como data ("Sun Apr 05 2026...") é leitura deslocada — limpa
+  if(r.turma && (/\b(Mon|Tue|Wed|Thu|Fri|Sat|Sun)\b/.test(r.turma) || /GMT|\d{4} \d{2}:\d{2}/.test(r.turma))){
+    r.turma = '';
+  }
   // Mescla lessons/situation se uma vazia
   const l=(r.lessons||'').trim(), s=(r.situation||'').trim();
   if(l && !s) r.situation=l; else if(s && !l) r.lessons=s;
   return r;
 }
 
-// Nome + no máximo 1 sobrenome
+// Nome completo (limpa espaços extras)
 function nomeCurto(nome){
-  const p = (nome||'').trim().split(/\s+/);
-  return p.length<=1 ? (p[0]||'') : p[0]+' '+p[1];
+  return (nome||'').trim().replace(/\s+/g,' ');
 }
 // Dia da semana a partir de dd/MM/yyyy
 const DIAS_SEMANA = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
@@ -1383,6 +1389,31 @@ function ocupaSlot(status){
 }
 
 let verTudoInterno = false; // false = só esta semana
+let ordemAsc = false; // false = mais recentes primeiro
+
+// Monta uma linha <tr>
+function linhaRegistro(r){
+  const badgeClass = {
+    'realizado':'badge-realizado','agendado':'badge-agendado',
+    'cancelado':'badge-cancelado','remarcado':'badge-remarcado','faltou':'badge-faltou'
+  }[(r.status||'').toLowerCase()] || 'badge-default';
+  const dia = diaDaData(r.data);
+  return `<tr>
+    <td><b>${nomeCurto(r.aluno)}</b></td>
+    <td>${r.data}${dia?`<br><span style="font-size:10.5px;color:var(--text-dim)">${dia}</span>`:''}</td>
+    <td>${r.horario||'—'}</td>
+    <td style="font-size:11.5px;color:var(--text-dim)">${r.tchTurma||r.teacher||'—'}</td>
+    <td>${r.turma?`<b style="color:var(--ccaa-blue)">${r.turma}</b>`:'—'}</td>
+    <td>${r.lessons||'—'}</td>
+    <td>${r.formato?`<span style="font-weight:600">${r.formato}</span>`:'—'}</td>
+    <td><span class="badge ${badgeClass}">${r.status||'—'}</span></td>
+    <td style="font-size:11.5px;color:var(--text-dim)">${r.agendado||'—'}</td>
+    <td style="white-space:nowrap">
+      <button class="row-btn" onclick="abrirDrawer(${JSON.stringify(r).replace(/"/g,'&quot;')})">✏️</button>
+      <button class="row-btn del" onclick="excluirRegistro('${r.aba.replace(/'/g,"\\'")}',${r.linha})">🗑️</button>
+    </td>
+  </tr>`;
+}
 
 // Renderizar tabela com filtros
 function renderTabela(){
@@ -1391,75 +1422,93 @@ function renderTabela(){
   const status  = document.getElementById('filtroStatus').value;
   const aba     = document.getElementById('filtroAba').value;
   const formato = document.getElementById('filtroFormato').value;
-  const dataISO = document.getElementById('filtroData').value;
+  const dataIni = document.getElementById('filtroDataIni').value; // yyyy-MM-dd
+  const dataFim = document.getElementById('filtroDataFim').value;
   const aluno   = (document.getElementById('filtroAluno').value||'').toLowerCase();
   const buscandoAluno = !!aluno;
-  // Se há qualquer filtro ativo, ignora o recorte de semana
-  const temFiltro = teacher || status || aba || formato || dataISO || buscandoAluno;
+  const temFiltro = teacher || status || aba || formato || dataIni || dataFim || buscandoAluno;
 
   let filtrado = todosRegistros.filter(r=>{
     if(teacher && r.teacher !== teacher && r.tchTurma !== teacher) return false;
-    if(status  && r.status.toLowerCase() !== status.toLowerCase()) return false;
+    if(status  && (r.status||'').toLowerCase() !== status.toLowerCase()) return false;
     if(aba     && r.aba !== aba) return false;
-    if(formato && r.formato.toLowerCase() !== formato.toLowerCase()) return false;
-    if(dataISO && dataBRtoISO(r.data) !== dataISO) return false;
+    if(formato && (r.formato||'').trim().toLowerCase() !== formato.toLowerCase()) return false;
+    const iso = dataBRtoISO(r.data);
+    if(dataIni && (!iso || iso < dataIni)) return false;
+    if(dataFim && (!iso || iso > dataFim)) return false;
     if(aluno   && !r.aluno.toLowerCase().includes(aluno)) return false;
-    // Recorte de semana só quando sem filtro e sem "ver tudo"
-    if(!temFiltro && !verTudoInterno && !dentroDaSemana(r.data)) return false;
     return true;
   });
 
-  renderSlotsLivres(aba, dataISO);
-  renderBarraSemana(temFiltro, filtrado.length);
+  renderSlotsLivres(aba, dataIni||dataFim);
+  renderBarraSemana(temFiltro);
 
-  // Ordenação: buscando aluno = crescente (antigas->futuras); senão decrescente
-  filtrado.sort((a,b)=> buscandoAluno ? dataMs(a.data)-dataMs(b.data) : dataMs(b.data)-dataMs(a.data));
+  // Ordenação por data conforme a seta
+  const ord = (a,b)=> ordemAsc ? dataMs(a.data)-dataMs(b.data) : dataMs(b.data)-dataMs(a.data);
+  // Busca de aluno sempre crescente (antigas->futuras)
+  const ordAluno = (a,b)=> dataMs(a.data)-dataMs(b.data);
 
   const tbody = document.getElementById('intTbody');
-  if(!filtrado.length){
-    document.getElementById('intTable').style.display = 'none';
-    document.getElementById('intVazio').style.display = 'block';
+
+  // === Sem filtro: separa ESTA SEMANA / ANTERIORES / FUTUROS ===
+  if(!temFiltro){
+    const semana = filtrado.filter(r=>dentroDaSemana(r.data)).sort((a,b)=>dataMs(a.data)-dataMs(b.data)); // seg->sex crescente
+    if(!verTudoInterno){
+      if(!semana.length){
+        document.getElementById('intTable').style.display='none';
+        document.getElementById('intVazio').style.display='block';
+        return;
+      }
+      document.getElementById('intTable').style.display='table';
+      document.getElementById('intVazio').style.display='none';
+      tbody.innerHTML = semana.map(linhaRegistro).join('');
+      return;
+    }
+    // Ver tudo: duas seções
+    const fora = filtrado.filter(r=>!dentroDaSemana(r.data)).sort(ord);
+    if(!filtrado.length){
+      document.getElementById('intTable').style.display='none';
+      document.getElementById('intVazio').style.display='block';
+      return;
+    }
+    document.getElementById('intTable').style.display='table';
+    document.getElementById('intVazio').style.display='none';
+    let html = '';
+    if(semana.length){
+      html += `<tr><td colspan="10" style="background:color-mix(in srgb,var(--soon) 14%,var(--surface));color:var(--soon);font-weight:800;font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;padding:8px 12px">Esta semana · ${semana.length}</td></tr>`;
+      html += semana.map(linhaRegistro).join('');
+    }
+    if(fora.length){
+      html += `<tr><td colspan="10" style="background:var(--surface-2);color:var(--text-dim);font-weight:800;font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;padding:8px 12px">Outros agendamentos · ${fora.length}</td></tr>`;
+      html += fora.map(linhaRegistro).join('');
+    }
+    tbody.innerHTML = html;
     return;
   }
 
-  document.getElementById('intTable').style.display = 'table';
-  document.getElementById('intVazio').style.display = 'none';
-
-  tbody.innerHTML = filtrado.map(r => {
-    const badgeClass = {
-      'realizado':'badge-realizado','agendado':'badge-agendado',
-      'cancelado':'badge-cancelado','remarcado':'badge-remarcado','faltou':'badge-faltou'
-    }[r.status.toLowerCase()] || 'badge-default';
-    const dia = diaDaData(r.data);
-    return `<tr>
-      <td><b>${nomeCurto(r.aluno)}</b></td>
-      <td>${r.data}${dia?`<br><span style="font-size:10.5px;color:var(--text-dim)">${dia}</span>`:''}</td>
-      <td>${r.horario}</td>
-      <td style="font-size:11.5px;color:var(--text-dim)">${r.tchTurma||r.teacher}</td>
-      <td><b style="color:var(--ccaa-blue)">${r.turma}</b></td>
-      <td>${r.lessons}</td>
-      <td>${r.formato?`<span style="font-size:11px;font-weight:700">${r.formato}</span>`:'—'}</td>
-      <td><span class="badge ${badgeClass}">${r.status||'—'}</span></td>
-      <td style="font-size:11.5px;color:var(--text-dim)">${r.agendado||'—'}</td>
-      <td>
-        <button class="row-btn" onclick="abrirDrawer(${JSON.stringify(r).replace(/"/g,'&quot;')})">✏️</button>
-        <button class="row-btn del" onclick="excluirRegistro('${r.aba.replace(/'/g,"\\'")}',${r.linha})">🗑️</button>
-      </td>
-    </tr>`;
-  }).join('');
+  // === Com filtro: lista única ===
+  filtrado.sort(buscandoAluno ? ordAluno : ord);
+  if(!filtrado.length){
+    document.getElementById('intTable').style.display='none';
+    document.getElementById('intVazio').style.display='block';
+    return;
+  }
+  document.getElementById('intTable').style.display='table';
+  document.getElementById('intVazio').style.display='none';
+  tbody.innerHTML = filtrado.map(linhaRegistro).join('');
 }
 
 // Barra "esta semana / ver tudo"
-function renderBarraSemana(temFiltro, qtd){
+function renderBarraSemana(temFiltro){
   const el = document.getElementById('barraSemana');
   if(!el) return;
   if(temFiltro){ el.style.display='none'; return; }
   el.style.display='flex';
   if(verTudoInterno){
-    el.innerHTML = `<span class="hoje-info">Mostrando <b>todos</b> os agendamentos (${qtd})</span>
+    el.innerHTML = `<span class="hoje-info">Mostrando <b>todos</b> os agendamentos</span>
       <button class="hoje-btn" id="btnSemanaToggle">Ver só esta semana</button>`;
   } else {
-    el.innerHTML = `<span class="hoje-info"><span class="dot dot-soon"></span>Mostrando <b>esta semana</b> (${qtd})</span>
+    el.innerHTML = `<span class="hoje-info"><span class="dot dot-soon"></span>Mostrando <b>esta semana</b> (seg → sex)</span>
       <button class="hoje-btn" id="btnSemanaToggle">Ver todos os agendamentos</button>`;
   }
   const b = document.getElementById('btnSemanaToggle');
@@ -1508,9 +1557,16 @@ function renderSlotsLivres(aba, dataISO){
 }
 
 // Filtros em tempo real
-['filtroTeacher','filtroStatus','filtroAba','filtroFormato','filtroData','filtroAluno'].forEach(id=>{
+['filtroTeacher','filtroStatus','filtroAba','filtroFormato','filtroDataIni','filtroDataFim','filtroAluno'].forEach(id=>{
   document.getElementById(id).addEventListener('input', renderTabela);
   document.getElementById(id).addEventListener('change', renderTabela);
+});
+
+// Botão de ordem (seta)
+document.getElementById('btnOrdem').addEventListener('click', ()=>{
+  ordemAsc = !ordemAsc;
+  document.getElementById('btnOrdem').textContent = ordemAsc ? 'Data ↑' : 'Data ↓';
+  renderTabela();
 });
 
 // Limpar filtros — volta ao estado inicial (esta semana)
@@ -1519,9 +1575,12 @@ document.getElementById('btnLimparFiltros').addEventListener('click', ()=>{
   document.getElementById('filtroStatus').value = '';
   document.getElementById('filtroFormato').value = '';
   document.getElementById('filtroAba').value = '';
-  document.getElementById('filtroData').value = '';
+  document.getElementById('filtroDataIni').value = '';
+  document.getElementById('filtroDataFim').value = '';
   document.getElementById('filtroAluno').value = '';
   verTudoInterno = false;
+  ordemAsc = false;
+  document.getElementById('btnOrdem').textContent = 'Data ↓';
   document.getElementById('slotsLivres').style.display = 'none';
   renderTabela();
 });
