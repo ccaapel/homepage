@@ -1050,8 +1050,11 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
         <option>Remarcado</option><option>Faltou</option>
       </select>
       <select class="int-select" id="filtroAba"><option value="">Todas as abas</option></select>
+      <input class="int-select" type="date" id="filtroData" title="Filtrar por data" style="min-width:150px">
       <input class="int-search" type="text" id="filtroAluno" placeholder="Buscar aluno...">
+      <button class="int-btn int-btn-reload" id="btnLimparFiltros" type="button" title="Limpar filtros">Limpar</button>
     </div>
+    <div id="slotsLivres" style="display:none; margin-bottom:14px; padding:12px 14px; background:color-mix(in srgb, var(--live) 8%, var(--surface)); border:1.5px solid color-mix(in srgb, var(--live) 30%, transparent); border-radius:var(--r-md); font-size:13px;"></div>
     <div class="int-table-wrap">
       <div class="int-loading" id="intLoading"><div class="int-spinner"></div>Carregando dados da planilha...</div>
       <table class="int-table" id="intTable" style="display:none">
@@ -1090,7 +1093,9 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
       </div>
       <div>
         <label class="field-label">Horário</label>
-        <input class="field-input" id="dHorario" placeholder="Ex: 15:30">
+        <select class="field-select" id="dHorario">
+          <option value="">Selecione aba e data</option>
+        </select>
       </div>
       <div>
         <label class="field-label">Teacher da turma</label>
@@ -1150,11 +1155,11 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
 <script>
 // ===== SISTEMA INTERNO =====
 // Cole aqui a URL do seu Apps Script após implantar
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwlBiGUHhielzG9_4NE89dciok0RpJ3hCWAt1VWQo7Rs0DoZZVbWC5QDTHxQxVXrQ4e/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyo5uNeMRFkulbdWp_zmQ-gd1DxzugshsDar1WoPTqOFWKQqAxDfq7R6Ft6bwkUw_Pl/exec";
 const SENHA_PAINEL = "ccaa2026"; // mesma do Apps Script
 
 const ABAS_DISPONIVEIS = [
-  "Valquíria: SEGUNDA-FEIRA - Sala 7",
+  "Valquíria: SEGUNDA-FEIRA - Sala 14",
   "Eduarda: SEGUNDA-FEIRA - Sala 2",
   "Laura: SEGUNDA-FEIRA - Sala 13",
   "Laura: TERÇA-FEIRA - Sala 2",
@@ -1164,6 +1169,20 @@ const ABAS_DISPONIVEIS = [
   "OFF Laura: QUINTA-FEIRA - Sala 8",
   "Laura: SEXTA-FEIRA - Sala 2",
 ];
+
+// Horários possíveis em cada aba (slots de 30 min conforme dropdown da planilha)
+const HORARIOS_POR_ABA = {
+  "Valquíria: SEGUNDA-FEIRA - Sala 14": ["15:30","16:00","16:30","17:00","17:30"],
+  "Eduarda: SEGUNDA-FEIRA - Sala 2":    ["15:30","16:00","16:30","17:00","17:30"],
+  "Laura: SEGUNDA-FEIRA - Sala 13":     ["15:30","16:00","16:30","17:00","19:30","20:00"],
+  "Laura: TERÇA-FEIRA - Sala 2":        ["17:00","17:30","18:00","18:30"],
+  "Tânia: TERÇA-FEIRA - Sala 2":        ["09:00","09:30","10:00","10:30","11:00","11:30","12:00","12:30"],
+  "Laura: QUARTA-FEIRA - Sala 2":       ["08:00","08:30","09:00","09:30"],
+  "Valquíria: QUARTA-FEIRA - Sala 13":  ["15:30","16:00","16:30","17:00","17:30"],
+  "OFF Laura: QUINTA-FEIRA - Sala 8":   [],
+  "Laura: SEXTA-FEIRA - Sala 2":        ["09:00","09:30","10:00","10:30"],
+};
+
 
 let todosRegistros = [];
 let logado = false;
@@ -1220,7 +1239,7 @@ async function carregarDados(){
     todosRegistros = [
       { id:'demo||4', aba:'Eduarda: SEGUNDA-FEIRA - Sala 2', linha:4, aluno:'Benicio Menchanca', dia:'Segunda-feira', horario:'16:30', data:'13/04/2026', teacher:'Teacher Eduarda', tchTurma:'Teacher Igor', turma:'T2.1', lessons:'L2', situation:'TODA', pendente:'OK', formato:'Equiparação', hibrido:'Presencial', status:'Realizado', agendado:'Fran' },
       { id:'demo||5', aba:'Eduarda: SEGUNDA-FEIRA - Sala 2', linha:5, aluno:'Washington Pereira Jr.', dia:'Segunda-feira', horario:'17:00', data:'13/04/2026', teacher:'Teacher Eduarda', tchTurma:'Teacher Igor', turma:'A3.1', lessons:'L3', situation:'S1, S2, S3', pendente:'OK', formato:'Equiparação', hibrido:'Presencial', status:'Realizado', agendado:'Fran' },
-      { id:'demo||7', aba:'Valquíria: SEGUNDA-FEIRA - Sala 7', linha:7, aluno:'Raquel Corvello', dia:'Segunda-feira', horario:'17:00', data:'01/06/2026', teacher:'Teacher Valquíria', tchTurma:'Teacher Valquíria', turma:'A1.2', lessons:'5', situation:'$1,$2,$3', pendente:'', formato:'Equiparação', hibrido:'Presencial', status:'Agendado', agendado:'Camila' },
+      { id:'demo||7', aba:'Valquíria: SEGUNDA-FEIRA - Sala 14', linha:7, aluno:'Raquel Corvello', dia:'Segunda-feira', horario:'17:00', data:'01/06/2026', teacher:'Teacher Valquíria', tchTurma:'Teacher Valquíria', turma:'A1.2', lessons:'5', situation:'$1,$2,$3', pendente:'', formato:'Equiparação', hibrido:'Presencial', status:'Agendado', agendado:'Camila' },
       { id:'demo||10', aba:'Laura: SEGUNDA-FEIRA - Sala 13', linha:10, aluno:'Helena Chiattone', dia:'Segunda-feira', horario:'15:30', data:'18/05/2026', teacher:'Teacher Laura', tchTurma:'Teacher Lays', turma:'T2.1', lessons:'L4 e L5', situation:'TODAS', pendente:'OK', formato:'Apoio', hibrido:'Presencial', status:'Realizado', agendado:'Pedro' },
     ];
     renderTabela();
@@ -1242,10 +1261,26 @@ async function carregarDados(){
 }
 
 // Popular filtro de teacher com base nos dados
+const TEACHERS_FIXOS = [
+  "Teacher Lays","Teacher Laura","Teacher Ana","Teacher Bob","Teacher Beti",
+  "Teacher Amanda","Teacher Valquíria","Teacher Marcos","Teacher Giovani",
+  "Teacher Maria","Teacher Tânia","Teacher Eduarda","Teacher Igor"
+];
+let teacherFiltroPopulado = false;
 function popularFiltroTeacher(){
+  if(teacherFiltroPopulado) return;
   const sel = document.getElementById('filtroTeacher');
-  const teachers = [...new Set(todosRegistros.map(r=>r.teacher).filter(Boolean))].sort();
-  teachers.forEach(t => { sel.innerHTML += `<option value="${t}">${t}</option>`; });
+  TEACHERS_FIXOS.forEach(t => { sel.innerHTML += `<option value="${t}">${t}</option>`; });
+  teacherFiltroPopulado = true;
+}
+
+// Converte dd/MM/yyyy -> yyyy-MM-dd
+function dataBRtoISO(s){ if(!s) return ''; const p=s.split('/'); return p.length===3?`${p[2]}-${p[1]}-${p[0]}`:''; }
+
+// Status que ocupam um slot (não bloqueiam: Cancelado)
+function ocupaSlot(status){
+  const s = (status||'').toLowerCase();
+  return s !== 'cancelado' && s !== '';
 }
 
 // Renderizar tabela com filtros
@@ -1254,15 +1289,20 @@ function renderTabela(){
   const teacher = document.getElementById('filtroTeacher').value;
   const status  = document.getElementById('filtroStatus').value;
   const aba     = document.getElementById('filtroAba').value;
+  const dataISO = document.getElementById('filtroData').value; // yyyy-MM-dd
   const aluno   = (document.getElementById('filtroAluno').value||'').toLowerCase();
 
   let filtrado = todosRegistros.filter(r=>{
     if(teacher && r.teacher !== teacher) return false;
     if(status  && r.status.toLowerCase() !== status.toLowerCase()) return false;
     if(aba     && r.aba !== aba) return false;
+    if(dataISO && dataBRtoISO(r.data) !== dataISO) return false;
     if(aluno   && !r.aluno.toLowerCase().includes(aluno)) return false;
     return true;
   });
+
+  // Painel de slots livres: só quando aba E data estão selecionadas
+  renderSlotsLivres(aba, dataISO);
 
   // Ordenar por data desc
   filtrado.sort((a,b)=>{
@@ -1303,10 +1343,57 @@ function renderTabela(){
   }).join('');
 }
 
+// Calcula slots ocupados de uma aba numa data (dd/MM/yyyy)
+function slotsOcupados(aba, dataBR){
+  return todosRegistros
+    .filter(r => r.aba === aba && r.data === dataBR && ocupaSlot(r.status))
+    .map(r => r.horario);
+}
+
+// Mostra horários livres quando aba + data estão filtradas
+function renderSlotsLivres(aba, dataISO){
+  const el = document.getElementById('slotsLivres');
+  if(!aba || !dataISO){ el.style.display = 'none'; return; }
+
+  const todos = HORARIOS_POR_ABA[aba] || [];
+  if(!todos.length){
+    el.style.display = 'block';
+    el.innerHTML = `<b>${aba}</b><br>Esta aba não tem horários disponíveis para agendamento`;
+    return;
+  }
+
+  const [y,m,d] = dataISO.split('-');
+  const dataBR = `${d}/${m}/${y}`;
+  const ocupados = slotsOcupados(aba, dataBR);
+  const livres = todos.filter(h => !ocupados.includes(h));
+
+  el.style.display = 'block';
+  const chipsLivres = livres.length
+    ? livres.map(h=>`<span style="display:inline-block;background:var(--live);color:#fff;border-radius:99px;padding:3px 11px;font-weight:700;font-size:12px;margin:2px;">${h}</span>`).join('')
+    : '<span style="color:var(--text-dim)">Nenhum horário livre nesta data</span>';
+  const chipsOcup = ocupados.length
+    ? ocupados.map(h=>`<span style="display:inline-block;background:var(--surface-2);color:var(--text-dim);border:1px solid var(--border);border-radius:99px;padding:3px 11px;font-size:12px;margin:2px;text-decoration:line-through;">${h}</span>`).join('')
+    : '';
+  el.innerHTML =
+    `<div style="font-weight:700;margin-bottom:6px">Horários disponíveis · ${dataBR}</div>`
+    + `<div style="margin-bottom:6px">${chipsLivres}</div>`
+    + (chipsOcup ? `<div style="font-size:11px;color:var(--text-dim);margin-top:4px">Ocupados: ${chipsOcup}</div>` : '');
+}
+
 // Filtros em tempo real
-['filtroTeacher','filtroStatus','filtroAba','filtroAluno'].forEach(id=>{
+['filtroTeacher','filtroStatus','filtroAba','filtroData','filtroAluno'].forEach(id=>{
   document.getElementById(id).addEventListener('input', renderTabela);
   document.getElementById(id).addEventListener('change', renderTabela);
+});
+
+// Limpar filtros
+document.getElementById('btnLimparFiltros').addEventListener('click', ()=>{
+  document.getElementById('filtroTeacher').value = '';
+  document.getElementById('filtroStatus').value = '';
+  document.getElementById('filtroAba').value = '';
+  document.getElementById('filtroData').value = '';
+  document.getElementById('filtroAluno').value = '';
+  renderTabela();
 });
 
 // Reload
@@ -1323,7 +1410,6 @@ function abrirDrawer(r){
     const p = r.data.split('/');
     document.getElementById('dData').value = p.length===3 ? `${p[2]}-${p[1]}-${p[0]}` : '';
   } else { document.getElementById('dData').value = ''; }
-  document.getElementById('dHorario').value   = r ? r.horario : '';
   document.getElementById('dTchTurma').value  = r ? r.tchTurma : '';
   document.getElementById('dTurma').value     = r ? r.turma : '';
   document.getElementById('dLessons').value   = r ? r.lessons : '';
@@ -1333,8 +1419,47 @@ function abrirDrawer(r){
   document.getElementById('dHibrido').value   = r ? r.hibrido : '';
   document.getElementById('dStatus').value    = r ? r.status : '';
   document.getElementById('dAgendado').value  = r ? r.agendado : '';
+  // Popular horários disponíveis (mantém o horário atual se editando)
+  popularHorariosDrawer(r ? r.horario : '', r ? r.linha : '');
   document.getElementById('drawerOverlay').classList.add('open');
 }
+
+// Popula o select de horário no drawer com slots livres da aba+data
+function popularHorariosDrawer(horarioAtual, linhaAtual){
+  const sel  = document.getElementById('dHorario');
+  const aba  = document.getElementById('dAba').value;
+  const dataISO = document.getElementById('dData').value;
+  const todos = HORARIOS_POR_ABA[aba] || [];
+
+  if(!aba || !dataISO){
+    sel.innerHTML = '<option value="">Selecione aba e data</option>';
+    if(horarioAtual){ sel.innerHTML += `<option value="${horarioAtual}" selected>${horarioAtual}</option>`; }
+    return;
+  }
+  if(!todos.length){
+    sel.innerHTML = '<option value="">Sem horários nesta aba</option>';
+    return;
+  }
+
+  const [y,m,d] = dataISO.split('-');
+  const dataBR = `${d}/${m}/${y}`;
+  // Slots ocupados nessa aba+data, exceto a própria linha que está sendo editada
+  const ocupados = todosRegistros
+    .filter(rr => rr.aba===aba && rr.data===dataBR && ocupaSlot(rr.status) && String(rr.linha)!==String(linhaAtual))
+    .map(rr => rr.horario);
+
+  let opts = '<option value="">Selecione um horário</option>';
+  todos.forEach(h => {
+    const ocupado = ocupados.includes(h);
+    const sel2 = h===horarioAtual ? 'selected' : '';
+    opts += `<option value="${h}" ${ocupado?'disabled':''} ${sel2}>${h}${ocupado?' (ocupado)':''}</option>`;
+  });
+  sel.innerHTML = opts;
+}
+
+// Ao mudar aba ou data no drawer, recarrega os horários
+document.getElementById('dAba').addEventListener('change', ()=> popularHorariosDrawer('', document.getElementById('dLinha').value));
+document.getElementById('dData').addEventListener('change', ()=> popularHorariosDrawer('', document.getElementById('dLinha').value));
 
 document.getElementById('btnNovoAgendamento').addEventListener('click', ()=> abrirDrawer(null));
 document.getElementById('drawerCancelar').addEventListener('click', ()=>{
