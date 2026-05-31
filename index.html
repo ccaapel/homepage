@@ -1099,7 +1099,7 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
       </div>
       <div>
         <label class="field-label">Data</label>
-        <input class="field-input" type="date" id="dData">
+        <select class="field-select" id="dData"></select>
         <div id="dDataAviso" style="font-size:11px;color:var(--ccaa-red);margin-top:4px;font-weight:600;display:none"></div>
       </div>
       <div>
@@ -1110,12 +1110,11 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
       </div>
       <div>
         <label class="field-label">Teacher da turma</label>
-        <select class="field-select" id="dTchTurma"></select>
+        <select class="field-select" id="dTchTurma"><option value="">Selecione o teacher da turma</option></select>
       </div>
       <div>
         <label class="field-label">Turma</label>
-        <input class="field-input" id="dTurma" list="listaTurmas" placeholder="Ex: T2.1, A1.3 · livro 4+ só número: 4.1, 5.2">
-        <datalist id="listaTurmas"></datalist>
+        <select class="field-select" id="dTurma"><option value="">Selecione a turma</option></select>
       </div>
       <div>
         <label class="field-label">Lessons</label>
@@ -1132,26 +1131,26 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
       <div>
         <label class="field-label">Formato *</label>
         <select class="field-select" id="dFormato">
-          <option value="">— selecione —</option><option>Equiparação</option><option>Apoio</option><option>Nivelamento</option><option>Prova</option>
+          <option value="">Selecione o formato</option><option>Equiparação</option><option>Apoio</option><option>Nivelamento</option><option>Prova</option>
         </select>
       </div>
       <div>
         <label class="field-label">Modalidade</label>
         <select class="field-select" id="dHibrido">
-          <option value="">—</option><option>Presencial</option><option>Online</option>
+          <option value="">Selecione a modalidade</option><option>Presencial</option><option>Online</option>
         </select>
       </div>
       <div>
         <label class="field-label">Status</label>
         <select class="field-select" id="dStatus">
-          <option value="">—</option><option>Agendado</option><option>Realizado</option>
+          <option value="">Selecione o status</option><option>Agendado</option><option>Realizado</option>
           <option>Cancelado</option><option>Remarcado</option><option>Faltou</option>
         </select>
       </div>
       <div>
         <label class="field-label">Agendado por</label>
         <select class="field-select" id="dAgendado">
-          <option value="">—</option><option>Pedro</option><option>Camila</option><option>Fran</option><option>Lays</option>
+          <option value="">Selecione quem agendou</option><option>Pedro</option><option>Camila</option><option>Fran</option><option>Lays</option>
         </select>
       </div>
     </div>
@@ -1278,9 +1277,52 @@ function popularAbas(){
   // Teacher da turma (dropdown no drawer)
   const selTch = document.getElementById('dTchTurma');
   if(selTch){
-    selTch.innerHTML = '<option value="">— selecione —</option>'
+    selTch.innerHTML = '<option value="">Selecione o teacher da turma</option>'
       + TEACHERS_FIXOS.map(t=>`<option value="${t}">${t}</option>`).join('');
   }
+}
+
+// Popula o select de Data com as próximas ocorrências do dia da semana da aba
+function popularDatasSelect(nomeDia, dataAtualISO){
+  const sel = document.getElementById('dData');
+  if(!sel) return;
+  const alvoIdx = indiceDia(nomeDia);
+  const datas = [];
+  if(dataAtualISO) datas.push(dataAtualISO);
+  if(alvoIdx>=0){
+    let dt = new Date(); dt.setHours(0,0,0,0);
+    let passos=0;
+    while(dt.getDay()!==alvoIdx && passos<7){ dt.setDate(dt.getDate()+1); passos++; }
+    for(let i=0;i<16;i++){
+      const iso = `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;
+      if(!datas.includes(iso)) datas.push(iso);
+      dt.setDate(dt.getDate()+7);
+    }
+  }
+  datas.sort();
+  let opts = '';
+  datas.forEach(iso=>{
+    const [y,m,d]=iso.split('-');
+    opts += `<option value="${iso}">${d}/${m}/${y} · ${diaSemanaISO(iso)}</option>`;
+  });
+  if(!opts) opts = '<option value="">Selecione a aba primeiro</option>';
+  sel.innerHTML = opts;
+  sel.value = dataAtualISO || (datas[0]||'');
+}
+
+// Popula o select de Turma com as turmas do teacher selecionado (ou todas, se nenhum)
+function popularTurmaSelect(teacherSel, turmaAtual){
+  const sel = document.getElementById('dTurma');
+  if(!sel) return;
+  const turmas = turmasDoTeacher(teacherSel);
+  let opts = '<option value="">Selecione a turma</option>';
+  turmas.forEach(t=>{ opts += `<option value="${t}">${t}</option>`; });
+  // se a turma atual (edição) não estiver na lista do teacher, adiciona pra não sumir
+  if(turmaAtual && !turmas.includes(turmaAtual)){
+    opts += `<option value="${turmaAtual}">${turmaAtual}</option>`;
+  }
+  sel.innerHTML = opts;
+  sel.value = turmaAtual || '';
 }
 
 // Carregar dados da planilha
@@ -1321,20 +1363,43 @@ const TEACHERS_FIXOS = [
   "Teacher Amanda","Teacher Valquíria","Teacher Marcos","Teacher Giovani",
   "Teacher Maria","Teacher Tânia","Teacher Tatiana","Teacher Eduarda"
 ];
-// Lista ordenada de turmas para os seletores (T1.1 → ... → livro 11)
-function listaTurmasOrdenada(){
+// Deriva a lista de turmas de equiparação a partir do TURMAS do timetable.
+// Só Teen/Adult/English Course (sem Baby, Kids, Preteen, Español).
+// Teen 3.7 -> T3.7 | Adult 1.2 -> A1.2 | English Course 4.3 -> 4.3 | English Course VIP 9.1 -> 9.1
+// Retorna [{turma:'T3.7', teacher:'Elizabett Reis'}, ...] na ordem do timetable.
+function turmasEquiparacao(){
   const out = [];
-  // T e A: livros 1 a 3, módulos 1 a 6
-  for(const pref of ['T','A']){
-    for(let livro=1; livro<=3; livro++){
-      for(let mod=1; mod<=6; mod++){ out.push(pref+livro+'.'+mod); }
-    }
-  }
-  // Livro 4 ao 11: só número, módulos 1 a 6
-  for(let livro=4; livro<=11; livro++){
-    for(let mod=1; mod<=6; mod++){ out.push(livro+'.'+mod); }
-  }
+  const vistas = new Set();
+  TURMAS.forEach(g=>{
+    g.turmas.forEach(t=>{
+      let curta = null;
+      let m;
+      if((m = t.nome.match(/^Teen\s+(\d{1,2}\.\d{1,2})$/)))            curta = 'T'+m[1];
+      else if((m = t.nome.match(/^Adult\s+(\d{1,2}\.\d{1,2})$/)))      curta = 'A'+m[1];
+      else if((m = t.nome.match(/^English Course(?:\s+VIP)?\s+(\d{1,2}\.\d{1,2})$/))) curta = m[1];
+      if(curta && !vistas.has(curta)){
+        vistas.add(curta);
+        out.push({ turma: curta, teacher: t.teacher || '' });
+      }
+    });
+  });
   return out;
+}
+// Só os nomes de turma, na ordem do timetable
+function listaTurmasOrdenada(){
+  return turmasEquiparacao().map(x=>x.turma);
+}
+// Turmas de um teacher específico (nome do teacher da turma, ex "Teacher Lays" ou "Lays Pereira")
+function turmasDoTeacher(nomeTeacher){
+  if(!nomeTeacher) return listaTurmasOrdenada();
+  const norm = s => (s||'').toLowerCase().replace(/^teacher\s+/,'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
+  const alvo = norm(nomeTeacher);
+  const lista = turmasEquiparacao().filter(x=>{
+    const tn = norm(x.teacher);
+    // casa por primeiro nome (Lays, Laura...) já que no painel é "Teacher Lays" e no timetable "Lays Pereira"
+    return tn.split(' ')[0] === alvo.split(' ')[0] || tn.includes(alvo) || alvo.includes(tn.split(' ')[0]);
+  }).map(x=>x.turma);
+  return lista.length ? lista : listaTurmasOrdenada();
 }
 let teacherFiltroPopulado = false;
 function popularFiltroTeacher(){
@@ -1344,15 +1409,11 @@ function popularFiltroTeacher(){
   teacherFiltroPopulado = true;
 }
 
-// Popular datalist de turmas (lista ordenada fixa + qualquer turma extra dos registros)
+// Popular datalist de turmas (só turmas do timetable, ordenadas)
 function popularTurmas(){
   const dl = document.getElementById('listaTurmas');
   if(!dl) return;
-  const fixas = listaTurmasOrdenada();
-  // turmas que aparecem nos dados mas não estão na lista fixa (ex: VIP), adiciona no fim
-  const extras = [...new Set(todosRegistros.map(r=>r.turma).filter(Boolean))]
-    .filter(t=>!fixas.includes(t));
-  dl.innerHTML = [...fixas, ...extras].map(t=>`<option value="${t}">`).join('');
+  dl.innerHTML = listaTurmasOrdenada().map(t=>`<option value="${t}">`).join('');
 }
 
 // Converte dd/MM/yyyy -> yyyy-MM-dd
@@ -1758,15 +1819,12 @@ function abrirDrawer(r){
   document.getElementById('dLinha').value   = r ? r.linha : '';
   document.getElementById('dAba').value     = r ? r.aba : ABAS_DISPONIVEIS[0];
   document.getElementById('dAluno').value   = r ? r.aluno : '';
-  // Converter data dd/MM/yyyy para yyyy-MM-dd; novo agendamento usa HOJE
-  if(r && r.data){
-    const p = r.data.split('/');
-    document.getElementById('dData').value = p.length===3 ? `${p[2]}-${p[1]}-${p[0]}` : '';
-  } else {
-    const hoje = new Date();
-    const iso = `${hoje.getFullYear()}-${String(hoje.getMonth()+1).padStart(2,'0')}-${String(hoje.getDate()).padStart(2,'0')}`;
-    document.getElementById('dData').value = iso;
-  }
+  // Popula as datas possíveis conforme o dia da semana da aba
+  const abaSel = document.getElementById('dAba').value;
+  const infoAbaDrawer = parseAbaFront(abaSel);
+  let dataAtualISO = '';
+  if(r && r.data){ const p = r.data.split('/'); dataAtualISO = p.length===3 ? `${p[2]}-${p[1]}-${p[0]}` : ''; }
+  popularDatasSelect(infoAbaDrawer.dia, dataAtualISO);
   // Teacher da turma (select): se o valor do registro não existir nas opções, adiciona
   const selTch = document.getElementById('dTchTurma');
   const valTch = r ? (r.tchTurma||'') : '';
@@ -1774,7 +1832,8 @@ function abrirDrawer(r){
     selTch.innerHTML += `<option value="${valTch}">${valTch}</option>`;
   }
   selTch.value = valTch;
-  document.getElementById('dTurma').value     = r ? r.turma : '';
+  // Popula turmas conforme o teacher da turma
+  popularTurmaSelect(valTch, r ? r.turma : '');
   document.getElementById('dLessons').value   = r ? r.lessons : '';
   document.getElementById('dSituation').value = r ? r.situation : '';
   document.getElementById('dPendente').value  = r ? r.pendente : '';
@@ -1826,15 +1885,17 @@ function popularHorariosDrawer(horarioAtual, linhaAtual){
 document.getElementById('dAba').addEventListener('change', ()=>{
   const aba = document.getElementById('dAba').value;
   const info = parseAbaFront(aba);
-  if(info.dia){
-    const baseISO = document.getElementById('dData').value;
-    document.getElementById('dData').value = proximaDataNoDia(baseISO, info.dia);
-  }
+  // Repopula as datas para o dia da nova aba
+  popularDatasSelect(info.dia, '');
   popularHorariosDrawer('', document.getElementById('dLinha').value);
   atualizarInfoAba();
 });
-// Ao mudar a DATA manualmente: só revalida
+// Ao mudar a DATA: revalida horários
 document.getElementById('dData').addEventListener('change', ()=>{ popularHorariosDrawer('', document.getElementById('dLinha').value); atualizarInfoAba(); });
+// Ao mudar o TEACHER DA TURMA: mostra só as turmas daquele teacher
+document.getElementById('dTchTurma').addEventListener('change', ()=>{
+  popularTurmaSelect(document.getElementById('dTchTurma').value, '');
+});
 
 document.getElementById('btnNovoAgendamento').addEventListener('click', ()=> abrirDrawer(null));
 document.getElementById('drawerCancelar').addEventListener('click', ()=>{
@@ -1930,8 +1991,11 @@ document.getElementById('drawerSalvar').addEventListener('click', async ()=>{
 });
 
 // Excluir
+const SENHA_EXCLUSAO = "Anonymous0414";
 function excluirRegistro(aba, linha){
-  if(!confirm('Excluir este agendamento da planilha?')) return;
+  const tentativa = prompt('Para excluir este agendamento, digite a senha de exclusão:');
+  if(tentativa === null) return; // cancelou
+  if(tentativa !== SENHA_EXCLUSAO){ toast('Senha de exclusão incorreta','erro'); return; }
   if(SCRIPT_URL === 'COLE_AQUI_A_URL_DO_APPS_SCRIPT'){
     toast('Configure o SCRIPT_URL para excluir da planilha', 'erro'); return;
   }
