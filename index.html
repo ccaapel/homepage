@@ -1087,8 +1087,9 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
     <input type="hidden" id="dAbaHidden">
     <div class="drawer-grid">
       <div class="full">
-        <label class="field-label">Aba (Teacher equiparador)</label>
+        <label class="field-label">Aba · define Teacher e dia da semana</label>
         <select class="field-select" id="dAba"></select>
+        <div id="dAbaInfo" style="font-size:11px;color:var(--ccaa-blue);margin-top:5px;font-weight:600"></div>
       </div>
       <div class="full">
         <label class="field-label">Aluno</label>
@@ -1097,6 +1098,7 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
       <div>
         <label class="field-label">Data</label>
         <input class="field-input" type="date" id="dData">
+        <div id="dDataAviso" style="font-size:11px;color:var(--ccaa-red);margin-top:4px;font-weight:600;display:none"></div>
       </div>
       <div>
         <label class="field-label">Horário</label>
@@ -1110,7 +1112,7 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
       </div>
       <div>
         <label class="field-label">Turma</label>
-        <input class="field-input" id="dTurma" list="listaTurmas" placeholder="Ex: T2.1, A1.3, 5.4">
+        <input class="field-input" id="dTurma" list="listaTurmas" placeholder="Ex: T2.1, A1.3 · livro 4+ só número: 4.1, 5.2">
         <datalist id="listaTurmas"></datalist>
       </div>
       <div>
@@ -1163,7 +1165,7 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
 <script>
 // ===== SISTEMA INTERNO =====
 // Cole aqui a URL do seu Apps Script após implantar
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby6eFcT3yusT8Y1sLH2lTkZxEawNUYHxG41gV454iGn8Kn9ZKGVZ42rAQSgFEA1tpBH/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxjAkhRQCRqETSjdMvSXlT3zsC6L_bzn3tC9aNq2biNC-JqGgAfnAjfEuWMX6GXzNE9/exec";
 
 // JSONP — bypassa CORS do Apps Script sem backend
 let _jsonpCount = 0;
@@ -1297,7 +1299,7 @@ async function carregarDados(silencioso){
     `${SCRIPT_URL}?action=listar&senha=${encodeURIComponent(SENHA_PAINEL)}`,
     (json) => {
       if(!json.ok){ document.getElementById('intLoading').style.display='none'; toast('Erro: '+json.erro,'erro'); return; }
-      todosRegistros = (json.dados||[]).map(normalizaRegistro);
+      todosRegistros = (json.dados||[]).map(normalizaRegistro).filter(r=>!ehLinhaModeloFront(r));
       popularTurmas();
       renderTabela();
     },
@@ -1330,13 +1332,70 @@ function popularTurmas(){
 // Converte dd/MM/yyyy -> yyyy-MM-dd
 function dataBRtoISO(s){ if(!s) return ''; const p=s.split('/'); return p.length===3?`${p[2]}-${p[1]}-${p[0]}`:''; }
 
+// Detecta linha de cabeçalho/modelo vinda do Script (rótulos no lugar de dados)
+function ehLinhaModeloFront(r){
+  const rot = {
+    aluno:['aluno(a)','aluno','nome'], dia:['dia da semana','dia'],
+    horario:['horário','horario'], data:['data'],
+    teacher:['teacher','professor'], tchTurma:['teacher da turma'],
+    turma:['turma'], situation:['situation','situação'],
+    formato:['formato'], status:['status'], pendente:['pendente'], hibrido:['híbrido','hibrido']
+  };
+  const bate=(v,l)=>l.indexOf(String(v||'').trim().toLowerCase())!==-1;
+  let hits=0;
+  if(bate(r.aluno,rot.aluno))hits++;
+  if(bate(r.dia,rot.dia))hits++;
+  if(bate(r.horario,rot.horario))hits++;
+  if(bate(r.data,rot.data))hits++;
+  if(bate(r.teacher,rot.teacher))hits++;
+  if(bate(r.tchTurma,rot.tchTurma))hits++;
+  if(bate(r.turma,rot.turma))hits++;
+  if(bate(r.situation,rot.situation))hits++;
+  if(bate(r.formato,rot.formato))hits++;
+  if(bate(r.status,rot.status))hits++;
+  if(bate(r.pendente,rot.pendente))hits++;
+  return hits>=2;
+}
+
+// Normaliza turma: livro 4+ não usa T/A, só número (4.1, 5.2, 11.3)
+function normalizaTurma(t){
+  t = String(t||'').trim();
+  if(!t) return '';
+  const m = t.match(/^([TtAa]?)\s*(\d{1,2})\.(\d{1,2})$/);
+  if(m){
+    const prefixo = m[1].toUpperCase();
+    const livro = parseInt(m[2],10);
+    const modulo = m[3];
+    if(livro >= 4) return livro+'.'+modulo;
+    return (prefixo||'')+livro+'.'+modulo;
+  }
+  return t;
+}
+
 // Defesa: normaliza dados crus do Sheets (Date strings) caso o Script não tenha formatado
 function normalizaRegistro(r){
-  // Horário: "Sat Dec 30 1899 20:23:32..." -> "20:23"
+  // Horário: trata "Sat Dec 30 1899 20:23:32 GMT-0306" (offset histórico bagunça minutos)
   if(r.horario){
-    const dt = new Date(r.horario);
-    if(!isNaN(dt) && /\d{4}/.test(r.horario) && r.horario.includes(':') && r.horario.length > 8){
-      r.horario = String(dt.getHours()).padStart(2,'0')+':'+String(dt.getMinutes()).padStart(2,'0');
+    const s = String(r.horario);
+    // Se já está "HH:mm" limpo, mantém
+    const limpo = s.match(/^(\d{1,2}):(\d{2})$/);
+    if(limpo){
+      r.horario = ('0'+limpo[1]).slice(-2)+':'+limpo[2];
+    } else if(/1899/.test(s)){
+      // Date de 1899 = hora pura. Extrai do PRÓPRIO texto, não via getHours (que aplica fuso do navegador)
+      const m = s.match(/\b(\d{1,2}):(\d{2})(?::\d{2})?\b/);
+      if(m){
+        // Corrige o offset histórico: GMT-0306 desloca ~6min. Arredonda para o slot de 30min mais próximo
+        let h = parseInt(m[1],10), mi = parseInt(m[2],10);
+        let tot = h*60+mi;
+        // arredonda para múltiplo de 30 (slots da planilha são de 30 em 30)
+        tot = Math.round(tot/30)*30;
+        h = Math.floor(tot/60)%24; mi = tot%60;
+        r.horario = ('0'+h).slice(-2)+':'+('0'+mi).slice(-2);
+      }
+    } else {
+      const m = s.match(/\b(\d{1,2}):(\d{2})\b/);
+      if(m) r.horario = ('0'+m[1]).slice(-2)+':'+m[2];
     }
   }
   // Data: "Mon Apr 13 2026..." -> "13/04/2026"
@@ -1350,9 +1409,10 @@ function normalizaRegistro(r){
   if(r.turma && (/\b(Mon|Tue|Wed|Thu|Fri|Sat|Sun)\b/.test(r.turma) || /GMT|\d{4} \d{2}:\d{2}/.test(r.turma))){
     r.turma = '';
   }
+  r.turma = normalizaTurma(r.turma);
   // Mescla lessons/situation se uma vazia
-  const l=(r.lessons||'').trim(), s=(r.situation||'').trim();
-  if(l && !s) r.situation=l; else if(s && !l) r.lessons=s;
+  const l=(r.lessons||'').trim(), s2=(r.situation||'').trim();
+  if(l && !s2) r.situation=l; else if(s2 && !l) r.lessons=s2;
   return r;
 }
 
@@ -1429,10 +1489,15 @@ function renderTabela(){
   const temFiltro = teacher || status || aba || formato || dataIni || dataFim || buscandoAluno;
 
   let filtrado = todosRegistros.filter(r=>{
-    if(teacher && r.teacher !== teacher && r.tchTurma !== teacher) return false;
+    if(teacher && (r.tchTurma||'').trim() !== teacher) return false;
     if(status  && (r.status||'').toLowerCase() !== status.toLowerCase()) return false;
     if(aba     && r.aba !== aba) return false;
-    if(formato && (r.formato||'').trim().toLowerCase() !== formato.toLowerCase()) return false;
+    if(formato){
+      const alvo = formato.toLowerCase();
+      const achou = [r.formato, r.lessons, r.situation]
+        .some(c => (c||'').toLowerCase().includes(alvo));
+      if(!achou) return false;
+    }
     const iso = dataBRtoISO(r.data);
     if(dataIni && (!iso || iso < dataIni)) return false;
     if(dataFim && (!iso || iso > dataFim)) return false;
@@ -1597,6 +1662,48 @@ setInterval(()=>{
 }, 30000);
 
 // ===== DRAWER =====
+// Parse de aba no front (espelha o Apps Script)
+function parseAbaFront(nomeAba){
+  let dia='', teacher='';
+  const antes = (nomeAba||'').split(':')[0].replace(/^OFF\s+/i,'').trim();
+  if(antes) teacher = 'Teacher '+antes;
+  const mapa = {'SEGUNDA':'Segunda-feira','TERÇA':'Terça-feira','TERCA':'Terça-feira','QUARTA':'Quarta-feira','QUINTA':'Quinta-feira','SEXTA':'Sexta-feira','SÁBADO':'Sábado','SABADO':'Sábado','DOMINGO':'Domingo'};
+  const up = (nomeAba||'').toUpperCase();
+  for(const k in mapa){ if(up.indexOf(k)!==-1){ dia=mapa[k]; break; } }
+  return {dia, teacher};
+}
+// Dia da semana ISO -> nome
+function diaSemanaISO(iso){
+  if(!iso) return '';
+  const [y,m,d] = iso.split('-');
+  const dt = new Date(+y,+m-1,+d);
+  return isNaN(dt) ? '' : DIAS_SEMANA[dt.getDay()];
+}
+// Atualiza o aviso de aba (teacher+dia) e valida a data contra o dia da aba
+function atualizarInfoAba(){
+  const aba = document.getElementById('dAba').value;
+  const info = parseAbaFront(aba);
+  const elInfo = document.getElementById('dAbaInfo');
+  if(elInfo) elInfo.textContent = (info.teacher||'') + (info.dia?' · '+info.dia:'');
+  // Validação de data
+  const dataISO = document.getElementById('dData').value;
+  const elAviso = document.getElementById('dDataAviso');
+  if(!elAviso) return;
+  if(aba && dataISO && info.dia){
+    const diaData = diaSemanaISO(dataISO);
+    // Compara só a parte antes do "-feira"
+    const norm = s => (s||'').toLowerCase().replace('-feira','').normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+    if(diaData && norm(diaData) !== norm(info.dia)){
+      elAviso.style.display = 'block';
+      elAviso.textContent = `A data caiu numa ${diaData}, mas esta aba é de ${info.dia}. Escolha uma data de ${info.dia}`;
+    } else {
+      elAviso.style.display = 'none';
+    }
+  } else {
+    elAviso.style.display = 'none';
+  }
+}
+
 function abrirDrawer(r){
   document.getElementById('drawerTitulo').textContent = r ? 'Editar agendamento' : 'Novo agendamento';
   document.getElementById('dLinha').value   = r ? r.linha : '';
@@ -1622,6 +1729,7 @@ function abrirDrawer(r){
   document.getElementById('dAgendado').value  = r ? r.agendado : '';
   // Popular horários disponíveis (mantém o horário atual se editando)
   popularHorariosDrawer(r ? r.horario : '', r ? r.linha : '');
+  atualizarInfoAba();
   document.getElementById('drawerOverlay').classList.add('open');
 }
 
@@ -1658,9 +1766,9 @@ function popularHorariosDrawer(horarioAtual, linhaAtual){
   sel.innerHTML = opts;
 }
 
-// Ao mudar aba ou data no drawer, recarrega os horários
-document.getElementById('dAba').addEventListener('change', ()=> popularHorariosDrawer('', document.getElementById('dLinha').value));
-document.getElementById('dData').addEventListener('change', ()=> popularHorariosDrawer('', document.getElementById('dLinha').value));
+// Ao mudar aba ou data no drawer, recarrega os horários e revalida
+document.getElementById('dAba').addEventListener('change', ()=>{ popularHorariosDrawer('', document.getElementById('dLinha').value); atualizarInfoAba(); });
+document.getElementById('dData').addEventListener('change', ()=>{ popularHorariosDrawer('', document.getElementById('dLinha').value); atualizarInfoAba(); });
 
 document.getElementById('btnNovoAgendamento').addEventListener('click', ()=> abrirDrawer(null));
 document.getElementById('drawerCancelar').addEventListener('click', ()=>{
@@ -1671,9 +1779,21 @@ document.getElementById('drawerOverlay').addEventListener('click', e=>{
 });
 
 document.getElementById('drawerSalvar').addEventListener('click', async ()=>{
+  const aba = document.getElementById('dAba').value;
   const dataVal = document.getElementById('dData').value;
   let dataFormatada = '';
   if(dataVal){ const [y,m,d]=dataVal.split('-'); dataFormatada=`${d}/${m}/${y}`; }
+
+  // Valida: a data tem que cair no dia da aba
+  const infoAba = parseAbaFront(aba);
+  if(aba && dataVal && infoAba.dia){
+    const norm = s => (s||'').toLowerCase().replace('-feira','').normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+    const diaData = diaSemanaISO(dataVal);
+    if(diaData && norm(diaData) !== norm(infoAba.dia)){
+      toast(`Data inválida: esta aba é de ${infoAba.dia}, mas a data caiu numa ${diaData}`,'erro');
+      return;
+    }
+  }
 
   // Formato é obrigatório
   const formato = document.getElementById('dFormato').value;
@@ -1687,13 +1807,13 @@ document.getElementById('drawerSalvar').addEventListener('click', async ()=>{
 
   const params = {
     action:'salvar', senha:SENHA_PAINEL,
-    aba:      document.getElementById('dAba').value,
+    aba:      aba,
     linha:    document.getElementById('dLinha').value,
     aluno:    document.getElementById('dAluno').value,
     data:     dataFormatada,
     horario:  document.getElementById('dHorario').value,
     tchTurma: document.getElementById('dTchTurma').value,
-    turma:    document.getElementById('dTurma').value,
+    turma:    normalizaTurma(document.getElementById('dTurma').value),
     lessons:  lessons,
     situation:situation,
     pendente: document.getElementById('dPendente').value,
