@@ -1043,17 +1043,17 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
       </button>
     </div>
     <div class="int-filtros">
-      <select class="int-select" id="filtroTeacher"><option value="">Todos os Teachers</option></select>
+      <select class="int-select" id="filtroTeacher"><option value="">Teachers</option></select>
       <select class="int-select" id="filtroStatus">
-        <option value="">Todos os Status</option>
+        <option value="">Agendamentos</option>
         <option>Agendado</option><option>Realizado</option><option>Cancelado</option>
         <option>Remarcado</option><option>Faltou</option>
       </select>
-      <select class="int-select" id="filtroAba"><option value="">Todas as abas</option></select>
       <select class="int-select" id="filtroFormato">
-        <option value="">Todos os Formatos</option>
+        <option value="">Formatos</option>
         <option>Equiparação</option><option>Apoio</option><option>Nivelamento</option><option>Prova</option>
       </select>
+      <select class="int-select" id="filtroAba"><option value="">Registrados</option></select>
       <input class="int-select" type="date" id="filtroData" title="Filtrar por data" style="min-width:150px">
       <input class="int-search" type="text" id="filtroAluno" placeholder="Buscar aluno...">
       <button class="int-btn int-btn-reload" id="btnLimparFiltros" type="button" title="Limpar filtros">Limpar</button>
@@ -1161,7 +1161,7 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
 <script>
 // ===== SISTEMA INTERNO =====
 // Cole aqui a URL do seu Apps Script após implantar
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx0w2gx-KanljVZZTBoisyy4DHbd2Lkj9JBGaUb3jDp4IMXWwKvFLS2L1bQGl79fZg/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby6eFcT3yusT8Y1sLH2lTkZxEawNUYHxG41gV454iGn8Kn9ZKGVZ42rAQSgFEA1tpBH/exec";
 
 // JSONP — bypassa CORS do Apps Script sem backend
 let _jsonpCount = 0;
@@ -1172,7 +1172,7 @@ function jsonpCall(baseUrl, onSuccess, onError){
     const s = document.getElementById(cbName+'_s');
     if(s) s.remove();
     if(onError) onError('timeout');
-  }, 12000);
+  }, 25000);
 
   window[cbName] = (data) => {
     clearTimeout(timeout);
@@ -1294,7 +1294,7 @@ async function carregarDados(silencioso){
     `${SCRIPT_URL}?action=listar&senha=${encodeURIComponent(SENHA_PAINEL)}`,
     (json) => {
       if(!json.ok){ document.getElementById('intLoading').style.display='none'; toast('Erro: '+json.erro,'erro'); return; }
-      todosRegistros = json.dados;
+      todosRegistros = (json.dados||[]).map(normalizaRegistro);
       popularTurmas();
       renderTabela();
     },
@@ -1326,6 +1326,28 @@ function popularTurmas(){
 
 // Converte dd/MM/yyyy -> yyyy-MM-dd
 function dataBRtoISO(s){ if(!s) return ''; const p=s.split('/'); return p.length===3?`${p[2]}-${p[1]}-${p[0]}`:''; }
+
+// Defesa: normaliza dados crus do Sheets (Date strings) caso o Script não tenha formatado
+function normalizaRegistro(r){
+  // Horário: "Sat Dec 30 1899 20:23:32..." -> "20:23"
+  if(r.horario){
+    const dt = new Date(r.horario);
+    if(!isNaN(dt) && /\d{4}/.test(r.horario) && r.horario.includes(':') && r.horario.length > 8){
+      r.horario = String(dt.getHours()).padStart(2,'0')+':'+String(dt.getMinutes()).padStart(2,'0');
+    }
+  }
+  // Data: "Mon Apr 13 2026..." -> "13/04/2026"
+  if(r.data && !/^\d{2}\/\d{2}\/\d{4}/.test(r.data)){
+    const dt = new Date(r.data);
+    if(!isNaN(dt)){
+      r.data = String(dt.getDate()).padStart(2,'0')+'/'+String(dt.getMonth()+1).padStart(2,'0')+'/'+dt.getFullYear();
+    }
+  }
+  // Mescla lessons/situation se uma vazia
+  const l=(r.lessons||'').trim(), s=(r.situation||'').trim();
+  if(l && !s) r.situation=l; else if(s && !l) r.lessons=s;
+  return r;
+}
 
 // Nome + no máximo 1 sobrenome
 function nomeCurto(nome){
@@ -1470,16 +1492,19 @@ function renderSlotsLivres(aba, dataISO){
   const livres = todos.filter(h => !ocupados.includes(h));
 
   el.style.display = 'block';
-  const chipsLivres = livres.length
-    ? livres.map(h=>`<span style="display:inline-block;background:var(--live);color:#fff;border-radius:99px;padding:3px 11px;font-weight:700;font-size:12px;margin:2px;">${h}</span>`).join('')
-    : '<span style="color:var(--text-dim)">Nenhum horário livre nesta data</span>';
-  const chipsOcup = ocupados.length
-    ? ocupados.map(h=>`<span style="display:inline-block;background:var(--surface-2);color:var(--text-dim);border:1px solid var(--border);border-radius:99px;padding:3px 11px;font-size:12px;margin:2px;text-decoration:line-through;">${h}</span>`).join('')
-    : '';
+  // Chips: livres em verde, ocupados em vermelho
+  const chips = todos.map(h => {
+    const ocupado = ocupados.includes(h);
+    if(ocupado){
+      return `<span style="display:inline-block;background:var(--ccaa-red);color:#fff;border-radius:99px;padding:3px 11px;font-weight:700;font-size:12px;margin:2px;">${h} · ocupado</span>`;
+    }
+    return `<span style="display:inline-block;background:var(--live);color:#fff;border-radius:99px;padding:3px 11px;font-weight:700;font-size:12px;margin:2px;">${h}</span>`;
+  }).join('');
+
   el.innerHTML =
-    `<div style="font-weight:700;margin-bottom:6px">Horários disponíveis · ${dataBR}</div>`
-    + `<div style="margin-bottom:6px">${chipsLivres}</div>`
-    + (chipsOcup ? `<div style="font-size:11px;color:var(--text-dim);margin-top:4px">Ocupados: ${chipsOcup}</div>` : '');
+    `<div style="font-weight:700;margin-bottom:6px">Horários · ${dataBR}</div>`
+    + `<div>${chips}</div>`
+    + (livres.length ? '' : `<div style="font-size:11px;color:var(--ccaa-red);margin-top:6px;font-weight:600">Dia cheio — nenhum horário livre</div>`);
 }
 
 // Filtros em tempo real
@@ -1488,14 +1513,16 @@ function renderSlotsLivres(aba, dataISO){
   document.getElementById(id).addEventListener('change', renderTabela);
 });
 
-// Limpar filtros
+// Limpar filtros — volta ao estado inicial (esta semana)
 document.getElementById('btnLimparFiltros').addEventListener('click', ()=>{
   document.getElementById('filtroTeacher').value = '';
   document.getElementById('filtroStatus').value = '';
-  document.getElementById('filtroAba').value = '';
   document.getElementById('filtroFormato').value = '';
+  document.getElementById('filtroAba').value = '';
   document.getElementById('filtroData').value = '';
   document.getElementById('filtroAluno').value = '';
+  verTudoInterno = false;
+  document.getElementById('slotsLivres').style.display = 'none';
   renderTabela();
 });
 
@@ -1653,5 +1680,4 @@ function excluirRegistro(aba, linha){
 }
 </script>
 </body>
-</html>
 </html>
