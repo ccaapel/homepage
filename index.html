@@ -67,7 +67,12 @@ body {
   transition:background .3s, color .3s;
   padding-bottom: env(safe-area-inset-bottom);
 }
-.app { max-width: 720px; margin:0 auto; padding:0 16px 90px; }
+.app { max-width: 940px; margin:0 auto; padding:0 20px 90px; }
+/* Grid de cards na lista completa: 2 colunas em telas largas, 1 no mobile */
+.cards-grid { display:grid; grid-template-columns:1fr; gap:0; }
+@media (min-width:760px){
+  .cards-grid { grid-template-columns:1fr 1fr; gap:12px; align-items:start; }
+}
 
 /* ===== HEADER CENTRALIZADO ===== */
 .header {
@@ -206,6 +211,8 @@ body {
 }
 .turma:hover { transform:translateY(-2px); border-color:var(--ccaa-blue); box-shadow:var(--shadow-hover); }
 .turma:active { transform:scale(.987); }
+.cards-grid .turma { margin-bottom:0; }
+@media (max-width:759px){ .cards-grid .turma { margin-bottom:11px; } }
 .turma.is-live { border-color:color-mix(in srgb,var(--live) 55%,transparent); background:color-mix(in srgb,var(--live) 5%,var(--surface)); }
 .turma-info { flex:1; min-width:0; }
 .turma-name { font-size:16.5px; font-weight:800; letter-spacing:-0.01em; color:var(--text); margin-bottom:4px; }
@@ -541,6 +548,10 @@ body {
 .resumo-card .rc-nums { display:flex; flex-wrap:wrap; gap:10px; align-items:baseline; }
 .resumo-card .rc-big { font-size:22px; font-weight:800; color:var(--text); line-height:1; }
 .resumo-card .rc-item { font-size:12px; font-weight:600; }
+.resumo-card.resumo-hoje { flex:2; min-width:280px; }
+.rc-grid { display:flex; flex-wrap:wrap; gap:8px; }
+.rc-pill { display:flex; align-items:center; gap:5px; background:var(--surface-2); border:1px solid var(--border); border-radius:99px; padding:4px 11px; font-size:11.5px; font-weight:600; color:var(--text-mute); }
+.rc-pill .rc-num { font-size:15px; font-weight:800; }
 
 /* Grid de vagas */
 .vagas-teacher { margin-bottom:18px; background:var(--surface); border:1.5px solid var(--border); border-radius:var(--r-md); overflow:hidden; }
@@ -918,7 +929,7 @@ function render(){
     const doGrupo = lista.filter(x=>x.t.grupo===g.grupo);
     if(!doGrupo.length) return;
     html += `<div class="grupo-title">${g.grupo}<span class="grupo-count">${doGrupo.length}</span></div>`;
-    html += doGrupo.map(x=>turmaCard(x.t,x.st)).join('');
+    html += `<div class="cards-grid">` + doGrupo.map(x=>turmaCard(x.t,x.st)).join('') + `</div>`;
   });
   content.innerHTML=html;
   bindToggle();
@@ -1093,7 +1104,7 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
     <!-- Abas de navegação -->
     <div id="painelTabs" style="display:flex; gap:8px; margin-bottom:16px; border-bottom:1.5px solid var(--border);">
       <button class="painel-tab ativa" data-tab="agenda" id="tabAgenda">Agendamentos</button>
-      <button class="painel-tab" data-tab="vagas" id="tabVagas">Vagas livres</button>
+      <button class="painel-tab" data-tab="vagas" id="tabVagas">Agendamentos disponíveis</button>
     </div>
 
     <!-- ABA AGENDAMENTOS -->
@@ -1106,6 +1117,10 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
       <button class="int-btn int-btn-reload" id="btnExportar" type="button" title="Resumo para WhatsApp">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"/><path d="M16 6l-4-4-4 4"/><path d="M12 2v14"/></svg>
         Resumo p/ WhatsApp
+      </button>
+      <button class="int-btn int-btn-reload" id="btnLembrete" type="button" title="Lembrete para um aluno">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        Lembrete p/ WhatsApp
       </button>
     </div>
     <div class="int-filtros">
@@ -1144,14 +1159,28 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
     </div>
     </div>
 
-    <!-- ABA VAGAS LIVRES -->
+    <!-- ABA AGENDAMENTOS DISPONÍVEIS -->
     <div id="viewVagas" style="display:none">
       <div style="display:flex; align-items:center; gap:10px; margin-bottom:14px; flex-wrap:wrap;">
-        <span style="font-size:13px; color:var(--text-mute); font-weight:600">Mostrando vagas livres da semana de:</span>
-        <input class="int-select" type="date" id="vagasSemanaRef" style="min-width:150px">
-        <button class="int-btn int-btn-reload" id="btnVagasHoje" type="button">Semana atual</button>
+        <span style="font-size:13px; color:var(--text-mute); font-weight:600">Semana:</span>
+        <select class="int-select" id="vagasSemanaSel" style="min-width:240px"></select>
+        <input class="int-select" type="date" id="vagasSemanaRef" style="min-width:150px" title="Ou escolha uma data">
       </div>
       <div id="vagasGrid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Lembrete WhatsApp -->
+<div class="hist-overlay" id="lembreteOverlay">
+  <div class="hist-box">
+    <h3>Lembrete p/ WhatsApp</h3>
+    <p style="font-size:12.5px;color:var(--text-dim);margin-bottom:14px">Selecione o agendamento. A mensagem lembra o aluno da atividade do dia seguinte.</p>
+    <select class="field-select" id="lembreteSel" style="margin-bottom:14px"><option value="">Carregando...</option></select>
+    <div id="lembretePreview" style="background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-sm);padding:13px;font-size:13px;white-space:pre-wrap;min-height:80px;color:var(--text-mute);display:none"></div>
+    <div style="margin-top:16px; display:flex; gap:10px; justify-content:flex-end">
+      <button class="drawer-btn-cancel" id="lembreteFechar">Fechar</button>
+      <button class="drawer-btn-save" id="lembreteCopiar" style="display:none">Copiar mensagem</button>
     </div>
   </div>
 </div>
@@ -1666,29 +1695,22 @@ function ocupaSlot(status){
 
 let recorteTempo = 'semana'; // 'hoje' | 'amanha' | 'semana' | 'todos'
 let verTudoInterno = false; // mantido p/ compat (todos)
+let outrosExpandido = false; // accordion "Outros agendamentos"
+function toggleOutros(){ outrosExpandido = !outrosExpandido; renderTabela(); }
 let ordemAsc = false; // false = mais recentes primeiro
 
 // Monta uma linha <tr>
-// Detecta conflito: mesma aba+data+horário com outro registro que ocupa slot
-function temConflito(r){
-  if(!ocupaSlot(r.status)) return false;
-  const c = todosRegistros.filter(x=>
-    x.aba===r.aba && x.data===r.data && x.horario===r.horario && ocupaSlot(x.status)
-  );
-  return c.length > 1;
-}
 function linhaRegistro(r){
   const badgeClass = {
     'realizado':'badge-realizado','agendado':'badge-agendado',
     'cancelado':'badge-cancelado','remarcado':'badge-remarcado','faltou':'badge-faltou'
   }[(r.status||'').toLowerCase()] || 'badge-default';
   const dia = diaDaData(r.data);
-  const conflito = temConflito(r);
   const nomeEsc = (r.aluno||'').replace(/'/g,"\\'").replace(/"/g,'&quot;');
-  return `<tr class="${conflito?'tr-conflito':''}">
+  return `<tr>
     <td><b class="aluno-link" onclick="abrirHistorico('${nomeEsc}')">${nomeCurto(r.aluno)}</b></td>
     <td>${r.data}${dia?`<br><span style="font-size:10.5px;color:var(--text-dim)">${dia}</span>`:''}</td>
-    <td>${r.horario||'—'}${conflito?'<span class="badge-conflito">CONFLITO</span>':''}</td>
+    <td>${r.horario||'—'}</td>
     <td style="font-size:11.5px;color:var(--text-dim)">${r.tchTurma||r.teacher||'—'}</td>
     <td>${r.turma?`<b style="color:var(--ccaa-blue)">${r.turma}</b>`:'—'}</td>
     <td>${r.lessons||'—'}</td>
@@ -1706,6 +1728,9 @@ function linhaRegistro(r){
 function renderTabela(){
   document.getElementById('intLoading').style.display = 'none';
   renderResumo();
+  // Se a aba de disponíveis estiver aberta, atualiza ela também
+  const viewVagas = document.getElementById('viewVagas');
+  if(viewVagas && viewVagas.style.display !== 'none'){ renderVagas(); }
   const teacher = document.getElementById('filtroTeacher').value;
   const status  = document.getElementById('filtroStatus').value;
   const aba     = document.getElementById('filtroAba').value;
@@ -1762,8 +1787,10 @@ function renderTabela(){
       html += semana.map(linhaRegistro).join('');
     }
     if(fora.length){
-      html += `<tr><td colspan="10" style="background:var(--surface-2);color:var(--text-dim);font-weight:800;font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;padding:8px 12px">Outros agendamentos · ${fora.length}</td></tr>`;
-      html += fora.map(linhaRegistro).join('');
+      const seta = outrosExpandido ? '▼' : '►';
+      html += `<tr><td colspan="10" onclick="toggleOutros()" style="cursor:pointer;background:var(--surface-2);color:var(--text-mute);font-weight:800;font-size:12.5px;text-transform:uppercase;letter-spacing:.06em;padding:12px 14px;user-select:none">
+        <span style="display:inline-block;width:16px;color:var(--ccaa-blue)">${seta}</span> Outros agendamentos · ${fora.length} ${outrosExpandido?'(clique para recolher)':'(clique para ver)'}</td></tr>`;
+      if(outrosExpandido){ html += fora.map(linhaRegistro).join(''); }
     }
     tbody.innerHTML = html;
     return;
@@ -1787,37 +1814,29 @@ function renderResumo(){
   const el = document.getElementById('resumoBar');
   if(!el) return;
   const norm = s => (s||'').toLowerCase();
-  // Hoje
   const hoje = todosRegistros.filter(r=>ehHoje(r.data));
   const cont = (lista,st)=> lista.filter(r=>norm(r.status)===st).length;
-  // Semana
   const semana = todosRegistros.filter(r=>dentroDaSemana(r.data));
-  // Vagas livres da semana (total de slots livres em todas as abas, dias da semana atual)
   const vagasSemana = contarVagasSemana(refSemanaISO());
 
   el.innerHTML = `
-    <div class="resumo-card">
-      <div class="rc-label">Hoje</div>
-      <div class="rc-nums">
-        <span class="rc-big">${hoje.length}</span>
-        <span class="rc-item" style="color:var(--soon)">${cont(hoje,'agendado')} agend.</span>
-        <span class="rc-item" style="color:var(--live)">${cont(hoje,'realizado')} feito</span>
-        <span class="rc-item" style="color:#6B7280">${cont(hoje,'faltou')} faltou</span>
+    <div class="resumo-card resumo-hoje">
+      <div class="rc-label">Hoje · ${hoje.length} no total</div>
+      <div class="rc-grid">
+        <div class="rc-pill"><span class="rc-num" style="color:var(--soon)">${cont(hoje,'agendado')}</span> Agendados</div>
+        <div class="rc-pill"><span class="rc-num" style="color:var(--live)">${cont(hoje,'realizado')}</span> Realizados</div>
+        <div class="rc-pill"><span class="rc-num" style="color:#a78bfa">${cont(hoje,'remarcado')}</span> Remarcados</div>
+        <div class="rc-pill"><span class="rc-num" style="color:#9ca3af">${cont(hoje,'faltou')}</span> Faltaram</div>
+        <div class="rc-pill"><span class="rc-num" style="color:var(--ccaa-red)">${cont(hoje,'cancelado')}</span> Cancelados</div>
       </div>
     </div>
     <div class="resumo-card">
       <div class="rc-label">Esta semana</div>
-      <div class="rc-nums">
-        <span class="rc-big">${semana.length}</span>
-        <span class="rc-item">agendamentos</span>
-      </div>
+      <div class="rc-nums"><span class="rc-big">${semana.length}</span><span class="rc-item">agendamentos</span></div>
     </div>
     <div class="resumo-card">
-      <div class="rc-label">Vagas livres (semana)</div>
-      <div class="rc-nums">
-        <span class="rc-big" style="color:var(--live)">${vagasSemana}</span>
-        <span class="rc-item">slots abertos</span>
-      </div>
+      <div class="rc-label">Disponíveis (semana)</div>
+      <div class="rc-nums"><span class="rc-big" style="color:var(--live)">${vagasSemana}</span><span class="rc-item">slots abertos</span></div>
     </div>`;
 }
 
@@ -1829,14 +1848,36 @@ const ABA_DIA_IDX = { // dia da semana de cada aba (0=dom)
   "Valquíria: QUARTA-FEIRA - Sala 13":3, "OFF Laura: QUINTA-FEIRA - Sala 8":4,
   "Laura: SEXTA-FEIRA - Sala 2":5
 };
-// ISO da segunda-feira da semana de referência (campo vagasSemanaRef ou hoje)
+// ISO da segunda-feira da semana de referência
 function refSemanaISO(){
+  const sel = document.getElementById('vagasSemanaSel');
   const campo = document.getElementById('vagasSemanaRef');
-  let base = (campo && campo.value) ? new Date(campo.value+'T00:00:00') : new Date();
+  let base;
+  if(campo && campo.value){ base = new Date(campo.value+'T00:00:00'); }
+  else if(sel && sel.value){ base = new Date(sel.value+'T00:00:00'); }
+  else { base = new Date(); }
   base.setHours(0,0,0,0);
   const ds = base.getDay()===0?7:base.getDay();
-  base.setDate(base.getDate()-(ds-1)); // segunda
+  base.setDate(base.getDate()-(ds-1));
   return `${base.getFullYear()}-${String(base.getMonth()+1).padStart(2,'0')}-${String(base.getDate()).padStart(2,'0')}`;
+}
+// Popula o seletor de semanas (atual + próximas 8)
+function popularSeletorSemanas(){
+  const sel = document.getElementById('vagasSemanaSel');
+  if(!sel) return;
+  const hoje = new Date(); hoje.setHours(0,0,0,0);
+  const ds = hoje.getDay()===0?7:hoje.getDay();
+  const seg = new Date(hoje); seg.setDate(hoje.getDate()-(ds-1));
+  let opts='';
+  for(let i=0;i<9;i++){
+    const s = new Date(seg); s.setDate(seg.getDate()+i*7);
+    const f = new Date(s); f.setDate(s.getDate()+4); // sexta
+    const iso = `${s.getFullYear()}-${String(s.getMonth()+1).padStart(2,'0')}-${String(s.getDate()).padStart(2,'0')}`;
+    const rotulo = i===0?'Semana atual':(i===1?'Próxima semana':`Em ${i} semanas`);
+    const periodo = `${String(s.getDate()).padStart(2,'0')}/${String(s.getMonth()+1).padStart(2,'0')} a ${String(f.getDate()).padStart(2,'0')}/${String(f.getMonth()+1).padStart(2,'0')}`;
+    opts += `<option value="${iso}">${rotulo} · ${periodo}</option>`;
+  }
+  sel.innerHTML = opts;
 }
 // data ISO de um dia da semana (1-5) dentro da semana que começa em segIso
 function dataDoDiaNaSemana(segIso, diaIdx){
@@ -1854,10 +1895,25 @@ function contarVagasSemana(segIso){
     const diaIdx = ABA_DIA_IDX[aba];
     if(!diaIdx || !slots.length) return;
     const dataBR = isoToBR(dataDoDiaNaSemana(segIso, diaIdx));
-    const ocup = todosRegistros.filter(r=>r.aba===aba && r.data===dataBR && ocupaSlot(r.status)).map(r=>r.horario);
-    total += slots.filter(h=>!ocup.includes(h)).length;
+    const ocup = ocupadosNaAbaData(aba, dataBR);
+    total += slots.filter(h=>!ocup.has(h)).length;
   });
   return total;
+}
+// Conjunto de horários ocupados numa aba+data. Prova ocupa o slot dela + o seguinte (1h).
+function ocupadosNaAbaData(aba, dataBR){
+  const slots = HORARIOS_POR_ABA[aba]||[];
+  const regs = todosRegistros.filter(r=>r.aba===aba && r.data===dataBR && ocupaSlot(r.status));
+  const ocup = new Set();
+  regs.forEach(r=>{
+    ocup.add(r.horario);
+    // Se for prova, ocupa também o slot seguinte (aula de 1h)
+    if((r.formato||'').toLowerCase()==='prova'){
+      const idx = slots.indexOf(r.horario);
+      if(idx>=0 && idx<slots.length-1) ocup.add(slots[idx+1]);
+    }
+  });
+  return ocup;
 }
 function renderVagas(){
   const grid = document.getElementById('vagasGrid');
@@ -1869,15 +1925,17 @@ function renderVagas(){
     const diaIdx = ABA_DIA_IDX[aba];
     if(!diaIdx) return;
     const info = parseAbaFront(aba);
-    const dataBR = isoToBR(dataDoDiaNaSemana(segIso, diaIdx));
-    const ocup = todosRegistros.filter(r=>r.aba===aba && r.data===dataBR && ocupaSlot(r.status)).map(r=>r.horario);
-    const livres = slots.filter(h=>!ocup.includes(h));
+    const dataISO = dataDoDiaNaSemana(segIso, diaIdx);
+    const dataBR = isoToBR(dataISO);
+    const ocup = ocupadosNaAbaData(aba, dataBR);
+    const livres = slots.filter(h=>!ocup.has(h));
+    const sala = (aba.match(/Sala\s*\d+/i)||[''])[0];
     let slotsHtml;
     if(!slots.length){ slotsHtml = '<span class="vagas-vazio">Sem horários nesta aba</span>'; }
     else {
       slotsHtml = slots.map(h=>{
-        if(ocup.includes(h)) return `<span class="vaga-ocupada">${h}</span>`;
-        return `<button class="vaga-livre" onclick="agendarVaga('${aba.replace(/'/g,"\\'")}','${dataDoDiaNaSemana(segIso,diaIdx)}','${h}')">${h}</button>`;
+        if(ocup.has(h)) return `<span class="vaga-ocupada">${h}</span>`;
+        return `<button class="vaga-livre" onclick="agendarVaga('${aba.replace(/'/g,"\\'")}','${dataISO}','${h}')">${h}</button>`;
       }).join('');
     }
     html += `<div class="vagas-teacher">
@@ -1886,16 +1944,17 @@ function renderVagas(){
         <span class="vt-sub">${info.dia} · ${dataBR} · ${livres.length} livre${livres.length!==1?'s':''}</span>
       </div>
       <div class="vagas-dia">
-        <span class="vagas-dia-label">${aba.split(':')[1]?aba.split(':')[1].split('-').slice(1).join('-').trim():''}</span>
+        <span class="vagas-dia-label">${info.dia}${sala?' · '+sala:''}</span>
         <div class="vagas-slots">${slotsHtml}</div>
       </div>
     </div>`;
   });
   grid.innerHTML = html;
 }
-// Clicar numa vaga abre o drawer pré-preenchido
+// Clicar numa vaga abre o drawer pré-preenchido, mantendo a aba de vagas ao fundo
+let drawerVeioDeVagas = false;
 function agendarVaga(aba, dataISO, horario){
-  trocarAba('agenda');
+  drawerVeioDeVagas = true;
   abrirDrawer(null);
   document.getElementById('dAba').value = aba;
   const info = parseAbaFront(aba);
@@ -1932,20 +1991,78 @@ function fecharHistorico(){ document.getElementById('histOverlay').classList.rem
 
 // ===== EXPORTAR PARA WHATSAPP =====
 function exportarWhatsApp(){
-  const semana = todosRegistros.filter(r=>dentroDaSemana(r.data) && ocupaSlot(r.status))
-    .sort((a,b)=> dataMs(a.data)-dataMs(b.data) || (a.horario||'').localeCompare(b.horario||''));
+  // Só a semana atual, agrupado e ordenado de segunda a sexta
+  const semana = todosRegistros.filter(r=>dentroDaSemana(r.data) && ocupaSlot(r.status));
   if(!semana.length){ toast('Nenhum agendamento na semana','erro'); return; }
-  let txt = '*Equiparações & Nivelamento · Semana*\n\n';
-  let dataAtual='';
+  const diaIdx = d => { const x=new Date(dataBRtoISO(d)); const g=x.getDay(); return g===0?7:g; }; // 1=seg
+  // ordena por dia da semana, depois horário
+  semana.sort((a,b)=> diaIdx(a.data)-diaIdx(b.data) || (a.horario||'').localeCompare(b.horario||''));
+  let txt = '*Equiparações & Nivelamento · Semana*\n';
+  let diaAtual='';
   semana.forEach(r=>{
-    if(r.data!==dataAtual){ dataAtual=r.data; txt += `\n*${r.data} (${diaDaData(r.data)})*\n`; }
+    const chave = r.data;
+    if(chave!==diaAtual){ diaAtual=chave; txt += `\n*${r.data} (${diaDaData(r.data)})*\n`; }
     txt += `• ${r.horario||''} ${nomeCurto(r.aluno)} — ${r.formato||''}${r.turma?' '+r.turma:''} (${r.tchTurma||r.teacher||''})\n`;
   });
+  copiarTexto(txt, 'Resumo copiado! Cole no WhatsApp ✓');
+}
+function copiarTexto(txt, msg){
   navigator.clipboard.writeText(txt).then(
-    ()=> toast('Resumo copiado! Cole no WhatsApp ✓'),
-    ()=> { const ta=document.createElement('textarea'); ta.value=txt; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); toast('Resumo copiado! Cole no WhatsApp ✓'); }
+    ()=> toast(msg),
+    ()=> { const ta=document.createElement('textarea'); ta.value=txt; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); toast(msg); }
   );
 }
+
+// ===== LEMBRETE PARA UM ALUNO =====
+function abrirLembrete(){
+  const sel = document.getElementById('lembreteSel');
+  // Agendamentos futuros (de hoje em diante) com status que ocupa slot
+  const hoje = new Date(); hoje.setHours(0,0,0,0);
+  const futuros = todosRegistros.filter(r=>{
+    const iso = dataBRtoISO(r.data); if(!iso) return false;
+    return new Date(iso) >= hoje && ocupaSlot(r.status);
+  }).sort((a,b)=> dataMs(a.data)-dataMs(b.data) || (a.horario||'').localeCompare(b.horario||''));
+  if(!futuros.length){
+    sel.innerHTML = '<option value="">Nenhum agendamento futuro</option>';
+  } else {
+    sel.innerHTML = '<option value="">Selecione o aluno e a atividade</option>' +
+      futuros.map((r,i)=>`<option value="${i}">${r.data} ${r.horario||''} · ${nomeCurto(r.aluno)} · ${r.formato||''}${r.turma?' '+r.turma:''}</option>`).join('');
+  }
+  window._lembreteFuturos = futuros;
+  document.getElementById('lembretePreview').style.display='none';
+  document.getElementById('lembreteCopiar').style.display='none';
+  document.getElementById('lembreteOverlay').classList.add('open');
+}
+function montarMensagemLembrete(r){
+  const primeiroNome = (r.aluno||'').trim().split(' ')[0];
+  const tipo = (r.formato||'').toLowerCase();
+  // descrição da atividade
+  let atividade;
+  if(tipo==='prova') atividade = 'a sua prova';
+  else if(tipo==='apoio') atividade = 'a sua aula de apoio';
+  else if(tipo==='nivelamento') atividade = 'o seu nivelamento';
+  else atividade = 'a sua equiparação';
+  const conteudo = (r.lessons && !/material do apoio/i.test(r.lessons)) ? ` (${r.lessons})` : '';
+  const teacher = r.tchTurma || r.teacher || '';
+  const teacherTxt = teacher ? ` com a ${teacher.replace(/^Teacher\s+/,'Teacher ')}` : '';
+  return `Oi, ${primeiroNome}! Tudo bem? 😊\n\n`+
+    `Aqui é da equipe do CCAA Pelotas. Passando só pra te lembrar que amanhã, dia ${r.data}, às ${r.horario||''}, você tem ${atividade}${conteudo}${teacherTxt}.\n\n`+
+    `Qualquer coisa que precisar, é só me chamar por aqui. Conto com você! 💙`;
+}
+function selecionarLembrete(){
+  const idx = document.getElementById('lembreteSel').value;
+  const prev = document.getElementById('lembretePreview');
+  const btn = document.getElementById('lembreteCopiar');
+  if(idx===''){ prev.style.display='none'; btn.style.display='none'; return; }
+  const r = (window._lembreteFuturos||[])[parseInt(idx,10)];
+  if(!r) return;
+  const msg = montarMensagemLembrete(r);
+  prev.textContent = msg;
+  prev.style.display='block';
+  btn.style.display='inline-flex';
+  window._lembreteMsg = msg;
+}
+function fecharLembrete(){ document.getElementById('lembreteOverlay').classList.remove('open'); }
 
 // ===== TROCA DE ABAS =====
 function trocarAba(qual){
@@ -1953,7 +2070,7 @@ function trocarAba(qual){
   document.getElementById('viewVagas').style.display  = qual==='vagas'?'block':'none';
   document.getElementById('tabAgenda').classList.toggle('ativa', qual==='agenda');
   document.getElementById('tabVagas').classList.toggle('ativa', qual==='vagas');
-  if(qual==='vagas') renderVagas();
+  if(qual==='vagas'){ popularSeletorSemanas(); renderVagas(); }
 }
 
 function renderBarraSemana(){
@@ -2210,17 +2327,29 @@ document.getElementById('tabAgenda').addEventListener('click', ()=> trocarAba('a
 document.getElementById('tabVagas').addEventListener('click', ()=> trocarAba('vagas'));
 // Exportar WhatsApp
 document.getElementById('btnExportar').addEventListener('click', exportarWhatsApp);
+// Lembrete
+document.getElementById('btnLembrete').addEventListener('click', abrirLembrete);
+document.getElementById('lembreteSel').addEventListener('change', selecionarLembrete);
+document.getElementById('lembreteCopiar').addEventListener('click', ()=>{ if(window._lembreteMsg) copiarTexto(window._lembreteMsg,'Lembrete copiado! Cole no WhatsApp ✓'); });
+document.getElementById('lembreteFechar').addEventListener('click', fecharLembrete);
+document.getElementById('lembreteOverlay').addEventListener('click', e=>{ if(e.target.id==='lembreteOverlay') fecharLembrete(); });
 // Histórico: fechar
 document.getElementById('histFechar').addEventListener('click', fecharHistorico);
 document.getElementById('histOverlay').addEventListener('click', (e)=>{ if(e.target.id==='histOverlay') fecharHistorico(); });
 // Vagas: troca de semana
-document.getElementById('vagasSemanaRef').addEventListener('change', renderVagas);
-document.getElementById('btnVagasHoje').addEventListener('click', ()=>{ document.getElementById('vagasSemanaRef').value=''; renderVagas(); });
-document.getElementById('drawerCancelar').addEventListener('click', ()=>{
-  document.getElementById('drawerOverlay').classList.remove('open');
+// Vagas: seletor de semana (limpa a data manual ao usar) e data avulsa
+document.getElementById('vagasSemanaSel').addEventListener('change', ()=>{
+  document.getElementById('vagasSemanaRef').value='';
+  renderVagas();
 });
+document.getElementById('vagasSemanaRef').addEventListener('change', renderVagas);
+function fecharDrawerSemSalvar(){
+  document.getElementById('drawerOverlay').classList.remove('open');
+  if(drawerVeioDeVagas){ drawerVeioDeVagas=false; renderVagas(); }
+}
+document.getElementById('drawerCancelar').addEventListener('click', fecharDrawerSemSalvar);
 document.getElementById('drawerOverlay').addEventListener('click', e=>{
-  if(e.target.id==='drawerOverlay') document.getElementById('drawerOverlay').classList.remove('open');
+  if(e.target.id==='drawerOverlay') fecharDrawerSemSalvar();
 });
 
 document.getElementById('drawerSalvar').addEventListener('click', async ()=>{
@@ -2279,6 +2408,7 @@ document.getElementById('drawerSalvar').addEventListener('click', async ()=>{
     (json) => {
       if(!json.ok){ toast('Erro ao salvar: '+json.erro,'erro'); return; }
       document.getElementById('drawerOverlay').classList.remove('open');
+      drawerVeioDeVagas = false;
       toast('Salvo com sucesso ✓');
 
       // Oferece +30min: só em agendamento NOVO e se o próximo slot for EXATAMENTE 30 min depois e livre
