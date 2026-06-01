@@ -965,10 +965,14 @@ function bindCards(c){
   if(!c) return;
   c.querySelectorAll('.star').forEach(btn=>btn.addEventListener('click',e=>{
     e.stopPropagation();
+    e.preventDefault();
+    const scrollY = window.scrollY; // preserva a posição da rolagem
     const t=FLAT[+btn.dataset.star];
     if(minhaTurma===t.nome){ minhaTurma=null; Store.set('ccaa_minha_turma',''); }
-    else { minhaTurma=t.nome; Store.set('ccaa_minha_turma',t.nome); mostrarTodas=false; }
+    else { minhaTurma=t.nome; Store.set('ccaa_minha_turma',t.nome); }
     render();
+    // restaura o scroll após o re-render (evita a tela saltar)
+    requestAnimationFrame(()=>{ window.scrollTo(0, scrollY); });
   }));
   c.querySelectorAll('.turma').forEach(el=>el.addEventListener('click',e=>{ if(e.target.closest('.turma-copy')||e.target.closest('.star')||e.target.closest('.turma-cta'))return; abrirModal(el.dataset.idx); }));
   c.querySelectorAll('.turma-cta:not(.bloqueado)').forEach(el=>el.addEventListener('click',e=>{ e.stopPropagation(); abrirModal(el.closest('.turma').dataset.idx); }));
@@ -1659,28 +1663,35 @@ function diaDaData(dataBR){
 // ms a partir de dd/MM/yyyy (para ordenar)
 function dataMs(s){ const iso=dataBRtoISO(s); return iso ? new Date(iso).getTime() : 0; }
 // Está dentro da semana atual (segunda a domingo)?
+// Base única de "hoje" em ISO local (evita inconsistência de fuso entre funções)
+function hojeLocalISO(){
+  const h = new Date();
+  return `${h.getFullYear()}-${String(h.getMonth()+1).padStart(2,'0')}-${String(h.getDate()).padStart(2,'0')}`;
+}
+function addDiasISO(iso, n){
+  const [y,m,d] = iso.split('-').map(Number);
+  const dt = new Date(y, m-1, d); dt.setDate(dt.getDate()+n);
+  return `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;
+}
 function dentroDaSemana(dataBR){
   const iso = dataBRtoISO(dataBR); if(!iso) return false;
-  const hoje = new Date(); hoje.setHours(0,0,0,0);
+  const hojeISO = hojeLocalISO();
+  const [y,m,d] = hojeISO.split('-').map(Number);
+  const hoje = new Date(y, m-1, d);
   const diaSem = hoje.getDay()===0 ? 7 : hoje.getDay(); // 1=seg..7=dom
-  const ini = new Date(hoje); ini.setDate(hoje.getDate() - (diaSem-1));
-  const fim = new Date(ini); fim.setDate(ini.getDate()+6); fim.setHours(23,59,59,999);
-  const d = new Date(iso);
-  return d >= ini && d <= fim;
+  const segIso = addDiasISO(hojeISO, -(diaSem-1));
+  const domIso = addDiasISO(segIso, 6);
+  return iso >= segIso && iso <= domIso;
 }
 // data dd/MM/yyyy é hoje?
 function ehHoje(dataBR){
   const iso = dataBRtoISO(dataBR); if(!iso) return false;
-  const h = new Date(); h.setHours(0,0,0,0);
-  const isoHoje = `${h.getFullYear()}-${String(h.getMonth()+1).padStart(2,'0')}-${String(h.getDate()).padStart(2,'0')}`;
-  return iso === isoHoje;
+  return iso === hojeLocalISO();
 }
 // data dd/MM/yyyy é amanhã?
 function ehAmanha(dataBR){
   const iso = dataBRtoISO(dataBR); if(!iso) return false;
-  const a = new Date(); a.setHours(0,0,0,0); a.setDate(a.getDate()+1);
-  const isoAmanha = `${a.getFullYear()}-${String(a.getMonth()+1).padStart(2,'0')}-${String(a.getDate()).padStart(2,'0')}`;
-  return iso === isoAmanha;
+  return iso === addDiasISO(hojeLocalISO(), 1);
 }
 // Aplica o recorte de tempo atual a uma data
 function noRecorte(dataBR){
