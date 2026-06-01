@@ -522,6 +522,55 @@ body {
 .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
 .toast.ok   { border-color:rgba(22,163,74,0.4); }
 .toast.erro { background:#3a0a0a; border-color:rgba(226,55,68,0.4); }
+
+/* Abas do painel */
+.painel-tab {
+  background:none; border:none; cursor:pointer; font-family:inherit;
+  font-size:14px; font-weight:700; color:var(--text-dim);
+  padding:10px 18px; border-bottom:2.5px solid transparent; transition:all .15s;
+}
+.painel-tab:hover { color:var(--text-mute); }
+.painel-tab.ativa { color:var(--ccaa-blue); border-bottom-color:var(--ccaa-blue); }
+
+/* Cards de resumo */
+.resumo-card {
+  flex:1; min-width:130px; background:var(--surface); border:1.5px solid var(--border);
+  border-radius:var(--r-md); padding:12px 15px;
+}
+.resumo-card .rc-label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--text-dim); margin-bottom:6px; }
+.resumo-card .rc-nums { display:flex; flex-wrap:wrap; gap:10px; align-items:baseline; }
+.resumo-card .rc-big { font-size:22px; font-weight:800; color:var(--text); line-height:1; }
+.resumo-card .rc-item { font-size:12px; font-weight:600; }
+
+/* Grid de vagas */
+.vagas-teacher { margin-bottom:18px; background:var(--surface); border:1.5px solid var(--border); border-radius:var(--r-md); overflow:hidden; }
+.vagas-teacher-head { padding:10px 15px; background:var(--surface-2); font-weight:800; font-size:13.5px; color:var(--text); border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
+.vagas-teacher-head .vt-sub { font-size:11.5px; font-weight:600; color:var(--text-dim); }
+.vagas-dia { padding:10px 15px; border-bottom:1px solid var(--border); display:flex; gap:10px; align-items:flex-start; flex-wrap:wrap; }
+.vagas-dia:last-child { border-bottom:none; }
+.vagas-dia-label { font-size:12px; font-weight:700; color:var(--text-mute); min-width:120px; }
+.vagas-slots { display:flex; flex-wrap:wrap; gap:6px; flex:1; }
+.vaga-livre { background:var(--live); color:#fff; border-radius:99px; padding:4px 12px; font-size:12px; font-weight:700; cursor:pointer; border:none; transition:transform .12s; }
+.vaga-livre:hover { transform:scale(1.06); }
+.vaga-ocupada { background:var(--surface-2); color:var(--text-dim); border:1px solid var(--border); border-radius:99px; padding:4px 12px; font-size:12px; text-decoration:line-through; }
+.vagas-vazio { color:var(--text-dim); font-size:12px; font-style:italic; }
+
+/* Conflito de horário na tabela */
+.tr-conflito td { background:color-mix(in srgb, var(--ccaa-red) 10%, transparent) !important; }
+.badge-conflito { background:var(--ccaa-red); color:#fff; font-size:9.5px; font-weight:800; padding:2px 6px; border-radius:99px; margin-left:5px; }
+
+/* Histórico do aluno (modal) */
+.hist-overlay { display:none; position:fixed; inset:0; z-index:400; background:rgba(0,0,0,0.55); backdrop-filter:blur(3px); align-items:center; justify-content:center; padding:20px; }
+.hist-overlay.open { display:flex; }
+.hist-box { background:var(--surface); border-radius:var(--r-lg); max-width:560px; width:100%; max-height:85vh; overflow-y:auto; padding:22px; }
+.hist-box h3 { font-family:'Bricolage Grotesque',sans-serif; font-size:18px; font-weight:800; margin-bottom:4px; }
+.hist-stats { display:flex; gap:14px; flex-wrap:wrap; margin:12px 0 16px; }
+.hist-stat { background:var(--surface-2); border:1px solid var(--border); border-radius:var(--r-sm); padding:8px 13px; }
+.hist-stat .hs-n { font-size:18px; font-weight:800; }
+.hist-stat .hs-l { font-size:10.5px; color:var(--text-dim); font-weight:600; text-transform:uppercase; }
+.hist-linha { padding:8px 0; border-bottom:1px solid var(--border); font-size:12.5px; display:flex; justify-content:space-between; gap:10px; }
+.aluno-link { cursor:pointer; }
+.aluno-link:hover { text-decoration:underline; color:var(--ccaa-blue); }
 </style>
 </head><body>
 <div class="app">
@@ -1038,10 +1087,25 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
   </div>
 
   <div class="interno-body" id="painelBox" style="display:none">
+    <!-- Resumo (dashboard) -->
+    <div id="resumoBar" style="display:flex; flex-wrap:wrap; gap:10px; margin-bottom:14px;"></div>
+
+    <!-- Abas de navegação -->
+    <div id="painelTabs" style="display:flex; gap:8px; margin-bottom:16px; border-bottom:1.5px solid var(--border);">
+      <button class="painel-tab ativa" data-tab="agenda" id="tabAgenda">Agendamentos</button>
+      <button class="painel-tab" data-tab="vagas" id="tabVagas">Vagas livres</button>
+    </div>
+
+    <!-- ABA AGENDAMENTOS -->
+    <div id="viewAgenda">
     <div class="int-actions">
       <button class="int-btn int-btn-novo" id="btnNovoAgendamento">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="14" height="14"><path d="M12 5v14M5 12h14"/></svg>
         Novo agendamento
+      </button>
+      <button class="int-btn int-btn-reload" id="btnExportar" type="button" title="Resumo para WhatsApp">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"/><path d="M16 6l-4-4-4 4"/><path d="M12 2v14"/></svg>
+        Resumo p/ WhatsApp
       </button>
     </div>
     <div class="int-filtros">
@@ -1077,6 +1141,29 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
         <tbody id="intTbody"></tbody>
       </table>
       <div class="int-loading" id="intVazio" style="display:none">Nenhum registro encontrado</div>
+    </div>
+    </div>
+
+    <!-- ABA VAGAS LIVRES -->
+    <div id="viewVagas" style="display:none">
+      <div style="display:flex; align-items:center; gap:10px; margin-bottom:14px; flex-wrap:wrap;">
+        <span style="font-size:13px; color:var(--text-mute); font-weight:600">Mostrando vagas livres da semana de:</span>
+        <input class="int-select" type="date" id="vagasSemanaRef" style="min-width:150px">
+        <button class="int-btn int-btn-reload" id="btnVagasHoje" type="button">Semana atual</button>
+      </div>
+      <div id="vagasGrid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Histórico do aluno -->
+<div class="hist-overlay" id="histOverlay">
+  <div class="hist-box">
+    <h3 id="histNome">Aluno</h3>
+    <div class="hist-stats" id="histStats"></div>
+    <div id="histLista"></div>
+    <div style="margin-top:16px; text-align:right">
+      <button class="drawer-btn-cancel" id="histFechar">Fechar</button>
     </div>
   </div>
 </div>
@@ -1582,16 +1669,26 @@ let verTudoInterno = false; // mantido p/ compat (todos)
 let ordemAsc = false; // false = mais recentes primeiro
 
 // Monta uma linha <tr>
+// Detecta conflito: mesma aba+data+horário com outro registro que ocupa slot
+function temConflito(r){
+  if(!ocupaSlot(r.status)) return false;
+  const c = todosRegistros.filter(x=>
+    x.aba===r.aba && x.data===r.data && x.horario===r.horario && ocupaSlot(x.status)
+  );
+  return c.length > 1;
+}
 function linhaRegistro(r){
   const badgeClass = {
     'realizado':'badge-realizado','agendado':'badge-agendado',
     'cancelado':'badge-cancelado','remarcado':'badge-remarcado','faltou':'badge-faltou'
   }[(r.status||'').toLowerCase()] || 'badge-default';
   const dia = diaDaData(r.data);
-  return `<tr>
-    <td><b>${nomeCurto(r.aluno)}</b></td>
+  const conflito = temConflito(r);
+  const nomeEsc = (r.aluno||'').replace(/'/g,"\\'").replace(/"/g,'&quot;');
+  return `<tr class="${conflito?'tr-conflito':''}">
+    <td><b class="aluno-link" onclick="abrirHistorico('${nomeEsc}')">${nomeCurto(r.aluno)}</b></td>
     <td>${r.data}${dia?`<br><span style="font-size:10.5px;color:var(--text-dim)">${dia}</span>`:''}</td>
-    <td>${r.horario||'—'}</td>
+    <td>${r.horario||'—'}${conflito?'<span class="badge-conflito">CONFLITO</span>':''}</td>
     <td style="font-size:11.5px;color:var(--text-dim)">${r.tchTurma||r.teacher||'—'}</td>
     <td>${r.turma?`<b style="color:var(--ccaa-blue)">${r.turma}</b>`:'—'}</td>
     <td>${r.lessons||'—'}</td>
@@ -1608,6 +1705,7 @@ function linhaRegistro(r){
 // Renderizar tabela com filtros
 function renderTabela(){
   document.getElementById('intLoading').style.display = 'none';
+  renderResumo();
   const teacher = document.getElementById('filtroTeacher').value;
   const status  = document.getElementById('filtroStatus').value;
   const aba     = document.getElementById('filtroAba').value;
@@ -1684,6 +1782,180 @@ function renderTabela(){
 }
 
 // Barra "esta semana / ver tudo"
+// ===== RESUMO (dashboard) =====
+function renderResumo(){
+  const el = document.getElementById('resumoBar');
+  if(!el) return;
+  const norm = s => (s||'').toLowerCase();
+  // Hoje
+  const hoje = todosRegistros.filter(r=>ehHoje(r.data));
+  const cont = (lista,st)=> lista.filter(r=>norm(r.status)===st).length;
+  // Semana
+  const semana = todosRegistros.filter(r=>dentroDaSemana(r.data));
+  // Vagas livres da semana (total de slots livres em todas as abas, dias da semana atual)
+  const vagasSemana = contarVagasSemana(refSemanaISO());
+
+  el.innerHTML = `
+    <div class="resumo-card">
+      <div class="rc-label">Hoje</div>
+      <div class="rc-nums">
+        <span class="rc-big">${hoje.length}</span>
+        <span class="rc-item" style="color:var(--soon)">${cont(hoje,'agendado')} agend.</span>
+        <span class="rc-item" style="color:var(--live)">${cont(hoje,'realizado')} feito</span>
+        <span class="rc-item" style="color:#6B7280">${cont(hoje,'faltou')} faltou</span>
+      </div>
+    </div>
+    <div class="resumo-card">
+      <div class="rc-label">Esta semana</div>
+      <div class="rc-nums">
+        <span class="rc-big">${semana.length}</span>
+        <span class="rc-item">agendamentos</span>
+      </div>
+    </div>
+    <div class="resumo-card">
+      <div class="rc-label">Vagas livres (semana)</div>
+      <div class="rc-nums">
+        <span class="rc-big" style="color:var(--live)">${vagasSemana}</span>
+        <span class="rc-item">slots abertos</span>
+      </div>
+    </div>`;
+}
+
+// ===== VAGAS LIVRES =====
+const ABA_DIA_IDX = { // dia da semana de cada aba (0=dom)
+  "Valquíria: SEGUNDA-FEIRA - Sala 14":1, "Eduarda: SEGUNDA-FEIRA - Sala 2":1,
+  "Laura: SEGUNDA-FEIRA - Sala 13":1, "Laura: TERÇA-FEIRA - Sala 2":2,
+  "Tânia: TERÇA-FEIRA - Sala 2":2, "Laura: QUARTA-FEIRA - Sala 2":3,
+  "Valquíria: QUARTA-FEIRA - Sala 13":3, "OFF Laura: QUINTA-FEIRA - Sala 8":4,
+  "Laura: SEXTA-FEIRA - Sala 2":5
+};
+// ISO da segunda-feira da semana de referência (campo vagasSemanaRef ou hoje)
+function refSemanaISO(){
+  const campo = document.getElementById('vagasSemanaRef');
+  let base = (campo && campo.value) ? new Date(campo.value+'T00:00:00') : new Date();
+  base.setHours(0,0,0,0);
+  const ds = base.getDay()===0?7:base.getDay();
+  base.setDate(base.getDate()-(ds-1)); // segunda
+  return `${base.getFullYear()}-${String(base.getMonth()+1).padStart(2,'0')}-${String(base.getDate()).padStart(2,'0')}`;
+}
+// data ISO de um dia da semana (1-5) dentro da semana que começa em segIso
+function dataDoDiaNaSemana(segIso, diaIdx){
+  const [y,m,d]=segIso.split('-').map(Number);
+  const dt=new Date(y,m-1,d);
+  dt.setDate(dt.getDate()+(diaIdx-1));
+  return `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;
+}
+function isoToBR(iso){ const [y,m,d]=iso.split('-'); return `${d}/${m}/${y}`; }
+// conta total de slots livres na semana de referência
+function contarVagasSemana(segIso){
+  let total=0;
+  ABAS_DISPONIVEIS.forEach(aba=>{
+    const slots = HORARIOS_POR_ABA[aba]||[];
+    const diaIdx = ABA_DIA_IDX[aba];
+    if(!diaIdx || !slots.length) return;
+    const dataBR = isoToBR(dataDoDiaNaSemana(segIso, diaIdx));
+    const ocup = todosRegistros.filter(r=>r.aba===aba && r.data===dataBR && ocupaSlot(r.status)).map(r=>r.horario);
+    total += slots.filter(h=>!ocup.includes(h)).length;
+  });
+  return total;
+}
+function renderVagas(){
+  const grid = document.getElementById('vagasGrid');
+  if(!grid) return;
+  const segIso = refSemanaISO();
+  let html='';
+  ABAS_DISPONIVEIS.forEach(aba=>{
+    const slots = HORARIOS_POR_ABA[aba]||[];
+    const diaIdx = ABA_DIA_IDX[aba];
+    if(!diaIdx) return;
+    const info = parseAbaFront(aba);
+    const dataBR = isoToBR(dataDoDiaNaSemana(segIso, diaIdx));
+    const ocup = todosRegistros.filter(r=>r.aba===aba && r.data===dataBR && ocupaSlot(r.status)).map(r=>r.horario);
+    const livres = slots.filter(h=>!ocup.includes(h));
+    let slotsHtml;
+    if(!slots.length){ slotsHtml = '<span class="vagas-vazio">Sem horários nesta aba</span>'; }
+    else {
+      slotsHtml = slots.map(h=>{
+        if(ocup.includes(h)) return `<span class="vaga-ocupada">${h}</span>`;
+        return `<button class="vaga-livre" onclick="agendarVaga('${aba.replace(/'/g,"\\'")}','${dataDoDiaNaSemana(segIso,diaIdx)}','${h}')">${h}</button>`;
+      }).join('');
+    }
+    html += `<div class="vagas-teacher">
+      <div class="vagas-teacher-head">
+        <span>${info.teacher||aba}</span>
+        <span class="vt-sub">${info.dia} · ${dataBR} · ${livres.length} livre${livres.length!==1?'s':''}</span>
+      </div>
+      <div class="vagas-dia">
+        <span class="vagas-dia-label">${aba.split(':')[1]?aba.split(':')[1].split('-').slice(1).join('-').trim():''}</span>
+        <div class="vagas-slots">${slotsHtml}</div>
+      </div>
+    </div>`;
+  });
+  grid.innerHTML = html;
+}
+// Clicar numa vaga abre o drawer pré-preenchido
+function agendarVaga(aba, dataISO, horario){
+  trocarAba('agenda');
+  abrirDrawer(null);
+  document.getElementById('dAba').value = aba;
+  const info = parseAbaFront(aba);
+  popularDatasSelect(info.dia, dataISO);
+  popularHorariosDrawer(horario, '');
+  document.getElementById('dHorario').value = horario;
+  atualizarInfoAba();
+}
+
+// ===== HISTÓRICO DO ALUNO =====
+function abrirHistorico(nome){
+  nome = (nome||'').trim();
+  const regs = todosRegistros.filter(r=> (r.aluno||'').trim().toLowerCase() === nome.toLowerCase())
+    .sort((a,b)=>dataMs(b.data)-dataMs(a.data));
+  const norm = s=>(s||'').toLowerCase();
+  const total = regs.length;
+  const realizados = regs.filter(r=>norm(r.status)==='realizado').length;
+  const faltas = regs.filter(r=>norm(r.status)==='faltou').length;
+  const agendados = regs.filter(r=>norm(r.status)==='agendado').length;
+  document.getElementById('histNome').textContent = nome;
+  document.getElementById('histStats').innerHTML = `
+    <div class="hist-stat"><div class="hs-n">${total}</div><div class="hs-l">Total</div></div>
+    <div class="hist-stat"><div class="hs-n" style="color:var(--live)">${realizados}</div><div class="hs-l">Realizados</div></div>
+    <div class="hist-stat"><div class="hs-n" style="color:var(--soon)">${agendados}</div><div class="hs-l">Agendados</div></div>
+    <div class="hist-stat"><div class="hs-n" style="color:#6B7280">${faltas}</div><div class="hs-l">Faltas</div></div>`;
+  document.getElementById('histLista').innerHTML = regs.map(r=>`
+    <div class="hist-linha">
+      <span><b>${r.data}</b> ${r.horario||''} · ${r.formato||''} ${r.turma?'· '+r.turma:''}</span>
+      <span style="color:var(--text-dim)">${r.lessons||''} ${r.status?'· '+r.status:''}</span>
+    </div>`).join('') || '<div class="hist-linha">Nenhum registro</div>';
+  document.getElementById('histOverlay').classList.add('open');
+}
+function fecharHistorico(){ document.getElementById('histOverlay').classList.remove('open'); }
+
+// ===== EXPORTAR PARA WHATSAPP =====
+function exportarWhatsApp(){
+  const semana = todosRegistros.filter(r=>dentroDaSemana(r.data) && ocupaSlot(r.status))
+    .sort((a,b)=> dataMs(a.data)-dataMs(b.data) || (a.horario||'').localeCompare(b.horario||''));
+  if(!semana.length){ toast('Nenhum agendamento na semana','erro'); return; }
+  let txt = '*Equiparações & Nivelamento · Semana*\n\n';
+  let dataAtual='';
+  semana.forEach(r=>{
+    if(r.data!==dataAtual){ dataAtual=r.data; txt += `\n*${r.data} (${diaDaData(r.data)})*\n`; }
+    txt += `• ${r.horario||''} ${nomeCurto(r.aluno)} — ${r.formato||''}${r.turma?' '+r.turma:''} (${r.tchTurma||r.teacher||''})\n`;
+  });
+  navigator.clipboard.writeText(txt).then(
+    ()=> toast('Resumo copiado! Cole no WhatsApp ✓'),
+    ()=> { const ta=document.createElement('textarea'); ta.value=txt; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); toast('Resumo copiado! Cole no WhatsApp ✓'); }
+  );
+}
+
+// ===== TROCA DE ABAS =====
+function trocarAba(qual){
+  document.getElementById('viewAgenda').style.display = qual==='agenda'?'block':'none';
+  document.getElementById('viewVagas').style.display  = qual==='vagas'?'block':'none';
+  document.getElementById('tabAgenda').classList.toggle('ativa', qual==='agenda');
+  document.getElementById('tabVagas').classList.toggle('ativa', qual==='vagas');
+  if(qual==='vagas') renderVagas();
+}
+
 function renderBarraSemana(){
   const el = document.getElementById('barraSemana');
   if(!el) return;
@@ -1933,6 +2205,17 @@ document.getElementById('dTchTurma').addEventListener('change', ()=>{
 });
 
 document.getElementById('btnNovoAgendamento').addEventListener('click', ()=> abrirDrawer(null));
+// Abas Agendamentos / Vagas
+document.getElementById('tabAgenda').addEventListener('click', ()=> trocarAba('agenda'));
+document.getElementById('tabVagas').addEventListener('click', ()=> trocarAba('vagas'));
+// Exportar WhatsApp
+document.getElementById('btnExportar').addEventListener('click', exportarWhatsApp);
+// Histórico: fechar
+document.getElementById('histFechar').addEventListener('click', fecharHistorico);
+document.getElementById('histOverlay').addEventListener('click', (e)=>{ if(e.target.id==='histOverlay') fecharHistorico(); });
+// Vagas: troca de semana
+document.getElementById('vagasSemanaRef').addEventListener('change', renderVagas);
+document.getElementById('btnVagasHoje').addEventListener('click', ()=>{ document.getElementById('vagasSemanaRef').value=''; renderVagas(); });
 document.getElementById('drawerCancelar').addEventListener('click', ()=>{
   document.getElementById('drawerOverlay').classList.remove('open');
 });
