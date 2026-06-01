@@ -585,6 +585,59 @@ body {
 .hist-linha { padding:8px 0; border-bottom:1px solid var(--border); font-size:12.5px; display:flex; justify-content:space-between; gap:10px; }
 .aluno-link { cursor:pointer; }
 .aluno-link:hover { text-decoration:underline; color:var(--ccaa-blue); }
+/* ==========================================
+   MODO ZERO-UI (PORTAL DO ALUNO)
+   ========================================== */
+body.zero-ui-active header,
+body.zero-ui-active .filtros,
+body.zero-ui-active .busca-container,
+body.zero-ui-active .secao-titulo,
+body.zero-ui-active .turma:not(.zero-ui-hero), 
+body.zero-ui-active footer {
+  display: none !important;
+}
+
+body.zero-ui-active {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 24px;
+  background: radial-gradient(circle at top, var(--ccaa-blue) 0%, var(--blue-deep) 100%) !important;
+}
+
+body.zero-ui-active .zero-ui-hero {
+  width: 100%;
+  max-width: 520px;
+  padding: 40px;
+  font-size: 1.2rem;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  animation: portalEntrada 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+#btn-escape-zero {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.45);
+  text-decoration: underline;
+  margin-top: 32px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-family: 'Inter', sans-serif;
+  transition: color 0.2s, transform 0.2s;
+}
+#btn-escape-zero:hover {
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+@keyframes portalEntrada {
+  from { opacity: 0; transform: scale(0.92) translateY(15px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+  
 </style>
 </head><body>
 <div class="app">
@@ -1081,6 +1134,84 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
   render();
   setInterval(render, 60000);
 })();
+  
+// ==========================================
+// MOTOR AUTOMÁTICO DO MODO ZERO-UI
+// ==========================================
+function verificarJanelaZeroUI() {
+  const role = localStorage.getItem('user_role') || 'student';
+  const suaTurma = localStorage.getItem('sua_turma');
+
+  // Se for professor ou não tiver turma favorita, desativa e sai
+  if (role === 'teacher' || !suaTurma) {
+    document.body.classList.remove('zero-ui-active');
+    return;
+  }
+
+  // Se o aluno clicou para ver a grade completa nesta sessão, respeita a decisão dele
+  if (sessionStorage.getItem('zero_ui_disabled')) {
+    document.body.classList.remove('zero-ui-active');
+    return;
+  }
+
+  const agora = new Date();
+  const horaAtualEmMinutos = agora.getHours() * 60 + agora.getMinutes();
+  
+  // Procura na tela o card que o aluno favoritou
+  const cards = document.querySelectorAll('.turma');
+  let cardFavorito = null;
+  
+  for (let card of cards) {
+    if (card.textContent.includes(suaTurma)) {
+      cardFavorito = card;
+      break;
+    }
+  }
+
+  if (cardFavorito) {
+    // Captura o horário (HH:MM) dentro do card favoritado
+    const matchHorario = cardFavorito.textContent.match(/([0-1]?[0-9]|2[0-3]):[0-5][0-9]/);
+    
+    if (matchHorario) {
+      const [horas, minutos] = matchHorario[0].split(':').map(Number);
+      const horaDaAulaEmMinutos = horas * 60 + minutos;
+      
+      // JANELA DE TEMPO: Ativa de 15 minutos antes da aula até 60 minutos depois do início
+      const dentroDaJanela = (horaDaAulaEmMinutos - horaAtualEmMinutos <= 15) && 
+                            (horaAtualEmMinutos - horaDaAulaEmMinutos <= 60);
+
+      if (dentroDaJanela) {
+        document.body.classList.add('zero-ui-active');
+        cardFavorito.classList.add('zero-ui-hero');
+        
+        // Cria o botão discreto de escape (voltar para a grade)
+        if (!document.getElementById('btn-escape-zero')) {
+          const btnEscape = document.createElement('button');
+          btnEscape.id = 'btn-escape-zero';
+          btnEscape.innerText = 'Não é sua aula? Ver grade completa';
+          btnEscape.onclick = () => {
+            document.body.classList.remove('zero-ui-active');
+            cardFavorito.classList.remove('zero-ui-hero');
+            sessionStorage.setItem('zero_ui_disabled', 'true'); // Salva que ele quis fechar
+          };
+          document.body.appendChild(btnEscape);
+        }
+        return;
+      }
+    }
+  }
+  
+  // Caso passe do horário ou mude de estado, limpa as classes
+  document.body.classList.remove('zero-ui-active');
+  if (cardFavorito) cardFavorito.classList.remove('zero-ui-hero');
+}
+
+// Observador inteligente: roda a checagem sempre que o site desenha as turmas na tela
+const zeroUiObserver = new MutationObserver(() => {
+  verificarJanelaZeroUI();
+});
+zeroUiObserver.observe(document.body, { childList: true, subtree: true });
+window.addEventListener('DOMContentLoaded', verificarJanelaZeroUI);
 </script>
 
 <!-- ===== HTML DA ABA INTERNA ===== -->
