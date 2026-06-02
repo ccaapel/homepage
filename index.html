@@ -650,6 +650,8 @@ body {
 .admin-tab.ativa { color:var(--ccaa-blue); border-bottom-color:var(--ccaa-blue); }
 .admin-import-txt { width:100%; min-height:120px; background:var(--surface-2); border:1px solid var(--border); border-radius:8px; color:var(--text); font-family:monospace; font-size:12px; padding:10px 12px; resize:vertical; transition:border-color .14s; }
 .admin-import-txt:focus { outline:none; border-color:var(--ccaa-blue); }
+.adm-integridade { background:var(--surface); border:1px solid var(--border); border-radius:var(--r-md); padding:13px 15px; margin-bottom:18px; }
+.adm-chip { display:inline-block; font-size:11.5px; font-weight:700; padding:4px 11px; border-radius:99px; border:1px solid var(--border); }
 </style>
 </head><body>
 <div class="app">
@@ -772,7 +774,7 @@ const TURMAS = [
       { nome: "Teen 1.3", horario: "Seg e Qua · 14h00 às 15h15", dias: [1,3], inicio: '14:00', fim: '15:15', teacher: "Laura Santana", nivel: "Básico", sala: "Sala 11", link: "https://us04web.zoom.us/j/77640884082?pwd=mt32RrYEwdU3rr82YI7v0Inirnjnwm.1" },
       { nome: "Teen 1.4", horario: "Terça · 14h00 às 16h45", dias: [2], inicio: '14:00', fim: '16:45', teacher: "Tânia Nicolette", nivel: "Básico", sala: "Sala 4", link: "https://zoom.us/j/99317820106?pwd=hoefXiJUQzFea18ZapCg6vWev9Psy0.1" },
       { nome: "Teen 1.5", horario: "Ter e Qui · 14h00 às 15h15", dias: [2,4], inicio: '14:00', fim: '15:15', teacher: "Giovani Atêncio", nivel: "Básico", sala: "Sala 14", link: "https://zoom.us/j/96455522916?pwd=zmcKatCRyEsZXS5tZH12cxVjNEt0Oo.1" },
-      { nome: "Teen 2.1", horario: "Sexta · 14h00 às 16h45", dias: [5], inicio: '14:00', fim: '16:45', teacher: "Lays Pereira", nivel: "Básico", sala: "Sala 11", link: "https://us04web.zoom.us/j/79731456165?pwd=BYb6r61jHE5bBG8aKqWMobkHbRzJX3.1" },
+      { nome: "Teen 2.1", horario: "Sexta · 14h00 às 16h45", dias: [5], inicio: '14:00', fim: '16:45', teacher: "Ana", nivel: "Básico", sala: "Sala 11", link: "https://us04web.zoom.us/j/79731456165?pwd=BYb6r61jHE5bBG8aKqWMobkHbRzJX3.1" },
       { nome: "Teen 3.1", horario: "Seg e Qua · 14h00 às 15h15", dias: [1,3], inicio: '14:00', fim: '15:15', teacher: "Eduarda Bilhalva", nivel: "Básico", sala: "Sala 3", link: "https://zoom.us/j/95196969275?pwd=5YiY4w0j66y7L3919wM9kVtwuC9PLV.1" },
       { nome: "Teen 3.2", horario: "Seg e Qua · 14h00 às 15h15", dias: [1,3], inicio: '14:00', fim: '15:15', teacher: "Giovani Atêncio", nivel: "Básico", sala: "Sala 2", link: "https://zoom.us/j/96656046663?pwd=MpUs0ymMnCB6amu9ycv4NslsZuuH7P.1" },
       { nome: "Teen 3.3", horario: "Seg e Qua · 18h15 às 19h30", dias: [1,3], inicio: '18:15', fim: '19:30', teacher: "Giovani Atêncio", nivel: "Básico", sala: "Sala 14", link: "https://zoom.us/j/98797634937?pwd=yBl9gyhXU1jPykKvA33cd3KEald5nW.1" },
@@ -792,6 +794,7 @@ const TURMAS = [
       { nome: "Adult 2.1", horario: "Terça · 09h00 às 11h45", dias: [2], inicio: '09:00', fim: '11:45', teacher: "Elizabeti Reis", nivel: "Básico", sala: "Sala 1", link: "https://zoom.us/j/97296746060?pwd=CYFVBAbfMC2w9XgBF6fUhsDdj6ieWj.1" },
       { nome: "Adult 2.2", horario: "Sábado · 08h45 às 11h30", dias: [6], inicio: '08:45', fim: '11:30', teacher: "Marcos Petersen", nivel: "Básico", sala: "Sala 10", link: "https://zoom.us/j/98072164508?pwd=osZ0zL7yupOdt3tt3cFZHcNDe0b7ny.1" },
       { nome: "Adult 3.1", horario: "Ter e Qui · 19h00 às 20h15", dias: [2,4], inicio: '19:00', fim: '20:15', teacher: "Teacher Ana", nivel: "Básico", sala: "Sala 12", link: "https://zoom.us/j/95582167339?pwd=r5ky5HVgAoUYsrRjakqC6WxhhwEOTz.1" },
+      { nome: "Adult 1-2.1", horario: "Ter e Qui · 19h00 às 20h15", dias: [2,4], inicio: '19:00', fim: '20:15', teacher: "Laura Santana", nivel: "Básico", sala: "Sala 1", link: "https://zoom.us/j/94050429006?pwd=BIKuK1cXMbKvkvPMcP3SYmm131YuG1.1" },
     ]
   },
   {
@@ -822,8 +825,7 @@ const TURMAS = [
       { nome: "English Course 10.2", horario: "Sexta · 14h00 às 16h45", dias: [5], inicio: '14:00', fim: '16:45', teacher: "Roberto Duval", nivel: "Pós-avançado", sala: "Sala 8", link: "https://zoom.us/j/92349238913?pwd=CqDXq7bbx9i4gblmTg1V1l1qiAFLzv.1" },
       { nome: "English Course VIP 10.1", horario: "Ter e Qui · 09h00 às 10h15", dias: [2,4], inicio: '09:00', fim: '10:15', teacher: "Giovani Atêncio", nivel: "Pós-avançado", sala: "Sala 14", link: "https://zoom.us/j/COLE_ECVIP10_1" },
       { nome: "English Course 11.1", horario: "Sexta · 14h00 às 16h45", dias: [5], inicio: '14:00', fim: '16:45', teacher: "Lays Pereira", nivel: "Pós-avançado", sala: "Sala 12", link: "https://zoom.us/j/92599633326?pwd=MpyvadlQY88hvtYv28Zy1IQEL1T1Ve.1" },
-      { nome: "English Course 11.2", horario: "Sábado · 08h45 às 11h30", dias: [6], inicio: '08:45', fim: '11:30', teacher: "Lays Pereira", nivel: "Pós-avançado", sala: "Sala 8", link: "https://zoom.us/j/91488675496?pwd=tYCYap87JSuWDrPQR20fPtLfvkk5f9.1" },
-      { nome: "English Course 11.3", horario: "Sábado · 08h45 às 11h30", dias: [6], inicio: '08:45', fim: '11:30', teacher: "", nivel: "Pós-avançado", sala: "Sala 12", link: "https://zoom.us/j/93018181902?pwd=cMCbQwunHndeA5Ms4u0Da2JQOxxBED.1" },
+      { nome: "English Course 11.2", horario: "Sábado · 08h45 às 11h30", dias: [6], inicio: '08:45', fim: '11:30', teacher: "Roberto Duval", nivel: "Pós-avançado", sala: "Sala 8", link: "https://zoom.us/j/91488675496?pwd=tYCYap87JSuWDrPQR20fPtLfvkk5f9.1" },
     ]
   },
   {
@@ -831,7 +833,7 @@ const TURMAS = [
     cat: "Español",
     turmas: [
       { nome: "Español 1.1", horario: "Segunda · 18h00 às 20h15", dias: [1], inicio: '18:00', fim: '20:15', teacher: "Raquel Corvello", nivel: "Básico", sala: "Sala 3", link: "https://zoom.us/j/COLE_ESP1_1" },
-      { nome: "Español 1.2", horario: "Ter e Qui · 10h00 às 11h00", dias: [2,4], inicio: '10:00', fim: '11:00', teacher: "Larissa Silva", nivel: "Básico", sala: "Sala 3", link: "https://zoom.us/j/COLE_ESP1_2" },
+      { nome: "Español 1.2", horario: "Ter e Qui · 09h00 às 11h15", dias: [2,4], inicio: '09:00', fim: '11:15', teacher: "Larissa Silva", nivel: "Básico", sala: "Sala 3", link: "https://zoom.us/j/COLE_ESP1_2" },
       { nome: "Español VIP 1.1", horario: "Seg, Qui e Sex · 18h00 às 19h00", dias: [1,4,5], inicio: '18:00', fim: '19:00', teacher: "Larissa Silva", nivel: "Básico", sala: "", link: "https://zoom.us/j/COLE_ESPVIP1_1" },
     ]
   },
@@ -1325,6 +1327,7 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
         <button class="admin-tab ativa" id="adTabTurmas">📋 Turmas</button>
         <button class="admin-tab" id="adTabHistorico">🕓 Histórico</button>
         <button class="admin-tab" id="adTabImportar">⚡ Importar em lote</button>
+        <button class="admin-tab" id="adTabAuditoria">🔍 Auditoria</button>
       </div>
       <!-- ABA TURMAS -->
       <div id="adViewTurmas">
@@ -1355,6 +1358,11 @@ English Course 7.1 | | Sala 8 | https://zoom.us/j/123</code>
           <button class="drawer-btn-cancel" id="adminImportarLimpar">Limpar</button>
         </div>
         <div id="adminImportarResult" style="margin-top:12px;font-size:12.5px"></div>
+      </div>
+      <!-- ABA AUDITORIA -->
+      <div id="adViewAuditoria" style="display:none">
+        <div style="color:var(--text-dim);font-size:12px;margin-bottom:14px">Verificação automática de inconsistências nas turmas: campos faltando, salas em conflito no mesmo horário, e teachers sobrepostos.</div>
+        <div id="adminAuditResult"></div>
       </div>
     </div>
     <div style="margin-top:16px;text-align:right">
@@ -2680,7 +2688,35 @@ function renderAdmin(busca){
   const ov = carregarOverrides();
   const bq = normTexto(busca);
   const cont = document.getElementById('adminGrupos');
-  let html = '';
+
+  // === Painel de integridade: turmas com dados faltando ===
+  const todas = TURMAS.flatMap(g=>g.turmas);
+  const semTeacher = todas.filter(t=>!(t.teacher||'').trim());
+  const semSala    = todas.filter(t=>!(t.sala||'').trim());
+  const semLink    = todas.filter(t=>!(t.link||'').trim());
+  // carga por teacher (quantas turmas cada um tem)
+  const carga = {};
+  todas.forEach(t=>{ const tc=(t.teacher||'').trim(); if(tc) carga[tc]=(carga[tc]||0)+1; });
+  const topCarga = Object.entries(carga).sort((a,b)=>b[1]-a[1]);
+  const chip = (lista, label, cor)=> lista.length
+    ? `<span class="adm-chip" style="background:color-mix(in srgb,${cor} 14%,transparent);color:${cor};border-color:color-mix(in srgb,${cor} 30%,transparent)" title="${lista.map(t=>t.nome).join(', ')}">${lista.length} ${label}</span>`
+    : `<span class="adm-chip" style="opacity:.5">0 ${label}</span>`;
+  const integridade = `<div class="adm-integridade">
+    <div style="font-weight:700;font-size:11.5px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Integridade · ${todas.length} turmas</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+      ${chip(semTeacher,'sem teacher','#E23744')}
+      ${chip(semSala,'sem sala','#D97706')}
+      ${chip(semLink,'sem link','#D97706')}
+    </div>
+    <details style="font-size:11.5px;color:var(--text-dim)">
+      <summary style="cursor:pointer;font-weight:600">Carga por teacher</summary>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">
+        ${topCarga.map(([t,n])=>`<span class="adm-chip" style="background:var(--surface-2)">${t.replace(/^Teacher\s+/,'')}: <b>${n}</b></span>`).join('')}
+      </div>
+    </details>
+  </div>`;
+
+  let html = integridade;
   TURMAS.forEach(g=>{
     const turmsFiltradas = bq
       ? g.turmas.filter(t=> normTexto(t.nome).includes(bq) || normTexto(t.teacher||'').includes(bq) || normTexto(t.sala||'').includes(bq))
@@ -2766,13 +2802,72 @@ function renderAdmin(busca){
 
 // Troca de abas do admin
 function adminTrocarAba(aba){
-  ['adViewTurmas','adViewHistorico','adViewImportar'].forEach(id=>{
+  ['adViewTurmas','adViewHistorico','adViewImportar','adViewAuditoria'].forEach(id=>{
     document.getElementById(id).style.display='none';
   });
   document.querySelectorAll('.admin-tab').forEach(b=>b.classList.remove('ativa'));
   document.getElementById('adView'+aba).style.display='block';
   document.getElementById('adTab'+aba).classList.add('ativa');
   if(aba==='Historico') renderHistAdmin();
+  if(aba==='Auditoria') renderAuditoria();
+}
+// Auditoria: detecta inconsistências nas turmas
+function renderAuditoria(){
+  const todas = TURMAS.flatMap(g=>g.turmas);
+  const problemas = [];
+  // 1. Campos faltando
+  todas.forEach(t=>{
+    const faltando = [];
+    if(!t.teacher || !t.teacher.trim()) faltando.push('teacher');
+    if(!t.sala || !t.sala.trim()) faltando.push('sala');
+    if(!t.link || !t.link.trim() || /COLE_|placeholder/i.test(t.link)) faltando.push('link');
+    if(faltando.length) problemas.push({tipo:'falta', turma:t.nome, msg:`Sem ${faltando.join(', ')}`});
+  });
+  // 2. Salas em conflito (mesma sala, mesmo dia, horário sobreposto)
+  const norm = s => (s||'').toLowerCase().replace(/\s+/g,'');
+  for(let i=0;i<todas.length;i++){
+    for(let j=i+1;j<todas.length;j++){
+      const a=todas[i], b=todas[j];
+      if(!a.sala||!b.sala||norm(a.sala)!==norm(b.sala)) continue;
+      const diasComuns = (a.dias||[]).some(d=>(b.dias||[]).includes(d));
+      if(!diasComuns) continue;
+      // sobreposição de horário
+      const am=parseHM(a.inicio), af=parseHM(a.fim), bm=parseHM(b.inicio), bf=parseHM(b.fim);
+      if(am < bf && bm < af){
+        problemas.push({tipo:'sala', turma:`${a.nome} ⚔ ${b.nome}`, msg:`Mesma ${a.sala}, horário sobreposto`});
+      }
+    }
+  }
+  // 3. Teacher em 2 turmas ao mesmo tempo (dia+horário sobreposto)
+  for(let i=0;i<todas.length;i++){
+    for(let j=i+1;j<todas.length;j++){
+      const a=todas[i], b=todas[j];
+      if(!a.teacher||!b.teacher||norm(a.teacher)!==norm(b.teacher)) continue;
+      const diasComuns = (a.dias||[]).some(d=>(b.dias||[]).includes(d));
+      if(!diasComuns) continue;
+      const am=parseHM(a.inicio), af=parseHM(a.fim), bm=parseHM(b.inicio), bf=parseHM(b.fim);
+      if(am < bf && bm < af){
+        problemas.push({tipo:'teacher', turma:`${a.nome} ⚔ ${b.nome}`, msg:`${a.teacher} em 2 turmas ao mesmo tempo`});
+      }
+    }
+  }
+  const el = document.getElementById('adminAuditResult');
+  if(!problemas.length){
+    el.innerHTML = '<div style="background:color-mix(in srgb,var(--live) 12%,transparent);border:1px solid color-mix(in srgb,var(--live) 30%,transparent);color:var(--live);border-radius:var(--r-md);padding:14px;text-align:center;font-weight:700">✓ Nenhuma inconsistência encontrada. Tudo certo!</div>';
+    return;
+  }
+  const cores = { falta:'#D97706', sala:'#E23744', teacher:'#7C3AED' };
+  const rotulos = { falta:'⚠ Campo faltando', sala:'⚔ Conflito de sala', teacher:'⚔ Conflito de teacher' };
+  let html = `<div style="font-size:12.5px;color:var(--text-dim);margin-bottom:10px">${problemas.length} item(ns) para revisar:</div>`;
+  ['teacher','sala','falta'].forEach(tipo=>{
+    const grupo = problemas.filter(p=>p.tipo===tipo);
+    if(!grupo.length) return;
+    html += `<div style="font-weight:700;font-size:12px;color:${cores[tipo]};margin:14px 0 6px">${rotulos[tipo]} (${grupo.length})</div>`;
+    grupo.forEach(p=>{
+      html += `<div style="padding:7px 12px;border-left:3px solid ${cores[tipo]};background:var(--surface-2);border-radius:0 6px 6px 0;margin-bottom:5px;font-size:12.5px"><b>${p.turma}</b> — ${p.msg}</div>`;
+    });
+  });
+  el.innerHTML = html;
 }
 function escAdm(s){ return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
 
@@ -2792,6 +2887,7 @@ document.getElementById('adminResetarTudo').addEventListener('click', ()=>{
 document.getElementById('adTabTurmas').addEventListener('click',    ()=> adminTrocarAba('Turmas'));
 document.getElementById('adTabHistorico').addEventListener('click', ()=> adminTrocarAba('Historico'));
 document.getElementById('adTabImportar').addEventListener('click',  ()=> adminTrocarAba('Importar'));
+document.getElementById('adTabAuditoria').addEventListener('click', ()=> adminTrocarAba('Auditoria'));
 // Importação em lote
 document.getElementById('adminImportarBtn').addEventListener('click', executarImportacao);
 document.getElementById('adminImportarLimpar').addEventListener('click', ()=>{ document.getElementById('adminImportarTxt').value=''; document.getElementById('adminImportarResult').innerHTML=''; });
