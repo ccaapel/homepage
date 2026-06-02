@@ -452,11 +452,12 @@ body {
 .int-table tr:last-child td { border-bottom:none; }
 .int-table tr:hover td { background:color-mix(in srgb, var(--ccaa-blue) 4%, transparent); }
 
-/* Faixa lateral de cor por formato (primeira célula) */
-.int-table tr.fmt-equiparacao td:first-child { box-shadow:inset 3px 0 0 #4C8DEE; }
-.int-table tr.fmt-apoio       td:first-child { box-shadow:inset 3px 0 0 #16A34A; }
-.int-table tr.fmt-prova       td:first-child { box-shadow:inset 3px 0 0 #E23744; }
-.int-table tr.fmt-nivelamento td:first-child { box-shadow:inset 3px 0 0 #7C3AED; }
+/* Faixa lateral de cor por STATUS (mesma cor do badge) */
+.int-table tr.st-realizado td:first-child { box-shadow:inset 3px 0 0 #16A34A; }
+.int-table tr.st-agendado  td:first-child { box-shadow:inset 3px 0 0 #D97706; }
+.int-table tr.st-cancelado td:first-child { box-shadow:inset 3px 0 0 #E23744; }
+.int-table tr.st-remarcado td:first-child { box-shadow:inset 3px 0 0 #7C3AED; }
+.int-table tr.st-faltou    td:first-child { box-shadow:inset 3px 0 0 #6B7280; }
 
 /* ===== MOBILE: tabela vira cards ===== */
 @media (max-width:760px){
@@ -468,10 +469,11 @@ body {
     border-radius:var(--r-md); margin-bottom:11px; padding:6px 4px;
     box-shadow:var(--shadow-card);
   }
-  .int-table tr.fmt-equiparacao { border-left:4px solid #4C8DEE; }
-  .int-table tr.fmt-apoio       { border-left:4px solid #16A34A; }
-  .int-table tr.fmt-prova       { border-left:4px solid #E23744; }
-  .int-table tr.fmt-nivelamento { border-left:4px solid #7C3AED; }
+  .int-table tr.st-realizado { border-left:4px solid #16A34A; }
+  .int-table tr.st-agendado  { border-left:4px solid #D97706; }
+  .int-table tr.st-cancelado { border-left:4px solid #E23744; }
+  .int-table tr.st-remarcado { border-left:4px solid #7C3AED; }
+  .int-table tr.st-faltou    { border-left:4px solid #6B7280; }
   .int-table tr:hover td { background:transparent; }
   .int-table td {
     border:none; padding:6px 14px; display:flex; justify-content:space-between;
@@ -625,6 +627,24 @@ body {
 .hist-linha { padding:8px 0; border-bottom:1px solid var(--border); font-size:12.5px; display:flex; justify-content:space-between; gap:10px; }
 .aluno-link { cursor:pointer; }
 .aluno-link:hover { text-decoration:underline; color:var(--ccaa-blue); }
+/* ===== ADMIN ===== */
+.admin-grupo { margin-bottom:22px; }
+.admin-grupo-titulo { font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:.07em; color:var(--ccaa-blue); margin-bottom:8px; padding:0 2px; }
+.admin-table-wrap { overflow-x:auto; border-radius:var(--r-md); border:1px solid var(--border); }
+.admin-table { width:100%; border-collapse:collapse; font-size:12.5px; min-width:700px; }
+.admin-table th { background:var(--surface-2); color:var(--text-dim); font-weight:700; font-size:11px; text-transform:uppercase; letter-spacing:.05em; padding:8px 10px; text-align:left; border-bottom:1px solid var(--border); white-space:nowrap; }
+.admin-table td { padding:7px 10px; border-bottom:1px solid var(--border); vertical-align:middle; }
+.admin-table tr:last-child td { border-bottom:none; }
+.admin-row-mod td { background:color-mix(in srgb, var(--ccaa-blue) 5%, transparent); }
+.admin-badge-mod { background:var(--ccaa-blue); color:#fff; font-size:9px; font-weight:800; padding:2px 6px; border-radius:99px; margin-left:6px; }
+.admin-input { background:var(--surface-2); border:1px solid var(--border); border-radius:6px; color:var(--text); font-family:inherit; font-size:12px; padding:5px 8px; width:100%; min-width:120px; transition:border-color .14s; }
+.admin-input:focus { outline:none; border-color:var(--ccaa-blue); }
+.admin-input-sm { min-width:80px; max-width:100px; }
+.admin-input-link { min-width:180px; font-size:11px; }
+.admin-btn-salvar { background:color-mix(in srgb,var(--live) 15%,transparent); color:var(--live); border:1px solid color-mix(in srgb,var(--live) 30%,transparent); border-radius:6px; padding:4px 9px; cursor:pointer; font-weight:800; font-size:13px; font-family:inherit; transition:all .12s; }
+.admin-btn-salvar:hover { background:var(--live); color:#fff; }
+.admin-btn-reset { background:none; border:none; cursor:pointer; font-size:13px; color:var(--text-dim); padding:4px 6px; margin-left:2px; transition:color .12s; }
+.admin-btn-reset:hover { color:var(--ccaa-red); }
 </style>
 </head><body>
 <div class="app">
@@ -641,10 +661,16 @@ body {
       <div class="brand-title">CCAA Pelotas 2026/1</div>
       <div class="brand-sub-row">
         <span class="brand-sub">Aulas on-line &middot; Quadro de horários</span>
-        <button class="acesso-interno" id="btnInterno">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-          Acesso interno
-        </button>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button class="acesso-interno" id="btnInterno">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            Acesso interno
+          </button>
+          <button class="acesso-interno" id="btnAdmin" title="Painel de administração (turmas, teachers, links)" style="background:color-mix(in srgb,var(--ccaa-blue) 12%,transparent);color:var(--ccaa-blue)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+            Admin
+          </button>
+        </div>
       </div>
     </div>
   </header>
@@ -822,6 +848,40 @@ const Store = {
 // achata turmas com índice global
 let FLAT = [];
 TURMAS.forEach((g,gi)=>g.turmas.forEach((t,ti)=>{ FLAT.push({...t, grupo:g.grupo, cat:g.cat, idx:FLAT.length}); }));
+
+// ===== ADMIN OVERRIDES =====
+// Campos editáveis pelo admin: teacher, sala, link
+// Override é guardado em localStorage como JSON. FLAT é remontado com os overrides.
+const ADMIN_KEY = 'ccaa_turmas_overrides';
+const ADMIN_SENHA = 'Admin2026@';
+
+function carregarOverrides(){
+  try { return JSON.parse(Store.get(ADMIN_KEY)||'{}'); } catch(e){ return {}; }
+}
+function salvarOverride(nome, campo, valor){
+  const ov = carregarOverrides();
+  if(!ov[nome]) ov[nome] = {};
+  ov[nome][campo] = valor;
+  Store.set(ADMIN_KEY, JSON.stringify(ov));
+}
+function removerOverride(nome){
+  const ov = carregarOverrides();
+  delete ov[nome];
+  Store.set(ADMIN_KEY, JSON.stringify(ov));
+}
+function aplicarOverrides(){
+  const ov = carregarOverrides();
+  FLAT = FLAT.map(t => {
+    const o = ov[t.nome];
+    if(!o) return t;
+    return {...t, ...o};
+  });
+  // Reflete overrides também no TURMAS (para turmasEquiparacao e turmasDoTeacher)
+  Object.entries(ov).forEach(([nome, campos])=>{
+    TURMAS.forEach(g=> g.turmas.forEach(t=>{ if(t.nome===nome) Object.assign(t, campos); }));
+  });
+}
+aplicarOverrides(); // aplica ao carregar a página
 
 // ===== STATUS =====
 // Horário sempre em Brasília, independente do relógio do dispositivo
@@ -1237,6 +1297,33 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
     <div style="margin-top:16px; display:flex; gap:10px; justify-content:flex-end">
       <button class="drawer-btn-cancel" id="lembreteFechar">Fechar</button>
       <button class="drawer-btn-save" id="lembreteCopiar" style="display:none">Copiar mensagem</button>
+    </div>
+  </div>
+</div>
+
+<!-- Painel de Admin -->
+<div class="hist-overlay" id="adminOverlay">
+  <div class="hist-box" style="max-width:800px;width:100%">
+    <div id="adminLogin" style="text-align:center;padding:20px 0">
+      <div style="font-size:22px;font-weight:800;margin-bottom:8px">⚙️ Admin</div>
+      <div style="color:var(--text-dim);font-size:13px;margin-bottom:20px">Senha de administrador</div>
+      <input type="password" id="adminSenhaInput" class="field-input" placeholder="Senha admin" style="max-width:260px;margin:0 auto 14px;display:block">
+      <button class="int-btn int-btn-novo" id="adminLoginBtn">Entrar</button>
+      <div id="adminLoginErro" style="color:var(--ccaa-red);font-size:12px;margin-top:10px;display:none">Senha incorreta</div>
+    </div>
+    <div id="adminPainel" style="display:none">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+        <h3 style="margin:0">⚙️ Administração de turmas</h3>
+        <div style="display:flex;gap:8px">
+          <input class="int-search" type="text" id="adminBusca" placeholder="Buscar turma..." style="min-width:180px">
+          <button class="vt-copiar" id="adminResetarTudo" style="background:color-mix(in srgb,var(--ccaa-red) 14%,transparent);color:var(--ccaa-red);border-color:color-mix(in srgb,var(--ccaa-red) 30%,transparent)">↺ Resetar tudo</button>
+        </div>
+      </div>
+      <div style="color:var(--text-dim);font-size:12px;margin-bottom:14px">Edite teacher, sala ou link. Alterações são salvas localmente e aplicadas imediatamente. Para resetar uma turma ao original, clique no ↺ da linha.</div>
+      <div id="adminGrupos"></div>
+    </div>
+    <div style="margin-top:16px;text-align:right">
+      <button class="drawer-btn-cancel" id="adminFechar">Fechar</button>
     </div>
   </div>
 </div>
@@ -1785,9 +1872,9 @@ function linhaRegistro(r){
   }[(r.status||'').toLowerCase()] || 'badge-default';
   const dia = diaDaData(r.data);
   const nomeEsc = (r.aluno||'').replace(/'/g,"\\'").replace(/"/g,'&quot;');
-  // classe de cor por formato (faixa lateral)
-  const fmtClass = 'fmt-'+(normTexto(r.formato)||'outro');
-  return `<tr class="${fmtClass}">
+  // classe de cor por STATUS (faixa lateral = mesma cor do badge de status)
+  const stClass = 'st-'+(normTexto(r.status)||'outro');
+  return `<tr class="${stClass}">
     <td data-label="Aluno"><b class="aluno-link" onclick="abrirHistorico('${nomeEsc}')">${nomeCurto(r.aluno)}</b></td>
     <td data-label="Data">${r.data}${dia?`<br><span style="font-size:10.5px;color:var(--text-dim)">${dia}</span>`:''}</td>
     <td data-label="Horário">${r.horario||'—'}</td>
@@ -2175,22 +2262,40 @@ function fecharHistorico(){ document.getElementById('histOverlay').classList.rem
 
 // ===== EXPORTAR PARA WHATSAPP =====
 function exportarWhatsApp(){
-  // Só a semana atual, agrupado e ordenado de segunda a sexta
-  const semana = todosRegistros.filter(r=>dentroDaSemana(r.data) && ocupaSlot(r.status));
+  // Só a semana atual, com status que ocupa slot
+  let semana = todosRegistros.filter(r=>dentroDaSemana(r.data) && ocupaSlot(r.status));
   if(!semana.length){ toast('Nenhum agendamento na semana','erro'); return; }
-  // dia da semana usando parser LOCAL (evita o bug de fuso que invertia a ordem)
-  const diaIdx = d => { const dt=isoParaDataLocal(dataBRtoISO(d)); if(!dt) return 9; const g=dt.getDay(); return g===0?7:g; }; // 1=seg
-  // ordena por dia da semana (seg→sex), depois por horário
+  const diaIdx = d => { const dt=isoParaDataLocal(dataBRtoISO(d)); if(!dt) return 9; const g=dt.getDay(); return g===0?7:g; };
   semana.sort((a,b)=> diaIdx(a.data)-diaIdx(b.data) || (a.horario||'').localeCompare(b.horario||''));
+  // Funde slots consecutivos do MESMO aluno+data+formato+turma (prova de 1h gravada como 2 linhas de 30min)
+  const agrupado = [];
+  semana.forEach(r=>{
+    const ant = agrupado[agrupado.length-1];
+    const mesmaAtividade = ant && normTexto(ant.aluno)===normTexto(r.aluno)
+      && ant.data===r.data && (ant.formato||'')===(r.formato||'') && (ant.turma||'')===(r.turma||'');
+    // consecutivo = começa exatamente quando o anterior (ou o fim acumulado) termina (+30min)
+    if(mesmaAtividade && somaMin(ant.horarioFim, 0)===r.horario){
+      ant.horarioFim = somaMin(r.horario, 30); // estende o intervalo
+    } else {
+      agrupado.push(Object.assign({}, r, { horarioFim: somaMin(r.horario, 30) }));
+    }
+  });
   let txt = '*CCAA 2026/1 - Controle de equiparações, aulas de apoio, nivelamentos e provas*\n';
   let diaAtual='';
-  semana.forEach(r=>{
-    const chave = r.data;
-    if(chave!==diaAtual){ diaAtual=chave; txt += `\n*${r.data} (${diaDaData(r.data)})*\n`; }
-    txt += `• ${r.horario||''} ${nomeCurto(r.aluno)} — ${r.formato||''}${r.turma?' '+r.turma:''} (${r.teacher||''})\n`;
+  agrupado.forEach(r=>{
+    if(r.data!==diaAtual){ diaAtual=r.data; txt += `\n*${r.data} (${diaDaData(r.data)})*\n`; }
+    // se ocupa mais de 1 slot, mostra intervalo (15:30–16:30); senão só o horário
+    const inicioMin = horaParaMin(r.horario);
+    const fimMin = horaParaMin(r.horarioFim);
+    const faixa = (fimMin - inicioMin > 30) ? `${r.horario}–${r.horarioFim}` : (r.horario||'');
+    txt += `• ${faixa} ${nomeCurto(r.aluno)} — ${r.formato||''}${r.turma?' '+r.turma:''} (${r.teacher||''})\n`;
   });
   copiarTexto(txt, 'Resumo copiado! Cole no WhatsApp ✓');
 }
+// "15:30" -> minutos desde meia-noite
+function horaParaMin(h){ if(!h) return 0; const [a,b]=h.split(':').map(Number); return a*60+(b||0); }
+// soma N minutos a "HH:MM" e devolve "HH:MM"
+function somaMin(h, n){ const t=horaParaMin(h)+n; return String(Math.floor(t/60)).padStart(2,'0')+':'+String(t%60).padStart(2,'0'); }
 function copiarTexto(txt, msg){
   navigator.clipboard.writeText(txt).then(
     ()=> toast(msg),
@@ -2389,6 +2494,124 @@ document.getElementById('btnLimparFiltros').addEventListener('click', ()=>{
 
 // Reload
 document.getElementById('btnReload').addEventListener('click', ()=> carregarDados(false));
+
+// ===== PAINEL DE ADMIN =====
+let adminLogado = false;
+
+function abrirAdmin(){
+  adminLogado = false;
+  document.getElementById('adminLogin').style.display = 'block';
+  document.getElementById('adminPainel').style.display = 'none';
+  document.getElementById('adminSenhaInput').value = '';
+  document.getElementById('adminLoginErro').style.display = 'none';
+  document.getElementById('adminOverlay').classList.add('open');
+  setTimeout(()=> document.getElementById('adminSenhaInput').focus(), 100);
+}
+function adminEntrar(){
+  const val = document.getElementById('adminSenhaInput').value;
+  if(val !== ADMIN_SENHA){
+    document.getElementById('adminLoginErro').style.display = 'block';
+    return;
+  }
+  adminLogado = true;
+  document.getElementById('adminLogin').style.display = 'none';
+  document.getElementById('adminPainel').style.display = 'block';
+  renderAdmin('');
+}
+// Renderiza a lista de turmas agrupadas com campos editáveis
+function renderAdmin(busca){
+  const ov = carregarOverrides();
+  const norm = s => (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
+  const bq = norm(busca);
+  const cont = document.getElementById('adminGrupos');
+  let html = '';
+  TURMAS.forEach(g=>{
+    const turmsFiltradas = bq
+      ? g.turmas.filter(t=> norm(t.nome).includes(bq) || norm(t.teacher||'').includes(bq) || norm(t.sala||'').includes(bq))
+      : g.turmas;
+    if(!turmsFiltradas.length) return;
+    html += `<div class="admin-grupo">
+      <div class="admin-grupo-titulo">${g.grupo}</div>
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead><tr><th>Turma</th><th>Horário</th><th>Teacher</th><th>Sala</th><th>Link Zoom</th><th></th></tr></thead>
+          <tbody>${turmsFiltradas.map(t=>{
+            const o = ov[t.nome]||{};
+            const modificado = Object.keys(o).length > 0;
+            const tch = o.teacher ?? t.teacher ?? '';
+            const sala = o.sala ?? t.sala ?? '';
+            const link = o.link ?? t.link ?? '';
+            const badge = modificado ? `<span class="admin-badge-mod">editado</span>` : '';
+            return `<tr class="${modificado?'admin-row-mod':''}">
+              <td><b>${t.nome}</b>${badge}</td>
+              <td style="font-size:11.5px;color:var(--text-dim)">${t.horario||''}</td>
+              <td><input class="admin-input" data-nome="${escAdm(t.nome)}" data-campo="teacher" value="${escAdm(tch)}" placeholder="Teacher"></td>
+              <td><input class="admin-input admin-input-sm" data-nome="${escAdm(t.nome)}" data-campo="sala" value="${escAdm(sala)}" placeholder="Sala"></td>
+              <td><input class="admin-input admin-input-link" data-nome="${escAdm(t.nome)}" data-campo="link" value="${escAdm(link)}" placeholder="https://zoom.us/j/..."></td>
+              <td>
+                <button class="admin-btn-salvar" data-nome="${escAdm(t.nome)}" title="Salvar alterações desta turma">✓</button>
+                ${modificado?`<button class="admin-btn-reset" data-nome="${escAdm(t.nome)}" title="Resetar ao original">↺</button>`:''}
+              </td>
+            </tr>`;
+          }).join('')}</tbody>
+        </table>
+      </div>
+    </div>`;
+  });
+  if(!html) html = '<div style="color:var(--text-dim);padding:20px;text-align:center">Nenhuma turma encontrada</div>';
+  cont.innerHTML = html;
+  // listeners dos botões de salvar e reset
+  cont.querySelectorAll('.admin-btn-salvar').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const nome = btn.dataset.nome;
+      const linha = btn.closest('tr');
+      const teacher = linha.querySelector('[data-campo="teacher"]').value.trim();
+      const sala = linha.querySelector('[data-campo="sala"]').value.trim();
+      const link = linha.querySelector('[data-campo="link"]').value.trim();
+      // verifica se há mudança
+      const orig = TURMAS.flatMap(g=>g.turmas).find(t=>t.nome===nome) || {};
+      const semMudanca = teacher===(orig.teacher||'') && sala===(orig.sala||'') && link===(orig.link||'');
+      if(semMudanca){ removerOverride(nome); }
+      else {
+        const ov2 = carregarOverrides();
+        ov2[nome] = { teacher, sala, link };
+        Store.set(ADMIN_KEY, JSON.stringify(ov2));
+      }
+      // aplica imediatamente no FLAT e TURMAS
+      const ov3 = carregarOverrides();
+      FLAT = FLAT.map(t=>{ const o=ov3[t.nome]; return o?{...t,...o}:t; });
+      TURMAS.forEach(g=>g.turmas.forEach(t=>{ const o=ov3[t.nome]; if(o) Object.assign(t,o); }));
+      render();
+      renderAdmin(document.getElementById('adminBusca').value);
+      toast(`${nome} salva ✓`);
+    });
+  });
+  cont.querySelectorAll('.admin-btn-reset').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const nome = btn.dataset.nome;
+      if(!confirm(`Resetar "${nome}" ao valor original do código?`)) return;
+      removerOverride(nome);
+      // restaura do TURMAS original (que não foi modificado em memória se só overrides foram aplicados)
+      // necessário recarregar a página para restaurar o FLAT totalmente
+      toast(`${nome} resetada. Recarregando...`);
+      setTimeout(()=> location.reload(), 800);
+    });
+  });
+}
+function escAdm(s){ return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+
+document.getElementById('btnAdmin').addEventListener('click', abrirAdmin);
+document.getElementById('adminFechar').addEventListener('click', ()=>{ document.getElementById('adminOverlay').classList.remove('open'); });
+document.getElementById('adminOverlay').addEventListener('click', e=>{ if(e.target.id==='adminOverlay') document.getElementById('adminOverlay').classList.remove('open'); });
+document.getElementById('adminLoginBtn').addEventListener('click', adminEntrar);
+document.getElementById('adminSenhaInput').addEventListener('keydown', e=>{ if(e.key==='Enter') adminEntrar(); });
+document.getElementById('adminBusca').addEventListener('input', e=> renderAdmin(e.target.value));
+document.getElementById('adminResetarTudo').addEventListener('click', ()=>{
+  if(!confirm('Resetar TODAS as turmas aos valores originais do código?')) return;
+  Store.set(ADMIN_KEY, '{}');
+  toast('Todas as turmas resetadas. Recarregando...');
+  setTimeout(()=> location.reload(), 800);
+});
 
 // Auto-refresh silencioso a cada 30s (pausa se drawer aberto ou se digitando busca)
 setInterval(()=>{
