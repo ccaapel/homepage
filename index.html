@@ -645,6 +645,11 @@ body {
 .admin-btn-salvar:hover { background:var(--live); color:#fff; }
 .admin-btn-reset { background:none; border:none; cursor:pointer; font-size:13px; color:var(--text-dim); padding:4px 6px; margin-left:2px; transition:color .12s; }
 .admin-btn-reset:hover { color:var(--ccaa-red); }
+.admin-tab { background:none; border:none; cursor:pointer; font-family:inherit; font-size:13px; font-weight:700; color:var(--text-dim); padding:9px 16px; border-bottom:2.5px solid transparent; margin-bottom:-2px; transition:all .14s; }
+.admin-tab:hover { color:var(--text-mute); }
+.admin-tab.ativa { color:var(--ccaa-blue); border-bottom-color:var(--ccaa-blue); }
+.admin-import-txt { width:100%; min-height:120px; background:var(--surface-2); border:1px solid var(--border); border-radius:8px; color:var(--text); font-family:monospace; font-size:12px; padding:10px 12px; resize:vertical; transition:border-color .14s; }
+.admin-import-txt:focus { outline:none; border-color:var(--ccaa-blue); }
 </style>
 </head><body>
 <div class="app">
@@ -1312,15 +1317,45 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
       <div id="adminLoginErro" style="color:var(--ccaa-red);font-size:12px;margin-top:10px;display:none">Senha incorreta</div>
     </div>
     <div id="adminPainel" style="display:none">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px">
-        <h3 style="margin:0">⚙️ Administração de turmas</h3>
-        <div style="display:flex;gap:8px">
-          <input class="int-search" type="text" id="adminBusca" placeholder="Buscar turma..." style="min-width:180px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px">
+        <h3 style="margin:0;font-family:'Bricolage Grotesque',sans-serif">⚙️ Admin · turmas</h3>
+      </div>
+      <!-- Abas do admin -->
+      <div style="display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:16px">
+        <button class="admin-tab ativa" id="adTabTurmas">📋 Turmas</button>
+        <button class="admin-tab" id="adTabHistorico">🕓 Histórico</button>
+        <button class="admin-tab" id="adTabImportar">⚡ Importar em lote</button>
+      </div>
+      <!-- ABA TURMAS -->
+      <div id="adViewTurmas">
+        <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+          <input class="int-search" type="text" id="adminBusca" placeholder="Buscar turma, teacher..." style="flex:1;min-width:180px">
           <button class="vt-copiar" id="adminResetarTudo" style="background:color-mix(in srgb,var(--ccaa-red) 14%,transparent);color:var(--ccaa-red);border-color:color-mix(in srgb,var(--ccaa-red) 30%,transparent)">↺ Resetar tudo</button>
         </div>
+        <div style="color:var(--text-dim);font-size:11.5px;margin-bottom:12px">Edite qualquer campo e clique ✓ para salvar. Alterações aplicadas imediatamente. ↺ reseta a turma ao valor original.</div>
+        <div id="adminGrupos"></div>
       </div>
-      <div style="color:var(--text-dim);font-size:12px;margin-bottom:14px">Edite teacher, sala ou link. Alterações são salvas localmente e aplicadas imediatamente. Para resetar uma turma ao original, clique no ↺ da linha.</div>
-      <div id="adminGrupos"></div>
+      <!-- ABA HISTÓRICO -->
+      <div id="adViewHistorico" style="display:none">
+        <div style="color:var(--text-dim);font-size:12px;margin-bottom:12px">Todas as alterações feitas pelo admin neste dispositivo, em ordem mais recente.</div>
+        <div id="adminHistLista"></div>
+        <button class="vt-copiar" id="adminLimparHist" style="margin-top:12px;background:color-mix(in srgb,var(--ccaa-red) 10%,transparent);color:var(--ccaa-red);border-color:color-mix(in srgb,var(--ccaa-red) 25%,transparent)">🗑 Limpar histórico</button>
+      </div>
+      <!-- ABA IMPORTAR -->
+      <div id="adViewImportar" style="display:none">
+        <div style="color:var(--text-dim);font-size:12px;margin-bottom:10px">Cole uma lista de alterações, uma por linha, no formato:<br>
+          <code style="background:var(--surface-2);padding:2px 6px;border-radius:4px;font-size:11px">Nome da turma | teacher | sala | link</code><br><br>
+          Campos vazios mantêm o valor atual. Exemplo:<br>
+          <code style="background:var(--surface-2);padding:2px 6px;border-radius:4px;font-size:11px;display:block;margin-top:6px;white-space:pre-wrap">Teen 3.4 | Lays Pereira | Sala 5 |
+English Course 7.1 | | Sala 8 | https://zoom.us/j/123</code>
+        </div>
+        <textarea id="adminImportarTxt" class="admin-import-txt" placeholder="Teen 3.4 | Lays Pereira | Sala 5 | https://zoom.us/j/...&#10;English Course 7.1 | | Sala 8 |"></textarea>
+        <div style="display:flex;gap:8px;margin-top:10px">
+          <button class="int-btn int-btn-novo" id="adminImportarBtn">⚡ Aplicar importação</button>
+          <button class="drawer-btn-cancel" id="adminImportarLimpar">Limpar</button>
+        </div>
+        <div id="adminImportarResult" style="margin-top:12px;font-size:12.5px"></div>
+      </div>
     </div>
     <div style="margin-top:16px;text-align:right">
       <button class="drawer-btn-cancel" id="adminFechar">Fechar</button>
@@ -2518,38 +2553,120 @@ function adminEntrar(){
   document.getElementById('adminPainel').style.display = 'block';
   renderAdmin('');
 }
-// Renderiza a lista de turmas agrupadas com campos editáveis
+// ===== HISTÓRICO DE ALTERAÇÕES =====
+const ADMIN_HIST_KEY = 'ccaa_admin_historico';
+function carregarHistAdmin(){ try{ return JSON.parse(Store.get(ADMIN_HIST_KEY)||'[]'); }catch(e){ return []; } }
+function registrarHistAdmin(nome, antes, depois){
+  const hist = carregarHistAdmin();
+  hist.unshift({ ts: new Date().toLocaleString('pt-BR'), turma: nome, antes, depois });
+  if(hist.length > 200) hist.pop(); // máximo 200 entradas
+  Store.set(ADMIN_HIST_KEY, JSON.stringify(hist));
+}
+function renderHistAdmin(){
+  const hist = carregarHistAdmin();
+  const el = document.getElementById('adminHistLista');
+  if(!hist.length){ el.innerHTML = '<div style="color:var(--text-dim);padding:20px;text-align:center">Nenhuma alteração registrada</div>'; return; }
+  el.innerHTML = hist.map(h=>`
+    <div style="padding:9px 12px;border-bottom:1px solid var(--border);font-size:12.5px">
+      <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap">
+        <span><b>${h.turma}</b></span>
+        <span style="color:var(--text-dim);font-size:11px">${h.ts}</span>
+      </div>
+      <div style="margin-top:5px;display:flex;gap:18px;font-size:11.5px;flex-wrap:wrap">
+        ${Object.keys(h.depois).map(k=>`
+          <span>
+            <span style="color:var(--text-dim)">${k}:</span>
+            <span style="text-decoration:line-through;color:var(--text-dim);margin:0 4px">${h.antes[k]||'—'}</span>
+            <span style="color:var(--live);font-weight:600">${h.depois[k]||'—'}</span>
+          </span>`).join('')}
+      </div>
+    </div>`).join('');
+}
+
+// ===== IMPORTAÇÃO EM LOTE =====
+function executarImportacao(){
+  const txt = document.getElementById('adminImportarTxt').value.trim();
+  if(!txt){ toast('Cole o texto antes de importar','erro'); return; }
+  const linhas = txt.split('\n').map(l=>l.trim()).filter(Boolean);
+  let ok=0, erros=[];
+  const ov = carregarOverrides();
+  const turmaNomes = TURMAS.flatMap(g=>g.turmas).map(t=>t.nome);
+  linhas.forEach((linha,i)=>{
+    const partes = linha.split('|').map(p=>p.trim());
+    const nomeBusca = partes[0];
+    // casa por nome exato ou parcial (case-insensitive, sem acento)
+    const match = turmaNomes.find(n=> normTexto(n)===normTexto(nomeBusca) || normTexto(n).includes(normTexto(nomeBusca)));
+    if(!match){ erros.push(`Linha ${i+1}: turma não encontrada — "${nomeBusca}"`); return; }
+    const orig = TURMAS.flatMap(g=>g.turmas).find(t=>t.nome===match)||{};
+    const novoTeacher = partes[1] || null;
+    const novaSala    = partes[2] || null;
+    const novoLink    = partes[3] || null;
+    if(!ov[match]) ov[match] = {};
+    const antes = { teacher: ov[match].teacher ?? orig.teacher ?? '', sala: ov[match].sala ?? orig.sala ?? '', link: ov[match].link ?? orig.link ?? '' };
+    if(novoTeacher !== null) ov[match].teacher = novoTeacher || (orig.teacher||'');
+    if(novaSala    !== null) ov[match].sala    = novaSala    || (orig.sala||'');
+    if(novoLink    !== null) ov[match].link    = novoLink    || (orig.link||'');
+    const depois = { teacher: ov[match].teacher, sala: ov[match].sala, link: ov[match].link };
+    registrarHistAdmin(match, antes, depois);
+    ok++;
+  });
+  Store.set(ADMIN_KEY, JSON.stringify(ov));
+  aplicarOverridesEmMemoria();
+  render();
+  const res = document.getElementById('adminImportarResult');
+  res.innerHTML = `<span style="color:var(--live);font-weight:700">✓ ${ok} turma(s) aplicada(s)</span>`
+    + (erros.length ? `<br><span style="color:var(--ccaa-red)">${erros.join('<br>')}</span>` : '');
+  if(ok) toast(`${ok} turma(s) importada(s) ✓`);
+}
+
+// Aplica overrides em memória sem reload
+function aplicarOverridesEmMemoria(){
+  const ov = carregarOverrides();
+  // reconstrói FLAT do zero a partir dos TURMAS originais + overrides
+  FLAT = [];
+  TURMAS.forEach(g=>g.turmas.forEach(t=>{
+    const o = ov[t.nome]||{};
+    FLAT.push({...t, ...o, grupo:g.grupo, cat:g.cat, idx:FLAT.length});
+  }));
+  // atualiza TURMAS também (p/ turmasDoTeacher)
+  Object.entries(ov).forEach(([nome,campos])=>{
+    TURMAS.forEach(g=>g.turmas.forEach(t=>{ if(t.nome===nome) Object.assign(t, campos); }));
+  });
+}
+
+// Renderiza a lista de turmas agrupadas com todos os campos editáveis
 function renderAdmin(busca){
   const ov = carregarOverrides();
-  const norm = s => (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
-  const bq = norm(busca);
+  const bq = normTexto(busca);
   const cont = document.getElementById('adminGrupos');
   let html = '';
   TURMAS.forEach(g=>{
     const turmsFiltradas = bq
-      ? g.turmas.filter(t=> norm(t.nome).includes(bq) || norm(t.teacher||'').includes(bq) || norm(t.sala||'').includes(bq))
+      ? g.turmas.filter(t=> normTexto(t.nome).includes(bq) || normTexto(t.teacher||'').includes(bq) || normTexto(t.sala||'').includes(bq))
       : g.turmas;
     if(!turmsFiltradas.length) return;
     html += `<div class="admin-grupo">
       <div class="admin-grupo-titulo">${g.grupo}</div>
       <div class="admin-table-wrap">
         <table class="admin-table">
-          <thead><tr><th>Turma</th><th>Horário</th><th>Teacher</th><th>Sala</th><th>Link Zoom</th><th></th></tr></thead>
+          <thead><tr><th>Turma</th><th>Horário</th><th>Teacher</th><th>Sala</th><th>Link Zoom</th><th style="width:60px"></th></tr></thead>
           <tbody>${turmsFiltradas.map(t=>{
             const o = ov[t.nome]||{};
             const modificado = Object.keys(o).length > 0;
-            const tch = o.teacher ?? t.teacher ?? '';
-            const sala = o.sala ?? t.sala ?? '';
-            const link = o.link ?? t.link ?? '';
-            const badge = modificado ? `<span class="admin-badge-mod">editado</span>` : '';
-            return `<tr class="${modificado?'admin-row-mod':''}">
-              <td><b>${t.nome}</b>${badge}</td>
-              <td style="font-size:11.5px;color:var(--text-dim)">${t.horario||''}</td>
+            const tch    = o.teacher  ?? t.teacher  ?? '';
+            const sala   = o.sala     ?? t.sala     ?? '';
+            const link   = o.link     ?? t.link     ?? '';
+            const horario = o.horario ?? t.horario  ?? '';
+            const nome   = o.nome     ?? t.nome     ?? '';
+            const badge  = modificado ? `<span class="admin-badge-mod">editado</span>` : '';
+            return `<tr class="${modificado?'admin-row-mod':(t.nome===nome?'':'')}">
+              <td><input class="admin-input admin-input-sm" data-nome="${escAdm(t.nome)}" data-campo="nome" value="${escAdm(nome)}" placeholder="Nome" title="Nome da turma">${badge}</td>
+              <td><input class="admin-input" data-nome="${escAdm(t.nome)}" data-campo="horario" value="${escAdm(horario)}" placeholder="Seg e Qua · 14h às 15h15" style="min-width:140px"></td>
               <td><input class="admin-input" data-nome="${escAdm(t.nome)}" data-campo="teacher" value="${escAdm(tch)}" placeholder="Teacher"></td>
               <td><input class="admin-input admin-input-sm" data-nome="${escAdm(t.nome)}" data-campo="sala" value="${escAdm(sala)}" placeholder="Sala"></td>
               <td><input class="admin-input admin-input-link" data-nome="${escAdm(t.nome)}" data-campo="link" value="${escAdm(link)}" placeholder="https://zoom.us/j/..."></td>
-              <td>
-                <button class="admin-btn-salvar" data-nome="${escAdm(t.nome)}" title="Salvar alterações desta turma">✓</button>
+              <td style="white-space:nowrap">
+                <button class="admin-btn-salvar" data-nome="${escAdm(t.nome)}" title="Salvar">✓</button>
                 ${modificado?`<button class="admin-btn-reset" data-nome="${escAdm(t.nome)}" title="Resetar ao original">↺</button>`:''}
               </td>
             </tr>`;
@@ -2560,43 +2677,61 @@ function renderAdmin(busca){
   });
   if(!html) html = '<div style="color:var(--text-dim);padding:20px;text-align:center">Nenhuma turma encontrada</div>';
   cont.innerHTML = html;
-  // listeners dos botões de salvar e reset
   cont.querySelectorAll('.admin-btn-salvar').forEach(btn=>{
     btn.addEventListener('click', ()=>{
-      const nome = btn.dataset.nome;
+      const nomeOrig = btn.dataset.nome;
       const linha = btn.closest('tr');
-      const teacher = linha.querySelector('[data-campo="teacher"]').value.trim();
-      const sala = linha.querySelector('[data-campo="sala"]').value.trim();
-      const link = linha.querySelector('[data-campo="link"]').value.trim();
-      // verifica se há mudança
-      const orig = TURMAS.flatMap(g=>g.turmas).find(t=>t.nome===nome) || {};
-      const semMudanca = teacher===(orig.teacher||'') && sala===(orig.sala||'') && link===(orig.link||'');
-      if(semMudanca){ removerOverride(nome); }
-      else {
-        const ov2 = carregarOverrides();
-        ov2[nome] = { teacher, sala, link };
-        Store.set(ADMIN_KEY, JSON.stringify(ov2));
-      }
-      // aplica imediatamente no FLAT e TURMAS
-      const ov3 = carregarOverrides();
-      FLAT = FLAT.map(t=>{ const o=ov3[t.nome]; return o?{...t,...o}:t; });
-      TURMAS.forEach(g=>g.turmas.forEach(t=>{ const o=ov3[t.nome]; if(o) Object.assign(t,o); }));
+      const novoNome   = linha.querySelector('[data-campo="nome"]').value.trim();
+      const novoHorario = linha.querySelector('[data-campo="horario"]').value.trim();
+      const novoTeacher = linha.querySelector('[data-campo="teacher"]').value.trim();
+      const novaSala    = linha.querySelector('[data-campo="sala"]').value.trim();
+      const novoLink    = linha.querySelector('[data-campo="link"]').value.trim();
+      const orig = TURMAS.flatMap(g=>g.turmas).find(t=>t.nome===nomeOrig)||{};
+      const ov2 = carregarOverrides();
+      const antes = {
+        nome: ov2[nomeOrig]?.nome ?? orig.nome ?? nomeOrig,
+        horario: ov2[nomeOrig]?.horario ?? orig.horario ?? '',
+        teacher: ov2[nomeOrig]?.teacher ?? orig.teacher ?? '',
+        sala: ov2[nomeOrig]?.sala ?? orig.sala ?? '',
+        link: ov2[nomeOrig]?.link ?? orig.link ?? ''
+      };
+      const semMudanca = novoNome===(orig.nome??nomeOrig) && novoHorario===(orig.horario||'') && novoTeacher===(orig.teacher||'') && novaSala===(orig.sala||'') && novoLink===(orig.link||'');
+      if(semMudanca){ delete ov2[nomeOrig]; }
+      else { ov2[nomeOrig] = { nome:novoNome, horario:novoHorario, teacher:novoTeacher, sala:novaSala, link:novoLink }; }
+      Store.set(ADMIN_KEY, JSON.stringify(ov2));
+      const depois = ov2[nomeOrig] || {};
+      // registra no histórico (só campos que mudaram)
+      const diffs = {}, antDiffs = {};
+      ['nome','horario','teacher','sala','link'].forEach(k=>{
+        if((depois[k]||'') !== (antes[k]||'')){ diffs[k]=depois[k]||''; antDiffs[k]=antes[k]||''; }
+      });
+      if(Object.keys(diffs).length) registrarHistAdmin(nomeOrig, antDiffs, diffs);
+      aplicarOverridesEmMemoria();
       render();
       renderAdmin(document.getElementById('adminBusca').value);
-      toast(`${nome} salva ✓`);
+      toast(`${nomeOrig} salva ✓`);
     });
   });
   cont.querySelectorAll('.admin-btn-reset').forEach(btn=>{
     btn.addEventListener('click', ()=>{
       const nome = btn.dataset.nome;
-      if(!confirm(`Resetar "${nome}" ao valor original do código?`)) return;
+      if(!confirm(`Resetar "${nome}" ao valor original?`)) return;
       removerOverride(nome);
-      // restaura do TURMAS original (que não foi modificado em memória se só overrides foram aplicados)
-      // necessário recarregar a página para restaurar o FLAT totalmente
       toast(`${nome} resetada. Recarregando...`);
       setTimeout(()=> location.reload(), 800);
     });
   });
+}
+
+// Troca de abas do admin
+function adminTrocarAba(aba){
+  ['adViewTurmas','adViewHistorico','adViewImportar'].forEach(id=>{
+    document.getElementById(id).style.display='none';
+  });
+  document.querySelectorAll('.admin-tab').forEach(b=>b.classList.remove('ativa'));
+  document.getElementById('adView'+aba).style.display='block';
+  document.getElementById('adTab'+aba).classList.add('ativa');
+  if(aba==='Historico') renderHistAdmin();
 }
 function escAdm(s){ return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
 
@@ -2611,6 +2746,19 @@ document.getElementById('adminResetarTudo').addEventListener('click', ()=>{
   Store.set(ADMIN_KEY, '{}');
   toast('Todas as turmas resetadas. Recarregando...');
   setTimeout(()=> location.reload(), 800);
+});
+// Abas do admin
+document.getElementById('adTabTurmas').addEventListener('click',    ()=> adminTrocarAba('Turmas'));
+document.getElementById('adTabHistorico').addEventListener('click', ()=> adminTrocarAba('Historico'));
+document.getElementById('adTabImportar').addEventListener('click',  ()=> adminTrocarAba('Importar'));
+// Importação em lote
+document.getElementById('adminImportarBtn').addEventListener('click', executarImportacao);
+document.getElementById('adminImportarLimpar').addEventListener('click', ()=>{ document.getElementById('adminImportarTxt').value=''; document.getElementById('adminImportarResult').innerHTML=''; });
+document.getElementById('adminLimparHist').addEventListener('click', ()=>{
+  if(!confirm('Limpar todo o histórico de alterações?')) return;
+  Store.set(ADMIN_HIST_KEY, '[]');
+  renderHistAdmin();
+  toast('Histórico limpo');
 });
 
 // Auto-refresh silencioso a cada 30s (pausa se drawer aberto ou se digitando busca)
