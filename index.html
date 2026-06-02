@@ -452,6 +452,44 @@ body {
 .int-table tr:last-child td { border-bottom:none; }
 .int-table tr:hover td { background:color-mix(in srgb, var(--ccaa-blue) 4%, transparent); }
 
+/* Faixa lateral de cor por formato (primeira célula) */
+.int-table tr.fmt-equiparacao td:first-child { box-shadow:inset 3px 0 0 #4C8DEE; }
+.int-table tr.fmt-apoio       td:first-child { box-shadow:inset 3px 0 0 #16A34A; }
+.int-table tr.fmt-prova       td:first-child { box-shadow:inset 3px 0 0 #E23744; }
+.int-table tr.fmt-nivelamento td:first-child { box-shadow:inset 3px 0 0 #7C3AED; }
+
+/* ===== MOBILE: tabela vira cards ===== */
+@media (max-width:760px){
+  .int-table { min-width:0; font-size:13px; }
+  .int-table thead { display:none; }
+  .int-table, .int-table tbody, .int-table tr, .int-table td { display:block; width:100%; }
+  .int-table tr {
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:var(--r-md); margin-bottom:11px; padding:6px 4px;
+    box-shadow:var(--shadow-card);
+  }
+  .int-table tr.fmt-equiparacao { border-left:4px solid #4C8DEE; }
+  .int-table tr.fmt-apoio       { border-left:4px solid #16A34A; }
+  .int-table tr.fmt-prova       { border-left:4px solid #E23744; }
+  .int-table tr.fmt-nivelamento { border-left:4px solid #7C3AED; }
+  .int-table tr:hover td { background:transparent; }
+  .int-table td {
+    border:none; padding:6px 14px; display:flex; justify-content:space-between;
+    align-items:center; gap:12px; text-align:right;
+  }
+  .int-table td:first-child { box-shadow:none !important; font-size:15px; padding-top:10px; }
+  .int-table td::before {
+    content:attr(data-label); font-weight:700; font-size:11px; text-transform:uppercase;
+    letter-spacing:.04em; color:var(--text-dim); text-align:left; flex-shrink:0;
+  }
+  .int-table td[data-label="Aluno"]::before { display:none; }
+  .int-table td[data-label="Aluno"] { justify-content:flex-start; }
+  .int-table td[data-label="Ações"] { justify-content:flex-end; border-top:1px solid var(--border); margin-top:4px; padding-top:8px; }
+  .int-table td[data-label="Ações"]::before { display:none; }
+  /* esconde células vazias (—) no mobile pra não poluir */
+  .int-table td:empty { display:none; }
+}
+
 /* Badges de status */
 .badge {
   display:inline-block; font-size:11px; font-weight:700;
@@ -562,6 +600,8 @@ body {
 .vagas-teacher { margin-bottom:18px; background:var(--surface); border:1.5px solid var(--border); border-radius:var(--r-md); overflow:hidden; }
 .vagas-teacher-head { padding:10px 15px; background:var(--surface-2); font-weight:800; font-size:13.5px; color:var(--text); border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
 .vagas-teacher-head .vt-sub { font-size:11.5px; font-weight:600; color:var(--text-dim); }
+.vt-copiar { background:color-mix(in srgb, var(--ccaa-blue) 14%, transparent); color:var(--ccaa-blue); border:1px solid color-mix(in srgb, var(--ccaa-blue) 30%, transparent); border-radius:99px; padding:4px 11px; font-size:11px; font-weight:700; cursor:pointer; font-family:inherit; transition:all .14s; white-space:nowrap; }
+.vt-copiar:hover { background:var(--ccaa-blue); color:#fff; }
 .vagas-dia { padding:10px 15px; border-bottom:1px solid var(--border); display:flex; gap:10px; align-items:flex-start; flex-wrap:wrap; }
 .vagas-dia:last-child { border-bottom:none; }
 .vagas-dia-label { font-size:12px; font-weight:700; color:var(--text-mute); min-width:120px; }
@@ -966,13 +1006,18 @@ function bindCards(c){
   c.querySelectorAll('.star').forEach(btn=>btn.addEventListener('click',e=>{
     e.stopPropagation();
     e.preventDefault();
-    const scrollY = window.scrollY; // preserva a posição da rolagem
+    const scrollY = window.scrollY;
     const t=FLAT[+btn.dataset.star];
     if(minhaTurma===t.nome){ minhaTurma=null; Store.set('ccaa_minha_turma',''); }
     else { minhaTurma=t.nome; Store.set('ccaa_minha_turma',t.nome); }
     render();
-    // restaura o scroll após o re-render (evita a tela saltar)
-    requestAnimationFrame(()=>{ window.scrollTo(0, scrollY); });
+    // Trava a posição por ~250ms, cobrindo reflows tardios (fontes/imagens) que causariam o salto
+    const alvo = scrollY;
+    let fim = false;
+    const trava = ()=>{ if(Math.abs(window.scrollY-alvo)>1) window.scrollTo(0, alvo); };
+    trava();
+    const iv = setInterval(trava, 16);
+    setTimeout(()=>{ clearInterval(iv); }, 260);
   }));
   c.querySelectorAll('.turma').forEach(el=>el.addEventListener('click',e=>{ if(e.target.closest('.turma-copy')||e.target.closest('.star')||e.target.closest('.turma-cta'))return; abrirModal(el.dataset.idx); }));
   c.querySelectorAll('.turma-cta:not(.bloqueado)').forEach(el=>el.addEventListener('click',e=>{ e.stopPropagation(); abrirModal(el.closest('.turma').dataset.idx); }));
@@ -1087,7 +1132,7 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
 <div class="interno-overlay" id="internoOverlay">
   <div class="interno-header">
     <button class="interno-fechar" id="internoFechar" title="Fechar">✕</button>
-    <h2>CCAA 2026/1 - Controle de equiparações, aulas de apoio, nivelamentos e provas.
+    <h2>CCAA 2026/1 - Controle de equiparações, aulas de apoio, nivelamentos e provas.</h2>
     <button class="int-btn int-btn-reload" id="btnReload" style="margin-left:auto">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M21 12a9 9 0 1 1-2.64-6.36L21 3v6h-6"/></svg>
       Atualizar
@@ -1110,12 +1155,12 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
 
     <!-- Abas de navegação -->
     <div id="painelTabs" style="display:flex; gap:8px; margin-bottom:16px; border-bottom:1.5px solid var(--border);">
-      <button class="painel-tab ativa" data-tab="agenda" id="tabAgenda">Agendamentos</button>
-      <button class="painel-tab" data-tab="vagas" id="tabVagas">Agendamentos disponíveis</button>
+      <button class="painel-tab ativa" data-tab="vagas" id="tabVagas">Agendamentos disponíveis</button>
+      <button class="painel-tab" data-tab="agenda" id="tabAgenda">Agendamentos</button>
     </div>
 
     <!-- ABA AGENDAMENTOS -->
-    <div id="viewAgenda">
+    <div id="viewAgenda" style="display:none">
     <div class="int-actions">
       <button class="int-btn int-btn-novo" id="btnNovoAgendamento">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="14" height="14"><path d="M12 5v14M5 12h14"/></svg>
@@ -1128,6 +1173,10 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
       <button class="int-btn int-btn-reload" id="btnLembrete" type="button" title="Lembrete para um aluno">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
         Lembrete ao aluno
+      </button>
+      <button class="int-btn int-btn-reload" id="btnLembretesLote" type="button" title="Gerar lembretes de todos os alunos de amanhã">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/></svg>
+        Lembretes de amanhã
       </button>
     </div>
     <div class="int-filtros">
@@ -1167,7 +1216,7 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
     </div>
 
     <!-- ABA AGENDAMENTOS DISPONÍVEIS -->
-    <div id="viewVagas" style="display:none">
+    <div id="viewVagas">
       <div style="display:flex; align-items:center; gap:10px; margin-bottom:14px; flex-wrap:wrap;">
         <span style="font-size:13px; color:var(--text-mute); font-weight:600">Semana:</span>
         <select class="int-select" id="vagasSemanaSel" style="min-width:240px"></select>
@@ -1178,7 +1227,7 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
   </div>
 </div>
 
-<!-- Lembrete ao aluno -->
+<!-- Lembrete WhatsApp -->
 <div class="hist-overlay" id="lembreteOverlay">
   <div class="hist-box">
     <h3>Lembrete ao aluno</h3>
@@ -1218,7 +1267,9 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
       </div>
       <div class="full">
         <label class="field-label">Aluno</label>
-        <input class="field-input" id="dAluno" placeholder="Nome completo do aluno">
+        <input class="field-input" id="dAluno" placeholder="Nome completo do aluno" list="listaAlunos" autocomplete="off">
+        <datalist id="listaAlunos"></datalist>
+        <div id="dAlunoHint" style="display:none;font-size:11px;color:var(--ccaa-blue);margin-top:5px;cursor:pointer"></div>
       </div>
       <div>
         <label class="field-label">Data</label>
@@ -1323,7 +1374,8 @@ function jsonpCall(baseUrl, onSuccess, onError){
   };
   document.head.appendChild(script);
 }
-const SENHA_PAINEL = "ccaa2026"; // mesma do Apps Script
+const SENHA_LOGIN  = "Work123@";  // senha de acesso interno (login do painel)
+const SENHA_PAINEL = "ccaa2026";  // senha de comunicação com o Apps Script (igual à SENHA_ADMIN do Script)
 
 const ABAS_DISPONIVEIS = [
   "Valquíria: SEGUNDA-FEIRA - Sala 14",
@@ -1339,7 +1391,7 @@ const ABAS_DISPONIVEIS = [
 
 // Horários possíveis em cada aba (slots de 30 min conforme dropdown da planilha)
 const HORARIOS_POR_ABA = {
-  "Valquíria: SEGUNDA-FEIRA - Sala 14": ["15:30","16:00","16:30","17:00","17:30"],
+  "Valquíria: SEGUNDA-FEIRA - Sala 14": ["16:00","16:30","17:00","17:30"],
   "Eduarda: SEGUNDA-FEIRA - Sala 2":    ["15:30","16:00","16:30","17:00","17:30"],
   "Laura: SEGUNDA-FEIRA - Sala 13":     ["15:30","16:00","16:30","17:00","19:30","20:00"],
   "Laura: TERÇA-FEIRA - Sala 2":        ["17:00","17:30","18:00","18:30"],
@@ -1373,7 +1425,7 @@ document.getElementById('loginBtn').addEventListener('click', fazerLogin);
 document.getElementById('loginInput').addEventListener('keydown', e=>{ if(e.key==='Enter') fazerLogin(); });
 function fazerLogin(){
   const val = document.getElementById('loginInput').value;
-  if(val === SENHA_PAINEL){
+  if(val === SENHA_LOGIN){
     logado = true;
     document.getElementById('loginBox').style.display = 'none';
     document.getElementById('painelBox').style.display = 'block';
@@ -1541,6 +1593,12 @@ function popularTurmas(){
 
 // Converte dd/MM/yyyy -> yyyy-MM-dd
 function dataBRtoISO(s){ if(!s) return ''; const p=s.split('/'); return p.length===3?`${p[2]}-${p[1]}-${p[0]}`:''; }
+// Converte ISO (yyyy-mm-dd) para Date no fuso LOCAL (não UTC) — evita o bug de a data "voltar 1 dia"
+function isoParaDataLocal(iso){
+  if(!iso) return null;
+  const [y,m,d] = iso.split('-').map(Number);
+  return new Date(y, m-1, d); // meia-noite local
+}
 
 // Detecta linha de cabeçalho/modelo vinda do Script (rótulos no lugar de dados)
 function ehLinhaModeloFront(r){
@@ -1651,6 +1709,12 @@ function padronizarLessonsFront(txt){
 function nomeCurto(nome){
   return (nome||'').trim().replace(/\s+/g,' ');
 }
+// Normaliza texto p/ busca: minúsculo, sem acentos, sem espaços extras
+function normTexto(s){
+  return (s||'').toString().toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .replace(/\s+/g,' ').trim();
+}
 // Dia da semana a partir de dd/MM/yyyy
 const DIAS_SEMANA = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
 function diaDaData(dataBR){
@@ -1661,7 +1725,7 @@ function diaDaData(dataBR){
   return isNaN(dt) ? '' : DIAS_SEMANA[dt.getDay()];
 }
 // ms a partir de dd/MM/yyyy (para ordenar)
-function dataMs(s){ const iso=dataBRtoISO(s); return iso ? new Date(iso).getTime() : 0; }
+function dataMs(s){ const iso=dataBRtoISO(s); const d=isoParaDataLocal(iso); return d ? d.getTime() : 0; }
 // Está dentro da semana atual (segunda a domingo)?
 // Base única de "hoje" em ISO local (evita inconsistência de fuso entre funções)
 function hojeLocalISO(){
@@ -1680,8 +1744,8 @@ function dentroDaSemana(dataBR){
   const hoje = new Date(y, m-1, d);
   const diaSem = hoje.getDay()===0 ? 7 : hoje.getDay(); // 1=seg..7=dom
   const segIso = addDiasISO(hojeISO, -(diaSem-1));
-  const domIso = addDiasISO(segIso, 6);
-  return iso >= segIso && iso <= domIso;
+  const sexIso = addDiasISO(segIso, 4); // segunda + 4 = sexta (dias úteis CCAA)
+  return iso >= segIso && iso <= sexIso;
 }
 // data dd/MM/yyyy é hoje?
 function ehHoje(dataBR){
@@ -1721,18 +1785,20 @@ function linhaRegistro(r){
   }[(r.status||'').toLowerCase()] || 'badge-default';
   const dia = diaDaData(r.data);
   const nomeEsc = (r.aluno||'').replace(/'/g,"\\'").replace(/"/g,'&quot;');
-  return `<tr>
-    <td><b class="aluno-link" onclick="abrirHistorico('${nomeEsc}')">${nomeCurto(r.aluno)}</b></td>
-    <td>${r.data}${dia?`<br><span style="font-size:10.5px;color:var(--text-dim)">${dia}</span>`:''}</td>
-    <td>${r.horario||'—'}</td>
-    <td style="font-size:11.5px;color:var(--text-dim)">${r.teacher||'—'}</td>
-    <td>${r.turma?`<b style="color:var(--ccaa-blue)">${r.turma}</b>`:'—'}</td>
-    <td>${r.lessons||'—'}</td>
-    <td style="font-size:11.5px">${r.situation||'—'}</td>
-    <td>${r.formato?`<span style="font-weight:600">${r.formato}</span>`:'—'}</td>
-    <td><span class="badge ${badgeClass}">${r.status||'—'}</span></td>
-    <td style="font-size:11.5px;color:var(--text-dim)">${r.agendado||'—'}</td>
-    <td style="white-space:nowrap">
+  // classe de cor por formato (faixa lateral)
+  const fmtClass = 'fmt-'+(normTexto(r.formato)||'outro');
+  return `<tr class="${fmtClass}">
+    <td data-label="Aluno"><b class="aluno-link" onclick="abrirHistorico('${nomeEsc}')">${nomeCurto(r.aluno)}</b></td>
+    <td data-label="Data">${r.data}${dia?`<br><span style="font-size:10.5px;color:var(--text-dim)">${dia}</span>`:''}</td>
+    <td data-label="Horário">${r.horario||'—'}</td>
+    <td data-label="Teacher" style="font-size:11.5px;color:var(--text-dim)">${r.teacher||'—'}</td>
+    <td data-label="Turma">${r.turma?`<b style="color:var(--ccaa-blue)">${r.turma}</b>`:'—'}</td>
+    <td data-label="Lessons">${r.lessons||'—'}</td>
+    <td data-label="Situation" style="font-size:11.5px">${r.situation||'—'}</td>
+    <td data-label="Formato">${r.formato?`<span style="font-weight:600">${r.formato}</span>`:'—'}</td>
+    <td data-label="Status"><span class="badge ${badgeClass}">${r.status||'—'}</span></td>
+    <td data-label="Ag. por" style="font-size:11.5px;color:var(--text-dim)">${r.agendado||'—'}</td>
+    <td data-label="Ações" style="white-space:nowrap">
       <button class="row-btn" onclick="abrirDrawer(${JSON.stringify(r).replace(/"/g,'&quot;')})">✏️</button>
       <button class="row-btn del" onclick="excluirRegistro('${r.aba.replace(/'/g,"\\'")}',${r.linha})">🗑️</button>
     </td>
@@ -1745,14 +1811,14 @@ function renderTabela(){
   renderResumo();
   // Se a aba de disponíveis estiver aberta, atualiza ela também
   const viewVagas = document.getElementById('viewVagas');
-  if(viewVagas && viewVagas.style.display !== 'none'){ renderVagas(); }
+  if(viewVagas && viewVagas.style.display !== 'none'){ popularSeletorSemanas(); renderVagas(); }
   const teacher = document.getElementById('filtroTeacher').value;
   const status  = document.getElementById('filtroStatus').value;
   const aba     = document.getElementById('filtroAba').value;
   const formato = document.getElementById('filtroFormato').value;
   const dataIni = document.getElementById('filtroDataIni').value; // yyyy-MM-dd
   const dataFim = document.getElementById('filtroDataFim').value;
-  const aluno   = (document.getElementById('filtroAluno').value||'').toLowerCase();
+  const aluno   = normTexto(document.getElementById('filtroAluno').value||'');
   const buscandoAluno = !!aluno;
 
   let filtrado = todosRegistros.filter(r=>{
@@ -1768,7 +1834,7 @@ function renderTabela(){
     const iso = dataBRtoISO(r.data);
     if(dataIni && (!iso || iso < dataIni)) return false;
     if(dataFim && (!iso || iso > dataFim)) return false;
-    if(aluno   && !r.aluno.toLowerCase().includes(aluno)) return false;
+    if(aluno   && !normTexto(r.aluno).includes(aluno)) return false;
     // Recorte de tempo (hoje/amanhã/semana) — 'todos' não filtra
     // Só aplica o recorte quando NÃO há filtro de período manual (datas) nem busca de aluno
     if(!dataIni && !dataFim && !buscandoAluno && recorteTempo!=='todos' && !noRecorte(r.data)) return false;
@@ -1828,6 +1894,36 @@ function renderTabela(){
 
 // Barra "esta semana / ver tudo"
 // ===== RESUMO (dashboard) =====
+// Detecta o mesmo teacher (aplicador) agendado em 2 lugares no mesmo dia+horário (impossível na prática)
+function detectarConflitosTeacher(){
+  const ativos = todosRegistros.filter(r=>ocupaSlot(r.status) && r.teacher && r.horario && r.data);
+  const mapa = {};
+  ativos.forEach(r=>{
+    const chave = normTexto(r.teacher)+'|'+r.data+'|'+r.horario;
+    (mapa[chave] = mapa[chave] || []).push(r);
+  });
+  const conflitos = [];
+  Object.values(mapa).forEach(grupo=>{
+    // conflito só se forem ABAS diferentes (salas diferentes) — mesma aba+slot já é bloqueado
+    const abasDistintas = new Set(grupo.map(r=>r.aba));
+    if(grupo.length>1 && abasDistintas.size>1) conflitos.push(grupo);
+  });
+  return conflitos;
+}
+function mostrarConflitos(){
+  const conflitos = detectarConflitosTeacher();
+  document.getElementById('histNome').textContent = `Conflitos de teacher · ${conflitos.length}`;
+  document.getElementById('histStats').innerHTML = '';
+  document.getElementById('histLista').innerHTML = conflitos.map(grupo=>{
+    const r0 = grupo[0];
+    const linhas = grupo.map(r=>`<div style="padding:3px 0;color:var(--text-dim)">• ${r.aluno} · ${r.turma||''} · ${r.formato||''} <span style="opacity:.7">(${r.aba.split(':')[0]})</span></div>`).join('');
+    return `<div class="hist-linha" style="display:block">
+      <div style="color:var(--ccaa-red);font-weight:700">${r0.teacher} — ${r0.data} às ${r0.horario}</div>
+      ${linhas}
+    </div>`;
+  }).join('') || '<div class="hist-linha">Nenhum conflito</div>';
+  document.getElementById('histOverlay').classList.add('open');
+}
 function renderResumo(){
   const el = document.getElementById('resumoBar');
   if(!el) return;
@@ -1837,7 +1933,13 @@ function renderResumo(){
   const semana = todosRegistros.filter(r=>dentroDaSemana(r.data));
   const vagasSemana = contarVagasSemana(refSemanaISO());
 
-  el.innerHTML = `
+  // Conflito real: mesmo TEACHER (aplicador) em 2 lugares no mesmo dia+horário
+  const conflitos = detectarConflitosTeacher();
+  const bannerConflito = conflitos.length
+    ? `<div onclick="mostrarConflitos()" style="flex-basis:100%;cursor:pointer;background:color-mix(in srgb,var(--ccaa-red) 12%,transparent);border:1px solid color-mix(in srgb,var(--ccaa-red) 35%,transparent);color:var(--ccaa-red);border-radius:var(--r-md);padding:10px 14px;font-size:12.5px;font-weight:700">⚠️ ${conflitos.length} conflito${conflitos.length>1?'s':''} de teacher detectado${conflitos.length>1?'s':''} (mesma teacher em 2 lugares ao mesmo tempo) — clique para ver</div>`
+    : '';
+
+  el.innerHTML = bannerConflito + `
     <div class="resumo-card resumo-hoje">
       <div class="rc-label">Hoje · ${hoje.length} no total</div>
       <div class="rc-grid">
@@ -1994,10 +2096,16 @@ function renderVagas(){
         return `<button class="vaga-livre" onclick="agendarVaga('${aba.replace(/'/g,"\\'")}','${dataISO}','${h}')">${h}</button>`;
       }).join('');
     }
+    const btnCopiar = livres.length
+      ? `<button class="vt-copiar" onclick="copiarVagasTeacher('${aba.replace(/'/g,"\\'")}','${dataBR}')" title="Copiar horários livres p/ WhatsApp">📋 Copiar livres</button>`
+      : '';
     html += `<div class="vagas-teacher">
       <div class="vagas-teacher-head">
         <span>${info.teacher||aba}</span>
-        <span class="vt-sub">${info.dia} · ${dataBR} · ${livres.length} livre${livres.length!==1?'s':''}</span>
+        <span style="display:flex;align-items:center;gap:10px">
+          <span class="vt-sub">${info.dia} · ${dataBR} · ${livres.length} livre${livres.length!==1?'s':''}</span>
+          ${btnCopiar}
+        </span>
       </div>
       <div class="vagas-dia">
         <span class="vagas-dia-label">${info.dia}${sala?' · '+sala:''}</span>
@@ -2006,6 +2114,22 @@ function renderVagas(){
     </div>`;
   });
   grid.innerHTML = html;
+}
+// Copia os horários livres de um teacher numa data, em mensagem pronta p/ WhatsApp
+function copiarVagasTeacher(aba, dataBR){
+  const slots = HORARIOS_POR_ABA[aba]||[];
+  const ocup = ocupadosNaAbaData(aba, dataBR);
+  const livres = slots.filter(h=>!ocup.has(h));
+  if(!livres.length){ toast('Sem horários livres nesse dia','erro'); return; }
+  const info = parseAbaFront(aba);
+  const tch = (info.teacher||'').replace(/^Teacher\s+/,'');
+  const dia = diaDaData(dataBR);
+  // monta frase natural com os horários
+  let listaHor;
+  if(livres.length===1) listaHor = livres[0];
+  else listaHor = livres.slice(0,-1).join(', ')+' e '+livres[livres.length-1];
+  const txt = `Oi! Pra ${dia.toLowerCase()} (${dataBR}) com a ${tch}, tenho esses horários livres: ${listaHor}. Qual fica melhor pra você?`;
+  copiarTexto(txt, `Vagas da ${tch} copiadas ✓`);
 }
 // Clicar numa vaga abre o drawer pré-preenchido, mantendo a aba de vagas ao fundo
 let drawerVeioDeVagas = false;
@@ -2023,19 +2147,23 @@ function agendarVaga(aba, dataISO, horario){
 // ===== HISTÓRICO DO ALUNO =====
 function abrirHistorico(nome){
   nome = (nome||'').trim();
-  const regs = todosRegistros.filter(r=> (r.aluno||'').trim().toLowerCase() === nome.toLowerCase())
+  const regs = todosRegistros.filter(r=> normTexto(r.aluno) === normTexto(nome))
     .sort((a,b)=>dataMs(b.data)-dataMs(a.data));
   const norm = s=>(s||'').toLowerCase();
   const total = regs.length;
   const realizados = regs.filter(r=>norm(r.status)==='realizado').length;
   const faltas = regs.filter(r=>norm(r.status)==='faltou').length;
   const agendados = regs.filter(r=>norm(r.status)==='agendado').length;
+  // Alerta de aluno faltante (2+ faltas)
+  const alerta = faltas>=2
+    ? `<div style="background:color-mix(in srgb,#E23744 12%,transparent);border:1px solid color-mix(in srgb,#E23744 35%,transparent);color:#E23744;border-radius:var(--r-sm);padding:9px 13px;margin-bottom:12px;font-size:12.5px;font-weight:600">⚠️ Atenção: este aluno tem ${faltas} faltas registradas. Avalie antes de liberar novos horários.</div>`
+    : '';
   document.getElementById('histNome').textContent = nome;
-  document.getElementById('histStats').innerHTML = `
+  document.getElementById('histStats').innerHTML = alerta + `
     <div class="hist-stat"><div class="hs-n">${total}</div><div class="hs-l">Total</div></div>
     <div class="hist-stat"><div class="hs-n" style="color:var(--live)">${realizados}</div><div class="hs-l">Realizados</div></div>
     <div class="hist-stat"><div class="hs-n" style="color:var(--soon)">${agendados}</div><div class="hs-l">Agendados</div></div>
-    <div class="hist-stat"><div class="hs-n" style="color:#6B7280">${faltas}</div><div class="hs-l">Faltas</div></div>`;
+    <div class="hist-stat"><div class="hs-n" style="color:${faltas>=2?'#E23744':'#6B7280'}">${faltas}</div><div class="hs-l">Faltas</div></div>`;
   document.getElementById('histLista').innerHTML = regs.map(r=>`
     <div class="hist-linha">
       <span><b>${r.data}</b> ${r.horario||''} · ${r.formato||''} ${r.turma?'· '+r.turma:''}</span>
@@ -2050,15 +2178,16 @@ function exportarWhatsApp(){
   // Só a semana atual, agrupado e ordenado de segunda a sexta
   const semana = todosRegistros.filter(r=>dentroDaSemana(r.data) && ocupaSlot(r.status));
   if(!semana.length){ toast('Nenhum agendamento na semana','erro'); return; }
-  const diaIdx = d => { const x=new Date(dataBRtoISO(d)); const g=x.getDay(); return g===0?7:g; }; // 1=seg
-  // ordena por dia da semana, depois horário
+  // dia da semana usando parser LOCAL (evita o bug de fuso que invertia a ordem)
+  const diaIdx = d => { const dt=isoParaDataLocal(dataBRtoISO(d)); if(!dt) return 9; const g=dt.getDay(); return g===0?7:g; }; // 1=seg
+  // ordena por dia da semana (seg→sex), depois por horário
   semana.sort((a,b)=> diaIdx(a.data)-diaIdx(b.data) || (a.horario||'').localeCompare(b.horario||''));
-  let txt = '*Equiparações & Nivelamento · Semana*\n';
+  let txt = '*CCAA 2026/1 - Controle de equiparações, aulas de apoio, nivelamentos e provas*\n';
   let diaAtual='';
   semana.forEach(r=>{
     const chave = r.data;
     if(chave!==diaAtual){ diaAtual=chave; txt += `\n*${r.data} (${diaDaData(r.data)})*\n`; }
-    txt += `• ${r.horario||''} ${nomeCurto(r.aluno)} — ${r.formato||''}${r.turma?' '+r.turma:''} (${r.tchTurma||r.teacher||''})\n`;
+    txt += `• ${r.horario||''} ${nomeCurto(r.aluno)} — ${r.formato||''}${r.turma?' '+r.turma:''} (${r.teacher||''})\n`;
   });
   copiarTexto(txt, 'Resumo copiado! Cole no WhatsApp ✓');
 }
@@ -2092,17 +2221,18 @@ function abrirLembrete(){
 function montarMensagemLembrete(r){
   const primeiroNome = (r.aluno||'').trim().split(' ')[0];
   const tipo = (r.formato||'').toLowerCase();
-  // descrição da atividade
   let atividade;
   if(tipo==='prova') atividade = 'a sua prova';
   else if(tipo==='apoio') atividade = 'a sua aula de apoio';
   else if(tipo==='nivelamento') atividade = 'o seu nivelamento';
   else atividade = 'a sua equiparação';
-  const conteudo = (r.lessons && !/material do apoio/i.test(r.lessons)) ? ` (${r.lessons})` : '';
-  const teacher = r.tchTurma || r.teacher || '';
+  const conteudo = (r.lessons && !/material do apoio/i.test(r.lessons) && tipo!=='prova') ? ` (${r.lessons})` : '';
+  const teacher = r.teacher || '';
   const teacherTxt = teacher ? ` com a ${teacher.replace(/^Teacher\s+/,'Teacher ')}` : '';
+  // "amanhã" se a data for amanhã; senão usa o dia da semana
+  const quando = ehAmanha(r.data) ? 'amanhã' : diaDaData(r.data).toLowerCase();
   return `Oi, ${primeiroNome}! Tudo bem? 😊\n\n`+
-    `Aqui é da equipe do CCAA Pelotas. Passando só pra te lembrar que amanhã, dia ${r.data}, às ${r.horario||''}, você tem ${atividade}${conteudo}${teacherTxt}.\n\n`+
+    `Aqui é da equipe do CCAA Pelotas. Passando só pra te lembrar que ${quando}, dia ${r.data}, às ${r.horario||''}, você tem ${atividade}${conteudo}${teacherTxt}.\n\n`+
     `Qualquer coisa que precisar, é só me chamar por aqui. Conto com você! 💙`;
 }
 function selecionarLembrete(){
@@ -2119,6 +2249,43 @@ function selecionarLembrete(){
   window._lembreteMsg = msg;
 }
 function fecharLembrete(){ document.getElementById('lembreteOverlay').classList.remove('open'); }
+
+// ===== LEMBRETES EM LOTE (alunos de amanhã) =====
+function abrirLembretesLote(){
+  const amanha = todosRegistros.filter(r=>ehAmanha(r.data) && ocupaSlot(r.status))
+    .sort((a,b)=>(a.horario||'').localeCompare(b.horario||''));
+  // agrupa por aluno (1 lembrete por aluno, mesmo com 2 slots de prova)
+  const porAluno = {};
+  amanha.forEach(r=>{ const k=normTexto(r.aluno); if(!porAluno[k]) porAluno[k]=r; });
+  const lista = Object.values(porAluno);
+  document.getElementById('histNome').textContent = `Lembretes de amanhã · ${lista.length}`;
+  if(!lista.length){
+    document.getElementById('histStats').innerHTML = '';
+    document.getElementById('histLista').innerHTML = '<div class="hist-linha">Nenhum aluno com aula amanhã</div>';
+    document.getElementById('histOverlay').classList.add('open');
+    return;
+  }
+  // botão copiar todos
+  document.getElementById('histStats').innerHTML =
+    `<button class="int-btn int-btn-novo" onclick="copiarTodosLembretes()" style="font-size:12px">📋 Copiar todos (${lista.length})</button>`;
+  window._lembretesLote = lista;
+  document.getElementById('histLista').innerHTML = lista.map((r,i)=>`
+    <div class="hist-linha" style="align-items:center">
+      <span><b>${nomeCurto(r.aluno)}</b> · ${r.horario||''} · ${r.formato||''}${r.turma?' '+r.turma:''}</span>
+      <button class="vt-copiar" onclick="copiarUmLembrete(${i})">Copiar</button>
+    </div>`).join('');
+  document.getElementById('histOverlay').classList.add('open');
+}
+function copiarUmLembrete(i){
+  const r = (window._lembretesLote||[])[i];
+  if(r) copiarTexto(montarMensagemLembrete(r), `Lembrete de ${nomeCurto(r.aluno).split(' ')[0]} copiado ✓`);
+}
+function copiarTodosLembretes(){
+  const lista = window._lembretesLote||[];
+  if(!lista.length) return;
+  const txt = lista.map(r=>montarMensagemLembrete(r)).join('\n\n———\n\n');
+  copiarTexto(txt, `${lista.length} lembretes copiados ✓`);
+}
 
 // ===== TROCA DE ABAS =====
 function trocarAba(qual){
@@ -2322,9 +2489,56 @@ function abrirDrawer(r){
   document.getElementById('dStatus').value    = r ? r.status : '';
   document.getElementById('dAgendado').value  = r ? r.agendado : '';
   // Popular horários disponíveis (mantém o horário atual se editando)
+  // Popula autocomplete de alunos existentes
+  popularListaAlunos();
+  document.getElementById('dAlunoHint').style.display = 'none';
   popularHorariosDrawer(r ? r.horario : '', r ? r.linha : '');
   atualizarInfoAba();
   document.getElementById('drawerOverlay').classList.add('open');
+}
+
+// Lista única de alunos já cadastrados (para autocomplete)
+function popularListaAlunos(){
+  const dl = document.getElementById('listaAlunos');
+  if(!dl) return;
+  const nomes = [...new Set(todosRegistros.map(r=>(r.aluno||'').trim()).filter(Boolean))].sort();
+  dl.innerHTML = nomes.map(n=>`<option value="${n.replace(/"/g,'&quot;')}">`).join('');
+}
+// Último registro de um aluno (por nome normalizado)
+function ultimoRegistroDoAluno(nome){
+  const alvo = normTexto(nome);
+  if(!alvo) return null;
+  const regs = todosRegistros.filter(r=>normTexto(r.aluno)===alvo)
+    .sort((a,b)=>dataMs(b.data)-dataMs(a.data));
+  return regs[0] || null;
+}
+// Ao digitar um nome conhecido, oferece preencher turma/teacher/formato do último registro
+function aoDigitarAluno(){
+  const nome = document.getElementById('dAluno').value.trim();
+  const hint = document.getElementById('dAlunoHint');
+  const ult = ultimoRegistroDoAluno(nome);
+  // só sugere se ainda não preencheu turma e existe histórico
+  if(ult && !document.getElementById('dTurma').value){
+    hint.style.display = 'block';
+    hint.textContent = `↻ Preencher como na última vez: ${ult.formato||''}${ult.turma?' · '+ult.turma:''}${ult.teacher?' · '+ult.teacher:''}`;
+    hint.onclick = ()=> preencherDoHistorico(ult);
+  } else {
+    hint.style.display = 'none';
+  }
+}
+// Preenche os campos a partir de um registro do histórico
+function preencherDoHistorico(ult){
+  if(ult.tchTurma){
+    const selTch = document.getElementById('dTchTurma');
+    if(![...selTch.options].some(o=>o.value===ult.tchTurma)) selTch.innerHTML += `<option value="${ult.tchTurma}">${ult.tchTurma}</option>`;
+    selTch.value = ult.tchTurma;
+    popularTurmaSelect(ult.tchTurma, ult.turma||'');
+  } else if(ult.turma){
+    popularTurmaSelect('', ult.turma);
+  }
+  if(ult.formato) document.getElementById('dFormato').value = ult.formato;
+  document.getElementById('dAlunoHint').style.display = 'none';
+  toast('Dados preenchidos do histórico ✓');
 }
 
 // Popula o select de horário no drawer com slots livres da aba+data
@@ -2376,6 +2590,9 @@ document.getElementById('dData').addEventListener('change', ()=>{ popularHorario
 document.getElementById('dTchTurma').addEventListener('change', ()=>{
   popularTurmaSelect(document.getElementById('dTchTurma').value, '');
 });
+// Pré-preenchimento por aluno: ao digitar/escolher nome conhecido
+document.getElementById('dAluno').addEventListener('input', aoDigitarAluno);
+document.getElementById('dAluno').addEventListener('change', aoDigitarAluno);
 
 document.getElementById('btnNovoAgendamento').addEventListener('click', ()=> abrirDrawer(null));
 // Abas Agendamentos / Vagas
@@ -2385,6 +2602,7 @@ document.getElementById('tabVagas').addEventListener('click', ()=> trocarAba('va
 document.getElementById('btnExportar').addEventListener('click', exportarWhatsApp);
 // Lembrete
 document.getElementById('btnLembrete').addEventListener('click', abrirLembrete);
+document.getElementById('btnLembretesLote').addEventListener('click', abrirLembretesLote);
 document.getElementById('lembreteSel').addEventListener('change', selecionarLembrete);
 document.getElementById('lembreteCopiar').addEventListener('click', ()=>{ if(window._lembreteMsg) copiarTexto(window._lembreteMsg,'Lembrete copiado! Cole no WhatsApp ✓'); });
 document.getElementById('lembreteFechar').addEventListener('click', fecharLembrete);
@@ -2516,7 +2734,7 @@ document.getElementById('drawerSalvar').addEventListener('click', async ()=>{
 });
 
 // Excluir
-const SENHA_EXCLUSAO = "Anonymous0414";
+const SENHA_EXCLUSAO = "Anonymous0414@";
 function excluirRegistro(aba, linha){
   const tentativa = prompt('Para excluir este agendamento, digite a senha de exclusão:');
   if(tentativa === null) return; // cancelou
