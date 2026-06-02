@@ -2194,7 +2194,19 @@ function renderVagas(){
   const grid = document.getElementById('vagasGrid');
   if(!grid) return;
   const segIso = refSemanaISO();
+  const hojeISO = hojeLocalISO();
+
+  // hora atual em Brasília (para ocultar slots já passados de hoje)
+  function horaAtualBR(){
+    try {
+      const s = new Date().toLocaleString('en-US', {timeZone:'America/Sao_Paulo', hour:'2-digit', minute:'2-digit', hour12:false});
+      return s.replace(',','').trim(); // "HH:MM"
+    } catch(e){ return new Date().getHours().toString().padStart(2,'0')+':'+new Date().getMinutes().toString().padStart(2,'0'); }
+  }
+
   let html='';
+  let algumDia = false;
+  const ehSemanaAtual = segIso === refSemanaAtualISO();
   ABAS_DISPONIVEIS.forEach(aba=>{
     const slots = HORARIOS_POR_ABA[aba]||[];
     const diaIdx = ABA_DIA_IDX[aba];
@@ -2202,11 +2214,26 @@ function renderVagas(){
     const info = parseAbaFront(aba);
     const dataISO = dataDoDiaNaSemana(segIso, diaIdx);
     const dataBR = isoToBR(dataISO);
+
+    // Só mostra a semana atual se não for passado (semanas futuras mostram tudo)
+    if(ehSemanaAtual && dataISO < hojeISO) return; // dia anterior → oculta
+
     const ocup = ocupadosNaAbaData(aba, dataBR);
-    const livres = slots.filter(h=>!ocup.has(h));
+
+    // Para hoje: filtra slots cujo horário já passou
+    const agora = horaAtualBR();
+    const slotsFuturos = (ehSemanaAtual && dataISO === hojeISO)
+      ? slots.filter(h=> h >= agora)
+      : slots;
+
+    // Se todos os slots de hoje já passaram, oculta a aba
+    if(ehSemanaAtual && dataISO === hojeISO && slotsFuturos.length === 0) return;
+
+    const livres = slotsFuturos.filter(h=>!ocup.has(h));
     const sala = (aba.match(/Sala\s*\d+/i)||[''])[0];
+    algumDia = true;
     let slotsHtml;
-    if(!slots.length){ slotsHtml = '<span class="vagas-vazio">Sem horários nesta aba</span>'; }
+    if(!slotsFuturos.length){ slotsHtml = '<span class="vagas-vazio">Sem horários nesta aba</span>'; }
     else {
       slotsHtml = slots.map(h=>{
         if(ocup.has(h)){
@@ -2235,7 +2262,21 @@ function renderVagas(){
       </div>
     </div>`;
   });
+  if(!algumDia && ehSemanaAtual){
+    html = `<div style="color:var(--text-dim);text-align:center;padding:32px;font-size:13px">
+      Nenhum horário disponível para esta semana a partir de hoje.<br>
+      <span style="font-size:11.5px">Selecione a próxima semana no seletor acima.</span>
+    </div>`;
+  }
   grid.innerHTML = html;
+}
+// ISO da segunda-feira da semana ATUAL (independente do seletor de semana do painel)
+function refSemanaAtualISO(){
+  const hojeISO = hojeLocalISO();
+  const [y,m,d] = hojeISO.split('-').map(Number);
+  const hoje = new Date(y, m-1, d);
+  const diaSem = hoje.getDay()===0 ? 7 : hoje.getDay();
+  return addDiasISO(hojeISO, -(diaSem-1));
 }
 // Copia os horários livres de um teacher numa data, em mensagem pronta p/ WhatsApp
 function copiarVagasTeacher(aba, dataBR){
