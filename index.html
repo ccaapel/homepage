@@ -1807,8 +1807,8 @@ function normalizaRegistro(r){
   if(/^[-–—\s]*$/.test(l)) l='';
   if(/^[-–—\s]*$/.test(s2)) s2='';
   // Padroniza para L1, L2... e "L1 E L2"
-  l = padronizarLessonsFront(l);
-  s2 = padronizarLessonsFront(s2);
+  l = padronizarLessonsFront(l, 'L');
+  s2 = padronizarLessonsFront(s2, 'S');
   if(l && !s2) s2=l; else if(s2 && !l) l=s2;
   r.lessons=l; r.situation=s2;
   // Formato: resolve a partir da linha inteira
@@ -1820,14 +1820,14 @@ function normalizaRegistro(r){
   return r;
 }
 
-// Padroniza Lessons/Situation. Prefixo S (S1,S2) ou L (números/L). Texto livre fica intacto.
-function padronizarLessonsFront(txt){
+// Padroniza Lessons/Situation. prefixoForcado: 'L' ou 'S'. Texto livre fica intacto.
+function padronizarLessonsFront(txt, prefixoForcado){
   txt = String(txt||'').trim();
   if(!txt) return '';
   const nums = (txt.match(/\d{1,2}/g)||[]).map(n=>parseInt(n,10));
   const soLista = /^[\sSsLl0-9,&eE\-–—\.]+$/.test(txt) && nums.length>0;
   if(!soLista) return txt;
-  const prefixo = /[Ss]\s*\d/.test(txt) ? 'S' : 'L';
+  const prefixo = prefixoForcado || (/[Ss]\s*\d/.test(txt) ? 'S' : 'L');
   const uniq=[]; nums.forEach(n=>{ if(uniq.indexOf(n)===-1) uniq.push(n); });
   uniq.sort((a,b)=>a-b);
   const arr = uniq.map(n=>prefixo+n);
@@ -3156,8 +3156,8 @@ document.getElementById('drawerSalvar').addEventListener('click', async ()=>{
   if(!formato){ toast('Selecione o Formato (Equiparação, Apoio, Nivelamento ou Prova)','erro'); return; }
 
   // Mescla Lessons + Situation: se uma vazia, replica a outra
-  let lessons   = padronizarLessonsFront(document.getElementById('dLessons').value.trim());
-  let situation = padronizarLessonsFront(document.getElementById('dSituation').value.trim());
+  let lessons   = padronizarLessonsFront(document.getElementById('dLessons').value.trim(), 'L');
+  let situation = padronizarLessonsFront(document.getElementById('dSituation').value.trim(), 'S');
   if(lessons && !situation) situation = lessons;
   else if(situation && !lessons) lessons = situation;
 
