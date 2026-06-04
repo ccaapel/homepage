@@ -12,24 +12,38 @@
 <style>
 :root {
   --r-xs: 9px; --r-sm: 12px; --r-md: 16px; --r-lg: 22px;
-  --ccaa-blue: #1E5BB8;
-  --ccaa-red: #E23744;
-  --blue-deep: #0F2D5F;
-  --live: #16A34A;
-  --soon: #D97706;
+  /* Acentos em OKLCH (perceptualmente uniforme). Tema claro como base. */
+  --ccaa-blue: oklch(48.7% 0.160 259.2);
+  --ccaa-red:  oklch(60.3% 0.206 22.3);
+  --blue-deep: oklch(30.7% 0.096 260.1);
+  --live:      oklch(62.7% 0.170 149.2);
+  --soon:      oklch(66.6% 0.157 58.3);
   --soon-bg: #FEF3C7;
+  /* Hover/focus: fallback literal (browsers sem relative color). */
+  --ccaa-blue-hover: oklch(56.7% 0.160 259.2);
+  --blue-deep-hover: oklch(38.7% 0.110 260.1);
+  --live-hover:      oklch(69.7% 0.170 149.2);
+  --soon-hover:      oklch(73.6% 0.150 58.3);
   --font: 1;
+}
+/* Derivação automática de hover via relative color, onde suportado. */
+@supports (color: oklch(from white l c h)){
+  :root {
+    --ccaa-blue-hover: oklch(from var(--ccaa-blue) calc(l + 0.08) c h);
+    --blue-deep-hover: oklch(from var(--blue-deep) calc(l + 0.08) c h);
+    --live-hover:      oklch(from var(--live) calc(l + 0.07) c h);
+    --soon-hover:      oklch(from var(--soon) calc(l + 0.07) c h);
+  }
 }
 /* ===== TEMA CLARO ===== */
 [data-theme="light"] {
-  --bg: #F4F6FB;
-  --bg-grad: radial-gradient(1200px 600px at 50% -200px, rgba(30,91,184,0.10), transparent);
+  --bg: oklch(97.3% 0.007 268.5);
+  --bg-grad: radial-gradient(1200px 600px at 50% -200px, oklch(48.7% 0.160 259.2 / 0.10), transparent);
   --surface: #FFFFFF;
   --surface-2: #F8FAFD;
   --border: #E6EAF2;
   --border-strong: #D2DAE8;
-  --text: #131A2B;
-  --text-mute: #5A6party;
+  --text: oklch(22.0% 0.035 266.5);
   --text-mute: #586079;
   --text-dim: #8A93A8;
   --shadow-card: 0 1px 3px rgba(15,45,95,0.06), 0 1px 2px rgba(15,45,95,0.04);
@@ -38,21 +52,34 @@
 }
 /* ===== TEMA ESCURO ===== */
 [data-theme="dark"] {
-  --bg: #0B1020;
-  --bg-grad: radial-gradient(1200px 600px at 50% -200px, rgba(56,120,210,0.18), transparent);
-  --surface: #151B2E;
-  --surface-2: #1B2236;
+  --bg: oklch(17.7% 0.034 269.6);
+  --bg-grad: radial-gradient(1200px 600px at 50% -200px, oklch(64.7% 0.160 258.3 / 0.18), transparent);
+  --surface: oklch(22.6% 0.038 269.8);
+  --surface-2: oklch(25.5% 0.039 268.8);
   --border: rgba(255,255,255,0.07);
   --border-strong: rgba(255,255,255,0.13);
-  --text: #EDF1FA;
-  --text-mute: #A8B2CC;
-  --text-dim: #727D9A;
-  --blue-deep: #2E6FD6;
-  --ccaa-blue: #4C8DEE;
+  --text: oklch(95.8% 0.013 266.7);
+  --text-mute: oklch(76.4% 0.039 268.8);
+  --text-dim: oklch(59.1% 0.046 268.7);
+  --blue-deep: oklch(55.7% 0.172 259.5);
+  --ccaa-blue: oklch(64.7% 0.160 258.3);
   --soon-bg: #3A2E0E;
   --shadow-card: 0 1px 3px rgba(0,0,0,0.4);
   --shadow-hover: 0 12px 34px rgba(0,0,0,0.5), 0 3px 10px rgba(0,0,0,0.35);
   --shadow-head: 0 2px 18px rgba(0,0,0,0.45);
+}
+/* Hover derivado por tema (relative color) e fallback literal p/ dark */
+[data-theme="dark"] {
+  --ccaa-blue-hover: oklch(72.7% 0.160 258.3);
+  --blue-deep-hover: oklch(63.7% 0.172 259.5);
+}
+@supports (color: oklch(from white l c h)){
+  [data-theme="dark"] {
+    --ccaa-blue-hover: oklch(from var(--ccaa-blue) calc(l + 0.08) c h);
+    --blue-deep-hover: oklch(from var(--blue-deep) calc(l + 0.08) c h);
+    --live-hover:      oklch(from var(--live) calc(l + 0.07) c h);
+    --soon-hover:      oklch(from var(--soon) calc(l + 0.07) c h);
+  }
 }
 * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 html { font-size: calc(16px * var(--font)); }
@@ -150,16 +177,85 @@ body {
 }
 .suggest-chip:hover { border-color:var(--ccaa-blue); color:var(--ccaa-blue); transform:translateY(-1px); }
 
-/* ===== FILTROS ===== */
-.filters { display:flex; gap:9px; overflow-x:auto; padding:4px 0 14px; scrollbar-width:none; -webkit-overflow-scrolling:touch; }
+/* ===== FILTROS RÁPIDOS (live / soon) ===== */
+.quick-filters {
+  container-type:inline-size; container-name:qfbar;
+  display:flex; gap:9px; overflow-x:auto; padding:4px 0 10px;
+  scroll-snap-type:x proximity; scrollbar-width:none; -webkit-overflow-scrolling:touch;
+}
+.quick-filters::-webkit-scrollbar { display:none; }
+.qf-btn {
+  flex-shrink:0; scroll-snap-align:start;
+  display:inline-flex; align-items:center; gap:7px;
+  min-height:44px; padding:9px 16px;
+  background:var(--surface); border:1.5px solid var(--border-strong);
+  border-radius:99px; font-family:inherit; font-size:13.5px; font-weight:700;
+  color:var(--text-mute); cursor:pointer; transition:border-color .16s, background .16s, color .16s; white-space:nowrap;
+}
+.qf-btn:hover { border-color:var(--ccaa-blue); }
+.qf-btn .qf-dot { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+.qf-btn[data-qf="live"] .qf-dot { background:var(--live); }
+.qf-btn[data-qf="soon"] .qf-dot { background:var(--soon); }
+.qf-btn .qf-num {
+  font-size:11.5px; font-weight:800; padding:1px 7px; border-radius:99px;
+  background:var(--surface-2); border:1px solid var(--border); color:var(--text-dim);
+}
+.qf-btn[aria-pressed="true"] { color:#fff; border-color:transparent; }
+.qf-btn[data-qf="live"][aria-pressed="true"] { background:var(--live); }
+.qf-btn[data-qf="live"][aria-pressed="true"] .qf-dot { background:#fff; animation:pulse 2s infinite; }
+.qf-btn[data-qf="soon"][aria-pressed="true"] { background:var(--soon); }
+.qf-btn[aria-pressed="true"] .qf-num { background:rgba(255,255,255,0.22); border-color:transparent; color:#fff; }
+.qf-btn:disabled { opacity:.45; cursor:not-allowed; }
+
+/* ===== FILTROS (categorias) ===== */
+.filters { display:flex; gap:9px; overflow-x:auto; padding:0 0 8px; scroll-snap-type:x proximity; scrollbar-width:none; -webkit-overflow-scrolling:touch; }
 .filters::-webkit-scrollbar { display:none; }
 .filter-btn {
-  flex-shrink:0; background:var(--surface); border:1.5px solid var(--border-strong);
+  flex-shrink:0; scroll-snap-align:start; min-height:44px;
+  background:var(--surface); border:1.5px solid var(--border-strong);
   border-radius:99px; padding:9px 17px; font-family:inherit; font-size:13.5px; font-weight:700;
-  color:var(--text-mute); cursor:pointer; transition:all .16s; white-space:nowrap;
+  color:var(--text-mute); cursor:pointer; transition:border-color .16s, background .16s, color .16s; white-space:nowrap;
 }
 .filter-btn:hover { border-color:var(--ccaa-blue); }
-.filter-btn.active { background:var(--blue-deep); color:#fff; border-color:var(--blue-deep); box-shadow:0 3px 10px rgba(15,45,95,0.22); }
+.filter-btn[aria-pressed="true"] { background:var(--blue-deep); color:#fff; border-color:var(--blue-deep); box-shadow:0 3px 10px rgba(15,45,95,0.22); }
+
+/* Foco visível por teclado em todos os controles interativos */
+.qf-btn:focus-visible, .filter-btn:focus-visible, .suggest-chip:focus-visible,
+.turma:focus-visible, .turma-cta:focus-visible, .turma-copy:focus-visible, .star:focus-visible {
+  outline:3px solid var(--ccaa-blue); outline-offset:2px;
+}
+
+/* Barra de contagem de resultados */
+.result-count {
+  display:flex; align-items:center; gap:7px; flex-wrap:wrap;
+  margin:2px 0 12px; font-size:12.5px; font-weight:600; color:var(--text-mute);
+}
+.result-count b { color:var(--text); }
+.result-count .rc-clear {
+  margin-left:auto; background:transparent; border:1.4px solid var(--border-strong);
+  color:var(--text-mute); border-radius:99px; padding:5px 13px; min-height:36px;
+  font-family:inherit; font-size:12px; font-weight:700; cursor:pointer; transition:border-color .15s, color .15s;
+}
+.result-count .rc-clear:hover { border-color:var(--ccaa-red); color:var(--ccaa-red); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration:.001ms !important; transition-duration:.001ms !important; }
+}
+
+/* ===== VIEW TRANSITIONS ===== */
+/* Crossfade global suave entre estados de filtro */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration:.26s;
+  animation-timing-function:cubic-bezier(.16,1,.3,1);
+}
+@keyframes vt-fade-out { to { opacity:0; transform:scale(.985); } }
+@keyframes vt-fade-in  { from { opacity:0; transform:scale(1.012); } }
+::view-transition-old(root) { animation-name:vt-fade-out; }
+::view-transition-new(root) { animation-name:vt-fade-in; }
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root), ::view-transition-new(root) { animation:none; }
+}
 
 /* ===== SEÇÕES DESTAQUE (AGORA / EM BREVE) ===== */
 .destaque { border-radius:var(--r-lg); padding:15px 15px 6px; margin-bottom:14px; border:1.5px solid; }
@@ -206,6 +302,7 @@ body {
 
 /* ===== CARD DE TURMA ===== */
 .turma {
+  container-type:inline-size; container-name:card;
   display:flex; align-items:flex-start; gap:13px;
   background:var(--surface); border:1px solid var(--border);
   border-radius:var(--r-md); padding:15px; margin-bottom:11px;
@@ -232,6 +329,23 @@ body {
 .status-soon { background:var(--soon-bg); color:var(--soon); }
 .status-scheduled { background:var(--surface-2); color:var(--text-dim); border:1px solid var(--border); }
 
+/* ===== CONTAINER QUERIES: card adapta pela própria largura ===== */
+/* Card estreito: empilha info em cima, ações em linha embaixo */
+@container card (max-width: 340px){
+  .turma { flex-direction:column; gap:11px; }
+  .turma-info { padding-right:0; }
+  .turma-actions { flex-direction:row; width:100%; padding-top:0; }
+  .turma-cta, .turma-copy { width:auto; flex:1; padding:12px 8px; }
+  .turma-name { font-size:15.5px; }
+}
+/* Card largo: respiro extra e título maior */
+@container card (min-width: 440px){
+  .turma { padding:17px 18px; gap:16px; }
+  .turma-name { font-size:17.5px; }
+  .turma-actions { width:128px; }
+  .turma-cta, .turma-copy { width:128px; }
+}
+
 .turma-actions { display:flex; flex-direction:column; gap:7px; flex-shrink:0; width:116px; }
 .turma-cta, .turma-copy {
   border:none; border-radius:var(--r-sm);
@@ -245,7 +359,9 @@ body {
 .turma-cta { background:var(--blue-deep); }
 .turma.is-live .turma-cta { background:var(--live); }
 .turma-copy { background:var(--ccaa-blue); }
-.turma-cta:hover, .turma-copy:hover:not(.disabled) { filter:brightness(1.1); transform:scale(1.03); }
+.turma-cta:hover { background:var(--blue-deep-hover); transform:scale(1.03); }
+.turma.is-live .turma-cta:hover { background:var(--live-hover); }
+.turma-copy:hover:not(.disabled) { background:var(--ccaa-blue-hover); transform:scale(1.03); }
 .turma-cta svg, .turma-copy svg { width:14px; height:14px; flex-shrink:0; }
 .turma-copy.disabled { opacity:.4; cursor:not-allowed; box-shadow:none; }
 
@@ -694,7 +810,11 @@ body {
     </div>
   </div>
 
-  <div class="filters" id="filters"></div>
+  <div class="quick-filters" id="quickFilters" role="group" aria-label="Filtros rápidos por situação da aula"></div>
+
+  <div class="filters" id="filters" role="tablist" aria-label="Filtrar por curso"></div>
+
+  <div class="result-count" id="resultCount" role="status" aria-live="polite"></div>
 
   <section id="minhaSection"></section>
   <section id="agoraSection"></section>
@@ -962,20 +1082,41 @@ function turmaCard(t, status){
   </div>`;
 }
 
-function render(){
+// ===== VIEW TRANSITIONS (progressive enhancement) =====
+// Em browsers sem suporte, executa fn direto (DOM troca sem animação, zero quebra).
+let _vtBusy = false;
+function withVT(fn){
+  const prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(!document.startViewTransition || prefersReduced || _vtBusy){ fn(); return; }
+  _vtBusy = true;
+  const vt = document.startViewTransition(fn);
+  vt.finished.finally(()=>{ _vtBusy = false; });
+}
+
+// Wrapper público: anima a troca de filtro/estado quando suportado.
+function render(){ withVT(renderDOM); }
+
+function renderDOM(){
   const now = nowBR();
-  const visiveis = FLAT.filter(t=>{
+  let visiveis = FLAT.filter(t=>{
     if(filtroAtual!=='Todos' && t.cat!==filtroAtual) return false;
     if(termo){ const q=norm(termo); if(!(norm(t.nome).includes(q)||norm(t.teacher).includes(q)||norm(t.horario).includes(q)||norm(t.grupo).includes(q))) return false; }
     return true;
   }).map(t=>({t, st:statusTurma(t, now)}));
+
+  // Filtro rápido por situação: ao vivo/agora ou em breve hoje
+  if(filtroRapido==='live') visiveis = visiveis.filter(x=>x.st.tipo==='live'||x.st.tipo==='soon');
+  else if(filtroRapido==='soon') visiveis = visiveis.filter(x=>x.st.tipo==='breve');
+
+  renderFiltrosRapidos();
+  atualizarContagem(visiveis.length, now);
 
   const aEl=document.getElementById('agoraSection');
   const bEl=document.getElementById('breveSection');
   const mEl=document.getElementById('minhaSection');
   const content=document.getElementById('content');
   const hojeDia = now.getDay();
-  const buscando = termo || filtroAtual!=='Todos';
+  const buscando = termo || filtroAtual!=='Todos' || filtroRapido;
 
   // === SEÇÃO "SUA TURMA" ===
   const minhaT = minhaTurma ? FLAT.find(t=>t.nome===minhaTurma) : null;
@@ -1141,12 +1282,71 @@ document.getElementById('btnConfirm').addEventListener('click',()=>{
   fecharModal();
 });
 
+// ===== CONTAGEM DE RESULTADOS =====
+function atualizarContagem(n, now){
+  const el=document.getElementById('resultCount');
+  if(!el) return;
+  const filtrando = termo || filtroAtual!=='Todos' || filtroRapido;
+  if(!filtrando){ el.innerHTML=''; return; }
+  const partes=[];
+  if(filtroRapido==='live') partes.push('ao vivo agora');
+  else if(filtroRapido==='soon') partes.push('em breve hoje');
+  if(filtroAtual!=='Todos') partes.push(filtroAtual);
+  if(termo) partes.push('"'+termo+'"');
+  const ctx = partes.length ? ' em '+partes.join(' · ') : '';
+  const plural = n===1?'turma':'turmas';
+  el.innerHTML = `<b>${n}</b> ${plural}${ctx}`
+    + `<button class="rc-clear" id="rcClear" type="button">Limpar filtros</button>`;
+  const c=document.getElementById('rcClear');
+  if(c) c.addEventListener('click',()=>{
+    filtroAtual='Todos'; filtroRapido=null; termo='';
+    const s=document.getElementById('search'); if(s) s.value='';
+    if(typeof toggleClear==='function') toggleClear();
+    renderFiltros(); render();
+  });
+}
+
 // ===== FILTROS =====
 const CATS=['Todos','Baby Class','Kids Course','Preteen Course','English Course','Español'];
+let filtroRapido=null; // 'live' | 'soon' | null
 function renderFiltros(){
   const el=document.getElementById('filters');
-  el.innerHTML=CATS.map(c=>`<button class="filter-btn ${c===filtroAtual?'active':''}" data-cat="${c}">${c}</button>`).join('');
+  el.innerHTML=CATS.map(c=>{
+    const on = c===filtroAtual;
+    return `<button class="filter-btn" role="tab" aria-pressed="${on}" aria-selected="${on}" data-cat="${c}">${c}</button>`;
+  }).join('');
   el.querySelectorAll('.filter-btn').forEach(b=>b.addEventListener('click',()=>{ filtroAtual=b.dataset.cat; renderFiltros(); render(); }));
+}
+
+// ===== FILTROS RÁPIDOS (Ao vivo agora / Em breve) =====
+function renderFiltrosRapidos(){
+  const el=document.getElementById('quickFilters');
+  if(!el) return;
+  const now = nowBR();
+  // Conta sobre o universo já restrito por categoria+busca, ignorando o próprio filtro rápido
+  const base = FLAT.filter(t=>{
+    if(filtroAtual!=='Todos' && t.cat!==filtroAtual) return false;
+    if(termo){ const q=norm(termo); if(!(norm(t.nome).includes(q)||norm(t.teacher).includes(q)||norm(t.horario).includes(q)||norm(t.grupo).includes(q))) return false; }
+    return true;
+  }).map(t=>statusTurma(t, now).tipo);
+  const nLive = base.filter(x=>x==='live'||x==='soon').length;
+  const nSoon = base.filter(x=>x==='breve').length;
+
+  const btn=(qf,dot,label,n)=>{
+    const on = filtroRapido===qf;
+    const dis = n===0 && !on ? 'disabled' : '';
+    return `<button class="qf-btn" data-qf="${qf}" aria-pressed="${on}" ${dis}>
+      <span class="qf-dot ${dot}" aria-hidden="true"></span>${label}
+      <span class="qf-num">${n}</span>
+    </button>`;
+  };
+  el.innerHTML = btn('live','dot-live','Ao vivo agora',nLive) + btn('soon','dot-soon','Em breve',nSoon);
+  el.querySelectorAll('.qf-btn').forEach(b=>b.addEventListener('click',()=>{
+    if(b.disabled) return;
+    const qf=b.dataset.qf;
+    filtroRapido = (filtroRapido===qf) ? null : qf;
+    render();
+  }));
 }
 
 // ===== BUSCA + SUGESTÕES =====
