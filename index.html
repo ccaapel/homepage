@@ -5,6 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#0F2D5F">
+<script>
+  // Trava o acesso antes de qualquer pintura. Libera só se a sessão já validou.
+  (function(){
+    var ok=false;
+    try{ ok = sessionStorage.getItem('ccaa_acesso')==='1'; }catch(e){}
+    if(!ok){ document.documentElement.classList.add('locked'); }
+  })();
+</script>
 <title>Aulas Online · CCAA Pelotas</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -520,6 +528,52 @@ body {
 .login-btn:hover { filter:brightness(1.12); }
 .login-erro { color:var(--ccaa-red); font-size:12.5px; margin-top:8px; display:none; }
 
+/* ===== GATE DE ENTRADA (tela de acesso à homepage) ===== */
+#gate {
+  position:fixed; inset:0; z-index:9999;
+  display:flex; align-items:center; justify-content:center; padding:20px;
+  background:var(--bg); background-image:var(--bg-grad);
+}
+.gate-card {
+  width:100%; max-width:360px; background:var(--surface);
+  border:1.5px solid var(--border); border-radius:var(--r-lg);
+  padding:34px 26px 28px; text-align:center; box-shadow:var(--shadow-hover);
+}
+.gate-logo { width:64px; height:auto; margin:0 auto 16px; display:block; border-radius:14px; }
+.gate-card h1 {
+  font-family:'Bricolage Grotesque',sans-serif; font-size:19px; font-weight:800;
+  letter-spacing:-0.01em; color:var(--text); margin-bottom:5px;
+}
+.gate-card .gate-sub { font-size:12.5px; color:var(--text-dim); margin-bottom:22px; }
+.gate-field { text-align:left; margin-bottom:13px; }
+.gate-field label {
+  display:block; font-size:11.5px; font-weight:700; color:var(--text-mute);
+  margin-bottom:6px; letter-spacing:.01em;
+}
+.gate-input {
+  width:100%; box-sizing:border-box; border:1.6px solid var(--border-strong);
+  border-radius:var(--r-sm); padding:13px 14px; min-height:46px;
+  font-family:inherit; font-size:15px; background:var(--surface-2);
+  color:var(--text); outline:none; transition:border-color .15s;
+}
+.gate-input:focus { border-color:var(--ccaa-blue); }
+.gate-input:focus-visible { outline:3px solid var(--ccaa-blue); outline-offset:2px; }
+.gate-btn {
+  width:100%; min-height:48px; background:var(--blue-deep); color:#fff;
+  border:none; border-radius:var(--r-sm); padding:14px;
+  font-family:inherit; font-size:14.5px; font-weight:800; cursor:pointer;
+  margin-top:6px; transition:background .15s;
+}
+.gate-btn:hover { background:var(--blue-deep-hover); }
+.gate-btn:focus-visible { outline:3px solid var(--ccaa-blue); outline-offset:2px; }
+.gate-erro {
+  color:var(--ccaa-red); font-size:12.5px; font-weight:600;
+  margin-top:12px; min-height:16px;
+}
+.gate-foot { margin-top:18px; font-size:10.5px; color:var(--text-dim); }
+/* Esconde a app até liberar o acesso, sem flash de conteúdo */
+html.locked .app { display:none !important; }
+
 /* Filtros internos */
 .int-filtros {
   display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px;
@@ -772,6 +826,26 @@ body {
 .adm-chip { display:inline-block; font-size:11.5px; font-weight:700; padding:4px 11px; border-radius:99px; border:1px solid var(--border); }
 </style>
 </head><body>
+
+<div id="gate" role="dialog" aria-modal="true" aria-labelledby="gateTitle">
+  <div class="gate-card">
+    <img class="gate-logo" src="data:image/png;base64,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" alt="CCAA">
+    <h1 id="gateTitle">CCAA Pelotas 2026/1</h1>
+    <div class="gate-sub">Acesso restrito &middot; informe seus dados</div>
+    <div class="gate-field">
+      <label for="gateUser">Usuário</label>
+      <input class="gate-input" type="text" id="gateUser" autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="Usuário">
+    </div>
+    <div class="gate-field">
+      <label for="gatePass">Senha</label>
+      <input class="gate-input" type="password" id="gatePass" autocomplete="current-password" placeholder="Senha">
+    </div>
+    <button class="gate-btn" id="gateBtn" type="button">Entrar</button>
+    <div class="gate-erro" id="gateErro" role="alert" aria-live="assertive"></div>
+    <div class="gate-foot">Quadro de horários das aulas on-line</div>
+  </div>
+</div>
+
 <div class="app">
 
   <header class="header">
@@ -1706,7 +1780,7 @@ function jsonpCall(baseUrl, onSuccess, onError){
   };
   document.head.appendChild(script);
 }
-const SENHA_LOGIN  = "Work123@";  // senha de acesso interno (login do painel)
+const SENHA_LOGIN  = "inglesouespanhol";  // senha de acesso interno (login do painel)
 const SENHA_PAINEL = "ccaa2026";  // senha de comunicação com o Apps Script (igual à SENHA_ADMIN do Script)
 
 const ABAS_DISPONIVEIS = [
@@ -3447,6 +3521,55 @@ function excluirRegistro(aba, linha){
     () => toast('Erro ao excluir: sem conexão','erro')
   );
 }
+</script>
+
+<script>
+// ===== GATE DE ENTRADA =====
+// AVISO: por ser site estático (GitHub Pages), estas credenciais ficam visíveis
+// no código-fonte. É uma barreira de conveniência, não segurança real.
+// Para trocar usuário/senha, edite as duas linhas abaixo.
+const GATE_USUARIO = "ccaa";
+const GATE_SENHA   = "Pel551*";
+
+(function(){
+  const gate  = document.getElementById('gate');
+  const uEl   = document.getElementById('gateUser');
+  const pEl   = document.getElementById('gatePass');
+  const btn   = document.getElementById('gateBtn');
+  const erro  = document.getElementById('gateErro');
+
+  let jaLiberado=false;
+  try{ jaLiberado = sessionStorage.getItem('ccaa_acesso')==='1'; }catch(e){}
+
+  function liberar(){
+    try{ sessionStorage.setItem('ccaa_acesso','1'); }catch(e){}
+    document.documentElement.classList.remove('locked');
+    gate.style.display='none';
+  }
+
+  if(jaLiberado){ liberar(); return; }
+
+  // Garante foco no campo de usuário ao abrir
+  setTimeout(()=>{ try{ uEl.focus(); }catch(e){} }, 60);
+
+  function tentar(){
+    const u = uEl.value.trim();
+    const p = pEl.value;
+    if(u===GATE_USUARIO && p===GATE_SENHA){
+      erro.textContent='';
+      liberar();
+    } else {
+      erro.textContent = 'Usuário ou senha incorretos.';
+      pEl.value='';
+      pEl.focus();
+    }
+  }
+
+  btn.addEventListener('click', tentar);
+  [uEl,pEl].forEach(el=>el.addEventListener('keydown', e=>{
+    if(e.key==='Enter'){ e.preventDefault(); tentar(); }
+  }));
+})();
 </script>
 </body>
 </html>
