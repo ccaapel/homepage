@@ -19,7 +19,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Playfair+Display:wght@700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root {
-  --r-xs: 9px; --r-sm: 12px; --r-md: 16px; --r-lg: 22px;
+  --r-xs: 8px; --r-sm: 10px; --r-md: 13px; --r-lg: 18px;
   /* Acentos em OKLCH (perceptualmente uniforme). Tema claro como base. */
   --ccaa-blue: oklch(48.7% 0.160 259.2);
   --ccaa-red:  oklch(60.3% 0.206 22.3);
@@ -45,27 +45,27 @@
 }
 /* ===== TEMA CLARO ===== */
 [data-theme="light"] {
-  --bg: oklch(97.3% 0.007 268.5);
-  --bg-grad: radial-gradient(1200px 600px at 50% -200px, oklch(48.7% 0.160 259.2 / 0.10), transparent);
+  --bg: oklch(97.6% 0.006 264.5);
+  --bg-grad: linear-gradient(180deg, oklch(48.7% 0.160 259.2 / 0.05), transparent 420px);
   --surface: #FFFFFF;
-  --surface-2: #F8FAFD;
-  --border: #E6EAF2;
-  --border-strong: #D2DAE8;
-  --text: oklch(22.0% 0.035 266.5);
-  --text-mute: #586079;
-  --text-dim: #8A93A8;
+  --surface-2: #F6F8FC;
+  --border: #E4E9F1;
+  --border-strong: #CBD4E3;
+  --text: oklch(20.5% 0.030 264.5);
+  --text-mute: #4E576E;
+  --text-dim: #828BA1;
   --shadow-card: 0 1px 3px rgba(15,45,95,0.06), 0 1px 2px rgba(15,45,95,0.04);
   --shadow-hover: 0 10px 30px rgba(15,45,95,0.13), 0 3px 8px rgba(15,45,95,0.07);
   --shadow-head: 0 2px 16px rgba(15,45,95,0.07);
 }
 /* ===== TEMA ESCURO ===== */
 [data-theme="dark"] {
-  --bg: oklch(17.7% 0.034 269.6);
-  --bg-grad: radial-gradient(1200px 600px at 50% -200px, oklch(64.7% 0.160 258.3 / 0.18), transparent);
-  --surface: oklch(22.6% 0.038 269.8);
-  --surface-2: oklch(25.5% 0.039 268.8);
-  --border: rgba(255,255,255,0.07);
-  --border-strong: rgba(255,255,255,0.13);
+  --bg: oklch(16.5% 0.028 264.5);
+  --bg-grad: linear-gradient(180deg, oklch(64.7% 0.160 258.3 / 0.09), transparent 420px);
+  --surface: oklch(21.5% 0.030 264.5);
+  --surface-2: oklch(24.8% 0.032 264.5);
+  --border: rgba(255,255,255,0.08);
+  --border-strong: rgba(255,255,255,0.15);
   --text: oklch(95.8% 0.013 266.7);
   --text-mute: oklch(76.4% 0.039 268.8);
   --text-dim: oklch(59.1% 0.046 268.7);
@@ -128,9 +128,9 @@ body {
   height:46px; width:auto; object-fit:contain; border-radius:8px;
   background:#0E0F1A; padding:3px 6px;
 }
-.brand-title { font-family:'Bricolage Grotesque',sans-serif; font-size:19px; font-weight:800; letter-spacing:-0.02em; color:var(--text); line-height:1; }
+.brand-title { font-family:'Bricolage Grotesque',sans-serif; font-size:clamp(18px, 1rem + 1.2vw, 23px); font-weight:800; letter-spacing:-0.025em; color:var(--text); line-height:1; }
 .brand-sub-row { display:flex; align-items:center; gap:9px; flex-wrap:wrap; justify-content:center; }
-.brand-sub { font-size:12px; color:var(--text-dim); font-weight:600; }
+.brand-sub { font-size:10.5px; color:var(--text-dim); font-weight:700; letter-spacing:.09em; text-transform:uppercase; }
 .acesso-interno {
   font-size:11px; font-weight:700; color:var(--ccaa-blue);
   border:1.4px solid var(--ccaa-blue); border-radius:99px;
@@ -270,7 +270,7 @@ body {
 .destaque-agora { background:color-mix(in srgb, var(--live) 8%, var(--surface)); border-color:color-mix(in srgb, var(--live) 35%, transparent); }
 .destaque-breve { background:color-mix(in srgb, var(--soon) 10%, var(--surface)); border-color:color-mix(in srgb, var(--soon) 38%, transparent); }
 .destaque-head { display:flex; align-items:center; gap:9px; margin-bottom:12px; padding:0 2px; }
-.destaque-head h2 { font-family:'Bricolage Grotesque',sans-serif; font-size:16px; font-weight:800; letter-spacing:-0.01em; }
+.destaque-head h2 { font-family:'Bricolage Grotesque',sans-serif; font-size:13px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
 .destaque-agora h2 { color:var(--live); }
 .destaque-breve h2 { color:var(--soon); }
 .dot { width:10px; height:10px; border-radius:50%; }
@@ -299,7 +299,7 @@ body {
   position:sticky; top:84px; z-index:20;
   display:flex; align-items:center; gap:10px;
   font-family:'Bricolage Grotesque',sans-serif;
-  font-size:20px; font-weight:800; letter-spacing:-0.02em; color:var(--text);
+  font-size:clamp(17px, 1rem + 1vw, 21px); font-weight:800; letter-spacing:-0.02em; color:var(--text);
   margin:26px 0 13px; padding:9px 4px;
   background:color-mix(in srgb, var(--bg) 92%, transparent);
   backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
@@ -317,8 +317,8 @@ body {
   box-shadow:var(--shadow-card); cursor:pointer;
   transition:transform .22s cubic-bezier(.16,1,.3,1), border-color .22s ease, box-shadow .22s ease;
 }
-.turma:hover { transform:translateY(-2px) scale(1.008); border-color:color-mix(in srgb, var(--ccaa-blue) 40%, transparent); box-shadow:var(--shadow-hover); }
-.turma:active { transform:scale(.987); }
+.turma:hover { transform:translateY(-1px); border-color:color-mix(in srgb, var(--ccaa-blue) 55%, transparent); box-shadow:var(--shadow-hover); }
+.turma:active { transform:translateY(0); }
 .cards-grid .turma { margin-bottom:0; }
 @media (max-width:759px){ .cards-grid .turma { margin-bottom:11px; } }
 .turma.is-live { border-color:color-mix(in srgb,var(--live) 55%,transparent); background:color-mix(in srgb,var(--live) 5%,var(--surface)); }
@@ -438,6 +438,48 @@ body {
 .help-btn svg { width:18px; height:18px; }
 .install-hint { margin-top:14px; font-size:11.5px; color:var(--text-dim); line-height:1.5; }
 .footer { margin-top:26px; text-align:center; font-size:11.5px; color:var(--text-dim); line-height:1.7; }
+
+/* ===== PROGRESSO AO VIVO ===== */
+.turma-progress { margin-top:8px; height:4px; border-radius:99px; background:color-mix(in srgb,var(--live) 18%,transparent); overflow:hidden; }
+.turma-progress > i { display:block; height:100%; border-radius:99px; background:var(--live); transition:width .6s cubic-bezier(.16,1,.3,1); }
+.turma-progress-lbl { margin-top:5px; font-size:11px; font-weight:700; color:var(--live); }
+
+/* ===== BOTÃO VOLTAR AO TOPO ===== */
+.to-top {
+  position:fixed; right:18px; bottom:calc(18px + env(safe-area-inset-bottom)); z-index:90;
+  width:46px; height:46px; border-radius:50%;
+  background:var(--ccaa-blue); color:#fff; border:none; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; box-shadow:var(--shadow-hover);
+  opacity:0; transform:translateY(12px) scale(.9); pointer-events:none;
+  transition:opacity .2s, transform .2s, background .15s;
+}
+.to-top.show { opacity:1; transform:none; pointer-events:auto; }
+.to-top:hover { background:var(--ccaa-blue-hover); }
+.to-top:focus-visible { outline:3px solid var(--ccaa-blue); outline-offset:2px; }
+.to-top svg { width:22px; height:22px; }
+
+/* ===== ENTRADA SUAVE (só na primeira pintura) ===== */
+@media (prefers-reduced-motion: no-preference){
+  body:not(.booted) .destaque,
+  body:not(.booted) .cards-grid .turma { animation:cardIn .45s cubic-bezier(.16,1,.3,1) both; }
+}
+@keyframes cardIn { from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:none;} }
+
+/* ===== BOTÃO CALENDÁRIO (modal) ===== */
+.btn-cal {
+  width:100%; margin-top:10px; background:transparent; color:var(--ccaa-blue);
+  border:1.5px solid var(--ccaa-blue); border-radius:var(--r-sm); padding:12px;
+  font-family:inherit; font-size:13.5px; font-weight:700; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; gap:8px; transition:all .15s;
+}
+.btn-cal:hover { background:var(--ccaa-blue); color:#fff; }
+.btn-cal:focus-visible { outline:3px solid var(--ccaa-blue); outline-offset:2px; }
+.btn-cal svg { width:16px; height:16px; }
+
+/* Rolagem suave + respiro nos títulos fixos ao navegar */
+html { scroll-behavior:smooth; }
+.grupo-title { scroll-margin-top:96px; }
+@media (prefers-reduced-motion: reduce){ html { scroll-behavior:auto; } }
 
 /* ===== MODAL ===== */
 .modal-overlay { display:none; position:fixed; inset:0; z-index:100; background:rgba(8,12,24,0.6); backdrop-filter:blur(4px); align-items:flex-end; justify-content:center; padding:0; }
@@ -924,8 +966,16 @@ html.locked .app { display:none !important; }
       <button class="btn btn-cancel" id="btnCancel">Cancelar</button>
       <button class="btn btn-confirm" id="btnConfirm">Entrar no Zoom</button>
     </div>
+    <button class="btn-cal" id="btnCal" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+      Adicionar ao calendário
+    </button>
   </div>
 </div>
+
+<button class="to-top" id="toTop" type="button" aria-label="Voltar ao topo">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+</button>
 
 <script>
 const TURMAS = [
@@ -1092,12 +1142,12 @@ function nowBR(){
   try { return new Date(new Date().toLocaleString('en-US',{timeZone:'America/Sao_Paulo'})); }
   catch(e){ return new Date(); }
 }
-function parseHM(s){ const [h,m]=s.split(':').map(Number); return h*60+m; }
+function parseHM(s){ const p=String(s||'').split(':'); const h=Number(p[0]), m=Number(p[1]); return (Number.isFinite(h)&&Number.isFinite(m)) ? h*60+m : NaN; }
 function statusTurma(t, now){
   const dia = now.getDay();
   const min = now.getHours()*60 + now.getMinutes();
   const ini = parseHM(t.inicio), fim = parseHM(t.fim);
-  if(t.dias.includes(dia)){
+  if(t.dias.includes(dia) && Number.isFinite(ini) && Number.isFinite(fim)){
     if(min >= ini - CONFIG.janelaAntes && min <= fim) return {tipo:'live', label:'Ao vivo agora'};
     const falta = ini - min;
     if(falta > 0 && falta <= CONFIG.janelaAgora) return {tipo:'soon', label: falta<=1?'Começa agora':'Começa em '+falta+' min'};
@@ -1128,6 +1178,17 @@ function fmtAbre(t, st){
 function turmaCard(t, status){
   const live = status.tipo==='live';
   const semLink = !t.link || t.link.includes('COLE_');
+  // Barra de progresso só quando a aula está ao vivo
+  let progressoHTML='';
+  if(live){
+    const now=nowBR(); const min=now.getHours()*60+now.getMinutes();
+    const ini=parseHM(t.inicio), fim=parseHM(t.fim);
+    if(Number.isFinite(ini)&&Number.isFinite(fim)&&fim>ini){
+      const pct=Math.max(0,Math.min(100,Math.round((min-ini)/(fim-ini)*100)));
+      const resta=Math.max(0,fim-min);
+      progressoHTML=`<div class="turma-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pct}" aria-label="Progresso da aula"><i style="width:${pct}%"></i></div><div class="turma-progress-lbl">${pct}% &middot; ${resta>0?'faltam '+resta+' min':'terminando'}</div>`;
+    }
+  }
   const ehMinha = (t.nome===minhaTurma);
   const stClass = status.tipo==='live'?'status-live':(status.tipo==='soon'||status.tipo==='breve'?'status-soon':'status-scheduled');
   const meta = [];
@@ -1150,6 +1211,7 @@ function turmaCard(t, status){
       <div class="turma-time">${t.horario}</div>
       ${meta.length?`<div class="turma-meta">${meta.join('')}</div>`:''}
       <div class="turma-status ${stClass}">${status.label}</div>
+      ${progressoHTML}
     </div>
     <div class="turma-actions">
       ${btnEntrar}
@@ -1284,6 +1346,50 @@ function textoCopia(t){
   return `${t.nome} (${fmtDias(t.dias)} - ${fmtHora(t.inicio)} até ${fmtHora(t.fim)})\nSenha de acesso: ${CONFIG.senha}\n${t.link}`;
 }
 
+// ===== ADICIONAR AO CALENDÁRIO (.ics) =====
+// Gera um evento semanal recorrente nos dias da turma, com lembrete 10 min antes.
+function pad2(n){ return String(n).padStart(2,'0'); }
+function icsEscape(s){ return String(s).replace(/\\/g,'\\\\').replace(/;/g,'\\;').replace(/,/g,'\\,').replace(/\n/g,'\\n'); }
+function proximaData(dias){
+  const now=nowBR();
+  for(let i=0;i<7;i++){ const d=new Date(now); d.setDate(now.getDate()+i); if(dias.includes(d.getDay())) return d; }
+  return now;
+}
+function icsDateTime(date, hm){
+  const [h,m]=String(hm||'0:0').split(':').map(Number);
+  return date.getFullYear()+pad2(date.getMonth()+1)+pad2(date.getDate())+'T'+pad2(h||0)+pad2(m||0)+'00';
+}
+function gerarICS(t){
+  const BYDAY=['SU','MO','TU','WE','TH','FR','SA'];
+  const dia0=proximaData(t.dias);
+  const semLink=!t.link || t.link.includes('COLE_');
+  const desc=semLink ? '' : ('Senha: '+CONFIG.senha+'\n'+t.link);
+  const linhas=[
+    'BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//CCAA Pelotas//Aulas Online//PT','CALSCALE:GREGORIAN',
+    'BEGIN:VEVENT',
+    'UID:ccaa-'+t.nome.replace(/\s+/g,'')+'@ccaapelotas',
+    'DTSTART:'+icsDateTime(dia0,t.inicio),
+    'DTEND:'+icsDateTime(dia0,t.fim),
+    'RRULE:FREQ=WEEKLY;BYDAY='+t.dias.map(d=>BYDAY[d]).join(','),
+    'SUMMARY:'+icsEscape(t.nome+' · CCAA'),
+    desc ? 'DESCRIPTION:'+icsEscape(desc) : '',
+    t.sala ? 'LOCATION:'+icsEscape(t.sala) : '',
+    'BEGIN:VALARM','TRIGGER:-PT10M','ACTION:DISPLAY','DESCRIPTION:'+icsEscape('Sua aula '+t.nome+' começa em 10 min'),'END:VALARM',
+    'END:VEVENT','END:VCALENDAR'
+  ].filter(Boolean);
+  return linhas.join('\r\n');
+}
+function baixarICS(t){
+  try{
+    const blob=new Blob([gerarICS(t)],{type:'text/calendar;charset=utf-8'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url; a.download=t.nome.replace(/[^\w]+/g,'_')+'.ics';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(()=>URL.revokeObjectURL(url),1000);
+  }catch(e){}
+}
+
 // ===== BIND =====
 function bindCards(c){
   if(!c) return;
@@ -1357,6 +1463,18 @@ document.getElementById('btnConfirm').addEventListener('click',()=>{
   window.open(url,'_blank','noopener');
   fecharModal();
 });
+// Botão "Adicionar ao calendário" do modal
+(function(){
+  const bc=document.getElementById('btnCal');
+  if(bc) bc.addEventListener('click',()=>{ if(turmaAtual) baixarICS(turmaAtual); });
+})();
+// Botão flutuante "voltar ao topo": aparece após rolar
+(function(){
+  const tt=document.getElementById('toTop');
+  if(!tt) return;
+  window.addEventListener('scroll',()=>{ tt.classList.toggle('show', window.scrollY>500); }, {passive:true});
+  tt.addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
+})();
 
 // ===== CONTAGEM DE RESULTADOS =====
 function atualizarContagem(n, now){
@@ -1467,6 +1585,8 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
   document.getElementById('ultVerif').textContent='Links conferidos em '+CONFIG.ultimaVerificacao;
   renderFiltros();
   render();
+  // Após a animação de entrada da 1ª pintura, marca o body para não repetir nas próximas renderizações
+  setTimeout(()=>document.body.classList.add('booted'), 700);
   setInterval(render, 60000);
 })();
 </script>
@@ -3407,169 +3527,4 @@ document.getElementById('drawerSalvar').addEventListener('click', async ()=>{
     const diaData = diaSemanaISO(dataVal);
     if(diaData && norm(diaData) !== norm(infoAba.dia)){
       toast(`Data inválida: esta aba é de ${infoAba.dia}, mas a data caiu numa ${diaData}`,'erro');
-      return;
-    }
-  }
-
-  // Formato é obrigatório
-  const formato = document.getElementById('dFormato').value;
-  if(!formato){ toast('Selecione o Formato (Equiparação, Apoio, Nivelamento ou Prova)','erro'); return; }
-
-  // Mescla Lessons + Situation: se uma vazia, replica a outra
-  let lessons   = padronizarLessonsFront(document.getElementById('dLessons').value.trim(), 'L');
-  let situation = padronizarLessonsFront(document.getElementById('dSituation').value.trim(), 'S');
-  if(lessons && !situation) situation = lessons;
-  else if(situation && !lessons) lessons = situation;
-
-  const params = {
-    action:'salvar', senha:SENHA_PAINEL,
-    aba:      aba,
-    linha:    document.getElementById('dLinha').value,
-    aluno:    document.getElementById('dAluno').value,
-    data:     dataFormatada,
-    horario:  document.getElementById('dHorario').value,
-    tchTurma: document.getElementById('dTchTurma').value,
-    turma:    normalizaTurma(document.getElementById('dTurma').value),
-    lessons:  lessons,
-    situation:situation,
-    pendente: document.getElementById('dPendente').value,
-    formato:  formato,
-    hibrido:  document.getElementById('dHibrido').value,
-    status:   document.getElementById('dStatus').value,
-    agendado: document.getElementById('dAgendado').value,
-  };
-
-  if(SCRIPT_URL === 'COLE_AQUI_A_URL_DO_APPS_SCRIPT'){
-    toast('Configure o SCRIPT_URL para salvar na planilha', 'erro'); return;
-  }
-
-  const ehNovo = !document.getElementById('dLinha').value;
-  const qs = new URLSearchParams(params).toString();
-  jsonpCall(
-    `${SCRIPT_URL}?${qs}`,
-    (json) => {
-      if(!json.ok){ toast('Erro ao salvar: '+json.erro,'erro'); return; }
-      document.getElementById('drawerOverlay').classList.remove('open');
-      drawerVeioDeVagas = false;
-      toast('Salvo com sucesso ✓');
-
-      // PROVA = 1h = 2 slots. Grava a 2ª linha automaticamente (sem perguntar).
-      // Outros formatos: oferece +30min opcional.
-      if(ehNovo){
-        const todos = HORARIOS_POR_ABA[aba] || [];
-        const idx = todos.indexOf(params.horario);
-        const proximo = (idx>=0 && idx < todos.length-1) ? todos[idx+1] : null;
-        const ehTrintaMin = (h1,h2)=>{
-          if(!h1||!h2) return false;
-          const [a,b]=h1.split(':').map(Number), [c,d]=h2.split(':').map(Number);
-          return (c*60+d) - (a*60+b) === 30;
-        };
-        const ocupados = todosRegistros
-          .filter(rr => rr.aba===aba && rr.data===dataFormatada && ocupaSlot(rr.status))
-          .map(rr => rr.horario);
-        const ehProva = (formato||'').toLowerCase()==='prova';
-
-        if(proximo && ehTrintaMin(params.horario, proximo) && !ocupados.includes(proximo)){
-          if(ehProva){
-            // Prova: grava a 2ª linha automaticamente
-            const params2 = Object.assign({}, params, { horario: proximo, linha: '' });
-            const qs2 = new URLSearchParams(params2).toString();
-            jsonpCall(`${SCRIPT_URL}?${qs2}`,
-              (j2)=>{ if(j2.ok){ toast(`Prova de 1h registrada (${params.horario} + ${proximo}) ✓`); } carregarDados(false); },
-              ()=>{ toast('Erro ao registrar 2º slot da prova','erro'); carregarDados(false); }
-            );
-            return;
-          } else {
-            if(confirm(`Agendamento de ${params.horario} salvo.\n\nAdicionar mais 30 min (${proximo}) para ${params.aluno||'o aluno'}?`)){
-              const params2 = Object.assign({}, params, { horario: proximo, linha: '' });
-              const qs2 = new URLSearchParams(params2).toString();
-              jsonpCall(`${SCRIPT_URL}?${qs2}`,
-                (j2)=>{ if(j2.ok){ toast(`+30 min (${proximo}) adicionado ✓`); } else { toast('Erro ao adicionar +30min','erro'); } carregarDados(false); },
-                ()=>{ toast('Erro ao adicionar +30min','erro'); carregarDados(false); }
-              );
-              return;
-            }
-          }
-        } else if(ehProva && (!proximo || ocupados.includes(proximo))){
-          // Prova mas não há slot seguinte livre: avisa
-          toast('Prova precisa de 1h, mas o horário seguinte não está livre. Registrado só 1 slot.','erro');
-        }
-      }
-      carregarDados(false);
-    },
-    () => toast('Erro ao salvar: sem conexão','erro')
-  );
-});
-
-// Excluir
-const SENHA_EXCLUSAO = "Anonymous0414@";
-function excluirRegistro(aba, linha){
-  const tentativa = prompt('Para excluir este agendamento, digite a senha de exclusão:');
-  if(tentativa === null) return; // cancelou
-  if(tentativa !== SENHA_EXCLUSAO){ toast('Senha de exclusão incorreta','erro'); return; }
-  if(SCRIPT_URL === 'COLE_AQUI_A_URL_DO_APPS_SCRIPT'){
-    toast('Configure o SCRIPT_URL para excluir da planilha', 'erro'); return;
-  }
-  const url = `${SCRIPT_URL}?action=excluir&senha=${encodeURIComponent(SENHA_PAINEL)}&aba=${encodeURIComponent(aba)}&linha=${linha}`;
-  jsonpCall(
-    url,
-    (json) => {
-      if(!json.ok){ toast('Erro ao excluir: '+json.erro,'erro'); return; }
-      toast('Excluído ✓');
-      carregarDados(false);
-    },
-    () => toast('Erro ao excluir: sem conexão','erro')
-  );
-}
-</script>
-
-<script>
-// ===== GATE DE ENTRADA =====
-// AVISO: por ser site estático (GitHub Pages), estas credenciais ficam visíveis
-// no código-fonte. É uma barreira de conveniência, não segurança real.
-// Para trocar usuário/senha, edite as duas linhas abaixo.
-const GATE_USUARIO = "ccaa";
-const GATE_SENHA   = "Pel551*";
-
-(function(){
-  const gate  = document.getElementById('gate');
-  const uEl   = document.getElementById('gateUser');
-  const pEl   = document.getElementById('gatePass');
-  const btn   = document.getElementById('gateBtn');
-  const erro  = document.getElementById('gateErro');
-
-  let jaLiberado=false;
-  try{ jaLiberado = sessionStorage.getItem('ccaa_acesso')==='1'; }catch(e){}
-
-  function liberar(){
-    try{ sessionStorage.setItem('ccaa_acesso','1'); }catch(e){}
-    document.documentElement.classList.remove('locked');
-    gate.style.display='none';
-  }
-
-  if(jaLiberado){ liberar(); return; }
-
-  // Garante foco no campo de usuário ao abrir
-  setTimeout(()=>{ try{ uEl.focus(); }catch(e){} }, 60);
-
-  function tentar(){
-    const u = uEl.value.trim();
-    const p = pEl.value;
-    if(u===GATE_USUARIO && p===GATE_SENHA){
-      erro.textContent='';
-      liberar();
-    } else {
-      erro.textContent = 'Usuário ou senha incorretos.';
-      pEl.value='';
-      pEl.focus();
-    }
-  }
-
-  btn.addEventListener('click', tentar);
-  [uEl,pEl].forEach(el=>el.addEventListener('keydown', e=>{
-    if(e.key==='Enter'){ e.preventDefault(); tentar(); }
-  }));
-})();
-</script>
-</body>
-</html>
+ 
