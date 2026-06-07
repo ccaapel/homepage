@@ -1225,10 +1225,19 @@ function turmaCard(t, status){
 let _vtBusy = false;
 function withVT(fn){
   const prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if(!document.startViewTransition || prefersReduced || _vtBusy){ fn(); return; }
+  // Não anima quando: sem suporte, usuário pediu menos animação, já há transição,
+  // página ainda travada pelo gate, ou aba em segundo plano. Nesses casos a
+  // View Transition pode abortar ("InvalidStateError") e deixar a tela presa.
+  const travado = document.documentElement.classList.contains('locked');
+  const oculto  = document.visibilityState && document.visibilityState!=='visible';
+  if(!document.startViewTransition || prefersReduced || _vtBusy || travado || oculto){ fn(); return; }
   _vtBusy = true;
-  const vt = document.startViewTransition(fn);
-  vt.finished.finally(()=>{ _vtBusy = false; });
+  let vt;
+  try { vt = document.startViewTransition(fn); }
+  catch(e){ fn(); _vtBusy = false; return; }
+  // .catch evita "Uncaught (in promise)" caso a transição seja abortada
+  if(vt.finished && vt.finished.catch) vt.finished.catch(()=>{});
+  Promise.resolve(vt.finished).finally(()=>{ _vtBusy = false; });
 }
 
 // Wrapper público: anima a troca de filtro/estado quando suportado.
@@ -3527,4 +3536,169 @@ document.getElementById('drawerSalvar').addEventListener('click', async ()=>{
     const diaData = diaSemanaISO(dataVal);
     if(diaData && norm(diaData) !== norm(infoAba.dia)){
       toast(`Data inválida: esta aba é de ${infoAba.dia}, mas a data caiu numa ${diaData}`,'erro');
- 
+      return;
+    }
+  }
+
+  // Formato é obrigatório
+  const formato = document.getElementById('dFormato').value;
+  if(!formato){ toast('Selecione o Formato (Equiparação, Apoio, Nivelamento ou Prova)','erro'); return; }
+
+  // Mescla Lessons + Situation: se uma vazia, replica a outra
+  let lessons   = padronizarLessonsFront(document.getElementById('dLessons').value.trim(), 'L');
+  let situation = padronizarLessonsFront(document.getElementById('dSituation').value.trim(), 'S');
+  if(lessons && !situation) situation = lessons;
+  else if(situation && !lessons) lessons = situation;
+
+  const params = {
+    action:'salvar', senha:SENHA_PAINEL,
+    aba:      aba,
+    linha:    document.getElementById('dLinha').value,
+    aluno:    document.getElementById('dAluno').value,
+    data:     dataFormatada,
+    horario:  document.getElementById('dHorario').value,
+    tchTurma: document.getElementById('dTchTurma').value,
+    turma:    normalizaTurma(document.getElementById('dTurma').value),
+    lessons:  lessons,
+    situation:situation,
+    pendente: document.getElementById('dPendente').value,
+    formato:  formato,
+    hibrido:  document.getElementById('dHibrido').value,
+    status:   document.getElementById('dStatus').value,
+    agendado: document.getElementById('dAgendado').value,
+  };
+
+  if(SCRIPT_URL === 'COLE_AQUI_A_URL_DO_APPS_SCRIPT'){
+    toast('Configure o SCRIPT_URL para salvar na planilha', 'erro'); return;
+  }
+
+  const ehNovo = !document.getElementById('dLinha').value;
+  const qs = new URLSearchParams(params).toString();
+  jsonpCall(
+    `${SCRIPT_URL}?${qs}`,
+    (json) => {
+      if(!json.ok){ toast('Erro ao salvar: '+json.erro,'erro'); return; }
+      document.getElementById('drawerOverlay').classList.remove('open');
+      drawerVeioDeVagas = false;
+      toast('Salvo com sucesso ✓');
+
+      // PROVA = 1h = 2 slots. Grava a 2ª linha automaticamente (sem perguntar).
+      // Outros formatos: oferece +30min opcional.
+      if(ehNovo){
+        const todos = HORARIOS_POR_ABA[aba] || [];
+        const idx = todos.indexOf(params.horario);
+        const proximo = (idx>=0 && idx < todos.length-1) ? todos[idx+1] : null;
+        const ehTrintaMin = (h1,h2)=>{
+          if(!h1||!h2) return false;
+          const [a,b]=h1.split(':').map(Number), [c,d]=h2.split(':').map(Number);
+          return (c*60+d) - (a*60+b) === 30;
+        };
+        const ocupados = todosRegistros
+          .filter(rr => rr.aba===aba && rr.data===dataFormatada && ocupaSlot(rr.status))
+          .map(rr => rr.horario);
+        const ehProva = (formato||'').toLowerCase()==='prova';
+
+        if(proximo && ehTrintaMin(params.horario, proximo) && !ocupados.includes(proximo)){
+          if(ehProva){
+            // Prova: grava a 2ª linha automaticamente
+            const params2 = Object.assign({}, params, { horario: proximo, linha: '' });
+            const qs2 = new URLSearchParams(params2).toString();
+            jsonpCall(`${SCRIPT_URL}?${qs2}`,
+              (j2)=>{ if(j2.ok){ toast(`Prova de 1h registrada (${params.horario} + ${proximo}) ✓`); } carregarDados(false); },
+              ()=>{ toast('Erro ao registrar 2º slot da prova','erro'); carregarDados(false); }
+            );
+            return;
+          } else {
+            if(confirm(`Agendamento de ${params.horario} salvo.\n\nAdicionar mais 30 min (${proximo}) para ${params.aluno||'o aluno'}?`)){
+              const params2 = Object.assign({}, params, { horario: proximo, linha: '' });
+              const qs2 = new URLSearchParams(params2).toString();
+              jsonpCall(`${SCRIPT_URL}?${qs2}`,
+                (j2)=>{ if(j2.ok){ toast(`+30 min (${proximo}) adicionado ✓`); } else { toast('Erro ao adicionar +30min','erro'); } carregarDados(false); },
+                ()=>{ toast('Erro ao adicionar +30min','erro'); carregarDados(false); }
+              );
+              return;
+            }
+          }
+        } else if(ehProva && (!proximo || ocupados.includes(proximo))){
+          // Prova mas não há slot seguinte livre: avisa
+          toast('Prova precisa de 1h, mas o horário seguinte não está livre. Registrado só 1 slot.','erro');
+        }
+      }
+      carregarDados(false);
+    },
+    () => toast('Erro ao salvar: sem conexão','erro')
+  );
+});
+
+// Excluir
+const SENHA_EXCLUSAO = "Anonymous0414@";
+function excluirRegistro(aba, linha){
+  const tentativa = prompt('Para excluir este agendamento, digite a senha de exclusão:');
+  if(tentativa === null) return; // cancelou
+  if(tentativa !== SENHA_EXCLUSAO){ toast('Senha de exclusão incorreta','erro'); return; }
+  if(SCRIPT_URL === 'COLE_AQUI_A_URL_DO_APPS_SCRIPT'){
+    toast('Configure o SCRIPT_URL para excluir da planilha', 'erro'); return;
+  }
+  const url = `${SCRIPT_URL}?action=excluir&senha=${encodeURIComponent(SENHA_PAINEL)}&aba=${encodeURIComponent(aba)}&linha=${linha}`;
+  jsonpCall(
+    url,
+    (json) => {
+      if(!json.ok){ toast('Erro ao excluir: '+json.erro,'erro'); return; }
+      toast('Excluído ✓');
+      carregarDados(false);
+    },
+    () => toast('Erro ao excluir: sem conexão','erro')
+  );
+}
+</script>
+
+<script>
+// ===== GATE DE ENTRADA =====
+// AVISO: por ser site estático (GitHub Pages), estas credenciais ficam visíveis
+// no código-fonte. É uma barreira de conveniência, não segurança real.
+// Para trocar usuário/senha, edite as duas linhas abaixo.
+const GATE_USUARIO = "ccaa";
+const GATE_SENHA   = "Pel551*";
+
+(function(){
+  const gate  = document.getElementById('gate');
+  const uEl   = document.getElementById('gateUser');
+  const pEl   = document.getElementById('gatePass');
+  const btn   = document.getElementById('gateBtn');
+  const erro  = document.getElementById('gateErro');
+
+  let jaLiberado=false;
+  try{ jaLiberado = sessionStorage.getItem('ccaa_acesso')==='1'; }catch(e){}
+
+  function liberar(){
+    try{ sessionStorage.setItem('ccaa_acesso','1'); }catch(e){}
+    document.documentElement.classList.remove('locked');
+    gate.style.display='none';
+  }
+
+  if(jaLiberado){ liberar(); return; }
+
+  // Garante foco no campo de usuário ao abrir
+  setTimeout(()=>{ try{ uEl.focus(); }catch(e){} }, 60);
+
+  function tentar(){
+    const u = uEl.value.trim();
+    const p = pEl.value;
+    if(u===GATE_USUARIO && p===GATE_SENHA){
+      erro.textContent='';
+      liberar();
+    } else {
+      erro.textContent = 'Usuário ou senha incorretos.';
+      pEl.value='';
+      pEl.focus();
+    }
+  }
+
+  btn.addEventListener('click', tentar);
+  [uEl,pEl].forEach(el=>el.addEventListener('keydown', e=>{
+    if(e.key==='Enter'){ e.preventDefault(); tentar(); }
+  }));
+})();
+</script>
+</body>
+</html>
