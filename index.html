@@ -2113,7 +2113,7 @@ English Course 7.1 | | Sala 8 | https://zoom.us/j/123</code>
         <label class="field-label">Aluno</label>
         <input class="field-input" id="dAluno" placeholder="Nome completo do aluno" list="listaAlunos" autocomplete="off">
         <datalist id="listaAlunos"></datalist>
-        <div id="dAlunoHint" style="display:none;font-size:11px;color:var(--ccaa-blue);margin-top:5px;cursor:pointer"></div>
+        <div id="dAlunoHint" style="display:none;font-size:11px;color:var(--text-mute);margin-top:5px;cursor:pointer;padding:6px 10px;background:var(--surface-2);border-radius:var(--r-sm);border:1px solid var(--border)"></div>
       </div>
       <div>
         <label class="field-label">Data</label>
@@ -4262,13 +4262,24 @@ function abrirDrawer(r){
   document.getElementById('drawerOverlay').classList.add('open');
 }
 
-// Lista única de alunos já cadastrados (para autocomplete)
+// Lista única de alunos (histórico + base Sponte) para autocomplete
 function popularListaAlunos(){
   const dl = document.getElementById('listaAlunos');
   if(!dl) return;
-  const nomes = [...new Set(todosRegistros.map(r=>(r.aluno||'').trim()).filter(Boolean))].sort();
-  dl.innerHTML = nomes.map(n=>`<option value="${n.replace(/"/g,'&quot;')}">`).join('');
+  const nomesHist = new Set(todosRegistros.map(r=>(r.aluno||'').trim()).filter(Boolean));
+  // Adiciona nomes da base Sponte que ainda não têm histórico de agendamento
+  const nomesSponte = (_alunos||[]).map(a=>(a.nome||'').trim()).filter(Boolean);
+  const todos = [...nomesHist, ...nomesSponte.filter(n=>!nomesHist.has(n))].sort();
+  dl.innerHTML = todos.map(n=>`<option value="${n.replace(/"/g,'&quot;')}">`).join('');
 }
+
+// Retorna dados do aluno na base Sponte (por nome normalizado)
+function alunoDoSponte(nome){
+  const alvo = normTexto(nome);
+  if(!alvo || !_alunos || !_alunos.length) return null;
+  return _alunos.find(a => normTexto(a.nome)===alvo) || null;
+}
+
 // Último registro de um aluno (por nome normalizado)
 function ultimoRegistroDoAluno(nome){
   const alvo = normTexto(nome);
@@ -4277,20 +4288,45 @@ function ultimoRegistroDoAluno(nome){
     .sort((a,b)=>dataMs(b.data)-dataMs(a.data));
   return regs[0] || null;
 }
-// Ao digitar um nome conhecido, oferece preencher turma/teacher/formato do último registro
+
+// Ao digitar um nome, exibe hint com histórico OU dados do Sponte
 function aoDigitarAluno(){
   const nome = document.getElementById('dAluno').value.trim();
   const hint = document.getElementById('dAlunoHint');
   const ult = ultimoRegistroDoAluno(nome);
-  // só sugere se ainda não preencheu turma e existe histórico
+  const sponte = alunoDoSponte(nome);
+
   if(ult && !document.getElementById('dTurma').value){
+    // Tem histórico de agendamento → oferece preencher
+    let linha = `↻ Preencher como na última vez: ${ult.formato||''}${ult.turma?' · '+ult.turma:''}${ult.teacher?' · '+ult.teacher:''}`;
+    if(sponte && sponte.telefone) linha += ` · 📱 ${sponte.telefone}`;
     hint.style.display = 'block';
-    hint.textContent = `↻ Preencher como na última vez: ${ult.formato||''}${ult.turma?' · '+ult.turma:''}${ult.teacher?' · '+ult.teacher:''}`;
+    hint.innerHTML = linha.replace(/</g,'&lt;');
     hint.onclick = ()=> preencherDoHistorico(ult);
+  } else if(sponte && !ult){
+    // Aluno novo (só na base Sponte, sem agendamentos ainda) → mostra contato
+    const parts = [];
+    if(sponte.telefone) parts.push(`📱 ${sponte.telefone}`);
+    if(sponte.email)    parts.push(`✉ ${sponte.email}`);
+    const nascFmt = (()=>{ const n=parseNasc(sponte.nascimento); return n?`${String(n.dia).padStart(2,'0')}/${String(n.mes).padStart(2,'0')}/${n.ano}`:''; })();
+    if(nascFmt){ const idade=calcIdade(parseNasc(sponte.nascimento)); parts.push(`🎂 ${nascFmt}${idade!==''?' ('+idade+' anos)':''}`); }
+    if(parts.length){
+      hint.style.display = 'block';
+      hint.textContent = parts.join(' · ');
+      hint.onclick = null;
+    } else { hint.style.display = 'none'; }
+  } else if(sponte && ult){
+    // Tem histórico + Sponte: mostra apenas se tem tel para consulta rápida
+    if(sponte.telefone){
+      hint.style.display = 'block';
+      hint.innerHTML = `📱 ${sponte.telefone}${sponte.email?' &nbsp;·&nbsp; ✉ '+sponte.email:''}`;
+      hint.onclick = ()=> preencherDoHistorico(ult);
+    } else { hint.style.display = 'none'; }
   } else {
     hint.style.display = 'none';
   }
 }
+
 // Preenche os campos a partir de um registro do histórico
 function preencherDoHistorico(ult){
   if(ult.tchTurma){
