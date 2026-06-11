@@ -1629,6 +1629,7 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
     <div id="painelTabs" style="display:flex; gap:8px; margin-bottom:16px; border-bottom:1.5px solid var(--border);">
       <button class="painel-tab ativa" data-tab="vagas" id="tabVagas">Agendamentos disponíveis</button>
       <button class="painel-tab" data-tab="agenda" id="tabAgenda">Agendamentos</button>
+      <button class="painel-tab" data-tab="financeiro" id="tabFinanceiro">💰 Financeiro</button>
     </div>
 
     <!-- ABA AGENDAMENTOS -->
@@ -1695,6 +1696,60 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
         <input class="int-select" type="date" id="vagasSemanaRef" style="min-width:150px" title="Ou escolha uma data">
       </div>
       <div id="vagasGrid"></div>
+    </div>
+
+    <!-- ABA FINANCEIRO -->
+    <div id="viewFinanceiro" style="display:none">
+      <p style="font-size:12.5px;color:var(--text-dim);margin:0 0 14px">
+        Cálculo de pagamento por <b>teacher que aplica</b> (nome da aba). Conta status
+        <b>Realizado</b> e <b>Faltou</b>. Prova de 1h conta como 1 aplicação. Os valores
+        ficam salvos neste navegador.
+      </p>
+
+      <!-- Valores por formato (editáveis) -->
+      <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin-bottom:16px;padding:14px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-md)">
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <label style="font-size:11.5px;font-weight:700;color:var(--text-mute)">Equiparação (R$)</label>
+          <input class="int-select fin-valor" type="number" min="0" step="0.01" id="finValEquiparacao" style="width:110px">
+        </div>
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <label style="font-size:11.5px;font-weight:700;color:var(--text-mute)">Apoio (R$)</label>
+          <input class="int-select fin-valor" type="number" min="0" step="0.01" id="finValApoio" style="width:110px">
+        </div>
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <label style="font-size:11.5px;font-weight:700;color:var(--text-mute)">Nivelamento (R$)</label>
+          <input class="int-select fin-valor" type="number" min="0" step="0.01" id="finValNivelamento" style="width:110px">
+        </div>
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <label style="font-size:11.5px;font-weight:700;color:var(--text-mute)">Prova (R$)</label>
+          <input class="int-select fin-valor" type="number" min="0" step="0.01" id="finValProva" style="width:110px">
+        </div>
+      </div>
+
+      <!-- Filtros de período -->
+      <div class="int-filtros">
+        <input class="int-select" type="date" id="finDataIni" title="Data inicial" style="min-width:140px">
+        <input class="int-select" type="date" id="finDataFim" title="Data final" style="min-width:140px">
+        <select class="int-select" id="finTeacher"><option value="">Todos os teachers</option></select>
+        <button class="int-btn int-btn-reload" id="finBtnSemana" type="button">Esta semana</button>
+        <button class="int-btn int-btn-reload" id="finBtnMes" type="button">Este mês</button>
+        <button class="int-btn int-btn-reload" id="finBtnLimpar" type="button">Limpar</button>
+        <button class="int-btn int-btn-reload" id="finBtnCopiar" type="button" title="Copiar resumo">📋 Copiar resumo</button>
+      </div>
+
+      <div id="finResumoBar" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px"></div>
+      <div class="int-table-wrap">
+        <table class="int-table" id="finTable">
+          <thead>
+            <tr>
+              <th>Teacher</th><th>Equiparação</th><th>Apoio</th>
+              <th>Nivelamento</th><th>Prova</th><th>Total aplic.</th><th>A pagar (R$)</th>
+            </tr>
+          </thead>
+          <tbody id="finTbody"></tbody>
+        </table>
+        <div class="int-loading" id="finVazio" style="display:none">Nenhuma aplicação no período</div>
+      </div>
     </div>
   </div>
 </div>
@@ -2897,11 +2952,136 @@ function copiarTodosLembretes(){
 
 // ===== TROCA DE ABAS =====
 function trocarAba(qual){
-  document.getElementById('viewAgenda').style.display = qual==='agenda'?'block':'none';
-  document.getElementById('viewVagas').style.display  = qual==='vagas'?'block':'none';
+  document.getElementById('viewAgenda').style.display     = qual==='agenda'?'block':'none';
+  document.getElementById('viewVagas').style.display      = qual==='vagas'?'block':'none';
+  document.getElementById('viewFinanceiro').style.display = qual==='financeiro'?'block':'none';
   document.getElementById('tabAgenda').classList.toggle('ativa', qual==='agenda');
   document.getElementById('tabVagas').classList.toggle('ativa', qual==='vagas');
+  document.getElementById('tabFinanceiro').classList.toggle('ativa', qual==='financeiro');
   if(qual==='vagas'){ popularSeletorSemanas(); renderVagas(); }
+  if(qual==='financeiro'){ popularFinTeacher(); renderFinanceiro(); }
+}
+
+// ===== FINANCEIRO =====
+// Valores pagos por formato (editáveis, salvos no navegador).
+const FIN_FORMATOS = ['Equiparação','Apoio','Nivelamento','Prova'];
+function finSemAcento(s){ return s.normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
+function finChaveValor(f){ return 'fin_valor_'+finSemAcento(f).toLowerCase(); }
+function finCarregarValores(){
+  FIN_FORMATOS.forEach(f=>{
+    const el = document.getElementById('finVal'+finSemAcento(f));
+    if(el) el.value = localStorage.getItem(finChaveValor(f)) || '';
+  });
+}
+function finValorDe(formato){
+  const v = parseFloat(localStorage.getItem(finChaveValor(formato)));
+  return Number.isFinite(v) ? v : 0;
+}
+function finFmtBRL(n){ return n.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}); }
+// Status que o financeiro paga: Realizado + Faltou
+function finPaga(status){ const s=(status||'').toLowerCase(); return s==='realizado' || s==='faltou'; }
+
+// Preenche o seletor de teachers (a partir das abas dos registros que aplicam)
+function popularFinTeacher(){
+  const sel = document.getElementById('finTeacher');
+  if(!sel) return;
+  const atual = sel.value;
+  const teachers = [...new Set(todosRegistros.map(r=>parseAbaFront(r.aba).teacher).filter(Boolean))].sort();
+  sel.innerHTML = '<option value="">Todos os teachers</option>' +
+    teachers.map(t=>`<option>${t}</option>`).join('');
+  sel.value = atual;
+}
+
+// Funde provas consecutivas (2 linhas de 30min do mesmo teacher/aluno/data = 1 aplicação)
+function finUnidades(regs){
+  const ordenado = regs.slice().sort((a,b)=>
+    dataMs(a.data)-dataMs(b.data) ||
+    (a.aba||'').localeCompare(b.aba||'') ||
+    normTexto(a.aluno).localeCompare(normTexto(b.aluno)) ||
+    (a.horario||'').localeCompare(b.horario||''));
+  const unidades = [];
+  ordenado.forEach(r=>{
+    const ant = unidades[unidades.length-1];
+    const ehProva = (r.formato||'').toLowerCase()==='prova';
+    const mesma = ant && ehProva && (ant.formato||'').toLowerCase()==='prova'
+      && ant.aba===r.aba && ant.data===r.data
+      && normTexto(ant.aluno)===normTexto(r.aluno)
+      && somaMin(ant._fim, 0)===r.horario;
+    if(mesma){ ant._fim = somaMin(r.horario, 30); } // estende a prova, não cria nova unidade
+    else { unidades.push(Object.assign({}, r, { _fim: somaMin(r.horario, 30) })); }
+  });
+  return unidades;
+}
+
+function renderFinanceiro(){
+  const ini = document.getElementById('finDataIni').value;
+  const fim = document.getElementById('finDataFim').value;
+  const teacherSel = document.getElementById('finTeacher').value;
+
+  let regs = todosRegistros.filter(r=> finPaga(r.status));
+  if(teacherSel) regs = regs.filter(r=> parseAbaFront(r.aba).teacher === teacherSel);
+  if(ini) regs = regs.filter(r=>{ const iso=dataBRtoISO(r.data); return iso && iso>=ini; });
+  if(fim) regs = regs.filter(r=>{ const iso=dataBRtoISO(r.data); return iso && iso<=fim; });
+
+  // Funde provas e agrupa por teacher
+  const unidades = finUnidades(regs);
+  const porTeacher = {};
+  unidades.forEach(u=>{
+    const t = parseAbaFront(u.aba).teacher || '—';
+    const f = (u.formato||'').toLowerCase();
+    if(!porTeacher[t]) porTeacher[t] = { Equiparação:0, Apoio:0, Nivelamento:0, Prova:0, total:0, valor:0 };
+    const linha = porTeacher[t];
+    const chave = FIN_FORMATOS.find(x=>x.toLowerCase()===f);
+    if(chave){ linha[chave]++; linha.valor += finValorDe(chave); }
+    // formato fora da lista entra só no total (sem valor)
+    linha.total++;
+  });
+
+  const teachers = Object.keys(porTeacher).sort();
+  const tbody = document.getElementById('finTbody');
+  const vazio = document.getElementById('finVazio');
+  const tabela = document.getElementById('finTable');
+
+  if(!teachers.length){
+    tbody.innerHTML=''; tabela.style.display='none'; vazio.style.display='block';
+    document.getElementById('finResumoBar').innerHTML='';
+    return;
+  }
+  tabela.style.display=''; vazio.style.display='none';
+
+  let totGeral=0, aplicGeral=0;
+  tbody.innerHTML = teachers.map(t=>{
+    const l = porTeacher[t]; totGeral+=l.valor; aplicGeral+=l.total;
+    return `<tr>
+      <td data-label="Teacher"><b>${t}</b></td>
+      <td data-label="Equiparação">${l['Equiparação']||''}</td>
+      <td data-label="Apoio">${l['Apoio']||''}</td>
+      <td data-label="Nivelamento">${l['Nivelamento']||''}</td>
+      <td data-label="Prova">${l['Prova']||''}</td>
+      <td data-label="Total aplic.">${l.total}</td>
+      <td data-label="A pagar (R$)"><b>${finFmtBRL(l.valor)}</b></td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('finResumoBar').innerHTML = `
+    <span class="badge">Teachers: <b>${teachers.length}</b></span>
+    <span class="badge">Aplicações: <b>${aplicGeral}</b></span>
+    <span class="badge">Total a pagar: <b>${finFmtBRL(totGeral)}</b></span>`;
+}
+
+function copiarResumoFinanceiro(){
+  const ini = document.getElementById('finDataIni').value;
+  const fim = document.getElementById('finDataFim').value;
+  const brl = iso => { if(!iso) return ''; const[y,m,d]=iso.split('-'); return `${d}/${m}/${y}`; };
+  const periodo = (ini||fim) ? `Período: ${brl(ini)||'início'} a ${brl(fim)||'hoje'}` : 'Período: todos';
+  const linhas = [...document.querySelectorAll('#finTbody tr')].map(tr=>{
+    const c = tr.querySelectorAll('td');
+    return `${c[0].innerText} — ${c[5].innerText} aplic. — ${c[6].innerText}`;
+  });
+  if(!linhas.length){ toast('Nada para copiar','erro'); return; }
+  const totalBadge = document.querySelector('#finResumoBar').innerText.replace(/\s+/g,' ').trim();
+  const txt = `*CCAA - Pagamento de aplicações*\n${periodo}\n\n${linhas.join('\n')}\n\n${totalBadge}`;
+  copiarTexto(txt, 'Resumo financeiro copiado ✓');
 }
 
 function renderBarraSemana(){
@@ -3662,6 +3842,48 @@ document.getElementById('btnNovoAgendamento').addEventListener('click', ()=> abr
 // Abas Agendamentos / Vagas
 document.getElementById('tabAgenda').addEventListener('click', ()=> trocarAba('agenda'));
 document.getElementById('tabVagas').addEventListener('click', ()=> trocarAba('vagas'));
+document.getElementById('tabFinanceiro').addEventListener('click', ()=> trocarAba('financeiro'));
+
+// ===== Listeners do Financeiro =====
+finCarregarValores();
+FIN_FORMATOS.forEach(f=>{
+  const el = document.getElementById('finVal'+finSemAcento(f));
+  if(el) el.addEventListener('input', ()=>{
+    localStorage.setItem(finChaveValor(f), el.value);
+    renderFinanceiro();
+  });
+});
+['finDataIni','finDataFim','finTeacher'].forEach(id=>{
+  const el = document.getElementById(id);
+  if(el) el.addEventListener('change', renderFinanceiro);
+});
+document.getElementById('finBtnLimpar').addEventListener('click', ()=>{
+  document.getElementById('finDataIni').value='';
+  document.getElementById('finDataFim').value='';
+  document.getElementById('finTeacher').value='';
+  renderFinanceiro();
+});
+document.getElementById('finBtnCopiar').addEventListener('click', copiarResumoFinanceiro);
+document.getElementById('finBtnSemana').addEventListener('click', ()=>{
+  const hoje = new Date();
+  const g = hoje.getDay(); // 0=dom
+  const diffSeg = (g===0?-6:1-g);
+  const seg = new Date(hoje); seg.setDate(hoje.getDate()+diffSeg);
+  const sex = new Date(seg); sex.setDate(seg.getDate()+4);
+  const iso = d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  document.getElementById('finDataIni').value=iso(seg);
+  document.getElementById('finDataFim').value=iso(sex);
+  renderFinanceiro();
+});
+document.getElementById('finBtnMes').addEventListener('click', ()=>{
+  const h = new Date();
+  const ini = new Date(h.getFullYear(), h.getMonth(), 1);
+  const fim = new Date(h.getFullYear(), h.getMonth()+1, 0);
+  const iso = d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  document.getElementById('finDataIni').value=iso(ini);
+  document.getElementById('finDataFim').value=iso(fim);
+  renderFinanceiro();
+});
 // Exportar WhatsApp
 document.getElementById('btnExportar').addEventListener('click', exportarWhatsApp);
 // Lembrete
