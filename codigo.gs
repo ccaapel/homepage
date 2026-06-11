@@ -640,12 +640,8 @@ function fmtData(v){
 
 function fmtHora(v){
   if (v instanceof Date) {
-    var h = v.getHours(), mi = v.getMinutes();
-    if (v.getFullYear() < 1901) {
-      var tot = Math.round((h*60+mi)/30)*30;
-      h = Math.floor(tot/60)%24; mi = tot%60;
-    }
-    return ("0"+h).slice(-2)+":"+("0"+mi).slice(-2);
+    // Usa timezone explícito para evitar confusão UTC vs BRT
+    return Utilities.formatDate(v, "America/Sao_Paulo", "HH:mm");
   }
   if (!v && v !== 0) return "";
   var s = String(v).trim();
