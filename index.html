@@ -603,6 +603,37 @@ html { scroll-behavior:smooth; }
   color:var(--text); letter-spacing:-0.01em;
 }
 .launcher-desc { font-size:13px; color:var(--text-dim); line-height:1.5; }
+.launcher-tag {
+  align-self:flex-start; font-size:10.5px; font-weight:800; letter-spacing:.06em;
+  text-transform:uppercase; padding:3px 9px; border-radius:99px; margin-bottom:2px;
+}
+.tag-pedagogico { background:color-mix(in srgb,var(--ccaa-blue) 16%,transparent); color:var(--ccaa-blue); }
+.tag-financeiro { background:color-mix(in srgb,var(--live) 16%,transparent); color:var(--live); }
+.tag-mkt        { background:color-mix(in srgb,var(--ccaa-red) 14%,transparent); color:var(--ccaa-red); }
+.tag-comercial  { background:color-mix(in srgb,var(--soon) 16%,transparent); color:var(--soon); }
+.launcher-acao {
+  margin-top:6px; font-size:12.5px; font-weight:700; color:var(--ccaa-blue);
+  opacity:0; transform:translateX(-4px); transition:opacity .18s, transform .18s;
+}
+.launcher-card:hover .launcher-acao { opacity:1; transform:none; }
+.launcher-card-soon { opacity:.55; cursor:default; pointer-events:none; }
+.launcher-card-soon .launcher-acao { opacity:1; transform:none; color:var(--text-dim); }
+
+/* ===== FINANCEIRO: cartões de resumo ===== */
+.fin-stat {
+  background:var(--surface); border:1.5px solid var(--border); border-radius:var(--r-md);
+  padding:14px 20px; min-width:130px;
+}
+.fin-stat-n {
+  font-family:'Bricolage Grotesque',sans-serif; font-size:22px; font-weight:800;
+  letter-spacing:-0.02em; color:var(--text); font-variant-numeric:tabular-nums;
+}
+.fin-stat-l { font-size:11.5px; font-weight:700; color:var(--text-dim); text-transform:uppercase; letter-spacing:.05em; margin-top:2px; }
+.fin-stat-total { border-color:color-mix(in srgb,var(--live) 40%,transparent); }
+.fin-stat-total .fin-stat-n { color:var(--live); }
+/* Números alinhados nas colunas da tabela financeira */
+#finTable td, #finTable th { font-variant-numeric:tabular-nums; }
+#finTable td:not(:first-child), #finTable th:not(:first-child) { text-align:right; }
 
 /* ===== GATE DE ENTRADA (tela de acesso à homepage) ===== */
 #gate {
@@ -1670,13 +1701,29 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
       <p class="launcher-sub">Escolha a ferramenta que deseja abrir.</p>
       <div class="launcher-grid">
         <button class="launcher-card" id="launchControle" type="button">
+          <span class="launcher-tag tag-pedagogico">Pedagógico</span>
           <span class="launcher-titulo">Controle de Aplicações 2026/1</span>
           <span class="launcher-desc">Equiparações, aulas de apoio, nivelamentos e provas.</span>
+          <span class="launcher-acao">Abrir ferramenta →</span>
+        </button>
+        <button class="launcher-card" id="launchFinanceiro" type="button">
+          <span class="launcher-tag tag-financeiro">Financeiro</span>
+          <span class="launcher-titulo">Pagamentos de Aplicações</span>
+          <span class="launcher-desc">Cálculo de pagamento por teacher: equiparações, apoios, nivelamentos e provas.</span>
+          <span class="launcher-acao">Abrir ferramenta →</span>
         </button>
         <a class="launcher-card" id="launchMkt" href="https://ccaapel.github.io/mkt/" target="_blank" rel="noopener">
-          <span class="launcher-titulo">Marketing</span>
+          <span class="launcher-tag tag-mkt">Marketing</span>
+          <span class="launcher-titulo">Painel de Marketing</span>
           <span class="launcher-desc">Análise de conteúdos, criativos e concorrentes.</span>
+          <span class="launcher-acao">Abrir ferramenta →</span>
         </a>
+        <div class="launcher-card launcher-card-soon" aria-disabled="true">
+          <span class="launcher-tag tag-comercial">Comercial</span>
+          <span class="launcher-titulo">Painel Comercial</span>
+          <span class="launcher-desc">Funil de matrículas, leads e acompanhamento de vendas.</span>
+          <span class="launcher-acao">Em breve</span>
+        </div>
       </div>
     </div>
   </div>
@@ -1776,11 +1823,15 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
 
       <!-- Conteúdo do Financeiro (aparece após autenticação) -->
       <div id="finConteudo">
-        <p style="font-size:12.5px;color:var(--text-dim);margin:0 0 14px">
-          Cálculo de pagamento por <b>teacher que aplica</b>. Conta status
-          <b>Realizado</b> e <b>Faltou</b>. Prova de 1h = 1 aplicação.
-          Valores salvos neste navegador.
-        </p>
+        <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-md);padding:14px 16px;margin:0 0 16px;font-size:12.5px;color:var(--text-mute);line-height:1.6">
+          <b style="color:var(--text)">Como usar:</b>
+          1. Preencha o valor pago por tipo de aplicação (fica salvo neste navegador).
+          2. Escolha o período (ou use os atalhos Esta semana / Este mês).
+          3. A tabela mostra quantas aplicações cada teacher fez e o total a pagar.
+          <br><br>
+          <b style="color:var(--text)">Regras do cálculo:</b>
+          conta os status <b>Realizado</b> e <b>Faltou</b> · Prova de 1h (2 horários seguidos) = <b>1 aplicação</b> · Cancelados e remarcados não contam · O teacher considerado é o que <b>aplica</b> (dono da aba na planilha), não o teacher da turma do aluno.
+        </div>
 
         <!-- Valores por formato (editáveis) -->
         <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin-bottom:16px;padding:14px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-md)">
@@ -2143,11 +2194,16 @@ function mostrarLauncher(){
   document.getElementById('internoOverlay').classList.remove('scroll-ok');
 }
 
-// ===== LAUNCHER: Controle abre em nova guia =====
-function abrirControle(){
-  const url = location.origin + location.pathname + '?app=controle';
-  window.open(url, '_blank');
+// ===== LAUNCHER: cada ferramenta abre em guia única dedicada =====
+// Base do site (remove index.html se presente, garante barra final)
+function hubBase(){
+  let p = location.pathname.replace(/index\.html$/,'');
+  if(!p.endsWith('/')) p += '/';
+  return location.origin + p;
 }
+function abrirControle(){ window.open(hubBase()+'controledeaplicacoes/', '_blank'); }
+function abrirFinanceiro(){ window.open(hubBase()+'financeiro/', '_blank'); }
+
 function voltarAoMenu(){
   document.getElementById('painelBox').style.display = 'none';
   const lb = document.getElementById('launcherBox');
@@ -2155,11 +2211,28 @@ function voltarAoMenu(){
   lb.classList.add('visivel');
   document.getElementById('internoOverlay').classList.remove('scroll-ok');
 }
-function iniciarPainel(){
-  document.getElementById('launcherBox').style.display = 'none';
+
+// Esconde launcher e login de vez (modo guia única)
+function modoGuiaUnica(){
+  const lb = document.getElementById('launcherBox');
+  lb.classList.remove('visivel');
+  lb.style.display = 'none';
   document.getElementById('loginBox').style.display = 'none';
-  document.getElementById('painelBox').style.display = 'block';
+  document.getElementById('btnVoltarMenu').style.display = 'none';
+  document.getElementById('internoFechar').style.display = 'none';
   document.getElementById('internoOverlay').classList.add('open','scroll-ok');
+  document.documentElement.classList.remove('locked');
+  const gate = document.getElementById('gate');
+  if(gate) gate.style.display = 'none';
+}
+
+function iniciarPainel(){
+  modoGuiaUnica();
+  document.title = 'Controle de Aplicações 2026/1 · CCAA Pelotas';
+  document.getElementById('painelBox').style.display = 'block';
+  document.querySelector('.interno-header h2').textContent = 'Controle de Aplicações 2026/1';
+  // Financeiro tem guia própria: esconde a aba aqui
+  document.getElementById('tabFinanceiro').style.display = 'none';
   popularAbas();
   popularFiltroTeacher();
   document.getElementById('filtroDataIni').value = '';
@@ -2167,14 +2240,48 @@ function iniciarPainel(){
   carregarDados();
 }
 
-// Se abriu com ?app=controle e já autenticou antes → vai direto ao painel
-if(new URLSearchParams(location.search).get('app')==='controle' && hubAutenticado()){
-  document.addEventListener('DOMContentLoaded', ()=> iniciarPainel(), {once:true});
-  // Garante mesmo se DOMContentLoaded já disparou
-  if(document.readyState!=='loading') iniciarPainel();
+function iniciarFinanceiroApp(){
+  window._appFinanceiro = true;
+  modoGuiaUnica();
+  document.title = 'Financeiro · Pagamentos de Aplicações · CCAA Pelotas';
+  document.getElementById('painelBox').style.display = 'block';
+  document.querySelector('.interno-header h2').textContent = 'Financeiro · Pagamentos de Aplicações';
+  // Guia única do financeiro: esconde abas de navegação e resumo do pedagógico
+  document.getElementById('painelTabs').style.display = 'none';
+  document.getElementById('resumoBar').style.display = 'none';
+  document.getElementById('viewVagas').style.display = 'none';
+  document.getElementById('viewAgenda').style.display = 'none';
+  document.getElementById('viewFinanceiro').style.display = 'block';
+  if(finAutenticado()){ finMostrarConteudo(); } else { finMostrarGate(); }
+  carregarDados(false); // carrega registros para o cálculo
 }
 
+// ===== ROTEAMENTO: detecta app pela URL =====
+(function rotearApp(){
+  const params = new URLSearchParams(location.search);
+  let app = params.get('app') || '';
+  // Suporte a caminho bonito: /controledeaplicacoes/ ou /financeiro/
+  const path = location.pathname.toLowerCase();
+  if(!app){
+    if(path.includes('controledeaplicacoes')) app = 'controle';
+    else if(path.includes('financeiro')) app = 'financeiro';
+  }
+  if(!app) return;
+  if(!hubAutenticado()) return; // sem autenticação prévia, fica na home com login normal
+
+  // URL bonita na barra (sem ?app=)
+  try{
+    const pretty = app==='controle' ? 'controledeaplicacoes' : 'financeiro';
+    if(params.get('app')) history.replaceState({}, '', hubBase()+pretty+'/');
+  }catch(e){}
+
+  const iniciar = app==='controle' ? iniciarPainel : iniciarFinanceiroApp;
+  if(document.readyState!=='loading') iniciar();
+  else document.addEventListener('DOMContentLoaded', iniciar, {once:true});
+})();
+
 document.getElementById('launchControle').addEventListener('click', abrirControle);
+document.getElementById('launchFinanceiro').addEventListener('click', abrirFinanceiro);
 document.getElementById('btnVoltarMenu').addEventListener('click', voltarAoMenu);
 
 // Popular selects de aba
@@ -2263,6 +2370,11 @@ async function carregarDados(silencioso){
       todosRegistros = (json.dados||[]).map(normalizaRegistro).filter(r=>!ehLinhaModeloFront(r));
       popularTurmas();
       renderTabela();
+      // Guia do Financeiro: atualiza o cálculo assim que os dados chegam
+      if(window._appFinanceiro && finAutenticado()){
+        popularFinTeacher();
+        renderFinanceiro();
+      }
     },
     () => { document.getElementById('intLoading').style.display='none'; toast('Erro ao carregar dados da planilha','erro'); }
   );
@@ -3183,9 +3295,9 @@ function renderFinanceiro(){
   }).join('');
 
   document.getElementById('finResumoBar').innerHTML = `
-    <span class="badge">Teachers: <b>${teachers.length}</b></span>
-    <span class="badge">Aplicações: <b>${aplicGeral}</b></span>
-    <span class="badge">Total a pagar: <b>${finFmtBRL(totGeral)}</b></span>`;
+    <div class="fin-stat"><div class="fin-stat-n">${teachers.length}</div><div class="fin-stat-l">Teachers</div></div>
+    <div class="fin-stat"><div class="fin-stat-n">${aplicGeral}</div><div class="fin-stat-l">Aplicações</div></div>
+    <div class="fin-stat fin-stat-total"><div class="fin-stat-n">${finFmtBRL(totGeral)}</div><div class="fin-stat-l">Total a pagar</div></div>`;
 }
 
 function copiarResumoFinanceiro(){
