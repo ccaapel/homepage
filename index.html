@@ -128,7 +128,7 @@ body {
   height:46px; width:auto; object-fit:contain; border-radius:8px;
   background:#0E0F1A; padding:3px 6px;
 }
-.brand-title { font-family:'Bricolage Grotesque',sans-serif; font-size:20px; font-weight:800; letter-spacing:-0.025em; color:var(--text); line-height:1; }
+.brand-title { font-family:'Bricolage Grotesque',sans-serif; font-size:clamp(18px, 1rem + 1.2vw, 23px); font-weight:800; letter-spacing:-0.025em; color:var(--text); line-height:1; }
 .brand-sub-row { display:flex; align-items:center; gap:9px; flex-wrap:wrap; justify-content:center; }
 .brand-sub { font-size:10.5px; color:var(--text-dim); font-weight:700; letter-spacing:.09em; text-transform:uppercase; }
 .acesso-interno {
@@ -299,7 +299,7 @@ body {
   position:sticky; top:84px; z-index:20;
   display:flex; align-items:center; gap:10px;
   font-family:'Bricolage Grotesque',sans-serif;
-  font-size:20px; font-weight:800; letter-spacing:-0.02em; color:var(--text);
+  font-size:clamp(17px, 1rem + 1vw, 21px); font-weight:800; letter-spacing:-0.02em; color:var(--text);
   margin:26px 0 13px; padding:9px 4px;
   background:color-mix(in srgb, var(--bg) 92%, transparent);
   backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
@@ -1092,12 +1092,12 @@ function nowBR(){
   try { return new Date(new Date().toLocaleString('en-US',{timeZone:'America/Sao_Paulo'})); }
   catch(e){ return new Date(); }
 }
-function parseHM(s){ const [h,m]=s.split(':').map(Number); return h*60+m; }
+function parseHM(s){ const p=String(s||'').split(':'); const h=Number(p[0]), m=Number(p[1]); return (Number.isFinite(h)&&Number.isFinite(m)) ? h*60+m : NaN; }
 function statusTurma(t, now){
   const dia = now.getDay();
   const min = now.getHours()*60 + now.getMinutes();
   const ini = parseHM(t.inicio), fim = parseHM(t.fim);
-  if(t.dias.includes(dia)){
+  if(t.dias.includes(dia) && Number.isFinite(ini) && Number.isFinite(fim)){
     if(min >= ini - CONFIG.janelaAntes && min <= fim) return {tipo:'live', label:'Ao vivo agora'};
     const falta = ini - min;
     if(falta > 0 && falta <= CONFIG.janelaAgora) return {tipo:'soon', label: falta<=1?'Começa agora':'Começa em '+falta+' min'};
