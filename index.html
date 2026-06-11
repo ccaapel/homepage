@@ -1950,13 +1950,8 @@ const SENHA_PAINEL = "ccaa2026";  // senha de comunicação com o Apps Script (i
 const ABAS_DISPONIVEIS = [
   "Valquíria: SEGUNDA-FEIRA - Sala 14",
   "Eduarda: SEGUNDA-FEIRA - Sala 2",
-  "Laura: SEGUNDA-FEIRA - Sala 13",
-  "Laura: TERÇA-FEIRA - Sala 2",
   "Tânia: TERÇA-FEIRA - Sala 2",
-  "Laura: QUARTA-FEIRA - Sala 2",
   "Valquíria: QUARTA-FEIRA - Sala 13",
-  "OFF Laura: QUINTA-FEIRA - Sala 8",
-  "Laura: SEXTA-FEIRA - Sala 2",
 ];
 
 // Horários possíveis em cada aba (slots de 30 min conforme dropdown da planilha)
@@ -1965,7 +1960,7 @@ const HORARIOS_POR_ABA = {
   "Eduarda: SEGUNDA-FEIRA - Sala 2":    ["15:30","16:00","16:30","17:00","17:30"],
   "Laura: SEGUNDA-FEIRA - Sala 13":     ["15:30","16:00","16:30","17:00","19:30","20:00"],
   "Laura: TERÇA-FEIRA - Sala 2":        ["17:00","17:30","18:00","18:30"],
-  "Tânia: TERÇA-FEIRA - Sala 2":        ["09:00","09:30","10:00","10:30","11:00","11:30","12:00","12:30"],
+  "Tânia: TERÇA-FEIRA - Sala 2":        ["09:00","09:30","10:00","10:30","11:00","11:30"],
   "Laura: QUARTA-FEIRA - Sala 2":       ["08:00","08:30","09:00","09:30"],
   "Valquíria: QUARTA-FEIRA - Sala 13":  ["15:30","16:00","16:30","17:00","17:30"],
   "OFF Laura: QUINTA-FEIRA - Sala 8":   [],
@@ -3751,12 +3746,14 @@ document.getElementById('drawerSalvar').addEventListener('click', async ()=>{
     (json) => {
       if(!json.ok){ toast('Erro ao salvar: '+json.erro,'erro'); return; }
       document.getElementById('drawerOverlay').classList.remove('open');
+      const veioDeVagas = drawerVeioDeVagas;
       drawerVeioDeVagas = false;
       toast('Salvo com sucesso ✓');
 
       // PROVA = 1h = 2 slots. Grava a 2ª linha automaticamente (sem perguntar).
       // Outros formatos: oferece +30min opcional.
-      if(ehNovo){
+      // Se o agendamento veio da aba de Vagas (clique direto no slot), não abre +30min.
+      if(ehNovo && !veioDeVagas){
         const todos = HORARIOS_POR_ABA[aba] || [];
         const idx = todos.indexOf(params.horario);
         const proximo = (idx>=0 && idx < todos.length-1) ? todos[idx+1] : null;
