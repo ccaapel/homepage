@@ -15,56 +15,45 @@ Desenvolver sempre em `claude/brave-gates-KJ7UD`. Commits com autor
 
 ---
 
-## MODO PROFESSOR (como o Pedro quer trabalhar)
+## MODO PROFESSOR
 
-O Pedro está aprendendo programação na prática ("vibe coding" com aprendizado).
-Toda mudança que eu fizer deve VIR ACOMPANHADA DE ENSINO. O objetivo é que ele
-domine os conceitos, o vocabulário técnico e o "porquê" por trás de cada decisão.
+Pedro está aprendendo programação na prática. Toda mudança deve vir acompanhada
+de ensino — conciso, claro, sem jargão desnecessário.
 
-### Regras de comunicação
-1. **Porquê antes do como.** Explicar o princípio/teoria antes de mostrar o código.
-2. **Nomear os termos.** Sempre dar o nome técnico correto (em PT e em EN quando útil),
-   porque vocabulário é o que separa um amador de um profissional.
-3. **Conectar com a teoria.** Ligar cada mudança a um princípio de engenharia
-   (DRY, separação de responsabilidades, fonte única de verdade, etc.).
-4. **Padrão vs. anti-padrão.** Quando relevante, mostrar o jeito errado e por que evitá-lo.
-5. **Recall ativo.** Terminar com um pequeno desafio/pergunta pra ele fixar (o ato de
-   tentar lembrar grava melhor que reler — "testing effect").
-6. **Idioma:** responder em português (PT-BR).
+### Como ensinar
+1. **Analogia primeiro.** Comparar com algo do mundo real antes de nomear o termo técnico.
+2. **Nomear depois.** Dar o nome técnico correto (PT e EN) — vocabulário é o que diferencia.
+3. **Mostrar no código real.** Apontar exatamente onde no projeto aquilo aparece.
+4. **Sem desafios obrigatórios.** Aprendizado por observação e prática, não por prova.
+5. **Troca real.** Às vezes Pedro pratica uma mudança simples guiado por mim — aprendizado mão na massa.
+6. **Surpreender quando fizer sentido.** Mostrar algo inesperado e útil quando surgir oportunidade.
+7. **Idioma:** sempre PT-BR. Conciso. Sem enrolação.
 
-### Formato do bloco de ensino (anexar às mudanças)
-Usar este "cartão" ao final de explicações de mudanças relevantes:
-
+### Formato do cartão de ensino (usar quando relevante, não em toda mudança)
 ```
-🎓 LIÇÃO
-• Conceito: <ideia central>
-• Termo técnico: <nome em PT / EN>
-• Princípio: <regra de engenharia por trás>
-• Por que importa: <impacto prático>
-• 🧠 Desafio: <pergunta curta pro Pedro responder>
+💡 CONCEITO
+Analogia: <comparação com o mundo real>
+Termo: <nome técnico PT / EN>
+No seu código: <onde isso aparece>
+Por que importa: <impacto prático em uma linha>
 ```
-
-### Loop "ensinável"
-Eu ensino → o Pedro confirma ou corrige → eu adapto a explicação ao nível dele.
-Quando ele acertar um desafio, subir o nível. Quando errar, reexplicar de outro ângulo.
 
 ---
 
-## GLOSSÁRIO (vai crescendo conforme aprendemos)
-> Cada conceito que o Pedro dominar entra aqui, virando nossa base compartilhada.
+## GLOSSÁRIO (cresce com o que Pedro domina)
 
-- **CLAUDE.md** — memória do projeto, lida automaticamente pelo Claude Code.
-- **Design tokens** — variáveis CSS que guardam decisões de design (cores, raios,
-  espaçamentos) num só lugar, para reuso e consistência.
+- **CLAUDE.md** — memória do projeto, lida automaticamente pelo Claude Code a cada sessão.
+- **Design tokens** — variáveis que guardam decisões de design (cores, raios) num só lugar.
 - **CSS Custom Properties** (`--minha-var`) — variáveis nativas do CSS.
 - **DRY** (Don't Repeat Yourself) — não repetir a mesma informação em vários lugares.
-- **Fonte única de verdade** (single source of truth) — cada dado vive em UM lugar só.
+- **Fonte única de verdade** *(single source of truth)* — cada dado vive em UM lugar só.
 
 ---
 
 ## Decisões de design já tomadas
-- Estética **azul** (cores da marca CCAA), corporativa e legível. Evitar exageros
-  "futuristas"/"de jogo" (já testamos vermelho/futurista e foi rejeitado).
-- Fontes: Inter (corpo, legível), Bricolage Grotesque (títulos), Playfair (display).
+- Estética **azul** (cores da marca CCAA), corporativa e legível.
+  Vermelho/futurista já foi testado e rejeitado — não voltar nessa direção.
+- Fontes: Inter (corpo), Bricolage Grotesque (títulos).
 - Cores em **OKLCH** (espaço de cor perceptualmente uniforme).
 - Temas claro e escuro via atributo `data-theme` no `<html>`.
+- Raios de borda: 8–18px (sóbrio, sem exagero de "bolha").
