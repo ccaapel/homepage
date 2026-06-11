@@ -1225,10 +1225,19 @@ function turmaCard(t, status){
 let _vtBusy = false;
 function withVT(fn){
   const prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if(!document.startViewTransition || prefersReduced || _vtBusy){ fn(); return; }
+  // Não anima quando: sem suporte, usuário pediu menos animação, já há transição,
+  // página ainda travada pelo gate, ou aba em segundo plano. Nesses casos a
+  // View Transition pode abortar ("InvalidStateError") e deixar a tela presa.
+  const travado = document.documentElement.classList.contains('locked');
+  const oculto  = document.visibilityState && document.visibilityState!=='visible';
+  if(!document.startViewTransition || prefersReduced || _vtBusy || travado || oculto){ fn(); return; }
   _vtBusy = true;
-  const vt = document.startViewTransition(fn);
-  vt.finished.finally(()=>{ _vtBusy = false; });
+  let vt;
+  try { vt = document.startViewTransition(fn); }
+  catch(e){ fn(); _vtBusy = false; return; }
+  // .catch evita "Uncaught (in promise)" caso a transição seja abortada
+  if(vt.finished && vt.finished.catch) vt.finished.catch(()=>{});
+  Promise.resolve(vt.finished).finally(()=>{ _vtBusy = false; });
 }
 
 // Wrapper público: anima a troca de filtro/estado quando suportado.
