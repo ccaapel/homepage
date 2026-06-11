@@ -13,7 +13,8 @@
     if(!ok){ document.documentElement.classList.add('locked'); }
   })();
 </script>
-<title>Aulas Online · CCAA Pelotas</title>
+<title>Ferramentas CCAA Pelotas</title>
+<link rel="icon" type="image/png" href="https://ccaapel.github.io/mkt/assets/ccaa-logo.png?v=5">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Playfair+Display:wght@700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -571,16 +572,33 @@ html { scroll-behavior:smooth; }
 .login-erro { color:var(--ccaa-red); font-size:12.5px; margin-top:8px; display:none; }
 
 /* ===== LAUNCHER (menu de ferramentas) ===== */
+.launcher-body { display:flex !important; align-items:center; justify-content:center; min-height:70vh; }
+.launcher-center { width:100%; max-width:640px; text-align:center; padding:12px 0; }
+.launcher-logo { width:72px; height:72px; object-fit:contain; border-radius:16px; margin:0 auto 20px; display:block; box-shadow:0 4px 18px color-mix(in srgb,var(--ccaa-blue) 22%,transparent); }
+.launcher-h3 {
+  font-family:'Bricolage Grotesque',sans-serif;
+  font-size:clamp(24px,5vw,34px); font-weight:800;
+  letter-spacing:-0.03em; margin:0 0 8px; color:var(--text);
+}
+.launcher-sub { font-size:14px; color:var(--text-dim); margin:0 0 28px; }
+.launcher-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px; }
 .launcher-card {
-  display:flex; flex-direction:column; gap:8px; text-align:left;
+  display:flex; flex-direction:column; gap:7px; text-align:left;
   background:var(--surface); border:1.5px solid var(--border); border-radius:var(--r-lg);
   padding:22px 20px; cursor:pointer; text-decoration:none; color:inherit;
-  font-family:inherit; transition:border-color .15s, transform .15s, box-shadow .15s;
+  font-family:inherit; transition:border-color .18s, transform .18s, box-shadow .18s;
+  box-shadow:0 2px 8px color-mix(in srgb,var(--ccaa-blue) 6%,transparent);
 }
-.launcher-card:hover { border-color:var(--ccaa-blue); transform:translateY(-3px); box-shadow:var(--shadow-hover); }
-.launcher-ico { font-size:30px; line-height:1; }
-.launcher-titulo { font-family:'Bricolage Grotesque',sans-serif; font-size:16.5px; font-weight:800; color:var(--text); }
-.launcher-desc { font-size:13px; color:var(--text-dim); line-height:1.45; }
+.launcher-card:hover {
+  border-color:var(--ccaa-blue);
+  transform:translateY(-4px);
+  box-shadow:0 10px 28px color-mix(in srgb,var(--ccaa-blue) 18%,transparent);
+}
+.launcher-titulo {
+  font-family:'Bricolage Grotesque',sans-serif; font-size:16px; font-weight:800;
+  color:var(--text); letter-spacing:-0.01em;
+}
+.launcher-desc { font-size:13px; color:var(--text-dim); line-height:1.5; }
 
 /* ===== GATE DE ENTRADA (tela de acesso à homepage) ===== */
 #gate {
@@ -1616,7 +1634,7 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
 <div class="interno-overlay" id="internoOverlay">
   <div class="interno-header">
     <button class="interno-fechar" id="internoFechar" title="Fechar">✕</button>
-    <h2>CCAA 2026/1 - Controle de equiparações, aulas de apoio, nivelamentos e provas.</h2>
+    <h2>Ferramentas CCAA Pelotas</h2>
     <button class="int-btn int-btn-reload" id="btnReload" style="margin-left:auto">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M21 12a9 9 0 1 1-2.64-6.36L21 3v6h-6"/></svg>
       Atualizar
@@ -1634,27 +1652,26 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
   </div>
 
   <!-- Launcher: menu de ferramentas (aparece após a senha) -->
-  <div class="interno-body" id="launcherBox" style="display:none">
-    <div style="max-width:760px;margin:0 auto;padding:8px 0">
-      <h3 style="font-family:var(--font-titulo,inherit);font-size:clamp(20px,4vw,26px);margin:0 0 6px">Ferramentas CCAA Pelotas</h3>
-      <p style="font-size:13.5px;color:var(--text-dim);margin:0 0 22px">Escolha a ferramenta que deseja abrir.</p>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px">
+  <div class="interno-body launcher-body" id="launcherBox" style="display:none">
+    <div class="launcher-center">
+      <img src="https://ccaapel.github.io/mkt/assets/ccaa-logo.png?v=5" alt="CCAA" class="launcher-logo">
+      <h3 class="launcher-h3">Ferramentas CCAA Pelotas</h3>
+      <p class="launcher-sub">Escolha a ferramenta que deseja abrir.</p>
+      <div class="launcher-grid">
         <button class="launcher-card" id="launchControle" type="button">
-          <span class="launcher-ico">🎓</span>
-          <span class="launcher-titulo">Controle de Equiparações 2026</span>
-          <span class="launcher-desc">Agendamentos, vagas e financeiro dos teachers que aplicam.</span>
+          <span class="launcher-titulo">Controle de Aplicações 2026/1</span>
+          <span class="launcher-desc">Equiparações, aulas de apoio, nivelamentos e provas.</span>
         </button>
         <a class="launcher-card" id="launchMkt" href="https://ccaapel.github.io/mkt/" target="_blank" rel="noopener">
-          <span class="launcher-ico">📢</span>
-          <span class="launcher-titulo">MKT / Comunicação</span>
-          <span class="launcher-desc">Materiais e ferramentas de marketing (abre em nova guia).</span>
+          <span class="launcher-titulo">Marketing</span>
+          <span class="launcher-desc">Análise de conteúdos, criativos e concorrentes.</span>
         </a>
       </div>
     </div>
   </div>
 
   <div class="interno-body" id="painelBox" style="display:none">
-    <button class="int-btn int-btn-reload" id="btnVoltarMenu" type="button" style="margin-bottom:14px">‹ Menu de ferramentas</button>
+    <button class="int-btn int-btn-reload" id="btnVoltarMenu" type="button" style="margin-bottom:14px">‹ Ferramentas</button>
     <!-- Resumo (dashboard) -->
     <div id="resumoBar" style="display:flex; flex-wrap:wrap; gap:10px; margin-bottom:14px;"></div>
 
@@ -1662,7 +1679,7 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
     <div id="painelTabs" style="display:flex; gap:8px; margin-bottom:16px; border-bottom:1.5px solid var(--border);">
       <button class="painel-tab ativa" data-tab="vagas" id="tabVagas">Agendamentos disponíveis</button>
       <button class="painel-tab" data-tab="agenda" id="tabAgenda">Agendamentos</button>
-      <button class="painel-tab" data-tab="financeiro" id="tabFinanceiro">💰 Financeiro</button>
+      <button class="painel-tab" data-tab="financeiro" id="tabFinanceiro">Financeiro</button>
     </div>
 
     <!-- ABA AGENDAMENTOS -->
@@ -1733,59 +1750,75 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
 
     <!-- ABA FINANCEIRO -->
     <div id="viewFinanceiro" style="display:none">
-      <p style="font-size:12.5px;color:var(--text-dim);margin:0 0 14px">
-        Cálculo de pagamento por <b>teacher que aplica</b> (nome da aba). Conta status
-        <b>Realizado</b> e <b>Faltou</b>. Prova de 1h conta como 1 aplicação. Os valores
-        ficam salvos neste navegador.
-      </p>
 
-      <!-- Valores por formato (editáveis) -->
-      <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin-bottom:16px;padding:14px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-md)">
-        <div style="display:flex;flex-direction:column;gap:4px">
-          <label style="font-size:11.5px;font-weight:700;color:var(--text-mute)">Equiparação (R$)</label>
-          <input class="int-select fin-valor" type="number" min="0" step="0.01" id="finValEquiparacao" style="width:110px">
-        </div>
-        <div style="display:flex;flex-direction:column;gap:4px">
-          <label style="font-size:11.5px;font-weight:700;color:var(--text-mute)">Apoio (R$)</label>
-          <input class="int-select fin-valor" type="number" min="0" step="0.01" id="finValApoio" style="width:110px">
-        </div>
-        <div style="display:flex;flex-direction:column;gap:4px">
-          <label style="font-size:11.5px;font-weight:700;color:var(--text-mute)">Nivelamento (R$)</label>
-          <input class="int-select fin-valor" type="number" min="0" step="0.01" id="finValNivelamento" style="width:110px">
-        </div>
-        <div style="display:flex;flex-direction:column;gap:4px">
-          <label style="font-size:11.5px;font-weight:700;color:var(--text-mute)">Prova (R$)</label>
-          <input class="int-select fin-valor" type="number" min="0" step="0.01" id="finValProva" style="width:110px">
+      <!-- Gate de acesso ao Financeiro -->
+      <div id="finGate" style="display:none;max-width:340px;margin:40px auto">
+        <div class="login-box">
+          <h3>Acesso Financeiro</h3>
+          <p>Digite o usuário e a senha para continuar</p>
+          <input class="login-input" type="text" id="finUsuario" placeholder="Usuário" autocomplete="off" style="margin-bottom:8px">
+          <input class="login-input" type="password" id="finSenha" placeholder="Senha" autocomplete="off">
+          <button class="login-btn" id="finLoginBtn">Entrar</button>
+          <div class="login-erro" id="finErro">Usuário ou senha incorretos</div>
         </div>
       </div>
 
-      <!-- Filtros de período -->
-      <div class="int-filtros">
-        <input class="int-select" type="date" id="finDataIni" title="Data inicial" style="min-width:140px">
-        <input class="int-select" type="date" id="finDataFim" title="Data final" style="min-width:140px">
-        <select class="int-select" id="finTeacher"><option value="">Todos os teachers</option></select>
-        <button class="int-btn int-btn-reload" id="finBtnSemana" type="button">Esta semana</button>
-        <button class="int-btn int-btn-reload" id="finBtnMes" type="button">Este mês</button>
-        <button class="int-btn int-btn-reload" id="finBtnLimpar" type="button">Limpar</button>
-        <button class="int-btn int-btn-reload" id="finBtnCopiar" type="button" title="Copiar resumo">📋 Copiar resumo</button>
-      </div>
+      <!-- Conteúdo do Financeiro (aparece após autenticação) -->
+      <div id="finConteudo">
+        <p style="font-size:12.5px;color:var(--text-dim);margin:0 0 14px">
+          Cálculo de pagamento por <b>teacher que aplica</b>. Conta status
+          <b>Realizado</b> e <b>Faltou</b>. Prova de 1h = 1 aplicação.
+          Valores salvos neste navegador.
+        </p>
 
-      <div id="finResumoBar" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px"></div>
-      <div class="int-table-wrap">
-        <table class="int-table" id="finTable">
-          <thead>
-            <tr>
-              <th>Teacher</th><th>Equiparação</th><th>Apoio</th>
-              <th>Nivelamento</th><th>Prova</th><th>Total aplic.</th><th>A pagar (R$)</th>
-            </tr>
-          </thead>
-          <tbody id="finTbody"></tbody>
-        </table>
-        <div class="int-loading" id="finVazio" style="display:none">Nenhuma aplicação no período</div>
-      </div>
-    </div>
-  </div>
-</div>
+        <!-- Valores por formato (editáveis) -->
+        <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin-bottom:16px;padding:14px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-md)">
+          <div style="display:flex;flex-direction:column;gap:4px">
+            <label style="font-size:11.5px;font-weight:700;color:var(--text-mute)">Equiparação (R$)</label>
+            <input class="int-select fin-valor" type="number" min="0" step="0.01" id="finValEquiparacao" style="width:110px">
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px">
+            <label style="font-size:11.5px;font-weight:700;color:var(--text-mute)">Apoio (R$)</label>
+            <input class="int-select fin-valor" type="number" min="0" step="0.01" id="finValApoio" style="width:110px">
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px">
+            <label style="font-size:11.5px;font-weight:700;color:var(--text-mute)">Nivelamento (R$)</label>
+            <input class="int-select fin-valor" type="number" min="0" step="0.01" id="finValNivelamento" style="width:110px">
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px">
+            <label style="font-size:11.5px;font-weight:700;color:var(--text-mute)">Prova (R$)</label>
+            <input class="int-select fin-valor" type="number" min="0" step="0.01" id="finValProva" style="width:110px">
+          </div>
+        </div>
+
+        <!-- Filtros de período -->
+        <div class="int-filtros">
+          <input class="int-select" type="date" id="finDataIni" title="Data inicial" style="min-width:140px">
+          <input class="int-select" type="date" id="finDataFim" title="Data final" style="min-width:140px">
+          <select class="int-select" id="finTeacher"><option value="">Todos os teachers</option></select>
+          <button class="int-btn int-btn-reload" id="finBtnSemana" type="button">Esta semana</button>
+          <button class="int-btn int-btn-reload" id="finBtnMes" type="button">Este mês</button>
+          <button class="int-btn int-btn-reload" id="finBtnLimpar" type="button">Limpar</button>
+          <button class="int-btn int-btn-reload" id="finBtnCopiar" type="button" title="Copiar resumo">Copiar resumo</button>
+        </div>
+
+        <div id="finResumoBar" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px"></div>
+        <div class="int-table-wrap">
+          <table class="int-table" id="finTable">
+            <thead>
+              <tr>
+                <th>Teacher</th><th>Equip.</th><th>Apoio</th>
+                <th>Nivel.</th><th>Prova</th><th>Total</th><th>A pagar (R$)</th>
+              </tr>
+            </thead>
+            <tbody id="finTbody"></tbody>
+          </table>
+          <div class="int-loading" id="finVazio" style="display:none">Nenhuma aplicação no período</div>
+        </div>
+      </div><!-- /finConteudo -->
+    </div><!-- /viewFinanceiro -->
+  </div><!-- /painelBox -->
+</div><!-- /internoOverlay -->
 
 <!-- Lembrete WhatsApp -->
 <div class="hist-overlay" id="lembreteOverlay">
@@ -2886,7 +2919,7 @@ function exportarWhatsApp(){
       agrupado.push(Object.assign({}, r, { horarioFim: somaMin(r.horario, 30) }));
     }
   });
-  let txt = '*CCAA 2026/1 - Controle de equiparações, aulas de apoio, nivelamentos e provas*\n';
+  let txt = '*CCAA - Controle de Aplicações 2026/1*\n';
   let diaAtual='';
   agrupado.forEach(r=>{
     if(r.data!==diaAtual){ diaAtual=r.data; txt += `\n*${r.data} (${diaDaData(r.data)})*\n`; }
@@ -3007,7 +3040,10 @@ function trocarAba(qual){
   document.getElementById('tabVagas').classList.toggle('ativa', qual==='vagas');
   document.getElementById('tabFinanceiro').classList.toggle('ativa', qual==='financeiro');
   if(qual==='vagas'){ popularSeletorSemanas(); renderVagas(); }
-  if(qual==='financeiro'){ popularFinTeacher(); renderFinanceiro(); }
+  if(qual==='financeiro'){
+    if(finAutenticado()){ finMostrarConteudo(); }
+    else { finMostrarGate(); }
+  }
 }
 
 // ===== FINANCEIRO =====
@@ -3891,6 +3927,39 @@ document.getElementById('btnNovoAgendamento').addEventListener('click', ()=> abr
 document.getElementById('tabAgenda').addEventListener('click', ()=> trocarAba('agenda'));
 document.getElementById('tabVagas').addEventListener('click', ()=> trocarAba('vagas'));
 document.getElementById('tabFinanceiro').addEventListener('click', ()=> trocarAba('financeiro'));
+
+// ===== Gate de acesso ao Financeiro =====
+const FIN_LOGIN_KEY = 'fin_autenticado';
+function finAutenticado(){ return sessionStorage.getItem(FIN_LOGIN_KEY) === '1'; }
+function finMostrarGate(){
+  document.getElementById('finGate').style.display = 'block';
+  document.getElementById('finConteudo').style.display = 'none';
+  document.getElementById('finErro').style.display = 'none';
+  document.getElementById('finUsuario').value = '';
+  document.getElementById('finSenha').value = '';
+}
+function finMostrarConteudo(){
+  document.getElementById('finGate').style.display = 'none';
+  document.getElementById('finConteudo').style.display = 'block';
+  finCarregarValores();
+  popularFinTeacher();
+  renderFinanceiro();
+}
+function finTentarLogin(){
+  const u = document.getElementById('finUsuario').value.trim();
+  const s = document.getElementById('finSenha').value;
+  if(u === 'ccaapelfinanceiro' && s === 'ccaapel123*'){
+    sessionStorage.setItem(FIN_LOGIN_KEY, '1');
+    finMostrarConteudo();
+  } else {
+    document.getElementById('finErro').style.display = 'block';
+    document.getElementById('finSenha').value = '';
+    document.getElementById('finSenha').focus();
+  }
+}
+document.getElementById('finLoginBtn').addEventListener('click', finTentarLogin);
+document.getElementById('finSenha').addEventListener('keydown', e=>{ if(e.key==='Enter') finTentarLogin(); });
+document.getElementById('finUsuario').addEventListener('keydown', e=>{ if(e.key==='Enter') document.getElementById('finSenha').focus(); });
 
 // ===== Listeners do Financeiro =====
 finCarregarValores();
