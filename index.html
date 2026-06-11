@@ -1006,7 +1006,7 @@ html.locked .app { display:none !important; }
 
   <div class="help">
     <h3>Não achou sua turma?</h3>
-    <p>Chame a recepção no WhatsApp que nós te ajudamos ;)</p>
+    <p>Chame a secretaria no WhatsApp para eventuais dúvidas!</p>
     <a class="help-btn" href="https://wa.me/555330251919" target="_blank" rel="noopener">
       <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15l-1.3 4.7 4.8-1.3A10 10 0 1 0 12 2zm0 18a8 8 0 0 1-4-1.1l-.3-.2-2.9.8.8-2.8-.2-.3A8 8 0 1 1 12 20zm4.4-6c-.2-.1-1.4-.7-1.6-.8s-.4-.1-.5.1l-.7.9c-.1.2-.3.2-.5.1a6.5 6.5 0 0 1-3.2-2.8c-.2-.4.2-.4.6-1.2.1-.1 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.5-.4h-.5a1 1 0 0 0-.7.3c-.3.3-.9.9-.9 2.1s.9 2.5 1 2.6c.1.2 1.8 2.8 4.4 3.9 1.6.7 2.2.7 3 .6.5 0 1.4-.6 1.6-1.1.2-.6.2-1 .1-1.1z"/></svg>
       Falar com a recepção
@@ -1712,18 +1712,35 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
           <span class="launcher-desc">Cálculo de pagamento por teacher: equiparações, apoios, nivelamentos e provas.</span>
           <span class="launcher-acao">Abrir ferramenta →</span>
         </button>
-        <a class="launcher-card" id="launchMkt" href="https://ccaapel.github.io/mkt/" target="_blank" rel="noopener">
+        <button class="launcher-card" id="launchMkt" type="button" onclick="abrirMkt()">
           <span class="launcher-tag tag-mkt">Marketing</span>
           <span class="launcher-titulo">Painel de Marketing</span>
           <span class="launcher-desc">Análise de conteúdos, criativos e concorrentes.</span>
           <span class="launcher-acao">Abrir ferramenta →</span>
-        </a>
+        </button>
         <div class="launcher-card launcher-card-soon" aria-disabled="true">
           <span class="launcher-tag tag-comercial">Comercial</span>
           <span class="launcher-titulo">Painel Comercial</span>
           <span class="launcher-desc">Funil de matrículas, leads e acompanhamento de vendas.</span>
           <span class="launcher-acao">Em breve</span>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Gate de acesso ao Marketing (mesmas credenciais do Financeiro) -->
+  <div id="mktGateOverlay" style="display:none;position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.65);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:20px">
+    <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-lg);padding:28px 28px 24px;width:100%;max-width:360px;box-shadow:var(--shadow-hover)">
+      <div style="font-size:13px;font-weight:700;color:var(--text-mute);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px">Acesso restrito</div>
+      <div style="font-size:19px;font-weight:800;color:var(--text);margin-bottom:20px">Painel de Marketing</div>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px">
+        <input class="int-select" type="text" id="mktUsuario" placeholder="Usuário" autocomplete="username" style="width:100%">
+        <input class="int-select" type="password" id="mktSenha" placeholder="Senha" autocomplete="current-password" style="width:100%">
+      </div>
+      <div id="mktErro" style="display:none;color:var(--ccaa-red);font-size:13px;margin-bottom:10px;font-weight:600"></div>
+      <div style="display:flex;gap:10px">
+        <button class="int-btn int-btn-novo" style="flex:1" onclick="mktTentarLogin()">Entrar</button>
+        <button class="int-btn int-btn-reload" onclick="fecharMktGate()">Cancelar</button>
       </div>
     </div>
   </div>
@@ -1843,24 +1860,40 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
           </ul>
         </div>
 
-        <!-- Valores por formato (editáveis) -->
-        <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin-bottom:16px;padding:14px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-md)">
-          <div style="display:flex;flex-direction:column;gap:4px">
-            <label style="font-size:11.5px;font-weight:700;color:var(--text-mute)">Equiparação (R$)</label>
-            <input class="int-select fin-valor" type="number" min="0" step="0.01" id="finValEquiparacao" style="width:110px">
-          </div>
-          <div style="display:flex;flex-direction:column;gap:4px">
-            <label style="font-size:11.5px;font-weight:700;color:var(--text-mute)">Apoio (R$)</label>
-            <input class="int-select fin-valor" type="number" min="0" step="0.01" id="finValApoio" style="width:110px">
-          </div>
-          <div style="display:flex;flex-direction:column;gap:4px">
-            <label style="font-size:11.5px;font-weight:700;color:var(--text-mute)">Nivelamento (R$)</label>
-            <input class="int-select fin-valor" type="number" min="0" step="0.01" id="finValNivelamento" style="width:110px">
-          </div>
-          <div style="display:flex;flex-direction:column;gap:4px">
-            <label style="font-size:11.5px;font-weight:700;color:var(--text-mute)">Prova (R$)</label>
-            <input class="int-select fin-valor" type="number" min="0" step="0.01" id="finValProva" style="width:110px">
-          </div>
+        <!-- Valores por formato e status (editáveis) -->
+        <div style="margin-bottom:16px;padding:14px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-md);overflow-x:auto">
+          <div style="font-size:11.5px;font-weight:700;color:var(--text-mute);margin-bottom:10px;text-transform:uppercase;letter-spacing:.05em">Valores por tipo de aplicação (R$)</div>
+          <table style="border-collapse:collapse;min-width:340px">
+            <thead>
+              <tr>
+                <th style="text-align:left;font-size:11px;font-weight:700;color:var(--text-dim);padding:0 12px 6px 0;white-space:nowrap">Formato</th>
+                <th style="font-size:11px;font-weight:700;color:var(--live);padding:0 12px 6px;text-align:center;white-space:nowrap">Realizado</th>
+                <th style="font-size:11px;font-weight:700;color:#9ca3af;padding:0 0 6px 12px;text-align:center;white-space:nowrap">Faltou</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="font-size:13px;font-weight:600;padding:4px 12px 4px 0;white-space:nowrap">Equiparação</td>
+                <td style="padding:4px 12px"><input class="int-select fin-valor" type="number" min="0" step="0.01" id="finValEquiparacaoRealizado" style="width:90px"></td>
+                <td style="padding:4px 0 4px 12px"><input class="int-select fin-valor" type="number" min="0" step="0.01" id="finValEquiparacaoFaltou" style="width:90px"></td>
+              </tr>
+              <tr>
+                <td style="font-size:13px;font-weight:600;padding:4px 12px 4px 0">Apoio</td>
+                <td style="padding:4px 12px"><input class="int-select fin-valor" type="number" min="0" step="0.01" id="finValApoioRealizado" style="width:90px"></td>
+                <td style="padding:4px 0 4px 12px"><input class="int-select fin-valor" type="number" min="0" step="0.01" id="finValApoioFaltou" style="width:90px"></td>
+              </tr>
+              <tr>
+                <td style="font-size:13px;font-weight:600;padding:4px 12px 4px 0">Nivelamento</td>
+                <td style="padding:4px 12px"><input class="int-select fin-valor" type="number" min="0" step="0.01" id="finValNivelamentoRealizado" style="width:90px"></td>
+                <td style="padding:4px 0 4px 12px"><input class="int-select fin-valor" type="number" min="0" step="0.01" id="finValNivelamentoFaltou" style="width:90px"></td>
+              </tr>
+              <tr>
+                <td style="font-size:13px;font-weight:600;padding:4px 12px 4px 0">Prova</td>
+                <td style="padding:4px 12px"><input class="int-select fin-valor" type="number" min="0" step="0.01" id="finValProvaRealizado" style="width:90px"></td>
+                <td style="padding:4px 0 4px 12px"><input class="int-select fin-valor" type="number" min="0" step="0.01" id="finValProvaFaltou" style="width:90px"></td>
+              </tr>
+            </tbody>
+          </table>
         </div>
 
         <!-- Filtros de período -->
@@ -1880,7 +1913,7 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
             <thead>
               <tr>
                 <th>Teacher</th><th>Equip.</th><th>Apoio</th>
-                <th>Nivel.</th><th>Prova</th><th>Total</th><th>A pagar (R$)</th>
+                <th>Nivel.</th><th>Prova</th><th>Total</th><th>Real./Falt.</th><th>A pagar (R$)</th>
               </tr>
             </thead>
             <tbody id="finTbody"></tbody>
@@ -2866,14 +2899,17 @@ function dataDoDiaNaSemana(segIso, diaIdx){
   return `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;
 }
 function isoToBR(iso){ const [y,m,d]=iso.split('-'); return `${d}/${m}/${y}`; }
-// conta total de slots livres na semana de referência
+// conta total de slots livres na semana de referência (só dias hoje ou futuro)
 function contarVagasSemana(segIso){
   let total=0;
+  const hojeISO = hojeLocalISO();
   ABAS_DISPONIVEIS.forEach(aba=>{
     const slots = HORARIOS_POR_ABA[aba]||[];
     const diaIdx = ABA_DIA_IDX[aba];
     if(!diaIdx || !slots.length) return;
-    const dataBR = isoToBR(dataDoDiaNaSemana(segIso, diaIdx));
+    const diaISO = dataDoDiaNaSemana(segIso, diaIdx);
+    if(diaISO < hojeISO) return; // ignora dias já passados
+    const dataBR = isoToBR(diaISO);
     const ocup = ocupadosNaAbaData(aba, dataBR);
     total += slots.filter(h=>!ocup.has(h)).length;
   });
@@ -3207,15 +3243,19 @@ function trocarAba(qual){
 // Valores pagos por formato (editáveis, salvos no navegador).
 const FIN_FORMATOS = ['Equiparação','Apoio','Nivelamento','Prova'];
 function finSemAcento(s){ return s.normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
-function finChaveValor(f){ return 'fin_valor_'+finSemAcento(f).toLowerCase(); }
+const FIN_STATUS_VALS = ['Realizado','Faltou'];
+function finChaveValor(f, status){ return 'fin_valor_'+finSemAcento(f).toLowerCase()+'_'+(status||'Realizado').toLowerCase(); }
 function finCarregarValores(){
   FIN_FORMATOS.forEach(f=>{
-    const el = document.getElementById('finVal'+finSemAcento(f));
-    if(el) el.value = localStorage.getItem(finChaveValor(f)) || '';
+    FIN_STATUS_VALS.forEach(st=>{
+      const elId = 'finVal'+finSemAcento(f)+st;
+      const el = document.getElementById(elId);
+      if(el) el.value = localStorage.getItem(finChaveValor(f, st)) || '';
+    });
   });
 }
-function finValorDe(formato){
-  const v = parseFloat(localStorage.getItem(finChaveValor(formato)));
+function finValorDe(formato, status){
+  const v = parseFloat(localStorage.getItem(finChaveValor(formato, status||'Realizado')));
   return Number.isFinite(v) ? v : 0;
 }
 function finFmtBRL(n){ return n.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}); }
@@ -3270,11 +3310,13 @@ function renderFinanceiro(){
   unidades.forEach(u=>{
     const t = parseAbaFront(u.aba).teacher || '—';
     const f = (u.formato||'').toLowerCase();
-    if(!porTeacher[t]) porTeacher[t] = { Equiparação:0, Apoio:0, Nivelamento:0, Prova:0, total:0, valor:0 };
+    const st = (u.status||'').toLowerCase();
+    if(!porTeacher[t]) porTeacher[t] = { Equiparação:0, Apoio:0, Nivelamento:0, Prova:0, total:0, valor:0, realizado:0, faltou:0 };
     const linha = porTeacher[t];
     const chave = FIN_FORMATOS.find(x=>x.toLowerCase()===f);
-    if(chave){ linha[chave]++; linha.valor += finValorDe(chave); }
-    // formato fora da lista entra só no total (sem valor)
+    const stKey = st==='faltou'?'Faltou':'Realizado';
+    if(chave){ linha[chave]++; linha.valor += finValorDe(chave, stKey); }
+    if(st==='faltou') linha.faltou++; else linha.realizado++;
     linha.total++;
   });
 
@@ -3300,6 +3342,7 @@ function renderFinanceiro(){
       <td data-label="Nivelamento">${l['Nivelamento']||''}</td>
       <td data-label="Prova">${l['Prova']||''}</td>
       <td data-label="Total aplic.">${l.total}</td>
+      <td data-label="Real./Falt." style="font-size:11.5px;white-space:nowrap"><span style="color:var(--live)">${l.realizado}</span> / <span style="color:#9ca3af">${l.faltou}</span></td>
       <td data-label="A pagar (R$)"><b>${finFmtBRL(l.valor)}</b></td>
     </tr>`;
   }).join('');
@@ -3317,7 +3360,7 @@ function copiarResumoFinanceiro(){
   const periodo = (ini||fim) ? `Período: ${brl(ini)||'início'} a ${brl(fim)||'hoje'}` : 'Período: todos';
   const linhas = [...document.querySelectorAll('#finTbody tr')].map(tr=>{
     const c = tr.querySelectorAll('td');
-    return `${c[0].innerText} — ${c[5].innerText} aplic. — ${c[6].innerText}`;
+    return `${c[0].innerText} — ${c[5].innerText} aplic. (${c[6].innerText}) — ${c[7].innerText}`;
   });
   if(!linhas.length){ toast('Nada para copiar','erro'); return; }
   const totalBadge = document.querySelector('#finResumoBar').innerText.replace(/\s+/g,' ').trim();
@@ -4118,13 +4161,49 @@ document.getElementById('finLoginBtn').addEventListener('click', finTentarLogin)
 document.getElementById('finSenha').addEventListener('keydown', e=>{ if(e.key==='Enter') finTentarLogin(); });
 document.getElementById('finUsuario').addEventListener('keydown', e=>{ if(e.key==='Enter') document.getElementById('finSenha').focus(); });
 
+// ===== MARKETING AUTH =====
+function abrirMkt(){
+  if(finAutenticado()){
+    window.open('https://ccaapel.github.io/mkt/','_blank','noopener');
+    return;
+  }
+  const ov = document.getElementById('mktGateOverlay');
+  ov.style.display = 'flex';
+  setTimeout(()=>{ const u=document.getElementById('mktUsuario'); if(u) u.focus(); }, 60);
+}
+function fecharMktGate(){
+  document.getElementById('mktGateOverlay').style.display = 'none';
+  document.getElementById('mktUsuario').value = '';
+  document.getElementById('mktSenha').value = '';
+  document.getElementById('mktErro').style.display = 'none';
+}
+function mktTentarLogin(){
+  const u = document.getElementById('mktUsuario').value.trim();
+  const s = document.getElementById('mktSenha').value;
+  if(u === 'ccaapelfinanceiro' && s === 'ccaapel123*'){
+    sessionStorage.setItem(FIN_LOGIN_KEY, '1');
+    fecharMktGate();
+    window.open('https://ccaapel.github.io/mkt/','_blank','noopener');
+  } else {
+    document.getElementById('mktErro').textContent = 'Usuário ou senha incorretos.';
+    document.getElementById('mktErro').style.display = 'block';
+    document.getElementById('mktSenha').value = '';
+    document.getElementById('mktSenha').focus();
+  }
+}
+document.getElementById('mktSenha').addEventListener('keydown', e=>{ if(e.key==='Enter') mktTentarLogin(); });
+document.getElementById('mktUsuario').addEventListener('keydown', e=>{ if(e.key==='Enter') document.getElementById('mktSenha').focus(); });
+document.getElementById('mktGateOverlay').addEventListener('click', e=>{ if(e.target===e.currentTarget) fecharMktGate(); });
+
 // ===== Listeners do Financeiro =====
 finCarregarValores();
 FIN_FORMATOS.forEach(f=>{
-  const el = document.getElementById('finVal'+finSemAcento(f));
-  if(el) el.addEventListener('input', ()=>{
-    localStorage.setItem(finChaveValor(f), el.value);
-    renderFinanceiro();
+  FIN_STATUS_VALS.forEach(st=>{
+    const el = document.getElementById('finVal'+finSemAcento(f)+st);
+    if(el) el.addEventListener('input', ()=>{
+      localStorage.setItem(finChaveValor(f, st), el.value);
+      renderFinanceiro();
+    });
   });
 });
 ['finDataIni','finDataFim','finTeacher'].forEach(id=>{
