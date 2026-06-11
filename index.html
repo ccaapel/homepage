@@ -575,7 +575,8 @@ html { scroll-behavior:smooth; }
 .login-erro { color:var(--ccaa-red); font-size:12.5px; margin-top:8px; display:none; }
 
 /* ===== LAUNCHER (menu de ferramentas) ===== */
-.launcher-body { flex:1; display:flex !important; align-items:center; justify-content:center; overflow:hidden; }
+.launcher-body { flex:1; align-items:center; justify-content:center; overflow:hidden; }
+.launcher-body.visivel { display:flex; }
 .launcher-center { width:100%; max-width:640px; text-align:center; padding:12px 0; }
 .launcher-logo { width:72px; height:72px; object-fit:contain; border-radius:16px; margin:0 auto 20px; display:block; box-shadow:0 4px 18px color-mix(in srgb,var(--ccaa-blue) 22%,transparent); }
 .launcher-h3 {
@@ -2136,7 +2137,9 @@ function fazerLogin(){
 }
 function mostrarLauncher(){
   document.getElementById('loginBox').style.display = 'none';
-  document.getElementById('launcherBox').style.display = '';
+  const lb = document.getElementById('launcherBox');
+  lb.style.display = '';
+  lb.classList.add('visivel');
   document.getElementById('internoOverlay').classList.remove('scroll-ok');
 }
 
@@ -2147,7 +2150,9 @@ function abrirControle(){
 }
 function voltarAoMenu(){
   document.getElementById('painelBox').style.display = 'none';
-  document.getElementById('launcherBox').style.display = '';
+  const lb = document.getElementById('launcherBox');
+  lb.style.display = '';
+  lb.classList.add('visivel');
   document.getElementById('internoOverlay').classList.remove('scroll-ok');
 }
 function iniciarPainel(){
