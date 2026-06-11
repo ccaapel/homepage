@@ -1712,7 +1712,7 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
           <span class="launcher-desc">Cálculo de pagamento por teacher: equiparações, apoios, nivelamentos e provas.</span>
           <span class="launcher-acao">Abrir ferramenta →</span>
         </button>
-        <button class="launcher-card" id="launchMkt" type="button" onclick="abrirMkt()">
+        <button class="launcher-card" id="launchMkt" type="button">
           <span class="launcher-tag tag-mkt">Marketing</span>
           <span class="launcher-titulo">Painel de Marketing</span>
           <span class="launcher-desc">Análise de conteúdos, criativos e concorrentes.</span>
@@ -1728,19 +1728,19 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
     </div>
   </div>
 
-  <!-- Gate de acesso ao Marketing (mesmas credenciais do Financeiro) -->
-  <div id="mktGateOverlay" style="display:none;position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.65);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:20px">
+  <!-- Gate unificado de acesso a todas as ferramentas -->
+  <div id="toolGateOverlay" style="display:none;position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.65);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:20px">
     <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-lg);padding:28px 28px 24px;width:100%;max-width:360px;box-shadow:var(--shadow-hover)">
       <div style="font-size:13px;font-weight:700;color:var(--text-mute);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px">Acesso restrito</div>
-      <div style="font-size:19px;font-weight:800;color:var(--text);margin-bottom:20px">Painel de Marketing</div>
+      <div id="toolGateNome" style="font-size:19px;font-weight:800;color:var(--text);margin-bottom:20px"></div>
       <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px">
-        <input class="int-select" type="text" id="mktUsuario" placeholder="Usuário" autocomplete="username" style="width:100%">
-        <input class="int-select" type="password" id="mktSenha" placeholder="Senha" autocomplete="current-password" style="width:100%">
+        <input class="int-select" type="text" id="toolGateUsuario" placeholder="Usuário" autocomplete="username" style="width:100%">
+        <input class="int-select" type="password" id="toolGateSenha" placeholder="Senha" autocomplete="current-password" style="width:100%">
       </div>
-      <div id="mktErro" style="display:none;color:var(--ccaa-red);font-size:13px;margin-bottom:10px;font-weight:600"></div>
+      <div id="toolGateErro" style="display:none;color:var(--ccaa-red);font-size:13px;margin-bottom:10px;font-weight:600">Usuário ou senha incorretos.</div>
       <div style="display:flex;gap:10px">
-        <button class="int-btn int-btn-novo" style="flex:1" onclick="mktTentarLogin()">Entrar</button>
-        <button class="int-btn int-btn-reload" onclick="fecharMktGate()">Cancelar</button>
+        <button class="int-btn int-btn-novo" style="flex:1" onclick="toolTentarLogin()">Entrar</button>
+        <button class="int-btn int-btn-reload" onclick="fecharToolGate()">Cancelar</button>
       </div>
     </div>
   </div>
@@ -1826,15 +1826,17 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
     <!-- ABA FINANCEIRO -->
     <div id="viewFinanceiro" style="display:none">
 
-      <!-- Gate de acesso ao Financeiro -->
-      <div id="finGate" style="display:none;max-width:340px;margin:40px auto">
-        <div class="login-box">
-          <h3>Acesso Financeiro</h3>
-          <p>Digite o usuário e a senha para continuar</p>
-          <input class="login-input" type="text" id="finUsuario" placeholder="Usuário" autocomplete="off" style="margin-bottom:8px">
-          <input class="login-input" type="password" id="finSenha" placeholder="Senha" autocomplete="off">
-          <button class="login-btn" id="finLoginBtn">Entrar</button>
-          <div class="login-erro" id="finErro">Usuário ou senha incorretos</div>
+      <!-- Gate de acesso ao Financeiro (acesso direto via URL) -->
+      <div id="finGate" style="display:none;max-width:360px;margin:40px auto">
+        <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-lg);padding:28px 28px 24px;box-shadow:var(--shadow-hover)">
+          <div style="font-size:13px;font-weight:700;color:var(--text-mute);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px">Acesso restrito</div>
+          <div style="font-size:19px;font-weight:800;color:var(--text);margin-bottom:20px">Pagamentos de Aplicações</div>
+          <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px">
+            <input class="int-select" type="text" id="finUsuario" placeholder="Usuário" autocomplete="username" style="width:100%">
+            <input class="int-select" type="password" id="finSenha" placeholder="Senha" autocomplete="current-password" style="width:100%">
+          </div>
+          <div id="finErro" style="display:none;color:var(--ccaa-red);font-size:13px;margin-bottom:10px;font-weight:600">Usuário ou senha incorretos.</div>
+          <button class="int-btn int-btn-novo" id="finLoginBtn" style="width:100%">Entrar</button>
         </div>
       </div>
 
@@ -2244,8 +2246,48 @@ function hubBase(){
   if(!p.endsWith('/')) p += '/';
   return location.origin + p;
 }
-function abrirControle(){ window.open(hubBase()+'controledeaplicacoes/', '_blank'); }
-function abrirFinanceiro(){ window.open(hubBase()+'financeiro/', '_blank'); }
+// ===== GATE UNIFICADO DE FERRAMENTAS =====
+const TOOLS_AUTH_KEY = 'ccaa_tools_authed';
+function toolsAutenticado(){ try{ return sessionStorage.getItem(TOOLS_AUTH_KEY)==='1'; }catch(e){ return false; } }
+let _toolPendingUrl = '';
+
+function abrirFerramenta(nome, url){
+  if(toolsAutenticado()){
+    window.open(url, '_blank', 'noopener');
+    return;
+  }
+  _toolPendingUrl = url;
+  document.getElementById('toolGateNome').textContent = nome;
+  document.getElementById('toolGateErro').style.display = 'none';
+  document.getElementById('toolGateUsuario').value = '';
+  document.getElementById('toolGateSenha').value = '';
+  const ov = document.getElementById('toolGateOverlay');
+  ov.style.display = 'flex';
+  setTimeout(()=>{ const u=document.getElementById('toolGateUsuario'); if(u) u.focus(); }, 60);
+}
+function fecharToolGate(){
+  document.getElementById('toolGateOverlay').style.display = 'none';
+  _toolPendingUrl = '';
+}
+function toolTentarLogin(){
+  const u = document.getElementById('toolGateUsuario').value.trim();
+  const s = document.getElementById('toolGateSenha').value;
+  if(u === 'ccaa' && s === 'inglesouespanhol'){
+    sessionStorage.setItem(TOOLS_AUTH_KEY, '1');
+    fecharToolGate();
+    if(_toolPendingUrl) window.open(_toolPendingUrl, '_blank', 'noopener');
+  } else {
+    document.getElementById('toolGateErro').style.display = 'block';
+    document.getElementById('toolGateSenha').value = '';
+    document.getElementById('toolGateSenha').focus();
+  }
+}
+document.getElementById('toolGateSenha').addEventListener('keydown', e=>{ if(e.key==='Enter') toolTentarLogin(); });
+document.getElementById('toolGateUsuario').addEventListener('keydown', e=>{ if(e.key==='Enter') document.getElementById('toolGateSenha').focus(); });
+document.getElementById('toolGateOverlay').addEventListener('click', e=>{ if(e.target===e.currentTarget) fecharToolGate(); });
+
+function abrirControle(){ abrirFerramenta('Controle de Aplicações 2026/1', hubBase()+'controledeaplicacoes/'); }
+function abrirFinanceiro(){ abrirFerramenta('Pagamentos de Aplicações', hubBase()+'financeiro/'); }
 
 function voltarAoMenu(){
   document.getElementById('painelBox').style.display = 'none';
@@ -2325,6 +2367,7 @@ function iniciarFinanceiroApp(){
 
 document.getElementById('launchControle').addEventListener('click', abrirControle);
 document.getElementById('launchFinanceiro').addEventListener('click', abrirFinanceiro);
+document.getElementById('launchMkt').addEventListener('click', ()=> abrirFerramenta('Painel de Marketing', 'https://ccaapel.github.io/mkt/'));
 document.getElementById('btnVoltarMenu').addEventListener('click', voltarAoMenu);
 
 // Popular selects de aba
@@ -4128,9 +4171,9 @@ document.getElementById('tabAgenda').addEventListener('click', ()=> trocarAba('a
 document.getElementById('tabVagas').addEventListener('click', ()=> trocarAba('vagas'));
 document.getElementById('tabFinanceiro').addEventListener('click', ()=> trocarAba('financeiro'));
 
-// ===== Gate de acesso ao Financeiro =====
-const FIN_LOGIN_KEY = 'fin_autenticado';
-function finAutenticado(){ return sessionStorage.getItem(FIN_LOGIN_KEY) === '1'; }
+// ===== Gate do Financeiro (acesso direto via URL, reutiliza credenciais unificadas) =====
+const FIN_LOGIN_KEY = TOOLS_AUTH_KEY; // compatibilidade: usa a mesma chave compartilhada
+function finAutenticado(){ return toolsAutenticado(); }
 function finMostrarGate(){
   document.getElementById('finGate').style.display = 'block';
   document.getElementById('finConteudo').style.display = 'none';
@@ -4148,8 +4191,8 @@ function finMostrarConteudo(){
 function finTentarLogin(){
   const u = document.getElementById('finUsuario').value.trim();
   const s = document.getElementById('finSenha').value;
-  if(u === 'ccaapelfinanceiro' && s === 'ccaapel123*'){
-    sessionStorage.setItem(FIN_LOGIN_KEY, '1');
+  if(u === 'ccaa' && s === 'inglesouespanhol'){
+    sessionStorage.setItem(TOOLS_AUTH_KEY, '1');
     finMostrarConteudo();
   } else {
     document.getElementById('finErro').style.display = 'block';
@@ -4160,40 +4203,6 @@ function finTentarLogin(){
 document.getElementById('finLoginBtn').addEventListener('click', finTentarLogin);
 document.getElementById('finSenha').addEventListener('keydown', e=>{ if(e.key==='Enter') finTentarLogin(); });
 document.getElementById('finUsuario').addEventListener('keydown', e=>{ if(e.key==='Enter') document.getElementById('finSenha').focus(); });
-
-// ===== MARKETING AUTH =====
-function abrirMkt(){
-  if(finAutenticado()){
-    window.open('https://ccaapel.github.io/mkt/','_blank','noopener');
-    return;
-  }
-  const ov = document.getElementById('mktGateOverlay');
-  ov.style.display = 'flex';
-  setTimeout(()=>{ const u=document.getElementById('mktUsuario'); if(u) u.focus(); }, 60);
-}
-function fecharMktGate(){
-  document.getElementById('mktGateOverlay').style.display = 'none';
-  document.getElementById('mktUsuario').value = '';
-  document.getElementById('mktSenha').value = '';
-  document.getElementById('mktErro').style.display = 'none';
-}
-function mktTentarLogin(){
-  const u = document.getElementById('mktUsuario').value.trim();
-  const s = document.getElementById('mktSenha').value;
-  if(u === 'ccaapelfinanceiro' && s === 'ccaapel123*'){
-    sessionStorage.setItem(FIN_LOGIN_KEY, '1');
-    fecharMktGate();
-    window.open('https://ccaapel.github.io/mkt/','_blank','noopener');
-  } else {
-    document.getElementById('mktErro').textContent = 'Usuário ou senha incorretos.';
-    document.getElementById('mktErro').style.display = 'block';
-    document.getElementById('mktSenha').value = '';
-    document.getElementById('mktSenha').focus();
-  }
-}
-document.getElementById('mktSenha').addEventListener('keydown', e=>{ if(e.key==='Enter') mktTentarLogin(); });
-document.getElementById('mktUsuario').addEventListener('keydown', e=>{ if(e.key==='Enter') document.getElementById('mktSenha').focus(); });
-document.getElementById('mktGateOverlay').addEventListener('click', e=>{ if(e.target===e.currentTarget) fecharMktGate(); });
 
 // ===== Listeners do Financeiro =====
 finCarregarValores();
