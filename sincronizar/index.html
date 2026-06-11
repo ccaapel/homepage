@@ -159,12 +159,12 @@ return `(function(){
       });
     });
 
-    // Tenta capturar total de páginas
-    var infoEl=document.querySelector('.rgInfoPart strong,.rgInfoPart b,[class*=pagination] strong');
-    if(infoEl){
-      var m=document.body.innerText.match(/P.gina\\s*(\\d+)\\s*de\\s*(\\d+)/i);
-      if(m){ PAGINA_ATUAL=+m[1]; TOTAL_PAGINAS=+m[2]; }
-    }
+    // Captura total de páginas: rodapé do Sponte = "Página [select] de 20 - 388 registro(s)"
+    var m=document.body.innerText.match(/de\\s+(\\d+)\\s*-\\s*\\d+\\s*registro/i);
+    if(m){ TOTAL_PAGINAS=+m[1]; }
+    // Página atual: lê o select de paginação
+    var selPag=acharSelectPagina();
+    if(selPag && /^\\d+$/.test(selPag.value)) PAGINA_ATUAL=+selPag.value;
 
     TODOS=TODOS.concat(novos);
     msg('Página '+PAGINA_ATUAL+' de '+TOTAL_PAGINAS+' — '+TODOS.length+' alunos lidos…');
@@ -173,14 +173,27 @@ return `(function(){
     enviarLote(novos, PAGINA_ATUAL, PAGINA_ATUAL>=TOTAL_PAGINAS);
   }
 
+  function acharSelectPagina(){
+    // Acha o select de paginação: o que está dentro de um trecho com "Página ... de N"
+    var sels=[].slice.call(document.querySelectorAll('select'));
+    for(var i=0;i<sels.length;i++){
+      var ctx=(sels[i].parentElement&&sels[i].parentElement.textContent)||'';
+      if(/p.gina/i.test(ctx)&&/de\\s+\\d+/i.test(ctx)) return sels[i];
+    }
+    // Fallback por nome/id
+    return document.querySelector('select[name*="Pag"],select[id*="ddPage"],select[id*="Page"],select[id*="pagina"]');
+  }
+
   function enviarLote(lote, pag, ultimo){
     var cbName='_ccaaCb'+Date.now();
     var s=document.createElement('script');
+    var terminou=false;
     var url=SCRIPT+"?action=alunosSalvar&senha="+encodeURIComponent(SENHA)
       +"&pagina="+pag+"&completo="+(ultimo?'1':'0')
       +"&dados="+encodeURIComponent(JSON.stringify(lote))
       +"&callback="+cbName;
     window[cbName]=function(r){
+      terminou=true;
       delete window[cbName];s.remove();
       if(!r||!r.ok){ msg('❌ Erro ao enviar página '+pag+': '+(r&&r.erro||'desconhecido'),'#ef4444'); return; }
       if(ultimo){
@@ -191,27 +204,40 @@ return `(function(){
         proximaPagina();
       }
     };
+    s.onerror=function(){
+      terminou=true;
+      delete window[cbName];s.remove();
+      msg('❌ Falha de rede ao enviar p/ o backend. Teste a URL do backend no navegador.','#ef4444');
+    };
+    // Timeout: se em 20s não voltar, avisa (provável problema de implantação/permissão)
+    setTimeout(function(){
+      if(!terminou){
+        msg('❌ Backend não respondeu em 20s. Confira: implantação como App da Web com acesso "Qualquer pessoa".','#ef4444');
+      }
+    },20000);
     s.src=url;
     document.head.appendChild(s);
   }
 
   function proximaPagina(){
-    // Tenta clicar no botão "próxima página" do RadGrid
+    var alvo=PAGINA_ATUAL+1;
+    // 1º: muda o select de página (formato do Sponte: "Página [7] de 20")
+    var sel=acharSelectPagina();
+    if(sel){
+      sel.value=String(alvo);
+      sel.dispatchEvent(new Event('change',{bubbles:true}));
+      msg('Indo para a página '+alvo+' de '+TOTAL_PAGINAS+'…');
+      setTimeout(lerPagina, 2500);
+      return;
+    }
+    // 2º: botão "próxima" do RadGrid
     var btnNext=document.querySelector('.rgPageNext a,.rgPageNext button,[title*="Next"],[title*="ximo"],[aria-label*="ximo"]');
     if(btnNext&&!btnNext.disabled&&!btnNext.closest('[disabled]')){
       btnNext.click();
-      setTimeout(lerPagina, 2000);
+      setTimeout(lerPagina, 2500);
       return;
     }
-    // Fallback: muda select de página
-    var sel=document.querySelector('select[name*="Pag"],select[id*="ddPage"],select[id*="Page"]');
-    if(sel){
-      sel.value=String(PAGINA_ATUAL+1);
-      sel.dispatchEvent(new Event('change',{bubbles:true}));
-      setTimeout(lerPagina, 2000);
-      return;
-    }
-    msg('⚠️ Não consegui avançar a página automaticamente. Clique manualmente em "Próxima" e use o favorito novamente.','#f59e0b');
+    msg('⚠️ Não consegui avançar a página. Mude para a página '+alvo+' manualmente e clique no favorito de novo.','#f59e0b');
   }
 
   lerPagina();
