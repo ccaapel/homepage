@@ -1733,6 +1733,7 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
         <button class="admin-tab" id="adTabHistorico">🕓 Histórico</button>
         <button class="admin-tab" id="adTabImportar">⚡ Importar em lote</button>
         <button class="admin-tab" id="adTabAuditoria">🔍 Auditoria</button>
+        <button class="admin-tab" id="adTabIndisp">🚫 Indisponível</button>
       </div>
       <!-- ABA TURMAS -->
       <div id="adViewTurmas">
@@ -1768,6 +1769,40 @@ English Course 7.1 | | Sala 8 | https://zoom.us/j/123</code>
       <div id="adViewAuditoria" style="display:none">
         <div style="color:var(--text-dim);font-size:12px;margin-bottom:14px">Verificação automática de inconsistências nas turmas: campos faltando, salas em conflito no mesmo horário, e teachers sobrepostos.</div>
         <div id="adminAuditResult"></div>
+      </div>
+      <!-- ABA INDISPONÍVEL -->
+      <div id="adViewIndisp" style="display:none">
+        <div style="color:var(--text-dim);font-size:12px;margin-bottom:14px">Bloqueia todos os slots de um teacher numa semana. Os slots aparecem como ocupados para todos.</div>
+        <div style="display:flex;flex-direction:column;gap:10px;max-width:360px">
+          <div>
+            <label style="font-size:12px;font-weight:700;color:var(--text-dim);display:block;margin-bottom:4px">Teacher</label>
+            <select id="indispTeacher" class="field-select" style="width:100%">
+              <option value="">Selecione o teacher</option>
+              <option value="Laura">Teacher Laura</option>
+              <option value="Eduarda">Teacher Eduarda</option>
+              <option value="Valquíria">Teacher Valquíria</option>
+              <option value="Tânia">Teacher Tânia</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:12px;font-weight:700;color:var(--text-dim);display:block;margin-bottom:4px">Semana (qualquer dia da semana)</label>
+            <input type="date" id="indispData" class="field-input" style="width:100%">
+          </div>
+          <div>
+            <label style="font-size:12px;font-weight:700;color:var(--text-dim);display:block;margin-bottom:4px">Motivo</label>
+            <input type="text" id="indispMotivo" class="field-input" style="width:100%" value="Motivos pessoais" placeholder="Motivos pessoais">
+          </div>
+          <div>
+            <label style="font-size:12px;font-weight:700;color:var(--text-dim);display:block;margin-bottom:4px">Slots a bloquear</label>
+            <div id="indispSlotPreview" style="font-size:12px;color:var(--text-mute);background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-sm);padding:10px;min-height:40px"></div>
+          </div>
+          <div style="display:none" id="indispExcluirWrap">
+            <label style="font-size:12px;font-weight:700;color:var(--text-dim);display:block;margin-bottom:4px">Excluir slots específicos (opcional)</label>
+            <div id="indispExcluirChk" style="display:flex;flex-wrap:wrap;gap:6px"></div>
+          </div>
+          <button class="int-btn int-btn-novo" id="indispBtnBloquear" style="margin-top:4px">🚫 Bloquear slots</button>
+          <div id="indispLog" style="font-size:12px;margin-top:6px"></div>
+        </div>
       </div>
     </div>
     <div style="margin-top:16px;text-align:right">
@@ -3191,7 +3226,7 @@ function renderAdmin(busca){
 
 // Troca de abas do admin
 function adminTrocarAba(aba){
-  ['adViewTurmas','adViewHistorico','adViewImportar','adViewAuditoria'].forEach(id=>{
+  ['adViewTurmas','adViewHistorico','adViewImportar','adViewAuditoria','adViewIndisp'].forEach(id=>{
     document.getElementById(id).style.display='none';
   });
   document.querySelectorAll('.admin-tab').forEach(b=>b.classList.remove('ativa'));
@@ -3277,6 +3312,143 @@ document.getElementById('adTabTurmas').addEventListener('click',    ()=> adminTr
 document.getElementById('adTabHistorico').addEventListener('click', ()=> adminTrocarAba('Historico'));
 document.getElementById('adTabImportar').addEventListener('click',  ()=> adminTrocarAba('Importar'));
 document.getElementById('adTabAuditoria').addEventListener('click', ()=> adminTrocarAba('Auditoria'));
+document.getElementById('adTabIndisp').addEventListener('click',   ()=> adminTrocarAba('Indisp'));
+
+// ===== BLOQUEIO DE INDISPONIBILIDADE =====
+(function(){
+  // Mapeia teacher → abas que lhe pertencem
+  const TEACHER_ABAS = {};
+  ABAS_DISPONIVEIS.forEach(aba=>{
+    const info = parseAbaFront(aba);
+    const t = aba.split(':')[0].replace(/^OFF\s+/i,'').trim();
+    if(!TEACHER_ABAS[t]) TEACHER_ABAS[t]=[];
+    TEACHER_ABAS[t].push(aba);
+  });
+
+  function segundaFeira(dateISO){
+    const d = new Date(dateISO+'T12:00:00');
+    const dow = d.getDay(); // 0=dom
+    const diff = dow===0 ? -6 : 1-dow;
+    d.setDate(d.getDate()+diff);
+    return d.toISOString().slice(0,10);
+  }
+
+  function datasDaSemana(segISO){
+    // retorna {1:'08/06/2026', 2:'09/06/2026', ...} onde chave = índice (1=seg..5=sex)
+    const base = new Date(segISO+'T12:00:00');
+    const map = {};
+    for(let i=0;i<7;i++){
+      const d = new Date(base); d.setDate(base.getDate()+i);
+      const iso = d.toISOString().slice(0,10);
+      const [y,m,dd] = iso.split('-');
+      map[i+1] = `${dd}/${m}/${y}`;
+    }
+    return map;
+  }
+
+  const ABA_DIA_LOCAL = {
+    'SEGUNDA':1,'TERÇA':2,'TERCA':2,'QUARTA':3,'QUINTA':4,'SEXTA':5,'SÁBADO':6,'SABADO':6
+  };
+  function diaAba(aba){
+    const up = aba.toUpperCase();
+    for(const k in ABA_DIA_LOCAL){ if(up.indexOf(k)!==-1) return ABA_DIA_LOCAL[k]; }
+    return 0;
+  }
+
+  function atualizarPreview(){
+    const teacher = document.getElementById('indispTeacher').value;
+    const dataISO = document.getElementById('indispData').value;
+    const preview = document.getElementById('indispSlotPreview');
+    const excWrap = document.getElementById('indispExcluirWrap');
+    const excChk  = document.getElementById('indispExcluirChk');
+    if(!teacher || !dataISO){ preview.textContent='Selecione teacher e data.'; excWrap.style.display='none'; return; }
+    const seg = segundaFeira(dataISO);
+    const datas = datasDaSemana(seg);
+    const abas = TEACHER_ABAS[teacher]||[];
+    const linhas = [];
+    excChk.innerHTML='';
+    abas.forEach(aba=>{
+      const dia = diaAba(aba);
+      const data = datas[dia];
+      if(!data) return;
+      const slots = HORARIOS_POR_ABA[aba]||[];
+      slots.forEach(h=>{ linhas.push(`${data} ${h} — ${aba.split(':')[0].trim()}`); });
+    });
+    if(!linhas.length){ preview.textContent='Nenhum slot encontrado para este teacher.'; excWrap.style.display='none'; return; }
+    preview.textContent = linhas.join('\n');
+    excWrap.style.display='block';
+    linhas.forEach((l,i)=>{
+      const lbl = document.createElement('label');
+      lbl.style.cssText='display:flex;align-items:center;gap:4px;font-size:11.5px;cursor:pointer';
+      const chk = document.createElement('input'); chk.type='checkbox'; chk.dataset.idx=i;
+      lbl.appendChild(chk); lbl.appendChild(document.createTextNode(l));
+      excChk.appendChild(lbl);
+    });
+  }
+
+  document.getElementById('indispTeacher').addEventListener('change', atualizarPreview);
+  document.getElementById('indispData').addEventListener('change', atualizarPreview);
+
+  document.getElementById('indispBtnBloquear').addEventListener('click', async function(){
+    const teacher = document.getElementById('indispTeacher').value;
+    const dataISO = document.getElementById('indispData').value;
+    const motivo  = document.getElementById('indispMotivo').value.trim() || 'Indisponível';
+    const log     = document.getElementById('indispLog');
+    if(!teacher||!dataISO){ toast('Selecione teacher e data','erro'); return; }
+    if(SCRIPT_URL==='COLE_AQUI_A_URL_DO_APPS_SCRIPT'){ toast('Configure o SCRIPT_URL','erro'); return; }
+
+    const seg = segundaFeira(dataISO);
+    const datas = datasDaSemana(seg);
+    const abas = TEACHER_ABAS[teacher]||[];
+    const excluidos = new Set(
+      Array.from(document.querySelectorAll('#indispExcluirChk input:checked')).map(c=>Number(c.dataset.idx))
+    );
+
+    // monta lista de slots a bloquear
+    const tarefas = [];
+    let idx=0;
+    abas.forEach(aba=>{
+      const dia = diaAba(aba);
+      const data = datas[dia];
+      if(!data) return;
+      (HORARIOS_POR_ABA[aba]||[]).forEach(h=>{
+        if(!excluidos.has(idx)) tarefas.push({aba,data,horario:h});
+        idx++;
+      });
+    });
+
+    if(!tarefas.length){ toast('Nenhum slot para bloquear','erro'); return; }
+    const confirma = confirm(`Bloquear ${tarefas.length} slot(s) de Teacher ${teacher} na semana de ${datas[1]}?\nMotivo: ${motivo}`);
+    if(!confirma) return;
+
+    this.disabled=true;
+    log.innerHTML='Aguarde...';
+    let ok=0, erros=0;
+    for(const t of tarefas){
+      const params = {
+        action:'salvar', senha:SENHA_PAINEL,
+        aba:t.aba, linha:'', aluno:'Indisponível',
+        data:t.data, horario:t.horario,
+        situation:motivo, lessons:motivo,
+        status:'Indisponível', formato:'Apoio'
+      };
+      await new Promise(res=>{
+        jsonpCall(`${SCRIPT_URL}?${new URLSearchParams(params).toString()}`,
+          j=>{ if(j.ok) ok++; else erros++; res(); },
+          ()=>{ erros++; res(); }
+        );
+        setTimeout(res, 8000); // timeout de segurança
+      });
+      log.innerHTML=`Inserindo... ${ok+erros}/${tarefas.length}`;
+      await new Promise(r=>setTimeout(r,500));
+    }
+    this.disabled=false;
+    log.innerHTML=`✅ ${ok} bloqueados${erros?` | ❌ ${erros} erros`:''}`;
+    toast(`${ok} slot(s) bloqueados como Indisponível ✓`);
+    carregarDados(false);
+  });
+})();
+
 // Importação em lote
 document.getElementById('adminImportarBtn').addEventListener('click', executarImportacao);
 document.getElementById('adminImportarLimpar').addEventListener('click', ()=>{ document.getElementById('adminImportarTxt').value=''; document.getElementById('adminImportarResult').innerHTML=''; });
