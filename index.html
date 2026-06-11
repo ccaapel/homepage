@@ -611,6 +611,7 @@ html { scroll-behavior:smooth; }
 .tag-financeiro { background:color-mix(in srgb,var(--live) 16%,transparent); color:var(--live); }
 .tag-mkt        { background:color-mix(in srgb,var(--ccaa-red) 14%,transparent); color:var(--ccaa-red); }
 .tag-comercial  { background:color-mix(in srgb,var(--soon) 16%,transparent); color:var(--soon); }
+.tag-alunos     { background:color-mix(in srgb,#a78bfa 18%,transparent); color:#a78bfa; }
 .launcher-acao {
   margin-top:6px; font-size:12.5px; font-weight:700; color:var(--ccaa-blue);
   opacity:0; transform:translateX(-4px); transition:opacity .18s, transform .18s;
@@ -1718,6 +1719,12 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
           <span class="launcher-desc">Análise de conteúdos, criativos e concorrentes.</span>
           <span class="launcher-acao">Abrir ferramenta →</span>
         </button>
+        <button class="launcher-card" id="launchAlunos" type="button">
+          <span class="launcher-tag tag-alunos">Cadastro</span>
+          <span class="launcher-titulo">Base de Alunos</span>
+          <span class="launcher-desc">Alunos ativos do Sponte, busca e aniversariantes do mês.</span>
+          <span class="launcher-acao">Abrir ferramenta →</span>
+        </button>
         <div class="launcher-card launcher-card-soon" aria-disabled="true">
           <span class="launcher-tag tag-comercial">Comercial</span>
           <span class="launcher-titulo">Painel Comercial</span>
@@ -1924,6 +1931,45 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
         </div>
       </div><!-- /finConteudo -->
     </div><!-- /viewFinanceiro -->
+
+    <!-- ===== ESPAÇO: BASE DE ALUNOS (Sponte) ===== -->
+    <div id="viewAlunos" style="display:none">
+      <div id="alunosResumoBar" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px"></div>
+
+      <div class="int-filtros" style="margin-bottom:14px">
+        <input class="int-select" type="text" id="alunosBusca" placeholder="Buscar por nome, matrícula, e-mail…" style="flex:1;min-width:220px">
+        <select class="int-select" id="alunosMesAniv" title="Aniversariantes do mês" style="min-width:170px">
+          <option value="">Todos os alunos</option>
+          <option value="1">Aniversariantes · Janeiro</option>
+          <option value="2">Aniversariantes · Fevereiro</option>
+          <option value="3">Aniversariantes · Março</option>
+          <option value="4">Aniversariantes · Abril</option>
+          <option value="5">Aniversariantes · Maio</option>
+          <option value="6">Aniversariantes · Junho</option>
+          <option value="7">Aniversariantes · Julho</option>
+          <option value="8">Aniversariantes · Agosto</option>
+          <option value="9">Aniversariantes · Setembro</option>
+          <option value="10">Aniversariantes · Outubro</option>
+          <option value="11">Aniversariantes · Novembro</option>
+          <option value="12">Aniversariantes · Dezembro</option>
+        </select>
+        <button class="int-btn int-btn-reload" id="alunosBtnHoje" type="button" title="Aniversariantes de hoje">🎂 Hoje</button>
+        <button class="int-btn int-btn-reload" id="alunosBtnRecarregar" type="button">Recarregar</button>
+      </div>
+
+      <div class="int-table-wrap">
+        <table class="int-table" id="alunosTable">
+          <thead>
+            <tr>
+              <th>Aluno</th><th>Matrícula</th><th>Nascimento</th><th>Idade</th><th>Telefone</th><th>E-mail</th>
+            </tr>
+          </thead>
+          <tbody id="alunosTbody"></tbody>
+        </table>
+        <div class="int-loading" id="alunosLoading">Carregando alunos…</div>
+        <div class="int-loading" id="alunosVazio" style="display:none">Nenhum aluno encontrado. Use o sincronizador do Sponte para preencher a base.</div>
+      </div>
+    </div><!-- /viewAlunos -->
   </div><!-- /painelBox -->
 </div><!-- /internoOverlay -->
 
@@ -2308,6 +2354,7 @@ document.getElementById('toolGateOverlay').addEventListener('click', e=>{ if(e.t
 
 function abrirControle(){ abrirFerramenta('Controle de Aplicações 2026/1', hubBase()+'controledeaplicacoes/'); }
 function abrirFinanceiro(){ abrirFerramenta('Pagamentos de Aplicações', hubBase()+'financeiro/'); }
+function abrirAlunos(){ abrirFerramenta('Base de Alunos', hubBase()+'alunos/'); }
 
 function voltarAoMenu(){
   document.getElementById('painelBox').style.display = 'none';
@@ -2363,33 +2410,158 @@ function iniciarFinanceiroApp(){
   carregarDados(false); // carrega registros para o cálculo
 }
 
+function iniciarAlunosApp(){
+  window._appAlunos = true;
+  modoGuiaUnica();
+  logAcesso('abriu_app', 'Base de Alunos');
+  document.title = 'Base de Alunos · CCAA Pelotas';
+  document.getElementById('painelBox').style.display = 'block';
+  document.querySelector('.interno-header h2').textContent = 'Base de Alunos';
+  document.getElementById('painelTabs').style.display = 'none';
+  document.getElementById('resumoBar').style.display = 'none';
+  document.getElementById('viewVagas').style.display = 'none';
+  document.getElementById('viewAgenda').style.display = 'none';
+  document.getElementById('viewFinanceiro').style.display = 'none';
+  document.getElementById('viewAlunos').style.display = 'block';
+  carregarAlunos();
+}
+
 // ===== ROTEAMENTO: detecta app pela URL =====
 (function rotearApp(){
   const params = new URLSearchParams(location.search);
   let app = params.get('app') || '';
-  // Suporte a caminho bonito: /controledeaplicacoes/ ou /financeiro/
+  // Suporte a caminho bonito: /controledeaplicacoes/ , /financeiro/ , /alunos/
   const path = location.pathname.toLowerCase();
   if(!app){
     if(path.includes('controledeaplicacoes')) app = 'controle';
     else if(path.includes('financeiro')) app = 'financeiro';
+    else if(path.includes('/alunos')) app = 'alunos';
   }
   if(!app) return;
   if(!hubAutenticado()) return; // sem autenticação prévia, fica na home com login normal
 
   // URL bonita na barra (sem ?app=)
   try{
-    const pretty = app==='controle' ? 'controledeaplicacoes' : 'financeiro';
+    const pretty = app==='controle' ? 'controledeaplicacoes' : app; // 'financeiro' | 'alunos'
     if(params.get('app')) history.replaceState({}, '', hubBase()+pretty+'/');
   }catch(e){}
 
-  const iniciar = app==='controle' ? iniciarPainel : iniciarFinanceiroApp;
+  const iniciar = app==='controle' ? iniciarPainel
+                : app==='alunos' ? iniciarAlunosApp
+                : iniciarFinanceiroApp;
   if(document.readyState!=='loading') iniciar();
   else document.addEventListener('DOMContentLoaded', iniciar, {once:true});
 })();
 
 document.getElementById('launchControle').addEventListener('click', abrirControle);
 document.getElementById('launchFinanceiro').addEventListener('click', abrirFinanceiro);
+document.getElementById('launchAlunos').addEventListener('click', abrirAlunos);
 document.getElementById('launchMkt').addEventListener('click', ()=> abrirFerramenta('Painel de Marketing', 'https://ccaapel.github.io/mkt/'));
+
+// ===== BASE DE ALUNOS (Sponte) =====
+let _alunos = [];
+function alunosNorm(s){ return (s||'').toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
+// Converte data de nascimento (dd/mm/aaaa ou aaaa-mm-dd) → {dia, mes, ano} ou null
+function parseNasc(v){
+  if(!v) return null;
+  const s = v.toString().trim();
+  let m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);
+  if(m) return { dia:+m[1], mes:+m[2], ano:+m[3] };
+  m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  if(m) return { dia:+m[3], mes:+m[2], ano:+m[1] };
+  return null;
+}
+function calcIdade(n){
+  if(!n || !n.ano) return '';
+  const hoje = new Date();
+  let idade = hoje.getFullYear() - n.ano;
+  const mAtual = hoje.getMonth()+1, dAtual = hoje.getDate();
+  if(mAtual < n.mes || (mAtual===n.mes && dAtual < n.dia)) idade--;
+  return (idade>=0 && idade<120) ? idade : '';
+}
+function carregarAlunos(){
+  document.getElementById('alunosLoading').style.display = 'block';
+  document.getElementById('alunosVazio').style.display = 'none';
+  document.getElementById('alunosTable').style.display = 'none';
+  const url = `${SCRIPT_URL}?action=alunosListar&senha=${encodeURIComponent(SENHA_PAINEL)}`;
+  jsonpCall(url,
+    (json)=>{
+      _alunos = (json && json.alunos) ? json.alunos : [];
+      document.getElementById('alunosLoading').style.display = 'none';
+      renderAlunos();
+    },
+    ()=>{
+      document.getElementById('alunosLoading').style.display = 'none';
+      _alunos = [];
+      renderAlunos();
+      toast('Não foi possível carregar a base de alunos','erro');
+    });
+}
+function renderAlunos(){
+  const busca = alunosNorm(document.getElementById('alunosBusca').value);
+  const mes = document.getElementById('alunosMesAniv').value;
+  const tbody = document.getElementById('alunosTbody');
+  const tabela = document.getElementById('alunosTable');
+  const vazio = document.getElementById('alunosVazio');
+
+  let lista = _alunos.slice();
+  if(busca){
+    lista = lista.filter(a=>
+      alunosNorm(a.nome).includes(busca) ||
+      alunosNorm(a.matricula).includes(busca) ||
+      alunosNorm(a.email).includes(busca));
+  }
+  if(mes){
+    lista = lista.filter(a=>{ const n=parseNasc(a.nascimento); return n && n.mes===+mes; });
+    // ordena por dia do aniversário
+    lista.sort((a,b)=>{ const na=parseNasc(a.nascimento), nb=parseNasc(b.nascimento); return (na?na.dia:99)-(nb?nb.dia:99); });
+  } else {
+    lista.sort((a,b)=> alunosNorm(a.nome).localeCompare(alunosNorm(b.nome)));
+  }
+
+  // Resumo
+  const hoje = new Date();
+  const anivHoje = _alunos.filter(a=>{ const n=parseNasc(a.nascimento); return n && n.dia===hoje.getDate() && n.mes===(hoje.getMonth()+1); }).length;
+  document.getElementById('alunosResumoBar').innerHTML = `
+    <div class="fin-stat"><div class="fin-stat-n">${_alunos.length}</div><div class="fin-stat-l">Alunos ativos</div></div>
+    <div class="fin-stat"><div class="fin-stat-n">${lista.length}</div><div class="fin-stat-l">Exibindo</div></div>
+    <div class="fin-stat fin-stat-total"><div class="fin-stat-n">${anivHoje}</div><div class="fin-stat-l">🎂 Aniversário hoje</div></div>`;
+
+  if(!lista.length){
+    tbody.innerHTML=''; tabela.style.display='none';
+    vazio.style.display='block';
+    vazio.textContent = _alunos.length ? 'Nenhum aluno encontrado com esse filtro.' : 'Base vazia. Use o sincronizador do Sponte para preencher.';
+    return;
+  }
+  tabela.style.display=''; vazio.style.display='none';
+  tbody.innerHTML = lista.map(a=>{
+    const n = parseNasc(a.nascimento);
+    const nascFmt = n ? `${String(n.dia).padStart(2,'0')}/${String(n.mes).padStart(2,'0')}${n.ano?('/'+n.ano):''}` : '—';
+    const idade = calcIdade(n);
+    const ehAnivHoje = n && n.dia===hoje.getDate() && n.mes===(hoje.getMonth()+1);
+    const tel = (a.telefone||'').toString().replace(/\D/g,'');
+    const telLink = tel ? `<a href="https://wa.me/55${tel}" target="_blank" rel="noopener" style="color:var(--live)">${a.telefone}</a>` : '—';
+    return `<tr>
+      <td data-label="Aluno"><b>${a.nome||'—'}</b>${ehAnivHoje?' <span title="Aniversário hoje">🎂</span>':''}</td>
+      <td data-label="Matrícula">${a.matricula||'—'}</td>
+      <td data-label="Nascimento">${nascFmt}</td>
+      <td data-label="Idade">${idade!==''?idade:'—'}</td>
+      <td data-label="Telefone">${telLink}</td>
+      <td data-label="E-mail" style="font-size:11.5px">${a.email||'—'}</td>
+    </tr>`;
+  }).join('');
+}
+document.getElementById('alunosBusca').addEventListener('input', renderAlunos);
+document.getElementById('alunosMesAniv').addEventListener('change', renderAlunos);
+document.getElementById('alunosBtnRecarregar').addEventListener('click', carregarAlunos);
+document.getElementById('alunosBtnHoje').addEventListener('click', ()=>{
+  const hoje = new Date();
+  document.getElementById('alunosMesAniv').value = String(hoje.getMonth()+1);
+  document.getElementById('alunosBusca').value = '';
+  renderAlunos();
+  // destaca só os de hoje filtrando por dia via busca não dá; mantém mês e o 🎂 marca o dia
+  toast('Mostrando aniversariantes do mês — 🎂 marca quem faz hoje');
+});
 document.getElementById('btnVoltarMenu').addEventListener('click', voltarAoMenu);
 
 // Popular selects de aba
@@ -4321,6 +4493,27 @@ document.getElementById('drawerSalvar').addEventListener('click', async ()=>{
   // Formato é obrigatório
   const formato = document.getElementById('dFormato').value;
   if(!formato){ toast('Selecione o Formato (Equiparação, Apoio, Nivelamento ou Prova)','erro'); return; }
+
+  // Limite: cada aluno tem direito a no máximo 4 equiparações por semestre.
+  // Conta equiparações já registradas do mesmo aluno (exceto Cancelado/Remarcado),
+  // ignorando a própria linha em edição.
+  if((formato||'').toLowerCase()==='equiparacao' || (formato||'').toLowerCase()==='equiparação'){
+    const alunoAtual = normTexto(document.getElementById('dAluno').value);
+    const linhaAtual = document.getElementById('dLinha').value;
+    if(alunoAtual){
+      const naoConta = s => { const x=(s||'').toLowerCase(); return x==='cancelado' || x==='remarcado'; };
+      const jaTem = todosRegistros.filter(r=>
+        normTexto(r.aluno)===alunoAtual &&
+        ((r.formato||'').toLowerCase()==='equiparação' || (r.formato||'').toLowerCase()==='equiparacao') &&
+        !naoConta(r.status) &&
+        String(r.linha)!==String(linhaAtual)
+      ).length;
+      if(jaTem >= 4){
+        toast(`Limite atingido: ${document.getElementById('dAluno').value} já tem ${jaTem} equiparações neste semestre (máx. 4).`,'erro');
+        return;
+      }
+    }
+  }
 
   // Mescla Lessons + Situation: se uma vazia, replica a outra
   let lessons   = padronizarLessonsFront(document.getElementById('dLessons').value.trim(), 'L');
