@@ -2175,6 +2175,19 @@ function jsonpCall(baseUrl, onSuccess, onError){
 const SENHA_LOGIN  = "inglesouespanhol";  // senha de acesso interno (login do painel)
 const SENHA_PAINEL = "ccaa2026";  // senha de comunicação com o Apps Script (igual à SENHA_ADMIN do Script)
 
+// ===== REGISTRO DE ACESSOS =====
+// Fire-and-forget: envia o evento ao Apps Script (aba "Acessos" da planilha).
+// Falha em silêncio para nunca travar a navegação.
+function logAcesso(evento, detalhe){
+  try{
+    const ua = encodeURIComponent((navigator.userAgent||'').slice(0,160));
+    const url = `${SCRIPT_URL}?action=logAcesso&senha=${encodeURIComponent(SENHA_PAINEL)}`+
+      `&evento=${encodeURIComponent(evento)}&detalhe=${encodeURIComponent(detalhe||'')}`+
+      `&pagina=${encodeURIComponent(location.pathname+location.search)}&ua=${ua}`;
+    jsonpCall(url, ()=>{}, ()=>{});
+  }catch(e){}
+}
+
 const ABAS_DISPONIVEIS = [
   "Valquíria: SEGUNDA-FEIRA - Sala 14",
   "Eduarda: SEGUNDA-FEIRA - Sala 2",
@@ -2225,6 +2238,7 @@ function fazerLogin(){
   if(val === SENHA_LOGIN){
     logado = true;
     hubSalvarAuth();
+    logAcesso('login_hub', 'menu de ferramentas');
     mostrarLauncher();
   } else {
     document.getElementById('loginErro').style.display = 'block';
@@ -2250,13 +2264,16 @@ function hubBase(){
 const TOOLS_AUTH_KEY = 'ccaa_tools_authed';
 function toolsAutenticado(){ try{ return sessionStorage.getItem(TOOLS_AUTH_KEY)==='1'; }catch(e){ return false; } }
 let _toolPendingUrl = '';
+let _toolPendingNome = '';
 
 function abrirFerramenta(nome, url){
   if(toolsAutenticado()){
+    logAcesso('abriu_ferramenta', nome);
     window.open(url, '_blank', 'noopener');
     return;
   }
   _toolPendingUrl = url;
+  _toolPendingNome = nome;
   document.getElementById('toolGateNome').textContent = nome;
   document.getElementById('toolGateErro').style.display = 'none';
   document.getElementById('toolGateUsuario').value = '';
@@ -2274,9 +2291,12 @@ function toolTentarLogin(){
   const s = document.getElementById('toolGateSenha').value;
   if(u === 'ccaa' && s === 'inglesouespanhol'){
     sessionStorage.setItem(TOOLS_AUTH_KEY, '1');
+    logAcesso('login_ferramenta', _toolPendingNome);
+    const urlPendente = _toolPendingUrl;
     fecharToolGate();
-    if(_toolPendingUrl) window.open(_toolPendingUrl, '_blank', 'noopener');
+    if(urlPendente) window.open(urlPendente, '_blank', 'noopener');
   } else {
+    logAcesso('falha_login_ferramenta', _toolPendingNome+' · usuário: '+u);
     document.getElementById('toolGateErro').style.display = 'block';
     document.getElementById('toolGateSenha').value = '';
     document.getElementById('toolGateSenha').focus();
@@ -2313,6 +2333,7 @@ function modoGuiaUnica(){
 
 function iniciarPainel(){
   modoGuiaUnica();
+  logAcesso('abriu_app', 'Controle de Aplicações');
   document.title = 'Controle de Aplicações 2026/1 · CCAA Pelotas';
   document.getElementById('painelBox').style.display = 'block';
   document.querySelector('.interno-header h2').textContent = 'Controle de Aplicações 2026/1';
@@ -2328,6 +2349,7 @@ function iniciarPainel(){
 function iniciarFinanceiroApp(){
   window._appFinanceiro = true;
   modoGuiaUnica();
+  logAcesso('abriu_app', 'Financeiro');
   document.title = 'Financeiro · Pagamentos de Aplicações · CCAA Pelotas';
   document.getElementById('painelBox').style.display = 'block';
   document.querySelector('.interno-header h2').textContent = 'Financeiro · Pagamentos de Aplicações';
@@ -4193,6 +4215,7 @@ function finTentarLogin(){
   const s = document.getElementById('finSenha').value;
   if(u === 'ccaa' && s === 'inglesouespanhol'){
     sessionStorage.setItem(TOOLS_AUTH_KEY, '1');
+    logAcesso('login_ferramenta', 'Financeiro (acesso direto)');
     finMostrarConteudo();
   } else {
     document.getElementById('finErro').style.display = 'block';
@@ -4443,9 +4466,11 @@ const GATE_SENHA   = "Pel551*";
     const p = pEl.value;
     if(u===GATE_USUARIO && p===GATE_SENHA){
       erro.textContent='';
+      logAcesso('entrada_site', u);
       liberar();
     } else {
       erro.textContent = 'Usuário ou senha incorretos.';
+      logAcesso('falha_entrada_site', u);
       pEl.value='';
       pEl.focus();
     }
