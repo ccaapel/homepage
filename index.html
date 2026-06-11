@@ -1934,6 +1934,21 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
 
     <!-- ===== ESPAÇO: BASE DE ALUNOS (Sponte) ===== -->
     <div id="viewAlunos" style="display:none">
+      <!-- Configuração do backend de alunos (independente dos agendamentos) -->
+      <div id="alunosConfig" style="display:none;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-md);padding:16px 18px;margin-bottom:16px">
+        <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px">Conectar a Base de Alunos</div>
+        <div style="font-size:12px;color:var(--text-mute);line-height:1.6;margin-bottom:12px">
+          A Base de Alunos usa um backend próprio (separado dos agendamentos). Implante o projeto <b>ALUNOS CCAA</b> como <b>App da Web</b> e cole a URL aqui — fica salva neste navegador.
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+          <input class="int-select" type="text" id="alunosUrlInput" placeholder="https://script.google.com/macros/s/.../exec" style="flex:1;min-width:280px">
+          <button class="int-btn int-btn-novo" id="alunosUrlSalvar" type="button">Salvar e conectar</button>
+        </div>
+        <div style="font-size:11.5px;color:var(--text-dim);margin-top:10px">
+          Depois de conectar, abra o <a href="sincronizar/" target="_blank" rel="noopener" style="color:var(--ccaa-blue);font-weight:600">sincronizador do Sponte</a> para popular a base.
+        </div>
+      </div>
+
       <div id="alunosResumoBar" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px"></div>
 
       <div class="int-filtros" style="margin-bottom:14px">
@@ -2459,6 +2474,15 @@ document.getElementById('launchAlunos').addEventListener('click', abrirAlunos);
 document.getElementById('launchMkt').addEventListener('click', ()=> abrirFerramenta('Painel de Marketing', 'https://ccaapel.github.io/mkt/'));
 
 // ===== BASE DE ALUNOS (Sponte) =====
+// Backend próprio, independente do script de agendamentos.
+// A URL é salva no navegador (localStorage) — configurável pela própria tela.
+const ALUNOS_URL_KEY = 'ccaa_alunos_backend';
+function alunosBackendURL(){
+  try{ return (localStorage.getItem(ALUNOS_URL_KEY)||'').trim(); }catch(e){ return ''; }
+}
+function alunosSalvarBackendURL(u){
+  try{ localStorage.setItem(ALUNOS_URL_KEY, (u||'').trim()); }catch(e){}
+}
 let _alunos = [];
 function alunosNorm(s){ return (s||'').toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
 // Converte data de nascimento (dd/mm/aaaa ou aaaa-mm-dd) → {dia, mes, ano} ou null
@@ -2480,10 +2504,21 @@ function calcIdade(n){
   return (idade>=0 && idade<120) ? idade : '';
 }
 function carregarAlunos(){
+  const backend = alunosBackendURL();
+  const cfg = document.getElementById('alunosConfig');
+  // Sem backend configurado → mostra o painel de conexão
+  if(!backend){
+    if(cfg) cfg.style.display = 'block';
+    document.getElementById('alunosLoading').style.display = 'none';
+    _alunos = [];
+    renderAlunos();
+    return;
+  }
+  if(cfg) cfg.style.display = 'none';
   document.getElementById('alunosLoading').style.display = 'block';
   document.getElementById('alunosVazio').style.display = 'none';
   document.getElementById('alunosTable').style.display = 'none';
-  const url = `${SCRIPT_URL}?action=alunosListar&senha=${encodeURIComponent(SENHA_PAINEL)}`;
+  const url = `${backend}?action=alunosListar&senha=${encodeURIComponent(SENHA_PAINEL)}`;
   jsonpCall(url,
     (json)=>{
       _alunos = (json && json.alunos) ? json.alunos : [];
@@ -2494,7 +2529,8 @@ function carregarAlunos(){
       document.getElementById('alunosLoading').style.display = 'none';
       _alunos = [];
       renderAlunos();
-      toast('Não foi possível carregar a base de alunos','erro');
+      if(cfg) cfg.style.display = 'block';
+      toast('Não foi possível conectar à base. Confira a URL do backend.','erro');
     });
 }
 function renderAlunos(){
@@ -2554,6 +2590,21 @@ function renderAlunos(){
 document.getElementById('alunosBusca').addEventListener('input', renderAlunos);
 document.getElementById('alunosMesAniv').addEventListener('change', renderAlunos);
 document.getElementById('alunosBtnRecarregar').addEventListener('click', carregarAlunos);
+// Salvar URL do backend de alunos
+(function(){
+  const inp = document.getElementById('alunosUrlInput');
+  const btn = document.getElementById('alunosUrlSalvar');
+  if(inp) inp.value = alunosBackendURL();
+  if(btn) btn.addEventListener('click', ()=>{
+    const u = (inp.value||'').trim();
+    if(!u || !/^https:\/\/script\.google\.com\/macros\/s\//.test(u)){
+      toast('Cole a URL completa do App da Web (termina em /exec)','erro'); return;
+    }
+    alunosSalvarBackendURL(u);
+    toast('Backend conectado ✓');
+    carregarAlunos();
+  });
+})();
 document.getElementById('alunosBtnHoje').addEventListener('click', ()=>{
   const hoje = new Date();
   document.getElementById('alunosMesAniv').value = String(hoje.getMonth()+1);
