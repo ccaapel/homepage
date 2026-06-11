@@ -570,6 +570,18 @@ html { scroll-behavior:smooth; }
 .login-btn:hover { filter:brightness(1.12); }
 .login-erro { color:var(--ccaa-red); font-size:12.5px; margin-top:8px; display:none; }
 
+/* ===== LAUNCHER (menu de ferramentas) ===== */
+.launcher-card {
+  display:flex; flex-direction:column; gap:8px; text-align:left;
+  background:var(--surface); border:1.5px solid var(--border); border-radius:var(--r-lg);
+  padding:22px 20px; cursor:pointer; text-decoration:none; color:inherit;
+  font-family:inherit; transition:border-color .15s, transform .15s, box-shadow .15s;
+}
+.launcher-card:hover { border-color:var(--ccaa-blue); transform:translateY(-3px); box-shadow:var(--shadow-hover); }
+.launcher-ico { font-size:30px; line-height:1; }
+.launcher-titulo { font-family:'Bricolage Grotesque',sans-serif; font-size:16.5px; font-weight:800; color:var(--text); }
+.launcher-desc { font-size:13px; color:var(--text-dim); line-height:1.45; }
+
 /* ===== GATE DE ENTRADA (tela de acesso à homepage) ===== */
 #gate {
   position:fixed; inset:0; z-index:9999;
@@ -1621,7 +1633,28 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
     </div>
   </div>
 
+  <!-- Launcher: menu de ferramentas (aparece após a senha) -->
+  <div class="interno-body" id="launcherBox" style="display:none">
+    <div style="max-width:760px;margin:0 auto;padding:8px 0">
+      <h3 style="font-family:var(--font-titulo,inherit);font-size:clamp(20px,4vw,26px);margin:0 0 6px">Ferramentas CCAA Pelotas</h3>
+      <p style="font-size:13.5px;color:var(--text-dim);margin:0 0 22px">Escolha a ferramenta que deseja abrir.</p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px">
+        <button class="launcher-card" id="launchControle" type="button">
+          <span class="launcher-ico">🎓</span>
+          <span class="launcher-titulo">Controle de Equiparações 2026</span>
+          <span class="launcher-desc">Agendamentos, vagas e financeiro dos teachers que aplicam.</span>
+        </button>
+        <a class="launcher-card" id="launchMkt" href="https://ccaapel.github.io/mkt/" target="_blank" rel="noopener">
+          <span class="launcher-ico">📢</span>
+          <span class="launcher-titulo">MKT / Comunicação</span>
+          <span class="launcher-desc">Materiais e ferramentas de marketing (abre em nova guia).</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
   <div class="interno-body" id="painelBox" style="display:none">
+    <button class="int-btn int-btn-reload" id="btnVoltarMenu" type="button" style="margin-bottom:14px">‹ Menu de ferramentas</button>
     <!-- Resumo (dashboard) -->
     <div id="resumoBar" style="display:flex; flex-wrap:wrap; gap:10px; margin-bottom:14px;"></div>
 
@@ -2048,18 +2081,33 @@ function fazerLogin(){
   if(val === SENHA_LOGIN){
     logado = true;
     document.getElementById('loginBox').style.display = 'none';
-    document.getElementById('painelBox').style.display = 'block';
-    popularAbas();
-    popularFiltroTeacher();
-    // Filtros de data começam vazios
-    document.getElementById('filtroDataIni').value = '';
-    document.getElementById('filtroDataFim').value = '';
-    carregarDados();
+    document.getElementById('launcherBox').style.display = 'block';
   } else {
     document.getElementById('loginErro').style.display = 'block';
     document.getElementById('loginInput').value = '';
   }
 }
+
+// ===== LAUNCHER: abrir o Controle de Equiparações =====
+let controleIniciado = false;
+function abrirControle(){
+  document.getElementById('launcherBox').style.display = 'none';
+  document.getElementById('painelBox').style.display = 'block';
+  if(!controleIniciado){
+    controleIniciado = true;
+    popularAbas();
+    popularFiltroTeacher();
+    document.getElementById('filtroDataIni').value = '';
+    document.getElementById('filtroDataFim').value = '';
+    carregarDados();
+  }
+}
+function voltarAoMenu(){
+  document.getElementById('painelBox').style.display = 'none';
+  document.getElementById('launcherBox').style.display = 'block';
+}
+document.getElementById('launchControle').addEventListener('click', abrirControle);
+document.getElementById('btnVoltarMenu').addEventListener('click', voltarAoMenu);
 
 // Popular selects de aba
 function popularAbas(){
