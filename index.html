@@ -1823,14 +1823,24 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
 
       <!-- Conteúdo do Financeiro (aparece após autenticação) -->
       <div id="finConteudo">
-        <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-md);padding:14px 16px;margin:0 0 16px;font-size:12.5px;color:var(--text-mute);line-height:1.6">
-          <b style="color:var(--text)">Como usar:</b>
-          1. Preencha o valor pago por tipo de aplicação (fica salvo neste navegador).
-          2. Escolha o período (ou use os atalhos Esta semana / Este mês).
-          3. A tabela mostra quantas aplicações cada teacher fez e o total a pagar.
-          <br><br>
-          <b style="color:var(--text)">Regras do cálculo:</b>
-          conta os status <b>Realizado</b> e <b>Faltou</b> · Prova de 1h (2 horários seguidos) = <b>1 aplicação</b> · Cancelados e remarcados não contam · O teacher considerado é o que <b>aplica</b> (dono da aba na planilha), não o teacher da turma do aluno.
+        <div style="display:flex;justify-content:flex-end;margin:0 0 12px">
+          <button class="int-btn int-btn-reload" id="finObsBtn" type="button" title="Ver o que o cálculo está considerando">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+            Observações
+          </button>
+        </div>
+        <div id="finObsBox" style="display:none;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-md);padding:16px 18px;margin:0 0 16px;font-size:12.5px;color:var(--text-mute);line-height:1.7">
+          <b style="color:var(--text)">Ferramenta em fase de ajustes — o que o cálculo está considerando até agora:</b>
+          <ul style="margin:8px 0 0;padding-left:18px">
+            <li><b>Status que contam:</b> Realizado e Faltou. Pendente de confirmação se falta também é paga.</li>
+            <li><b>Status que não contam:</b> Agendado, Cancelado e Remarcado (não geram pagamento).</li>
+            <li><b>Prova de 1h:</b> ocupa 2 horários seguidos na planilha, mas é contada como <b>1 aplicação</b> (as duas linhas são fundidas automaticamente).</li>
+            <li><b>Teacher considerado:</b> o que <b>aplica</b> (dono da aba na planilha), não o teacher da turma do aluno.</li>
+            <li><b>Valores por tipo:</b> definidos manualmente nos campos acima e salvos <b>somente neste navegador</b> — em outro computador será preciso preencher de novo.</li>
+            <li><b>Formato sem valor preenchido:</b> entra na contagem de aplicações, mas soma R$ 0,00 até o valor ser definido.</li>
+            <li><b>Período:</b> filtra pela data da aplicação registrada na planilha (campo Data).</li>
+            <li><b>Fonte dos dados:</b> leitura ao vivo da planilha de controle — qualquer correção feita lá reflete aqui ao recarregar.</li>
+          </ul>
         </div>
 
         <!-- Valores por formato (editáveis) -->
@@ -4128,6 +4138,10 @@ document.getElementById('finBtnLimpar').addEventListener('click', ()=>{
   renderFinanceiro();
 });
 document.getElementById('finBtnCopiar').addEventListener('click', copiarResumoFinanceiro);
+document.getElementById('finObsBtn').addEventListener('click', ()=>{
+  const box = document.getElementById('finObsBox');
+  box.style.display = (box.style.display==='none') ? 'block' : 'none';
+});
 document.getElementById('finBtnSemana').addEventListener('click', ()=>{
   const hoje = new Date();
   const g = hoje.getDay(); // 0=dom
