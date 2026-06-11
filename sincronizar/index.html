@@ -159,12 +159,16 @@ return `(function(){
       });
     });
 
-    // Captura total de páginas: rodapé do Sponte = "Página [select] de 20 - 388 registro(s)"
-    var m=document.body.innerText.match(/de\\s+(\\d+)\\s*-\\s*\\d+\\s*registro/i);
-    if(m){ TOTAL_PAGINAS=+m[1]; }
-    // Página atual: lê o select de paginação
+    // Total de páginas: o jeito mais confiável é contar as opções do seletor (1..N)
     var selPag=acharSelectPagina();
-    if(selPag && /^\\d+$/.test(selPag.value)) PAGINA_ATUAL=+selPag.value;
+    if(selPag && selPag.options && selPag.options.length>0){
+      TOTAL_PAGINAS=selPag.options.length;
+      if(/^\\d+$/.test(selPag.value)) PAGINA_ATUAL=+selPag.value;
+    } else {
+      // Fallback por texto do rodapé: "de 20 - 388 registro(s)"
+      var m=document.body.innerText.match(/de\\s+(\\d+)\\s*[-–]\\s*\\d+\\s*registro/i);
+      if(m) TOTAL_PAGINAS=+m[1];
+    }
 
     TODOS=TODOS.concat(novos);
     msg('Página '+PAGINA_ATUAL+' de '+TOTAL_PAGINAS+' — '+TODOS.length+' alunos lidos…');
