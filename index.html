@@ -544,6 +544,7 @@ html { scroll-behavior:smooth; }
 .interno-fechar:hover { border-color:var(--ccaa-red); color:var(--ccaa-red); }
 
 .interno-body { max-width:1400px; margin:0 auto; padding:16px 28px 80px; }
+#loginBox { display:flex; align-items:center; justify-content:center; min-height:calc(100vh - 60px); padding:20px; box-sizing:border-box; }
 /* Login fica centralizado e estreito mesmo com corpo largo */
 #loginBox { max-width:520px; }
 
@@ -1643,7 +1644,8 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
 
   <div class="interno-body" id="loginBox">
     <div class="login-box">
-      <h3>Área Interna</h3>
+      <img src="https://ccaapel.github.io/mkt/assets/ccaa-logo.png?v=5" alt="CCAA" style="width:64px;height:64px;object-fit:contain;border-radius:14px;display:block;margin:0 auto 14px;box-shadow:0 4px 16px color-mix(in srgb,var(--ccaa-blue) 22%,transparent)">
+      <h3 style="font-family:'Bricolage Grotesque',sans-serif;font-size:20px;font-weight:800;margin-bottom:4px">Ferramentas CCAA Pelotas</h3>
       <p>Digite a senha de acesso para continuar</p>
       <input class="login-input" type="password" id="loginInput" placeholder="Senha" autocomplete="off">
       <button class="login-btn" id="loginBtn">Entrar</button>
