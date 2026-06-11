@@ -517,10 +517,11 @@ html { scroll-behavior:smooth; }
 /* ===== ABA INTERNA ===== */
 .interno-overlay {
   display:none; position:fixed; inset:0; z-index:200;
-  background:var(--bg); overflow-y:auto;
+  background:var(--bg); overflow:hidden;
   animation: slideUp .25s cubic-bezier(.25,.8,.25,1);
 }
-.interno-overlay.open { display:block; }
+.interno-overlay.open { display:flex; flex-direction:column; }
+.interno-overlay.open.scroll-ok { overflow-y:auto; }
 @keyframes slideUp { from{opacity:0;transform:translateY(30px);} to{opacity:1;transform:none;} }
 
 .interno-header {
@@ -544,9 +545,10 @@ html { scroll-behavior:smooth; }
 .interno-fechar:hover { border-color:var(--ccaa-red); color:var(--ccaa-red); }
 
 .interno-body { max-width:1400px; margin:0 auto; padding:16px 28px 80px; }
-#loginBox { display:flex; align-items:center; justify-content:center; min-height:calc(100vh - 60px); padding:20px; box-sizing:border-box; }
-/* Login fica centralizado e estreito mesmo com corpo largo */
-#loginBox { max-width:520px; }
+#loginBox {
+  flex:1; display:flex; align-items:center; justify-content:center;
+  padding:20px; box-sizing:border-box; overflow:hidden;
+}
 
 /* Login */
 .login-box {
@@ -573,7 +575,7 @@ html { scroll-behavior:smooth; }
 .login-erro { color:var(--ccaa-red); font-size:12.5px; margin-top:8px; display:none; }
 
 /* ===== LAUNCHER (menu de ferramentas) ===== */
-.launcher-body { display:flex !important; align-items:center; justify-content:center; min-height:70vh; }
+.launcher-body { flex:1; display:flex !important; align-items:center; justify-content:center; overflow:hidden; }
 .launcher-center { width:100%; max-width:640px; text-align:center; padding:12px 0; }
 .launcher-logo { width:72px; height:72px; object-fit:contain; border-radius:16px; margin:0 auto 20px; display:block; box-shadow:0 4px 18px color-mix(in srgb,var(--ccaa-blue) 22%,transparent); }
 .launcher-h3 {
@@ -1613,7 +1615,13 @@ document.getElementById('btnFont').addEventListener('click',()=>{ fonteIdx=(font
 
 // ===== ACESSO INTERNO =====
 document.getElementById('btnInterno').addEventListener('click',()=>{
-  document.getElementById('internoOverlay').classList.add('open');
+  const overlay = document.getElementById('internoOverlay');
+  overlay.classList.add('open');
+  // Se já autenticou antes, pula login e mostra o launcher
+  if(hubAutenticado()){
+    logado = true;
+    mostrarLauncher();
+  }
 });
 
 // ===== INIT =====
@@ -2111,36 +2119,56 @@ document.getElementById('internoFechar').addEventListener('click', ()=>{
 // Login
 document.getElementById('loginBtn').addEventListener('click', fazerLogin);
 document.getElementById('loginInput').addEventListener('keydown', e=>{ if(e.key==='Enter') fazerLogin(); });
+const HUB_AUTH_KEY = 'ccaa_hub_auth';
+function hubAutenticado(){ try{ return localStorage.getItem(HUB_AUTH_KEY)==='1'; }catch(e){ return false; } }
+function hubSalvarAuth(){ try{ localStorage.setItem(HUB_AUTH_KEY,'1'); }catch(e){} }
+
 function fazerLogin(){
   const val = document.getElementById('loginInput').value;
   if(val === SENHA_LOGIN){
     logado = true;
-    document.getElementById('loginBox').style.display = 'none';
-    document.getElementById('launcherBox').style.display = 'block';
+    hubSalvarAuth();
+    mostrarLauncher();
   } else {
     document.getElementById('loginErro').style.display = 'block';
     document.getElementById('loginInput').value = '';
   }
 }
+function mostrarLauncher(){
+  document.getElementById('loginBox').style.display = 'none';
+  document.getElementById('launcherBox').style.display = '';
+  document.getElementById('internoOverlay').classList.remove('scroll-ok');
+}
 
-// ===== LAUNCHER: abrir o Controle de Equiparações =====
-let controleIniciado = false;
+// ===== LAUNCHER: Controle abre em nova guia =====
 function abrirControle(){
-  document.getElementById('launcherBox').style.display = 'none';
-  document.getElementById('painelBox').style.display = 'block';
-  if(!controleIniciado){
-    controleIniciado = true;
-    popularAbas();
-    popularFiltroTeacher();
-    document.getElementById('filtroDataIni').value = '';
-    document.getElementById('filtroDataFim').value = '';
-    carregarDados();
-  }
+  const url = location.origin + location.pathname + '?app=controle';
+  window.open(url, '_blank');
 }
 function voltarAoMenu(){
   document.getElementById('painelBox').style.display = 'none';
-  document.getElementById('launcherBox').style.display = 'block';
+  document.getElementById('launcherBox').style.display = '';
+  document.getElementById('internoOverlay').classList.remove('scroll-ok');
 }
+function iniciarPainel(){
+  document.getElementById('launcherBox').style.display = 'none';
+  document.getElementById('loginBox').style.display = 'none';
+  document.getElementById('painelBox').style.display = 'block';
+  document.getElementById('internoOverlay').classList.add('open','scroll-ok');
+  popularAbas();
+  popularFiltroTeacher();
+  document.getElementById('filtroDataIni').value = '';
+  document.getElementById('filtroDataFim').value = '';
+  carregarDados();
+}
+
+// Se abriu com ?app=controle e já autenticou antes → vai direto ao painel
+if(new URLSearchParams(location.search).get('app')==='controle' && hubAutenticado()){
+  document.addEventListener('DOMContentLoaded', ()=> iniciarPainel(), {once:true});
+  // Garante mesmo se DOMContentLoaded já disparou
+  if(document.readyState!=='loading') iniciarPainel();
+}
+
 document.getElementById('launchControle').addEventListener('click', abrirControle);
 document.getElementById('btnVoltarMenu').addEventListener('click', voltarAoMenu);
 
