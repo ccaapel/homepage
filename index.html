@@ -533,8 +533,13 @@ html { scroll-behavior:smooth; }
   display:flex; align-items:center; gap:12px;
 }
 .interno-header h2 {
-  font-family:'Bricolage Grotesque',sans-serif; font-size:17px; font-weight:800;
-  letter-spacing:-0.02em; flex:1;
+  font-family:'Bricolage Grotesque',sans-serif; font-size:18px; font-weight:800;
+  letter-spacing:-0.015em; flex:1; color:var(--text);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.interno-header .int-btn {
+  font-size:12.5px; font-weight:700; letter-spacing:0.01em;
+  padding:8px 14px; border-radius:9px;
 }
 .interno-fechar {
   background:none; border:1.5px solid var(--border-strong);
@@ -1819,7 +1824,7 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
         <span style="font-size:13px; color:var(--text-mute); font-weight:600">Semana:</span>
         <select class="int-select" id="vagasSemanaSel" style="min-width:240px"></select>
         <input class="int-select" type="date" id="vagasSemanaRef" style="min-width:150px" title="Ou escolha uma data">
-        <button class="int-btn int-btn-reload" id="btnEditarHorarios" type="button" title="Ativar/desativar abas e alterar horários" style="margin-left:auto">⚙ Horários</button>
+        <button class="int-btn int-btn-reload" id="btnEditarHorarios" type="button" title="Ativar/desativar abas e alterar horários" style="margin-left:auto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13" style="vertical-align:-1.5px"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.09A1.65 1.65 0 0 0 10 3.09V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.09a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.09a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> Horários</button>
       </div>
       <div id="vagasGrid"></div>
     </div>
@@ -1930,14 +1935,26 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
     <div id="viewComercial" style="display:none">
       <div id="comResumoBar" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px"></div>
 
+      <!-- Turmas em formação (mínimo 3 alunos por turma) -->
+      <div style="margin-bottom:18px">
+        <div style="font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--ccaa-blue);margin-bottom:8px">Turmas em formação · mínimo 3 alunos</div>
+        <div id="comTurmasGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px"></div>
+      </div>
+
       <div class="int-actions" style="margin-bottom:14px">
         <button class="int-btn int-btn-novo" id="comBtnNova" type="button">+ Nova matrícula</button>
-        <select class="int-select" id="comFiltroTipo" style="min-width:170px">
+        <select class="int-select" id="comFiltroTipo" style="min-width:160px">
           <option value="">Todos os tipos</option>
           <option value="novo">Novos 2026/2</option>
           <option value="rematricula">Rematrículas</option>
         </select>
-        <input class="int-select" type="text" id="comBusca" placeholder="Buscar aluno…" style="flex:1;min-width:180px">
+        <select class="int-select" id="comFiltroAssin" style="min-width:180px">
+          <option value="">Todas as assinaturas</option>
+          <option value="assinada">Contrato assinado</option>
+          <option value="enviada">Assinatura enviada</option>
+          <option value="pendente">Assinatura pendente</option>
+        </select>
+        <input class="int-select" type="text" id="comBusca" placeholder="Buscar aluno ou turma…" style="flex:1;min-width:180px">
       </div>
 
       <!-- Formulário de inclusão/edição -->
@@ -1951,16 +1968,24 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
             <label style="font-size:11.5px;font-weight:700;color:var(--text-mute)">Data do contrato</label>
             <input class="int-select" type="date" id="comData" style="width:100%">
           </div>
-          <div style="min-width:150px">
+          <div style="min-width:140px">
             <label style="font-size:11.5px;font-weight:700;color:var(--text-mute)">Tipo</label>
             <select class="int-select" id="comTipo" style="width:100%">
               <option value="novo">Novo 2026/2</option>
               <option value="rematricula">Rematrícula</option>
             </select>
           </div>
-          <div style="flex:1;min-width:140px">
-            <label style="font-size:11.5px;font-weight:700;color:var(--text-mute)">Turma (prevista)</label>
-            <input class="int-select" type="text" id="comTurma" placeholder="Ex.: Kids 2" style="width:100%">
+          <div style="min-width:150px">
+            <label style="font-size:11.5px;font-weight:700;color:var(--text-mute)">Assinatura</label>
+            <select class="int-select" id="comAssin" style="width:100%">
+              <option value="pendente">Pendente</option>
+              <option value="enviada">Enviada</option>
+              <option value="assinada">Assinada</option>
+            </select>
+          </div>
+          <div style="flex:1;min-width:150px">
+            <label style="font-size:11.5px;font-weight:700;color:var(--text-mute)">Turma</label>
+            <input class="int-select" type="text" id="comTurma" placeholder="Ex.: Kids 2.1" style="width:100%">
           </div>
           <div style="flex:2;min-width:170px">
             <label style="font-size:11.5px;font-weight:700;color:var(--text-mute)">Observação</label>
@@ -1971,19 +1996,13 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
         </div>
       </div>
 
-      <div class="int-table-wrap">
-        <table class="int-table" id="comTable">
-          <thead><tr>
-            <th>Aluno(a)</th><th>Contrato</th><th>Tipo</th><th>Turma prevista</th><th>Observação</th><th></th>
-          </tr></thead>
-          <tbody id="comTbody"></tbody>
-        </table>
-        <div class="int-loading" id="comVazio" style="display:none">Nenhuma matrícula registrada com esse filtro.</div>
-      </div>
+      <!-- Lista agrupada por mês -->
+      <div id="comMeses"></div>
+      <div class="int-loading" id="comVazio" style="display:none">Nenhuma matrícula registrada com esse filtro.</div>
 
       <div style="font-size:11.5px;color:var(--text-dim);margin-top:12px;line-height:1.6">
-        Fonte: contratos do Sponte (conferência manual). Os dados ficam salvos neste navegador —
-        use "Copiar resumo" para compartilhar. Rematrícula = aluno do 1º semestre que confirmou depois, sem contrato anual.
+        Fonte: contratos e movimentação por turma do Sponte (conferência manual).
+        Os dados ficam salvos neste navegador — use "Copiar resumo" para compartilhar.
       </div>
       <div class="int-actions" style="margin-top:10px">
         <button class="int-btn int-btn-reload" id="comBtnResumo" type="button" title="Resumo para WhatsApp">Copiar resumo</button>
@@ -1996,7 +2015,7 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
 <!-- Editor de horários (ativar/desativar abas + slots) -->
 <div class="hist-overlay" id="horariosOverlay">
   <div class="hist-box" style="max-width:640px">
-    <h3>⚙ Horários por aba</h3>
+    <h3>Horários por aba</h3>
     <p style="font-size:12.5px;color:var(--text-dim);margin-bottom:14px">
       Marque quais abas estão ativas para agendamento e edite os horários (separados por vírgula, formato HH:MM).
       As mudanças valem neste navegador e são aplicadas na hora.
@@ -2028,7 +2047,7 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
 <div class="hist-overlay" id="adminOverlay">
   <div class="hist-box" style="max-width:800px;width:100%">
     <div id="adminLogin" style="text-align:center;padding:20px 0">
-      <div style="font-size:22px;font-weight:800;margin-bottom:8px">⚙️ Admin</div>
+      <div style="font-size:22px;font-weight:800;margin-bottom:8px;font-family:'Bricolage Grotesque',sans-serif">Admin</div>
       <div style="color:var(--text-dim);font-size:13px;margin-bottom:20px">Senha de administrador</div>
       <input type="password" id="adminSenhaInput" class="field-input" placeholder="Senha admin" style="max-width:260px;margin:0 auto 14px;display:block">
       <button class="int-btn int-btn-novo" id="adminLoginBtn">Entrar</button>
@@ -2036,12 +2055,12 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
     </div>
     <div id="adminPainel" style="display:none">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px">
-        <h3 style="margin:0;font-family:'Bricolage Grotesque',sans-serif">⚙️ Admin · turmas</h3>
+        <h3 style="margin:0;font-family:'Bricolage Grotesque',sans-serif">Admin · turmas</h3>
       </div>
       <!-- Abas do admin -->
       <div style="display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:16px">
-        <button class="admin-tab ativa" id="adTabTurmas">📋 Turmas</button>
-        <button class="admin-tab" id="adTabHistorico">🕓 Histórico</button>
+        <button class="admin-tab ativa" id="adTabTurmas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13" style="vertical-align:-1.5px;margin-right:4px"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>Turmas</button>
+        <button class="admin-tab" id="adTabHistorico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13" style="vertical-align:-1.5px;margin-right:4px"><path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/><polyline points="12 7 12 12 15 15"/></svg>Histórico</button>
         <button class="admin-tab" id="adTabImportar">⚡ Importar em lote</button>
         <button class="admin-tab" id="adTabAuditoria">🔍 Auditoria</button>
         <button class="admin-tab" id="adTabIndisp">🚫 Indisponível</button>
@@ -2301,6 +2320,34 @@ function carregarHorariosOverride(){
 function salvarHorariosOverride(ov){
   try{ localStorage.setItem(HORARIOS_OVR_KEY, JSON.stringify(ov)); }catch(e){}
 }
+// --- Sincronização com a planilha (aba Config, via Apps Script) ---
+// Assim a mudança feita num navegador vale para TODOS os dispositivos.
+function enviarHorariosParaServidor(ov){
+  try{
+    const url = `${SCRIPT_URL}?action=setHorarios&senha=${encodeURIComponent(SENHA_PAINEL)}`+
+      `&dados=${encodeURIComponent(JSON.stringify(ov||{}))}`;
+    jsonpCall(url, ()=>{}, ()=>{});
+  }catch(e){}
+}
+function sincronizarHorariosDoServidor(){
+  jsonpCall(`${SCRIPT_URL}?action=getHorarios&senha=${encodeURIComponent(SENHA_PAINEL)}`, (json)=>{
+    if(!json || !json.ok || typeof json.horarios !== 'object') return; // backend sem suporte: ignora
+    const remoto = JSON.stringify(json.horarios||{});
+    const local  = JSON.stringify(carregarHorariosOverride());
+    if(remoto === local) return;
+    // Planilha vazia mas este navegador tem override: sobe o local (primeira sincronização)
+    if(Object.keys(json.horarios||{}).length === 0 && local !== '{}'){
+      enviarHorariosParaServidor(carregarHorariosOverride());
+      return;
+    }
+    // Planilha tem a versão mais atual: adota e recarrega (uma vez por sessão)
+    if(!sessionStorage.getItem('ccaa_hor_sync')){
+      sessionStorage.setItem('ccaa_hor_sync','1');
+      salvarHorariosOverride(json.horarios||{});
+      location.reload();
+    }
+  }, ()=>{});
+}
 // Aplica overrides em cima dos padrões acima (mutação em memória, na carga da página)
 (function aplicarHorariosOverride(){
   const ov = carregarHorariosOverride();
@@ -2364,15 +2411,17 @@ function salvarEditorHorarios(){
   });
   if(erro){ toast(erro, 'erro'); return; }
   salvarHorariosOverride(ov);
+  enviarHorariosParaServidor(ov);   // grava também na planilha (aba Config)
   toast('Horários salvos ✓ Recarregando…');
-  setTimeout(()=>location.reload(), 700);
+  setTimeout(()=>location.reload(), 900);
 }
 document.getElementById('btnEditarHorarios').addEventListener('click', abrirEditorHorarios);
 document.getElementById('horariosSalvar').addEventListener('click', salvarEditorHorarios);
 document.getElementById('horariosPadrao').addEventListener('click', ()=>{
   salvarHorariosOverride({});
+  enviarHorariosParaServidor({});
   toast('Horários restaurados ao padrão ✓ Recarregando…');
-  setTimeout(()=>location.reload(), 700);
+  setTimeout(()=>location.reload(), 900);
 });
 document.getElementById('horariosFechar').addEventListener('click', ()=>{
   document.getElementById('horariosOverlay').classList.remove('open');
@@ -2518,6 +2567,7 @@ function iniciarPainel(){
   document.getElementById('filtroDataIni').value = '';
   document.getElementById('filtroDataFim').value = '';
   carregarDados();
+  sincronizarHorariosDoServidor();
 }
 
 function iniciarFinanceiroApp(){
@@ -2554,95 +2604,165 @@ function iniciarComercialApp(){
 }
 
 // ===== PAINEL COMERCIAL: matrículas e rematrículas 2026/2 =====
-// Fonte: contratos do Sponte (conferência manual do Pedro em 11/07/2026).
-// Excluídos: contratos que pertencem ao 1º semestre.
-const COM_KEY = 'ccaa_matriculas_20262_v1';
+// Fonte: contratos + movimentação por turma do Sponte (conferência manual, 11/07/2026).
+// assinatura: 'assinada' | 'enviada' | 'pendente'
+const COM_KEY = 'ccaa_matriculas_20262_v2';
 const COM_SEED = [
-  { nome:'Aurora Damasceno Foster',            data:'2026-07-10', tipo:'novo' },
-  { nome:'Anthony Lopes Gouvea',               data:'2026-07-08', tipo:'novo' },
-  { nome:'Laura Provensi Stefenon',            data:'2026-07-06', tipo:'rematricula', obs:'Contrato novo para o 2º semestre (estava no 1º)' },
-  { nome:'Beatriz Dias Chollet',               data:'2026-07-06', tipo:'novo' },
-  { nome:'Maitê Rodrigues Nunes',              data:'2026-07-03', tipo:'novo' },
-  { nome:'Júlia Soares Cassana',               data:'2026-07-02', tipo:'rematricula', obs:'Confirmou depois, sem contrato anual' },
-  { nome:'Pedro de Matos Campelo',             data:'2026-07-02', tipo:'novo' },
-  { nome:'Maria Luiza Gonçalves Neuenfeld',    data:'2026-06-25', tipo:'novo' },
-  { nome:'Mariana Minozzo Bressiani',          data:'2026-06-24', tipo:'novo' },
-  { nome:'Theo Soares Giusti',                 data:'2026-06-23', tipo:'rematricula', obs:'Confirmou depois, sem contrato anual' },
-  { nome:'Lucas Soares Giusti',                data:'2026-06-23', tipo:'rematricula', obs:'Confirmou depois, sem contrato anual' },
-  { nome:'Laura Caldeira Kist',                data:'2026-06-22', tipo:'rematricula', obs:'Confirmou depois, sem contrato anual' },
-  { nome:'Morgana Pilição da Cruz',            data:'2026-06-22', tipo:'novo' },
-  { nome:'Bernardo Bilharva Rodrigues',        data:'2026-06-18', tipo:'novo' },
-  { nome:'Morgana Guerra Menchaca',            data:'2026-06-18', tipo:'novo' },
-  { nome:'Robertha Antunes Leal Westphal',     data:'2026-06-16', tipo:'novo' },
-  { nome:'Helena de Sá Valente',               data:'2026-06-16', tipo:'novo' },
-  { nome:'Eduardo Fioresi Leston',             data:'2026-06-12', tipo:'novo' },
-  { nome:'Melânia Vitória Matos Ferst',        data:'2026-06-08', tipo:'novo' },
-  { nome:'Marcus Boeira de Medeiros Filho',    data:'2026-06-08', tipo:'novo' },
-  { nome:'Guilherme Bueno Acosta',             data:'2026-06-03', tipo:'novo' },
-  { nome:'Ísis Custodio do Amaral Vasconcelos',data:'2026-05-20', tipo:'novo' },
-  { nome:'Henrique Silveira da Rocha',         data:'2026-05-20', tipo:'novo' },
-  { nome:'Lucas Davila Marten',                data:'2026-05-19', tipo:'novo' },
-  { nome:'Lorenzo Soares Lima',                data:'2026-05-14', tipo:'novo' },
-  { nome:'Isaac Soares Lima',                  data:'2026-05-14', tipo:'novo' },
-  { nome:'Lucas Zanetti de Lima',              data:'2026-05-06', tipo:'novo' },
-  { nome:'Antônia da Silva Couto',             data:'2026-05-04', tipo:'novo' },
-  { nome:'Manuela da Silva Couto',             data:'2026-05-04', tipo:'novo' },
-  { nome:'Joaquim da Silva Couto',             data:'2026-05-04', tipo:'novo' },
-  { nome:'Manuela Montagna Aguiar',            data:'2026-04-30', tipo:'novo' },
-  { nome:'Nikolas Ryuiti Oike',                data:'2026-04-27', tipo:'novo' },
-  { nome:'Clara Soares Pereira',               data:'2026-04-23', tipo:'novo' },
+  { nome:'Aurora Damasceno Foster',            data:'2026-07-10', tipo:'novo', turma:'Baby 2.1 · 2ª/4ª 11h',        assinatura:'enviada' },
+  { nome:'Anthony Lopes Gouvea',               data:'2026-07-08', tipo:'novo', turma:'Kids 8.3 · 3ª/5ª 10h45',      assinatura:'enviada' },
+  { nome:'Beatriz Dias Chollet',               data:'2026-07-06', tipo:'novo', turma:'',                             assinatura:'enviada' },
+  { nome:'Maitê Rodrigues Nunes',              data:'2026-07-03', tipo:'novo', turma:'Baby 2.1 · 2ª/4ª 11h',        assinatura:'enviada' },
+  { nome:'Júlia Soares Cassana',               data:'2026-07-02', tipo:'rematricula', turma:'', assinatura:'pendente', obs:'Confirmou depois, sem contrato anual' },
+  { nome:'Pedro de Matos Campelo',             data:'2026-07-02', tipo:'novo', turma:'7.3 · 6ª int. 14h',           assinatura:'enviada' },
+  { nome:'Maria Luiza Gonçalves Neuenfeld',    data:'2026-06-25', tipo:'novo', turma:'',                             assinatura:'enviada' },
+  { nome:'Mariana Minozzo Bressiani',          data:'2026-06-24', tipo:'novo', turma:'Baby 6.2 · 3ª/5ª 18h15',      assinatura:'enviada' },
+  { nome:'Theo Soares Giusti',                 data:'2026-06-23', tipo:'rematricula', turma:'', assinatura:'pendente', obs:'Confirmou depois, sem contrato anual' },
+  { nome:'Lucas Soares Giusti',                data:'2026-06-23', tipo:'rematricula', turma:'', assinatura:'pendente', obs:'Confirmou depois, sem contrato anual' },
+  { nome:'Laura Caldeira Kist',                data:'2026-06-22', tipo:'rematricula', turma:'', assinatura:'pendente', obs:'Confirmou depois, sem contrato anual' },
+  { nome:'Morgana Pilição da Cruz',            data:'2026-06-22', tipo:'novo', turma:'Espanhol 1.1 · 2ª/4ª 14h',    assinatura:'enviada' },
+  { nome:'Bernardo Bilharva Rodrigues',        data:'2026-06-18', tipo:'novo', turma:'8.3 · 6ª int. 14h',           assinatura:'enviada' },
+  { nome:'Morgana Guerra Menchaca',            data:'2026-06-18', tipo:'novo', turma:'Espanhol 1.1 · 2ª/4ª 14h',    assinatura:'enviada' },
+  { nome:'Robertha Antunes Leal Westphal',     data:'2026-06-16', tipo:'novo', turma:'Espanhol 1.1 · 2ª/4ª 14h',    assinatura:'enviada' },
+  { nome:'Helena de Sá Valente',               data:'2026-06-16', tipo:'novo', turma:'T1.2 · 3ª int. 14h',          assinatura:'enviada' },
+  { nome:'Eduardo Fioresi Leston',             data:'2026-06-12', tipo:'novo', turma:'T1.2 · 3ª int. 14h',          assinatura:'enviada' },
+  { nome:'Melânia Vitória Matos Ferst',        data:'2026-06-08', tipo:'novo', turma:'',                             assinatura:'enviada' },
+  { nome:'Marcus Boeira de Medeiros Filho',    data:'2026-06-08', tipo:'novo', turma:'',                             assinatura:'enviada' },
+  { nome:'Guilherme Bueno Acosta',             data:'2026-06-03', tipo:'novo', turma:'T1.2 · 3ª int. 14h',          assinatura:'enviada' },
+  { nome:'Ísis Custodio do Amaral Vasconcelos',data:'2026-05-20', tipo:'novo', turma:'Kids 6.2 · 3ª/5ª 10h45',      assinatura:'pendente' },
+  { nome:'Henrique Silveira da Rocha',         data:'2026-05-20', tipo:'novo', turma:'Kids 4.1 · 2ª/4ª 18h15',      assinatura:'enviada' },
+  { nome:'Lucas Davila Marten',                data:'2026-05-19', tipo:'novo', turma:'4.5 · 3ª/5ª 19h',             assinatura:'enviada' },
+  { nome:'Lorenzo Soares Lima',                data:'2026-05-14', tipo:'novo', turma:'Kids 4.1 · 2ª/4ª 18h15',      assinatura:'enviada' },
+  { nome:'Isaac Soares Lima',                  data:'2026-05-14', tipo:'novo', turma:'Kids 2.1 · 2ª/4ª 11h',        assinatura:'enviada' },
+  { nome:'Lucas Zanetti de Lima',              data:'2026-05-06', tipo:'novo', turma:'Kids 2.1 · 2ª/4ª 11h',        assinatura:'pendente' },
+  { nome:'Antônia da Silva Couto',             data:'2026-05-04', tipo:'novo', turma:'Preteen 2.5 · 3ª/5ª 15h30',   assinatura:'enviada' },
+  { nome:'Manuela da Silva Couto',             data:'2026-05-04', tipo:'novo', turma:'Preteen 2.5 · 3ª/5ª 15h30',   assinatura:'enviada' },
+  { nome:'Joaquim da Silva Couto',             data:'2026-05-04', tipo:'novo', turma:'Preteen 2.5 · 3ª/5ª 15h30',   assinatura:'enviada' },
+  { nome:'Manuela Montagna Aguiar',            data:'2026-04-30', tipo:'novo', turma:'T1.1 · 2ª/4ª 15h30',          assinatura:'enviada' },
+  { nome:'Laura Provensi Stefenon',            data:'2026-04-30', tipo:'novo', turma:'English 4 · Prof. Larissa Silva', assinatura:'enviada', obs:'Aluna nova no English 4 (2 contratos; vale este)' },
+  { nome:'Nikolas Ryuiti Oike',                data:'2026-04-27', tipo:'novo', turma:'7.1 · 3ª/5ª 14h',             assinatura:'enviada' },
+  { nome:'Clara Soares Pereira',               data:'2026-04-23', tipo:'novo', turma:'Kids 6.2 · 3ª/5ª 10h45',      assinatura:'pendente' },
 ];
 function comCarregar(){
   try{
     const salvo = localStorage.getItem(COM_KEY);
     if(salvo) return JSON.parse(salvo);
   }catch(e){}
-  // Primeira vez: semeia com os dados conferidos do Sponte
-  const seed = COM_SEED.map((m,i)=>({ id:'m'+(i+1), turma:'', obs:'', ...m }));
+  const seed = COM_SEED.map((m,i)=>({ id:'m'+(i+1), turma:'', obs:'', assinatura:'pendente', ...m }));
   comSalvarLista(seed);
   return seed;
 }
 function comSalvarLista(lista){ try{ localStorage.setItem(COM_KEY, JSON.stringify(lista)); }catch(e){} }
 function comISOparaBR(iso){ const p=(iso||'').split('-'); return p.length===3 ? `${p[2]}/${p[1]}/${p[0]}` : (iso||''); }
+const COM_MESES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+function comMesLabel(iso){
+  const p=(iso||'').split('-');
+  if(p.length<2) return 'Sem data';
+  return `${COM_MESES[(+p[1])-1]||'?'} ${p[0]}`;
+}
+function comBadgeTipo(m){
+  return m.tipo==='novo'
+    ? '<span style="background:color-mix(in srgb,var(--live) 15%,transparent);color:var(--live);font-size:10.5px;font-weight:800;padding:2px 8px;border-radius:99px;letter-spacing:.03em">NOVO 2026/2</span>'
+    : '<span style="background:color-mix(in srgb,var(--soon) 15%,transparent);color:var(--soon);font-size:10.5px;font-weight:800;padding:2px 8px;border-radius:99px;letter-spacing:.03em">REMATRÍCULA</span>';
+}
+function comBadgeAssin(m){
+  const a = m.assinatura||'pendente';
+  if(a==='assinada') return '<span style="color:var(--live);font-size:11.5px;font-weight:700">Assinada</span>';
+  if(a==='enviada')  return '<span style="color:var(--soon);font-size:11.5px;font-weight:700">Enviada</span>';
+  return '<span style="color:var(--ccaa-red);font-size:11.5px;font-weight:700">Pendente</span>';
+}
 let _comEditandoId = null;
 function comRender(){
   const lista = comCarregar();
-  const filtroTipo = document.getElementById('comFiltroTipo').value;
+  const filtroTipo  = document.getElementById('comFiltroTipo').value;
+  const filtroAssin = document.getElementById('comFiltroAssin').value;
   const busca = normTexto(document.getElementById('comBusca').value);
+
+  // Resumo geral
   const novos = lista.filter(m=>m.tipo==='novo').length;
   const remat = lista.filter(m=>m.tipo==='rematricula').length;
+  const pend  = lista.filter(m=>(m.assinatura||'pendente')!=='assinada').length;
   document.getElementById('comResumoBar').innerHTML = `
     <div class="fin-stat"><div class="fin-stat-n">${novos}</div><div class="fin-stat-l">Novos alunos 2026/2</div></div>
     <div class="fin-stat"><div class="fin-stat-n">${remat}</div><div class="fin-stat-l">Rematrículas</div></div>
+    <div class="fin-stat"><div class="fin-stat-n" style="color:${pend?'var(--ccaa-red)':'var(--live)'}">${pend}</div><div class="fin-stat-l">Assinaturas em aberto</div></div>
     <div class="fin-stat fin-stat-total"><div class="fin-stat-n">${lista.length}</div><div class="fin-stat-l">Total 2026/2</div></div>`;
+
+  // Turmas em formação (mínimo 3)
+  const porTurma = {};
+  lista.forEach(m=>{
+    const t = (m.turma||'').trim();
+    if(!t) return;
+    (porTurma[t] = porTurma[t] || []).push(m);
+  });
+  const semTurma = lista.filter(m=>!(m.turma||'').trim()).length;
+  const turmasOrd = Object.entries(porTurma).sort((a,b)=> b[1].length - a[1].length || a[0].localeCompare(b[0]));
+  document.getElementById('comTurmasGrid').innerHTML = turmasOrd.map(([t, alunos])=>{
+    const n = alunos.length;
+    const ok = n >= 3;
+    const cor = ok ? 'var(--live)' : 'var(--soon)';
+    const status = ok ? 'Formada' : `Faltam ${3-n}`;
+    return `<div style="background:var(--surface);border:1.5px solid color-mix(in srgb,${cor} 35%,var(--border));border-radius:var(--r-md);padding:12px 14px">
+      <div style="font-size:12.5px;font-weight:800;color:var(--text);line-height:1.35">${t}</div>
+      <div style="display:flex;align-items:baseline;gap:8px;margin-top:6px">
+        <span style="font-size:22px;font-weight:800;color:${cor}">${n}</span>
+        <span style="font-size:11px;color:var(--text-dim)">aluno${n>1?'s':''}</span>
+        <span style="margin-left:auto;font-size:10.5px;font-weight:800;color:${cor};text-transform:uppercase;letter-spacing:.05em">${status}</span>
+      </div>
+      <div style="font-size:11px;color:var(--text-dim);margin-top:6px;line-height:1.5">${alunos.map(a=>a.nome.split(' ')[0]+' '+(a.nome.split(' ')[1]||'')).join(', ')}</div>
+    </div>`;
+  }).join('') + (semTurma ? `<div style="background:var(--surface-2);border:1.5px dashed var(--border);border-radius:var(--r-md);padding:12px 14px;display:flex;flex-direction:column;justify-content:center">
+      <div style="font-size:12.5px;font-weight:800;color:var(--text-mute)">Sem turma definida</div>
+      <div style="font-size:22px;font-weight:800;color:var(--text-dim);margin-top:4px">${semTurma}</div>
+    </div>` : '');
+
+  // Lista agrupada por mês (mais recente primeiro)
   let visiveis = lista.slice().sort((a,b)=>(b.data||'').localeCompare(a.data||''));
-  if(filtroTipo) visiveis = visiveis.filter(m=>m.tipo===filtroTipo);
-  if(busca) visiveis = visiveis.filter(m=>normTexto(m.nome).includes(busca));
-  const tbody = document.getElementById('comTbody');
+  if(filtroTipo)  visiveis = visiveis.filter(m=>m.tipo===filtroTipo);
+  if(filtroAssin) visiveis = visiveis.filter(m=>(m.assinatura||'pendente')===filtroAssin);
+  if(busca) visiveis = visiveis.filter(m=>normTexto(m.nome).includes(busca) || normTexto(m.turma||'').includes(busca));
   document.getElementById('comVazio').style.display = visiveis.length ? 'none' : 'block';
-  document.getElementById('comTable').style.display = visiveis.length ? '' : 'none';
-  tbody.innerHTML = visiveis.map(m=>{
-    const badge = m.tipo==='novo'
-      ? '<span style="background:color-mix(in srgb,var(--live) 15%,transparent);color:var(--live);font-size:10.5px;font-weight:800;padding:2px 8px;border-radius:99px">NOVO 2026/2</span>'
-      : '<span style="background:color-mix(in srgb,var(--soon) 15%,transparent);color:var(--soon);font-size:10.5px;font-weight:800;padding:2px 8px;border-radius:99px">REMATRÍCULA</span>';
-    return `<tr>
-      <td data-label="Aluno(a)"><b>${m.nome}</b></td>
-      <td data-label="Contrato">${comISOparaBR(m.data)}</td>
-      <td data-label="Tipo">${badge}</td>
-      <td data-label="Turma prevista">${m.turma||'—'}</td>
-      <td data-label="Observação" style="font-size:12px;color:var(--text-dim)">${m.obs||''}</td>
-      <td data-label="" style="white-space:nowrap">
-        <button class="int-btn int-btn-reload" style="padding:4px 8px;font-size:11.5px" onclick="comEditar('${m.id}')">Editar</button>
-        <button class="int-btn int-btn-reload" style="padding:4px 8px;font-size:11.5px;color:var(--ccaa-red)" onclick="comExcluir('${m.id}')">✕</button>
-      </td>
-    </tr>`;
-  }).join('');
+
+  const grupos = [];
+  visiveis.forEach(m=>{
+    const chave = comMesLabel(m.data);
+    let g = grupos.find(x=>x.chave===chave);
+    if(!g){ g = {chave, itens:[]}; grupos.push(g); }
+    g.itens.push(m);
+  });
+  document.getElementById('comMeses').innerHTML = grupos.map(g=>`
+    <div style="margin-bottom:20px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+        <span style="font-family:'Bricolage Grotesque',sans-serif;font-size:15px;font-weight:800;color:var(--text)">${g.chave}</span>
+        <span style="font-size:11px;font-weight:800;color:var(--ccaa-blue);background:color-mix(in srgb,var(--ccaa-blue) 10%,transparent);padding:2px 9px;border-radius:99px">${g.itens.length} matrícula${g.itens.length>1?'s':''}</span>
+        <span style="flex:1;height:1px;background:var(--border)"></span>
+      </div>
+      <div class="int-table-wrap">
+        <table class="int-table">
+          <thead><tr>
+            <th>Aluno(a)</th><th>Contrato</th><th>Tipo</th><th>Assinatura</th><th>Turma</th><th>Observação</th><th></th>
+          </tr></thead>
+          <tbody>${g.itens.map(m=>`<tr>
+            <td data-label="Aluno(a)"><b>${m.nome}</b></td>
+            <td data-label="Contrato">${comISOparaBR(m.data)}</td>
+            <td data-label="Tipo">${comBadgeTipo(m)}</td>
+            <td data-label="Assinatura">${comBadgeAssin(m)}</td>
+            <td data-label="Turma">${m.turma||'—'}</td>
+            <td data-label="Observação" style="font-size:12px;color:var(--text-dim)">${m.obs||''}</td>
+            <td data-label="" style="white-space:nowrap">
+              <button class="int-btn int-btn-reload" style="padding:4px 8px;font-size:11.5px" onclick="comEditar('${m.id}')">Editar</button>
+              <button class="int-btn int-btn-reload" style="padding:4px 8px;font-size:11.5px;color:var(--ccaa-red)" onclick="comExcluir('${m.id}')">Excluir</button>
+            </td>
+          </tr>`).join('')}</tbody>
+        </table>
+      </div>
+    </div>`).join('');
 }
 function comAbrirForm(m){
   _comEditandoId = m ? m.id : null;
   document.getElementById('comNome').value  = m ? m.nome : '';
   document.getElementById('comData').value  = m ? m.data : '';
   document.getElementById('comTipo').value  = m ? m.tipo : 'novo';
+  document.getElementById('comAssin').value = m ? (m.assinatura||'pendente') : 'pendente';
   document.getElementById('comTurma').value = m ? (m.turma||'') : '';
   document.getElementById('comObs').value   = m ? (m.obs||'') : '';
   document.getElementById('comForm').style.display = 'block';
@@ -2671,6 +2791,7 @@ document.getElementById('comSalvar').addEventListener('click', ()=>{
     nome: nome,
     data: document.getElementById('comData').value,
     tipo: document.getElementById('comTipo').value,
+    assinatura: document.getElementById('comAssin').value,
     turma: document.getElementById('comTurma').value.trim(),
     obs: document.getElementById('comObs').value.trim(),
   };
@@ -2686,17 +2807,20 @@ document.getElementById('comSalvar').addEventListener('click', ()=>{
   toast('Matrícula salva ✓');
 });
 document.getElementById('comFiltroTipo').addEventListener('change', comRender);
+document.getElementById('comFiltroAssin').addEventListener('change', comRender);
 document.getElementById('comBusca').addEventListener('input', comRender);
 document.getElementById('comBtnResumo').addEventListener('click', ()=>{
   const lista = comCarregar();
   const novos = lista.filter(m=>m.tipo==='novo');
   const remat = lista.filter(m=>m.tipo==='rematricula');
+  const pend  = lista.filter(m=>(m.assinatura||'pendente')!=='assinada');
   const fmt = arr => arr.slice().sort((a,b)=>(a.data||'').localeCompare(b.data||''))
     .map(m=>`• ${m.nome} (${comISOparaBR(m.data)})${m.turma?' — '+m.turma:''}`).join('\n');
   const txt = `*MATRÍCULAS 2026/2 — CCAA Pelotas*\n\n`+
     `*Novos alunos (${novos.length}):*\n${fmt(novos)}\n\n`+
     `*Rematrículas (${remat.length}):*\n${fmt(remat)}\n\n`+
-    `Total: ${lista.length}`;
+    `*Assinaturas em aberto (${pend.length}):*\n${pend.map(m=>'• '+m.nome).join('\n')}\n\n`+
+    `Total 2026/2: ${lista.length}`;
   copiarTexto(txt, 'Resumo de matrículas copiado ✓');
 });
 
@@ -3278,13 +3402,13 @@ function renderResumo(){
   // Conflito real: mesmo TEACHER (aplicador) em 2 lugares no mesmo dia+horário
   const conflitos = detectarConflitosTeacher();
   const bannerConflito = conflitos.length
-    ? `<div onclick="mostrarConflitos()" style="flex-basis:100%;cursor:pointer;background:color-mix(in srgb,var(--ccaa-red) 12%,transparent);border:1px solid color-mix(in srgb,var(--ccaa-red) 35%,transparent);color:var(--ccaa-red);border-radius:var(--r-md);padding:10px 14px;font-size:12.5px;font-weight:700">⚠️ ${conflitos.length} conflito${conflitos.length>1?'s':''} de teacher detectado${conflitos.length>1?'s':''} (mesma teacher em 2 lugares ao mesmo tempo) — clique para ver</div>`
+    ? `<div onclick="mostrarConflitos()" style="flex-basis:100%;cursor:pointer;background:color-mix(in srgb,var(--ccaa-red) 12%,transparent);border:1px solid color-mix(in srgb,var(--ccaa-red) 35%,transparent);color:var(--ccaa-red);border-radius:var(--r-md);padding:10px 14px;font-size:12.5px;font-weight:700"><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round' width='14' height='14' style='vertical-align:-2px;margin-right:4px'><path d='M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z'/><line x1='12' y1='9' x2='12' y2='13'/><line x1='12' y1='17' x2='12.01' y2='17'/></svg> ${conflitos.length} conflito${conflitos.length>1?'s':''} de teacher detectado${conflitos.length>1?'s':''} (mesma teacher em 2 lugares ao mesmo tempo) — clique para ver</div>`
     : '';
 
   // Pendências: "Agendado" com data no passado (ninguém atualizou o status após a aula)
   const pendencias = detectarPendencias();
   const bannerPendencias = pendencias.length
-    ? `<div onclick="mostrarPendencias()" style="flex-basis:100%;cursor:pointer;background:color-mix(in srgb,var(--soon) 12%,transparent);border:1px solid color-mix(in srgb,var(--soon) 35%,transparent);color:var(--text);border-radius:var(--r-md);padding:10px 14px;font-size:12.5px;font-weight:700">🕓 ${pendencias.length} pendência${pendencias.length>1?'s':''}: agendamento${pendencias.length>1?'s':''} de data passada sem status atualizado — clique para ver</div>`
+    ? `<div onclick="mostrarPendencias()" style="flex-basis:100%;cursor:pointer;background:color-mix(in srgb,var(--soon) 12%,transparent);border:1px solid color-mix(in srgb,var(--soon) 35%,transparent);color:var(--text);border-radius:var(--r-md);padding:10px 14px;font-size:12.5px;font-weight:700"><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round' width='14' height='14' style='vertical-align:-2px;margin-right:4px'><circle cx='12' cy='12' r='10'/><polyline points='12 6 12 12 16 14'/></svg> ${pendencias.length} pendência${pendencias.length>1?'s':''}: agendamento${pendencias.length>1?'s':''} de data passada sem status atualizado — clique para ver</div>`
     : '';
 
   el.innerHTML = bannerConflito + bannerPendencias + `
@@ -3462,7 +3586,7 @@ function renderVagas(){
       }).join('');
     }
     const btnCopiar = livres.length
-      ? `<button class="vt-copiar" onclick="copiarVagasTeacher('${aba.replace(/'/g,"\\'")}','${dataBR}')" title="Copiar horários livres p/ WhatsApp">📋 Copiar livres</button>`
+      ? `<button class="vt-copiar" onclick="copiarVagasTeacher('${aba.replace(/'/g,"\\'")}','${dataBR}')" title="Copiar horários livres p/ WhatsApp"><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round' width='12' height='12' style='vertical-align:-1.5px;margin-right:3px'><rect x='9' y='9' width='13' height='13' rx='2'/><path d='M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1'/></svg> Copiar livres</button>`
       : '';
     html += `<div class="vagas-teacher">
       <div class="vagas-teacher-head">
@@ -3535,7 +3659,7 @@ function abrirHistorico(nome){
   const agendados = regs.filter(r=>norm(r.status)==='agendado').length;
   // Alerta de aluno faltante (2+ faltas)
   const alerta = faltas>=2
-    ? `<div style="background:color-mix(in srgb,#E23744 12%,transparent);border:1px solid color-mix(in srgb,#E23744 35%,transparent);color:#E23744;border-radius:var(--r-sm);padding:9px 13px;margin-bottom:12px;font-size:12.5px;font-weight:600">⚠️ Atenção: este aluno tem ${faltas} faltas registradas. Avalie antes de liberar novos horários.</div>`
+    ? `<div style="background:color-mix(in srgb,#E23744 12%,transparent);border:1px solid color-mix(in srgb,#E23744 35%,transparent);color:#E23744;border-radius:var(--r-sm);padding:9px 13px;margin-bottom:12px;font-size:12.5px;font-weight:600"><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round' width='14' height='14' style='vertical-align:-2px;margin-right:4px'><path d='M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z'/><line x1='12' y1='9' x2='12' y2='13'/><line x1='12' y1='17' x2='12.01' y2='17'/></svg> Atenção: este aluno tem ${faltas} faltas registradas. Avalie antes de liberar novos horários.</div>`
     : '';
   document.getElementById('histNome').textContent = nome;
   document.getElementById('histStats').innerHTML = alerta + `
@@ -3664,7 +3788,7 @@ function abrirLembretesLote(){
   }
   // botão copiar todos
   document.getElementById('histStats').innerHTML =
-    `<button class="int-btn int-btn-novo" onclick="copiarTodosLembretes()" style="font-size:12px">📋 Copiar todos (${lista.length})</button>`;
+    `<button class="int-btn int-btn-novo" onclick="copiarTodosLembretes()" style="font-size:12px">Copiar todos (${lista.length})</button>`;
   window._lembretesLote = lista;
   document.getElementById('histLista').innerHTML = lista.map((r,i)=>`
     <div class="hist-linha" style="align-items:center">
@@ -4522,17 +4646,17 @@ function aoDigitarAluno(){
   if(ult && !document.getElementById('dTurma').value){
     // Tem histórico de agendamento → oferece preencher
     let linha = `↻ Preencher como na última vez: ${ult.formato||''}${ult.turma?' · '+ult.turma:''}${ult.teacher?' · '+ult.teacher:''}`;
-    if(sponte && sponte.telefone) linha += ` · 📱 ${sponte.telefone}`;
+    if(sponte && sponte.telefone) linha += ` · Tel: ${sponte.telefone}`;
     hint.style.display = 'block';
     hint.innerHTML = linha.replace(/</g,'&lt;');
     hint.onclick = ()=> preencherDoHistorico(ult);
   } else if(sponte && !ult){
     // Aluno novo (só na base Sponte, sem agendamentos ainda) → mostra contato
     const parts = [];
-    if(sponte.telefone) parts.push(`📱 ${sponte.telefone}`);
-    if(sponte.email)    parts.push(`✉ ${sponte.email}`);
+    if(sponte.telefone) parts.push(`Tel: ${sponte.telefone}`);
+    if(sponte.email)    parts.push(`E-mail: ${sponte.email}`);
     const nascFmt = (()=>{ const n=parseNasc(sponte.nascimento); return n?`${String(n.dia).padStart(2,'0')}/${String(n.mes).padStart(2,'0')}/${n.ano}`:''; })();
-    if(nascFmt){ const idade=calcIdade(parseNasc(sponte.nascimento)); parts.push(`🎂 ${nascFmt}${idade!==''?' ('+idade+' anos)':''}`); }
+    if(nascFmt){ const idade=calcIdade(parseNasc(sponte.nascimento)); parts.push(`Nasc.: ${nascFmt}${idade!==''?' ('+idade+' anos)':''}`); }
     if(parts.length){
       hint.style.display = 'block';
       hint.textContent = parts.join(' · ');
@@ -4542,7 +4666,7 @@ function aoDigitarAluno(){
     // Tem histórico + Sponte: mostra apenas se tem tel para consulta rápida
     if(sponte.telefone){
       hint.style.display = 'block';
-      hint.innerHTML = `📱 ${sponte.telefone}${sponte.email?' &nbsp;·&nbsp; ✉ '+sponte.email:''}`;
+      hint.innerHTML = `Tel: ${sponte.telefone}${sponte.email?' &nbsp;·&nbsp; E-mail: '+sponte.email:''}`;
       hint.onclick = ()=> preencherDoHistorico(ult);
     } else { hint.style.display = 'none'; }
   } else {
