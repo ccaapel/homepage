@@ -1961,6 +1961,10 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
             <label style="font-size:11.5px;font-weight:700;color:var(--text-mute)">Aluno(a)</label>
             <input class="int-select" type="text" id="comNome" style="width:100%">
           </div>
+          <div style="min-width:120px">
+            <label style="font-size:11.5px;font-weight:700;color:var(--text-mute)">Matrícula</label>
+            <input class="int-select" type="text" id="comMatricula" placeholder="Ex.: 6394/1" style="width:100%">
+          </div>
           <div style="min-width:135px">
             <label style="font-size:11.5px;font-weight:700;color:var(--text-mute)">Data do contrato</label>
             <input class="int-select" type="date" id="comData" style="width:100%">
@@ -2597,35 +2601,35 @@ function iniciarComercialApp(){
 const COM_KEY = 'ccaa_matriculas_20262_v3';
 const COM_SENHA_EDICAO = 'Cc@@551*';
 const COM_SEED = [
-  { nome:'Aurora Damasceno Foster',             data:'2026-07-10', turma:'Baby 2.1' },
-  { nome:'Anthony Lopes Gouvea',                data:'2026-07-08', turma:'Kids 8.3' },
-  { nome:'Beatriz Dias Chollet',                data:'2026-07-06', turma:'' },
-  { nome:'Maitê Rodrigues Nunes',               data:'2026-07-03', turma:'Baby 2.1' },
-  { nome:'Pedro de Matos Campelo',              data:'2026-07-02', turma:'7.3' },
-  { nome:'Maria Luiza Gonçalves Neuenfeld',     data:'2026-06-25', turma:'' },
-  { nome:'Mariana Minozzo Bressiani',           data:'2026-06-24', turma:'Baby 6.2' },
-  { nome:'Morgana Pilição da Cruz',             data:'2026-06-22', turma:'Espanhol 1.1' },
-  { nome:'Bernardo Bilharva Rodrigues',         data:'2026-06-18', turma:'8.3' },
-  { nome:'Morgana Guerra Menchaca',             data:'2026-06-18', turma:'Espanhol 1.1' },
-  { nome:'Robertha Antunes Leal Westphal',      data:'2026-06-16', turma:'Espanhol 1.1' },
-  { nome:'Helena de Sá Valente',                data:'2026-06-16', turma:'T1.2' },
-  { nome:'Eduardo Fioresi Leston',              data:'2026-06-12', turma:'T1.2' },
-  { nome:'Melânia Vitória Matos Ferst',         data:'2026-06-08', turma:'' },
-  { nome:'Marcus Boeira de Medeiros Filho',     data:'2026-06-08', turma:'' },
-  { nome:'Guilherme Bueno Acosta',              data:'2026-06-03', turma:'T1.2' },
-  { nome:'Ísis Custodio do Amaral Vasconcelos', data:'2026-05-20', turma:'Kids 6.2' },
-  { nome:'Henrique Silveira da Rocha',          data:'2026-05-20', turma:'Kids 4.1' },
-  { nome:'Lucas Davila Marten',                 data:'2026-05-19', turma:'4.5' },
-  { nome:'Lorenzo Soares Lima',                 data:'2026-05-14', turma:'Kids 4.1' },
-  { nome:'Isaac Soares Lima',                   data:'2026-05-14', turma:'Kids 2.1' },
-  { nome:'Lucas Zanetti de Lima',               data:'2026-05-06', turma:'Kids 2.1' },
-  { nome:'Antônia da Silva Couto',              data:'2026-05-04', turma:'Preteen 2.5' },
-  { nome:'Manuela da Silva Couto',              data:'2026-05-04', turma:'Preteen 2.5' },
-  { nome:'Joaquim da Silva Couto',              data:'2026-05-04', turma:'Preteen 2.5' },
-  { nome:'Manuela Montagna Aguiar',             data:'2026-04-30', turma:'T1.1' },
-  { nome:'Laura Provensi Stefenon',             data:'2026-04-30', turma:'English 4' },
-  { nome:'Nikolas Ryuiti Oike',                 data:'2026-04-27', turma:'7.1' },
-  { nome:'Clara Soares Pereira',                data:'2026-04-23', turma:'Kids 6.2' },
+  { nome:'Aurora Damasceno Foster',             matricula:'6394/1', data:'2026-07-10', turma:'Baby 2.1' },
+  { nome:'Anthony Lopes Gouvea',                matricula:'6391/1', data:'2026-07-08', turma:'Kids 8.3' },
+  { nome:'Beatriz Dias Chollet',                matricula:'6386/1', data:'2026-07-06', turma:'' },
+  { nome:'Maitê Rodrigues Nunes',               matricula:'6382/1', data:'2026-07-03', turma:'Baby 2.1' },
+  { nome:'Pedro de Matos Campelo',              matricula:'1062/7', data:'2026-07-02', turma:'7.3' },
+  { nome:'Maria Luiza Gonçalves Neuenfeld',     matricula:'2924/3', data:'2026-06-25', turma:'' },
+  { nome:'Mariana Minozzo Bressiani',           matricula:'6358/1', data:'2026-06-24', turma:'Baby 6.2' },
+  { nome:'Morgana Pilição da Cruz',             matricula:'6356/1', data:'2026-06-22', turma:'Espanhol 1.1' },
+  { nome:'Bernardo Bilharva Rodrigues',         matricula:'824/8', data:'2026-06-18', turma:'8.3' },
+  { nome:'Morgana Guerra Menchaca',             matricula:'6348/1', data:'2026-06-18', turma:'Espanhol 1.1' },
+  { nome:'Robertha Antunes Leal Westphal',      matricula:'6339/1', data:'2026-06-16', turma:'Espanhol 1.1' },
+  { nome:'Helena de Sá Valente',                matricula:'6341/1', data:'2026-06-16', turma:'T1.2' },
+  { nome:'Eduardo Fioresi Leston',              matricula:'6334/1', data:'2026-06-12', turma:'T1.2' },
+  { nome:'Melânia Vitória Matos Ferst',         matricula:'6320/1', data:'2026-06-08', turma:'' },
+  { nome:'Marcus Boeira de Medeiros Filho',     matricula:'6321/1', data:'2026-06-08', turma:'' },
+  { nome:'Guilherme Bueno Acosta',              matricula:'6308/1', data:'2026-06-03', turma:'T1.2' },
+  { nome:'Ísis Custodio do Amaral Vasconcelos', matricula:'1003/6', data:'2026-05-20', turma:'Kids 6.2' },
+  { nome:'Henrique Silveira da Rocha',          matricula:'6275/1', data:'2026-05-20', turma:'Kids 4.1' },
+  { nome:'Lucas Davila Marten',                 matricula:'6272/1', data:'2026-05-19', turma:'4.5' },
+  { nome:'Lorenzo Soares Lima',                 matricula:'6258/1', data:'2026-05-14', turma:'Kids 4.1' },
+  { nome:'Isaac Soares Lima',                   matricula:'6259/1', data:'2026-05-14', turma:'Kids 2.1' },
+  { nome:'Lucas Zanetti de Lima',               matricula:'6242/1', data:'2026-05-06', turma:'Kids 2.1' },
+  { nome:'Antônia da Silva Couto',              matricula:'6233/1', data:'2026-05-04', turma:'Preteen 2.5' },
+  { nome:'Manuela da Silva Couto',              matricula:'6234/1', data:'2026-05-04', turma:'Preteen 2.5' },
+  { nome:'Joaquim da Silva Couto',              matricula:'6235/1', data:'2026-05-04', turma:'Preteen 2.5' },
+  { nome:'Manuela Montagna Aguiar',             matricula:'6228/1', data:'2026-04-30', turma:'T1.1' },
+  { nome:'Laura Provensi Stefenon',             matricula:'6229/1', data:'2026-04-30', turma:'English 4' },
+  { nome:'Nikolas Ryuiti Oike',                 matricula:'6221/1', data:'2026-04-27', turma:'7.1' },
+  { nome:'Clara Soares Pereira',                matricula:'6200/1', data:'2026-04-23', turma:'Kids 6.2' },
 ];
 function comCarregar(){
   try{
@@ -2749,7 +2753,7 @@ function comRender(){
           <th>Aluno(a)</th><th>Contrato</th><th>Assinatura</th><th>Turma</th><th style="text-align:right">Ações</th>
         </tr></thead>
         <tbody>${grupo.itens.map(m=>`<tr>
-          <td data-label="Aluno(a)" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><b>${m.nome}</b></td>
+          <td data-label="Aluno(a)" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><b>${m.nome}</b>${m.matricula?` <span style="font-weight:600;color:var(--text-dim);font-size:11.5px">· Mat. ${m.matricula}</span>`:''}</td>
           <td data-label="Contrato">${comISOparaBR(m.data)}</td>
           <td data-label="Assinatura">${comBadgeAssin(m)}</td>
           <td data-label="Turma" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${m.turma||'—'}</td>
@@ -2778,6 +2782,7 @@ function comPopularTurmasSelect(valorAtual){
 function comAbrirForm(m){
   _comEditandoId = m ? m.id : null;
   document.getElementById('comNome').value  = m ? m.nome : '';
+  document.getElementById('comMatricula').value = m ? (m.matricula||'') : '';
   document.getElementById('comData').value  = m ? m.data : '';
   document.getElementById('comAssin').value = m ? (m.assinatura||'pendente') : 'pendente';
   comPopularTurmasSelect(m ? (m.turma||'') : '');
@@ -2807,6 +2812,7 @@ document.getElementById('comSalvar').addEventListener('click', ()=>{
   const lista = comCarregar();
   const dados = {
     nome: nome,
+    matricula: document.getElementById('comMatricula').value.trim(),
     data: document.getElementById('comData').value,
     assinatura: document.getElementById('comAssin').value,
     turma: document.getElementById('comTurma').value.trim(),
@@ -2828,7 +2834,7 @@ document.getElementById('comBtnResumo').addEventListener('click', ()=>{
   const lista = comCarregar().slice().sort((a,b)=>(a.data||'').localeCompare(b.data||''));
   const pend = lista.filter(m=>(m.assinatura||'pendente')!=='assinada');
   const txt = `*NOVOS ALUNOS 2026/2 — CCAA Pelotas*\n\n`+
-    lista.map(m=>`• ${m.nome} (${comISOparaBR(m.data)})${m.turma?' — '+m.turma:''}`).join('\n')+
+    lista.map(m=>`• ${m.nome}${m.matricula?' (Mat. '+m.matricula+')':''} — ${comISOparaBR(m.data)}${m.turma?' · '+m.turma:''}`).join('\n')+
     (pend.length ? `\n\n*Assinaturas em aberto (${pend.length}):*\n${pend.map(m=>'• '+m.nome).join('\n')}` : '')+
     `\n\nTotal: ${lista.length}`;
   copiarTexto(txt, 'Resumo copiado ✓');
