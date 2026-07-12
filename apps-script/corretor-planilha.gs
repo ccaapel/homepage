@@ -35,7 +35,7 @@ var SHEET_ID_CORRETOR = "1MG3pQOlH5kYksNBUavNfmd23IPl-iiiimGVJKG1w8xA";
 function planilhaCorretor_() { return SpreadsheetApp.openById(SHEET_ID_CORRETOR); }
 
 var CONFIG = {
-  ABA_RELATORIO: '🛠 Correções',     // aba onde o relatório é gravado
+  ABA_RELATORIO: 'CORREÇÕES AUTOMÁTICAS - 13:00 DIARIAMENTE',  // aba onde o relatório é gravado
   TIMEZONE: 'America/Sao_Paulo',
   HORA_DIARIA: 13,                    // hora do dia para rodar (0-23)
   MAX_LINHAS_RELATORIO: 4000,         // limite de histórico guardado
@@ -116,6 +116,10 @@ function corrigirAba_(sheet, correcoes) {
   if (!headerRow) return;                 // aba sem formato esperado: pula
   var dataIni = headerRow + 1;
   if (dataIni > lastRow) return;
+
+  // Toda aba de turma reconhecida deve ficar VISÍVEL na planilha (integração:
+  // se estiver oculta, o robô a mostra, para nada ficar escondido do controle).
+  try { if (sheet.isSheetHidden()) sheet.showSheet(); } catch (e) {}
 
   // 2) Mapa de colunas pelo nome do cabeçalho
   var headers = sheet.getRange(headerRow, 1, 1, lastCol).getValues()[0].map(normCab_);
