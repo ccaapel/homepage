@@ -2880,10 +2880,35 @@ const COM_SEED = [
   { nome:'Nikolas Ryuiti Oike',                 matricula:'6221/1', data:'2026-04-27', turma:'English 7.1' },
   { nome:'Clara Soares Pereira',                matricula:'6200/1', data:'2026-04-23', turma:'Kids 6.2' },
 ];
+// Autocorreção: nomes de turma que já foram salvos (navegador ou planilha) antes
+// de uma renomeação oficial ficam presos ao nome antigo, mesmo depois do COM_SEED
+// ser corrigido no código. Este mapa conserta o que já está salvo, uma vez, e
+// grava de volta, sem precisar apagar a base para pegar o nome novo.
+const COM_TURMA_MIGRACAO_ = {
+  '7.1': 'English 7.1',
+  '7.3': 'English 7.3',
+  '8.3': 'English 8.3',
+  '4.5': 'English 4.5',
+  'English 4': 'English 4.1',
+  'Baby 6.2': 'Kids 4.1',
+  'Espanhol 1.1': 'Español 1.1',
+};
+function comMigrarTurmas_(lista){
+  let mudou = false;
+  lista.forEach(m=>{
+    const alvo = COM_TURMA_MIGRACAO_[(m.turma||'').trim()];
+    if(alvo){ m.turma = alvo; mudou = true; }
+  });
+  return mudou;
+}
 function comCarregar(){
   try{
     const salvo = localStorage.getItem(COM_KEY);
-    if(salvo) return JSON.parse(salvo);
+    if(salvo){
+      const lista = JSON.parse(salvo);
+      if(comMigrarTurmas_(lista)) comSalvarLista(lista);
+      return lista;
+    }
   }catch(e){}
   const seed = COM_SEED.map((m,i)=>({ id:'m'+(i+1), assinatura:'assinada', ...m }));
   comSalvarLista(seed);
@@ -2891,7 +2916,13 @@ function comCarregar(){
 }
 function comSalvarLocalSo_(lista){ try{ localStorage.setItem(COM_KEY, JSON.stringify(lista)); }catch(e){} }
 function comSalvarLista(lista){ comSalvarLocalSo_(lista); nuvemSalvar('matriculas_20262', lista); }
-function comSincronizar(aposAdotar){ nuvemSincronizarLista('matriculas_20262', comCarregar, comSalvarLocalSo_, aposAdotar); }
+function comSincronizar(aposAdotar){
+  // Migra também o que chegar da planilha (outro navegador pode subir nomes antigos)
+  nuvemSincronizarLista('matriculas_20262', comCarregar, (lista)=>{
+    comMigrarTurmas_(lista);
+    comSalvarLocalSo_(lista);
+  }, aposAdotar);
+}
 function comISOparaBR(iso){ const p=(iso||'').split('-'); return p.length===3 ? `${p[2]}/${p[1]}/${p[0]}` : (iso||''); }
 const COM_MESES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 function comMesChave(iso){ const p=(iso||'').split('-'); return p.length>=2 ? p[0]+'-'+p[1] : 'sem-data'; }
