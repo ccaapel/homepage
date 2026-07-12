@@ -2854,13 +2854,13 @@ const COM_SEED = [
   { nome:'Anthony Lopes Gouvea',                matricula:'6391/1', data:'2026-07-08', turma:'Kids 8.3' },
   { nome:'Beatriz Dias Chollet',                matricula:'6386/1', data:'2026-07-06', turma:'' },
   { nome:'Maitê Rodrigues Nunes',               matricula:'6382/1', data:'2026-07-03', turma:'Baby 2.1' },
-  { nome:'Pedro de Matos Campelo',              matricula:'1062/7', data:'2026-07-02', turma:'7.3' },
+  { nome:'Pedro de Matos Campelo',              matricula:'1062/7', data:'2026-07-02', turma:'English 7.3' },
   { nome:'Maria Luiza Gonçalves Neuenfeld',     matricula:'2924/3', data:'2026-06-25', turma:'' },
-  { nome:'Mariana Minozzo Bressiani',           matricula:'6358/1', data:'2026-06-24', turma:'Baby 6.2' },
-  { nome:'Morgana Pilição da Cruz',             matricula:'6356/1', data:'2026-06-22', turma:'Espanhol 1.1' },
-  { nome:'Bernardo Bilharva Rodrigues',         matricula:'824/8', data:'2026-06-18', turma:'8.3' },
-  { nome:'Morgana Guerra Menchaca',             matricula:'6348/1', data:'2026-06-18', turma:'Espanhol 1.1' },
-  { nome:'Robertha Antunes Leal Westphal',      matricula:'6339/1', data:'2026-06-16', turma:'Espanhol 1.1' },
+  { nome:'Mariana Minozzo Bressiani',           matricula:'6358/1', data:'2026-06-24', turma:'Kids 4.1' },
+  { nome:'Morgana Pilição da Cruz',             matricula:'6356/1', data:'2026-06-22', turma:'Español 1.1' },
+  { nome:'Bernardo Bilharva Rodrigues',         matricula:'824/8', data:'2026-06-18', turma:'English 8.3' },
+  { nome:'Morgana Guerra Menchaca',             matricula:'6348/1', data:'2026-06-18', turma:'Español 1.1' },
+  { nome:'Robertha Antunes Leal Westphal',      matricula:'6339/1', data:'2026-06-16', turma:'Español 1.1' },
   { nome:'Helena de Sá Valente',                matricula:'6341/1', data:'2026-06-16', turma:'T1.2' },
   { nome:'Eduardo Fioresi Leston',              matricula:'6334/1', data:'2026-06-12', turma:'T1.2' },
   { nome:'Melânia Vitória Matos Ferst',         matricula:'6320/1', data:'2026-06-08', turma:'' },
@@ -2868,7 +2868,7 @@ const COM_SEED = [
   { nome:'Guilherme Bueno Acosta',              matricula:'6308/1', data:'2026-06-03', turma:'T1.2' },
   { nome:'Ísis Custodio do Amaral Vasconcelos', matricula:'1003/6', data:'2026-05-20', turma:'Kids 6.2' },
   { nome:'Henrique Silveira da Rocha',          matricula:'6275/1', data:'2026-05-20', turma:'Kids 4.1' },
-  { nome:'Lucas Davila Marten',                 matricula:'6272/1', data:'2026-05-19', turma:'4.5' },
+  { nome:'Lucas Davila Marten',                 matricula:'6272/1', data:'2026-05-19', turma:'English 4.5' },
   { nome:'Lorenzo Soares Lima',                 matricula:'6258/1', data:'2026-05-14', turma:'Kids 4.1' },
   { nome:'Isaac Soares Lima',                   matricula:'6259/1', data:'2026-05-14', turma:'Kids 2.1' },
   { nome:'Lucas Zanetti de Lima',               matricula:'6242/1', data:'2026-05-06', turma:'Kids 2.1' },
@@ -2876,8 +2876,8 @@ const COM_SEED = [
   { nome:'Manuela da Silva Couto',              matricula:'6234/1', data:'2026-05-04', turma:'Preteen 2.5' },
   { nome:'Joaquim da Silva Couto',              matricula:'6235/1', data:'2026-05-04', turma:'Preteen 2.5' },
   { nome:'Manuela Montagna Aguiar',             matricula:'6228/1', data:'2026-04-30', turma:'T1.1' },
-  { nome:'Laura Provensi Stefenon',             matricula:'6229/1', data:'2026-04-30', turma:'English 4' },
-  { nome:'Nikolas Ryuiti Oike',                 matricula:'6221/1', data:'2026-04-27', turma:'7.1' },
+  { nome:'Laura Provensi Stefenon',             matricula:'6229/1', data:'2026-04-30', turma:'English 4.1' },
+  { nome:'Nikolas Ryuiti Oike',                 matricula:'6221/1', data:'2026-04-27', turma:'English 7.1' },
   { nome:'Clara Soares Pereira',                matricula:'6200/1', data:'2026-04-23', turma:'Kids 6.2' },
 ];
 function comCarregar(){
@@ -2949,14 +2949,17 @@ function comRender(){
     <div class="fin-stat"><div class="fin-stat-n" style="color:var(--live)">${formadas}</div><div class="fin-stat-l">Turmas formadas (3+)</div></div>
     <div class="fin-stat"><div class="fin-stat-n" style="color:${pend?'var(--ccaa-red)':'var(--live)'}">${pend}</div><div class="fin-stat-l">Assinaturas em aberto</div></div>`;
 
+  const turmasOficiais = comTurmasOficiais_();
   const turmasOrd = Object.entries(porTurma).sort((a,b)=> contaTurma(b[0]) - contaTurma(a[0]) || a[0].localeCompare(b[0]));
   document.getElementById('comTurmasGrid').innerHTML = turmasOrd.map(([t, novosDaTurma])=>{
     const n = contaTurma(t);
     const ok = n >= 3;
     const cor = ok ? 'var(--live)' : 'var(--soon)';
     const status = ok ? 'Formada' : `Faltam ${3-n}`;
+    const divergente = !turmasOficiais.includes(t);
     return `<div style="background:var(--surface);border:1.5px solid color-mix(in srgb,${cor} 35%,var(--border));border-radius:var(--r-md);padding:12px 14px">
       <div style="font-size:13px;font-weight:800;color:var(--text)">${t}</div>
+      ${divergente ? '<div style="font-size:10.5px;font-weight:700;color:var(--ccaa-red);margin-top:2px">Turma não encontrada em Alunos Ativos</div>' : ''}
       <div style="display:flex;align-items:baseline;gap:8px;margin-top:6px">
         <span style="font-size:22px;font-weight:800;color:${cor}">${n}</span>
         <span style="font-size:11px;color:var(--text-dim)">aluno${n>1?'s':''} na turma</span>
@@ -3027,16 +3030,20 @@ function comRender(){
     </div>`;
 }
 function comTrocarMes(chave){ _comMesAtivo = chave; comRender(); }
+// Nomes oficiais de turma reconhecidos pelo site (evita digitar/gravar nome
+// divergente do que existe de verdade em Alunos Ativos ou na tela inicial).
+function comTurmasOficiais_(){
+  const doTimetable = (typeof FLAT!=='undefined' && FLAT.length) ? FLAT.map(t=>t.nome) : [];
+  const doAlunosAtivos = (typeof ALUNOS_ATIVOS!=='undefined') ? ALUNOS_ATIVOS.map(t=>t.turma) : [];
+  return [...new Set([...doTimetable, ...doAlunosAtivos])];
+}
 function comPopularTurmasSelect(valorAtual){
   const sel = document.getElementById('comTurma');
-  // Turmas da tela inicial (timetable) + turmas já usadas nas matrículas
-  const doTimetable = (typeof FLAT!=='undefined' && FLAT.length) ? FLAT.map(t=>t.nome) : [];
-  const usadas = comCarregar().map(m=>(m.turma||'').trim()).filter(Boolean);
-  const todas = [...new Set([...doTimetable, ...usadas])].sort((a,b)=>a.localeCompare(b));
+  const todas = comTurmasOficiais_().sort((a,b)=>a.localeCompare(b));
   sel.innerHTML = '<option value="">Sem turma definida</option>' +
     todas.map(t=>`<option value="${t.replace(/"/g,'&quot;')}">${t}</option>`).join('');
   if(valorAtual && !todas.includes(valorAtual)){
-    sel.innerHTML += `<option value="${valorAtual.replace(/"/g,'&quot;')}">${valorAtual}</option>`;
+    sel.innerHTML += `<option value="${valorAtual.replace(/"/g,'&quot;')}">${valorAtual} (não reconhecida)</option>`;
   }
   sel.value = valorAtual || '';
 }
