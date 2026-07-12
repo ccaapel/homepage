@@ -640,6 +640,21 @@ html { scroll-behavior:smooth; }
 #finTable td, #finTable th { font-variant-numeric:tabular-nums; }
 #finTable td:not(:first-child), #finTable th:not(:first-child) { text-align:right; }
 
+/* ===== Cards de turma (Alunos Ativos) ===== */
+.aa-turma {
+  background:var(--surface); border:1.5px solid var(--border); border-radius:var(--r-md);
+  padding:14px 16px; transition:border-color .16s, box-shadow .16s, transform .16s;
+}
+.aa-turma:hover {
+  border-color:color-mix(in srgb,var(--ccaa-blue) 45%,var(--border));
+  box-shadow:0 4px 14px color-mix(in srgb,var(--ccaa-blue) 10%,transparent);
+  transform:translateY(-1px);
+}
+.aa-dot-novo {
+  width:6px; height:6px; border-radius:99px; background:var(--live);
+  display:inline-block; flex-shrink:0;
+}
+
 /* ===== GATE DE ENTRADA (tela de acesso à homepage) ===== */
 #gate {
   position:fixed; inset:0; z-index:9999;
@@ -1891,7 +1906,7 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
             <li><b>Status que não contam:</b> Agendado, Cancelado e Remarcado (não geram pagamento).</li>
             <li><b>Prova de 1h:</b> ocupa 2 horários seguidos na planilha, mas é contada como <b>1 aplicação</b> (as duas linhas são fundidas automaticamente).</li>
             <li><b>Teacher considerado:</b> o que <b>aplica</b> (dono da aba na planilha), não o teacher da turma do aluno.</li>
-            <li><b>Valores por tipo:</b> definidos manualmente nos campos acima e salvos <b>somente neste navegador</b> — em outro computador será preciso preencher de novo.</li>
+            <li><b>Valores por tipo:</b> definidos manualmente nos campos acima e salvos na planilha, valendo em qualquer navegador.</li>
             <li><b>Formato sem valor preenchido:</b> entra na contagem de aplicações, mas soma R$ 0,00 até o valor ser definido.</li>
             <li><b>Período:</b> filtra pela data da aplicação registrada na planilha (campo Data).</li>
             <li><b>Fonte dos dados:</b> leitura ao vivo da planilha de controle — qualquer correção feita lá reflete aqui ao recarregar.</li>
@@ -2024,7 +2039,7 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
       <div class="int-loading" id="comVazio" style="display:none">Nenhuma matrícula com esse filtro.</div>
 
       <div style="font-size:11.5px;color:var(--text-dim);margin-top:12px;line-height:1.6">
-        Fonte: contratos e movimentação por turma do Sponte (conferência manual). Os dados ficam salvos neste navegador.
+        Fonte: contratos e movimentação por turma do Sponte (conferência manual). Os dados são salvos na planilha e valem em qualquer navegador.
       </div>
       <div class="int-actions" style="margin-top:10px">
         <button class="int-btn int-btn-reload" id="comBtnResumo" type="button" title="Resumo para WhatsApp">Copiar resumo</button>
@@ -2130,7 +2145,7 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
       <div id="matLista"></div>
       <div class="int-loading" id="matVazio" style="display:none">Nenhuma saída de material registrada.</div>
       <div style="font-size:11.5px;color:var(--text-dim);margin-top:12px;line-height:1.6">
-        Registros salvos neste navegador. "Termo" imprime o termo individual em 2 vias (escola e responsável); "Termos em lote" imprime os termos de uma turma, curso ou de todos os alunos em um único trabalho de impressão.
+        Registros salvos na planilha, compartilhados entre todos os navegadores. "Termo" imprime o termo individual em 2 vias (escola e responsável); "Termos em lote" imprime os termos de uma turma, curso ou de todos os alunos em um único trabalho de impressão.
       </div>
     </div><!-- /viewMateriais -->
 
@@ -2143,7 +2158,7 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
     <h3>Horários por aba</h3>
     <p style="font-size:12.5px;color:var(--text-dim);margin-bottom:14px">
       Marque quais abas estão ativas para agendamento e edite os horários (separados por vírgula, formato HH:MM).
-      As mudanças valem neste navegador e são aplicadas na hora.
+      As mudanças são salvas na planilha e valem em qualquer navegador.
     </p>
     <div id="horariosLista" style="display:flex;flex-direction:column;gap:10px;max-height:55vh;overflow:auto;padding-right:4px"></div>
     <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap">
@@ -2436,7 +2451,7 @@ const HORARIOS_POR_ABA = {
   "Laura: SEXTA-FEIRA - Sala 2":        ["09:00","09:30","10:00","10:30"],
 };
 
-// ===== EDITOR DE HORÁRIOS (override manual, salvo neste navegador) =====
+// ===== EDITOR DE HORÁRIOS (override manual, sincronizado com a planilha) =====
 // Permite ativar/desativar abas e alterar os slots direto pelo app, sem mexer no código.
 const HORARIOS_OVR_KEY = 'ccaa_horarios_override_v1';
 function carregarHorariosOverride(){
@@ -2472,6 +2487,41 @@ function sincronizarHorariosDoServidor(){
       location.reload();
     }
   }, ()=>{});
+}
+
+// ===== NUVEM: armazenamento compartilhado na planilha (aba Config) =====
+// Tudo que é editado no site (matrículas do Comercial, saídas de material) é
+// gravado na planilha via Apps Script e lido de volta em QUALQUER navegador.
+// Escrita: POST fire-and-forget (aceita dados grandes). Leitura: JSONP.
+function nuvemSalvar(chave, obj){
+  try{
+    const body = new URLSearchParams({
+      action:'setConfig', senha:SENHA_PAINEL, chave:chave, dados:JSON.stringify(obj)
+    });
+    fetch(SCRIPT_URL, { method:'POST', mode:'no-cors', body: body });
+  }catch(e){}
+}
+function nuvemCarregar(chave, cb){
+  jsonpCall(`${SCRIPT_URL}?action=getConfig&senha=${encodeURIComponent(SENHA_PAINEL)}&chave=${encodeURIComponent(chave)}`,
+    (j)=>{ cb(j && j.ok ? j.dados : undefined); },
+    ()=>cb(undefined));
+}
+// Sincroniza uma lista local (localStorage) com a nuvem:
+// nuvem tem dados diferentes -> adota e re-renderiza; nuvem vazia e local cheio -> sobe o local.
+function nuvemSincronizarLista(chave, carregarLocal, salvarLocalSo, aposAdotar){
+  nuvemCarregar(chave, (dados)=>{
+    if(dados === undefined) return;               // backend sem suporte ainda: segue local
+    const local = carregarLocal();
+    if(dados === null || !Array.isArray(dados)){
+      if(local.length) nuvemSalvar(chave, local); // primeira subida
+      return;
+    }
+    if(JSON.stringify(dados) !== JSON.stringify(local)){
+      salvarLocalSo(dados);
+      if(aposAdotar) aposAdotar();
+      toast('Dados sincronizados com a planilha ✓');
+    }
+  });
 }
 // Aplica overrides em cima dos padrões acima (mutação em memória, na carga da página)
 (function aplicarHorariosOverride(){
@@ -2718,6 +2768,7 @@ function pedAbrirAlunos(){
   document.getElementById('btnVoltarPedagogico').style.display='';
   document.getElementById('viewAlunosAtivos').style.display='block';
   aaRender();
+  comSincronizar(aaRender);   // novos do Comercial vêm da nuvem em qualquer navegador
 }
 function pedAbrirMateriais(){
   pedEsconderTudo();
@@ -2726,6 +2777,8 @@ function pedAbrirMateriais(){
   document.getElementById('btnVoltarPedagogico').style.display='';
   document.getElementById('viewMateriais').style.display='block';
   matRender();
+  matSincronizar(matRender);
+  comSincronizar(matRender);  // autocomplete de alunos também usa os novos do Comercial
 }
 function iniciarPainel(){
   modoGuiaUnica();
@@ -2777,6 +2830,7 @@ function iniciarComercialApp(){
   document.getElementById('viewFinanceiro').style.display = 'none';
   document.getElementById('viewComercial').style.display = 'block';
   comRender();
+  comSincronizar(comRender);
 }
 
 // ===== PAINEL COMERCIAL: Novos Alunos 2026/2 =====
@@ -2824,7 +2878,9 @@ function comCarregar(){
   comSalvarLista(seed);
   return seed;
 }
-function comSalvarLista(lista){ try{ localStorage.setItem(COM_KEY, JSON.stringify(lista)); }catch(e){} }
+function comSalvarLocalSo_(lista){ try{ localStorage.setItem(COM_KEY, JSON.stringify(lista)); }catch(e){} }
+function comSalvarLista(lista){ comSalvarLocalSo_(lista); nuvemSalvar('matriculas_20262', lista); }
+function comSincronizar(aposAdotar){ nuvemSincronizarLista('matriculas_20262', comCarregar, comSalvarLocalSo_, aposAdotar); }
 function comISOparaBR(iso){ const p=(iso||'').split('-'); return p.length===3 ? `${p[2]}/${p[1]}/${p[0]}` : (iso||''); }
 const COM_MESES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 function comMesChave(iso){ const p=(iso||'').split('-'); return p.length>=2 ? p[0]+'-'+p[1] : 'sem-data'; }
@@ -3104,7 +3160,7 @@ function aaRender(){
       </div>
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px">
         ${g.turmas.map(t=>`
-        <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-md);padding:14px 16px">
+        <div class="aa-turma">
           <div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap">
             <span style="font-size:14px;font-weight:800;color:var(--text)">${t.turma}</span>
             <span style="font-size:11.5px;color:var(--text-dim)">${t.horario}</span>
@@ -3113,6 +3169,7 @@ function aaRender(){
           <div style="margin-top:10px;display:flex;flex-direction:column;gap:5px">
             ${t.alunos.map(a=>`
             <div style="display:flex;align-items:center;gap:7px;font-size:12.5px;line-height:1.4">
+              ${a.novo ? '<span class="aa-dot-novo" title="Aluno novo 2026/2"></span>' : ''}
               <span style="color:var(--text)">${a.nome}</span>
               <span style="color:var(--text-dim);font-size:11px;font-weight:600">${a.mat}</span>
               ${a.c ? '<span title="Matrícula cancelada" style="color:var(--ccaa-red);font-size:11px;font-weight:800">C</span>' : ''}
@@ -3128,14 +3185,17 @@ document.getElementById('aaBusca').addEventListener('input', aaRender);
 // ===== SAÍDA DE MATERIAIS 2026/2 =====
 const MAT_KEY = 'ccaa_materiais_20262_v1';
 function matCarregar(){ try{ return JSON.parse(localStorage.getItem(MAT_KEY)||'[]'); }catch(e){ return []; } }
-function matSalvarLista(l){ try{ localStorage.setItem(MAT_KEY, JSON.stringify(l)); }catch(e){} }
+function matSalvarLocalSo_(l){ try{ localStorage.setItem(MAT_KEY, JSON.stringify(l)); }catch(e){} }
+function matSalvarLista(l){ matSalvarLocalSo_(l); nuvemSalvar('materiais_20262', l); }
+function matSincronizar(aposAdotar){ nuvemSincronizarLista('materiais_20262', matCarregar, matSalvarLocalSo_, aposAdotar); }
 let _matEditandoId = null;
 // Todos os alunos conhecidos (ativos + novos do Comercial) para o autocomplete
 function matTodosAlunos(){
-  const ativos = ALUNOS_ATIVOS.flatMap(t=>t.alunos.map(a=>({nome:a.nome, mat:a.mat, turma:t.turma})));
-  const novos = comCarregar().map(m=>({nome:m.nome, mat:(m.matricula||'').split('/')[0], turma:m.turma||''}));
+  // usa a visão mesclada (fixos + Comercial sincronizado da planilha)
+  const merged = aaComDadosDoComercial_();
+  const todos = merged.flatMap(t=>t.alunos.map(a=>({nome:a.nome, mat:a.mat, turma:t.turma})));
   const vistos = {};
-  return [...ativos, ...novos].filter(a=>{
+  return todos.filter(a=>{
     const k = normTexto(a.nome);
     if(vistos[k]) return false;
     vistos[k] = 1; return true;
@@ -5326,13 +5386,41 @@ document.getElementById('finSenha').addEventListener('keydown', e=>{ if(e.key===
 document.getElementById('finUsuario').addEventListener('keydown', e=>{ if(e.key==='Enter') document.getElementById('finSenha').focus(); });
 
 // ===== Listeners do Financeiro =====
+// Valores por tipo sincronizados com a planilha (valem em qualquer navegador)
+function finValoresObj_(){
+  const obj = {};
+  FIN_FORMATOS.forEach(f=> FIN_STATUS_VALS.forEach(st=>{
+    obj[finChaveValor(f,st)] = localStorage.getItem(finChaveValor(f,st)) || '';
+  }));
+  return obj;
+}
+function finSincronizarValores(){
+  nuvemCarregar('fin_valores', (dados)=>{
+    if(dados === undefined) return;                 // backend sem suporte: segue local
+    if(dados === null || typeof dados !== 'object'){
+      const local = finValoresObj_();
+      if(Object.values(local).some(v=>v!=='')) nuvemSalvar('fin_valores', local);
+      return;
+    }
+    let mudou = false;
+    Object.entries(dados).forEach(([k,v])=>{
+      if(!/^fin_valor_/.test(k)) return;
+      if((localStorage.getItem(k)||'') !== String(v||'')){ localStorage.setItem(k, String(v||'')); mudou = true; }
+    });
+    if(mudou){ finCarregarValores(); renderFinanceiro(); toast('Valores sincronizados com a planilha ✓'); }
+  });
+}
 finCarregarValores();
+finSincronizarValores();
+let _finSalvarTimer = null;
 FIN_FORMATOS.forEach(f=>{
   FIN_STATUS_VALS.forEach(st=>{
     const el = document.getElementById('finVal'+finSemAcento(f)+st);
     if(el) el.addEventListener('input', ()=>{
       localStorage.setItem(finChaveValor(f, st), el.value);
       renderFinanceiro();
+      clearTimeout(_finSalvarTimer);
+      _finSalvarTimer = setTimeout(()=> nuvemSalvar('fin_valores', finValoresObj_()), 800);
     });
   });
 });
