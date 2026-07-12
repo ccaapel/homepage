@@ -1752,6 +1752,36 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
 
   <div class="interno-body" id="painelBox" style="display:none">
     <button class="int-btn int-btn-reload" id="btnVoltarMenu" type="button" style="margin-bottom:14px">‹ Ferramentas</button>
+    <button class="int-btn int-btn-reload" id="btnVoltarPedagogico" type="button" style="display:none;margin-bottom:14px">‹ Menu do Pedagógico</button>
+
+    <!-- Sub-menu do Pedagógico: 3 telas -->
+    <div id="pedagogicoMenu" style="display:none">
+      <div class="launcher-center" style="padding-top:8px">
+        <h3 class="launcher-h3" style="font-size:clamp(20px,4vw,26px)">Controle Pedagógico 2026</h3>
+        <p class="launcher-sub">Escolha a área que deseja abrir.</p>
+        <div class="launcher-grid">
+          <button class="launcher-card" id="pedCardPlanilha" type="button">
+            <span class="launcher-tag tag-pedagogico">Agendamentos</span>
+            <span class="launcher-titulo">Planilha de Aplicações</span>
+            <span class="launcher-desc">Equiparações, aulas de apoio, nivelamentos e provas — agendamentos e vagas.</span>
+            <span class="launcher-acao">Abrir →</span>
+          </button>
+          <button class="launcher-card" id="pedCardAlunos" type="button">
+            <span class="launcher-tag tag-pedagogico">Cadastro</span>
+            <span class="launcher-titulo">Alunos Ativos 2026/2</span>
+            <span class="launcher-desc">Todos os alunos por curso e turma, com matrícula, professor e situação de rematrícula.</span>
+            <span class="launcher-acao">Abrir →</span>
+          </button>
+          <button class="launcher-card" id="pedCardMateriais" type="button">
+            <span class="launcher-tag tag-pedagogico">Materiais</span>
+            <span class="launcher-titulo">Saída de Materiais</span>
+            <span class="launcher-desc">Controle de entrega de material por aluno, com termo de entrega para assinatura.</span>
+            <span class="launcher-acao">Abrir →</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- Resumo (dashboard) -->
     <div id="resumoBar" style="display:flex; flex-wrap:wrap; gap:10px; margin-bottom:14px;"></div>
 
@@ -2000,6 +2030,81 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
         <button class="int-btn int-btn-reload" id="comBtnResumo" type="button" title="Resumo para WhatsApp">Copiar resumo</button>
       </div>
     </div><!-- /viewComercial -->
+
+    <!-- ===== ALUNOS ATIVOS 2026/2 (relatório de rematrículas por curso) ===== -->
+    <div id="viewAlunosAtivos" style="display:none">
+      <h3 style="font-family:'Bricolage Grotesque',sans-serif;font-size:19px;font-weight:800;letter-spacing:-0.015em;color:var(--text);margin:0 0 14px">Alunos Ativos 2026/2</h3>
+      <div id="aaResumoBar" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px"></div>
+      <div class="int-actions" style="margin-bottom:14px">
+        <select class="int-select" id="aaFiltroCurso" style="min-width:200px"><option value="">Todos os cursos</option></select>
+        <input class="int-select" type="text" id="aaBusca" placeholder="Buscar aluno, matrícula ou turma…" style="flex:1;min-width:220px">
+      </div>
+      <div id="aaLista"></div>
+      <div class="int-loading" id="aaVazio" style="display:none">Nenhum aluno encontrado com esse filtro.</div>
+      <div style="font-size:11.5px;color:var(--text-dim);margin-top:12px;line-height:1.6">
+        Fonte: relatório "Rematrículas 2026/2 — Turmas por Curso" (Sponte). Legenda: Rematriculado = já confirmou o 2º semestre; Trancado = trancamento no 1º semestre.
+      </div>
+    </div><!-- /viewAlunosAtivos -->
+
+    <!-- ===== SAÍDA DE MATERIAIS ===== -->
+    <div id="viewMateriais" style="display:none">
+      <h3 style="font-family:'Bricolage Grotesque',sans-serif;font-size:19px;font-weight:800;letter-spacing:-0.015em;color:var(--text);margin:0 0 14px">Saída de Materiais 2026/2</h3>
+      <div id="matResumoBar" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px"></div>
+      <div class="int-actions" style="margin-bottom:12px">
+        <button class="int-btn int-btn-novo" id="matBtnNovo" type="button">+ Registrar saída</button>
+        <select class="int-select" id="matFiltroStatus" style="min-width:160px">
+          <option value="">Todos os status</option>
+          <option value="pendente">Pendentes</option>
+          <option value="entregue">Entregues</option>
+        </select>
+        <input class="int-select" type="text" id="matBusca" placeholder="Buscar aluno ou material…" style="flex:1;min-width:200px">
+      </div>
+
+      <div id="matForm" style="display:none;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-md);padding:14px 16px;margin-bottom:14px">
+        <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end">
+          <div style="flex:2;min-width:220px">
+            <label style="font-size:11.5px;font-weight:700;color:var(--text-mute)">Aluno(a)</label>
+            <input class="int-select" type="text" id="matNome" list="matListaAlunos" autocomplete="off" style="width:100%">
+            <datalist id="matListaAlunos"></datalist>
+          </div>
+          <div style="min-width:110px">
+            <label style="font-size:11.5px;font-weight:700;color:var(--text-mute)">Matrícula</label>
+            <input class="int-select" type="text" id="matMatricula" style="width:100%">
+          </div>
+          <div style="flex:1;min-width:150px">
+            <label style="font-size:11.5px;font-weight:700;color:var(--text-mute)">Turma</label>
+            <input class="int-select" type="text" id="matTurma" style="width:100%">
+          </div>
+          <div style="flex:1;min-width:170px">
+            <label style="font-size:11.5px;font-weight:700;color:var(--text-mute)">Material</label>
+            <input class="int-select" type="text" id="matMaterial" placeholder="Ex.: Livro Kids 2 + CD" style="width:100%">
+          </div>
+          <div style="min-width:140px">
+            <label style="font-size:11.5px;font-weight:700;color:var(--text-mute)">Status</label>
+            <select class="int-select" id="matStatus" style="width:100%">
+              <option value="pendente">Pendente</option>
+              <option value="entregue">Entregue</option>
+            </select>
+          </div>
+          <div style="min-width:135px">
+            <label style="font-size:11.5px;font-weight:700;color:var(--text-mute)">Data da entrega</label>
+            <input class="int-select" type="date" id="matData" style="width:100%">
+          </div>
+          <div style="flex:1;min-width:170px">
+            <label style="font-size:11.5px;font-weight:700;color:var(--text-mute)">Retirado por (responsável)</label>
+            <input class="int-select" type="text" id="matRetirado" style="width:100%">
+          </div>
+          <button class="int-btn int-btn-novo" id="matSalvar" type="button">Salvar</button>
+          <button class="int-btn int-btn-reload" id="matCancelar" type="button">Cancelar</button>
+        </div>
+      </div>
+
+      <div id="matLista"></div>
+      <div class="int-loading" id="matVazio" style="display:none">Nenhuma saída de material registrada.</div>
+      <div style="font-size:11.5px;color:var(--text-dim);margin-top:12px;line-height:1.6">
+        Registros salvos neste navegador. O botão "Termo" imprime o termo de entrega em 2 vias (escola / responsável) para assinatura.
+      </div>
+    </div><!-- /viewMateriais -->
 
   </div><!-- /painelBox -->
 </div><!-- /internoOverlay -->
@@ -2546,20 +2651,71 @@ function modoGuiaUnica(){
   if(gate) gate.style.display = 'none';
 }
 
+// ===== HUB DO PEDAGÓGICO: menu com 3 telas (Planilha / Alunos Ativos / Materiais) =====
+function pedEsconderTudo(){
+  ['pedagogicoMenu','resumoBar','painelTabs','viewVagas','viewAgenda','viewFinanceiro','viewComercial','viewAlunosAtivos','viewMateriais']
+    .forEach(id=>{ const el=document.getElementById(id); if(el) el.style.display='none'; });
+  document.getElementById('btnVoltarPedagogico').style.display='none';
+}
+function pedMostrarMenu(){
+  pedEsconderTudo();
+  document.title = 'Controle Pedagógico · CCAA Pelotas';
+  document.querySelector('.interno-header h2').textContent = 'Controle Pedagógico 2026';
+  document.getElementById('pedagogicoMenu').style.display='block';
+}
+let _planilhaIniciada = false;
+function pedAbrirPlanilha(){
+  pedEsconderTudo();
+  document.title = 'Controle de Aplicações 2026/1 · CCAA Pelotas';
+  document.querySelector('.interno-header h2').textContent = 'Controle de Aplicações 2026/1';
+  document.getElementById('btnVoltarPedagogico').style.display='';
+  document.getElementById('resumoBar').style.display='flex';
+  document.getElementById('painelTabs').style.display='flex';
+  document.getElementById('tabFinanceiro').style.display='none';   // Financeiro tem guia própria
+  if(!_planilhaIniciada){
+    _planilhaIniciada = true;
+    popularAbas();
+    popularFiltroTeacher();
+    document.getElementById('filtroDataIni').value = '';
+    document.getElementById('filtroDataFim').value = '';
+    carregarDados();
+    sincronizarHorariosDoServidor();
+  }
+  trocarAba('vagas');
+}
+function pedAbrirAlunos(){
+  pedEsconderTudo();
+  document.title = 'Alunos Ativos 2026/2 · CCAA Pelotas';
+  document.querySelector('.interno-header h2').textContent = 'Alunos Ativos 2026/2';
+  document.getElementById('btnVoltarPedagogico').style.display='';
+  document.getElementById('viewAlunosAtivos').style.display='block';
+  aaRender();
+}
+function pedAbrirMateriais(){
+  pedEsconderTudo();
+  document.title = 'Saída de Materiais · CCAA Pelotas';
+  document.querySelector('.interno-header h2').textContent = 'Saída de Materiais 2026/2';
+  document.getElementById('btnVoltarPedagogico').style.display='';
+  document.getElementById('viewMateriais').style.display='block';
+  matRender();
+}
 function iniciarPainel(){
   modoGuiaUnica();
-  logAcesso('abriu_app', 'Controle de Aplicações');
-  document.title = 'Controle de Aplicações 2026/1 · CCAA Pelotas';
+  logAcesso('abriu_app', 'Controle Pedagógico');
   document.getElementById('painelBox').style.display = 'block';
-  document.querySelector('.interno-header h2').textContent = 'Controle de Aplicações 2026/1';
-  // Financeiro tem guia própria: esconde a aba aqui
-  document.getElementById('tabFinanceiro').style.display = 'none';
-  popularAbas();
-  popularFiltroTeacher();
-  document.getElementById('filtroDataIni').value = '';
-  document.getElementById('filtroDataFim').value = '';
-  carregarDados();
-  sincronizarHorariosDoServidor();
+  pedMostrarMenu();
+}
+function iniciarAlunosAtivosApp(){
+  modoGuiaUnica();
+  logAcesso('abriu_app', 'Alunos Ativos 2026/2');
+  document.getElementById('painelBox').style.display = 'block';
+  pedAbrirAlunos();
+}
+function iniciarMateriaisApp(){
+  modoGuiaUnica();
+  logAcesso('abriu_app', 'Saída de Materiais');
+  document.getElementById('painelBox').style.display = 'block';
+  pedAbrirMateriais();
 }
 
 function iniciarFinanceiroApp(){
@@ -2840,6 +2996,243 @@ document.getElementById('comBtnResumo').addEventListener('click', ()=>{
   copiarTexto(txt, 'Resumo copiado ✓');
 });
 
+// ===== ALUNOS ATIVOS 2026/2 =====
+// Fonte: relatório "Rematrículas 2026/2 — Turmas por Curso" (Sponte, 11/07/2026).
+// flag: 'ok' = já rematriculado para 2026/2 (destino = turma nova) | 'T' = trancamento no 1º sem.
+const ALUNOS_ATIVOS = [{"curso":"Baby Class","turma":"Baby 1.1","horario":"2ª/4ª 11h","prof":"Laura Santana","alunos":[{"nome":"Enzo Borraz Barbosa Maass","mat":"6163","flag":""},{"nome":"Martina Berrutti Lopes","mat":"6069","flag":""},{"nome":"Saulo Pereira Robis","mat":"5762","flag":""}]},{"curso":"Baby Class","turma":"Baby 5.1","horario":"3ª/5ª 11h","prof":"Maria Falchi","alunos":[{"nome":"Lucas Soares Giusti","mat":"5671","flag":"ok","destino":"Baby 6.1 – 3ª/5ª 11h"},{"nome":"Noah Christino Cardozo","mat":"4969","flag":""}]},{"curso":"Kids Course","turma":"Kids 1.1","horario":"2ª/4ª 11h","prof":"Maria Falchi","alunos":[{"nome":"André Islabão Lemos","mat":"1031","flag":""},{"nome":"Catarina Novinski Ferreira","mat":"5952","flag":""},{"nome":"Felipe Gonçalves Arabar","mat":"2727","flag":""},{"nome":"Helena Canabarro Fouchy","mat":"3035","flag":""},{"nome":"Leonardo Rodeghiero Schmechel","mat":"1039","flag":""},{"nome":"Lorena Clan Milgarejo","mat":"2954","flag":""},{"nome":"Mathias Lopes Saraya","mat":"4911","flag":""}]},{"curso":"Kids Course","turma":"Kids 3.1","horario":"2ª/4ª 18h15","prof":"Valquíria Rodrigues","alunos":[{"nome":"Ana Clara Souza Esteves","mat":"5867","flag":""},{"nome":"Maryana Gonçalves do Rosário","mat":"5595","flag":""}]},{"curso":"Kids Course","turma":"Kids 5.1","horario":"2ª/4ª 18h15","prof":"Lays Pereira","alunos":[{"nome":"Athena Corrêa Cazaubon Soares","mat":"1990","flag":""},{"nome":"Bento Corrêa Cazaubon Soares","mat":"1992","flag":""},{"nome":"Izadora Braga Ribeiro","mat":"5482","flag":""},{"nome":"João Victor Ustra Moura","mat":"4463","flag":""},{"nome":"Larissa Antunes Schwingel","mat":"1581","flag":""},{"nome":"Laura Caldeira Kist","mat":"1496","flag":"ok","destino":"Kids 6.1 – 2ª/4ª 18h15"},{"nome":"Luíza Ustra Moura","mat":"4462","flag":""},{"nome":"Maria Alice Schmitt Oliz","mat":"5367","flag":""},{"nome":"Maria Antônia Sabin Schreiner","mat":"5858","flag":""}]},{"curso":"Kids Course","turma":"Kids 5.2","horario":"3ª/5ª 10h45","prof":"Bruna Souza","alunos":[{"nome":"Amanda Dittgen da Silva","mat":"1027","flag":""},{"nome":"Bernardo Gomes Mendes","mat":"5736","flag":""},{"nome":"Davi Ortiz Bortolazzo","mat":"5011","flag":""},{"nome":"Gustavo de Azevedo Cunha","mat":"5818","flag":""},{"nome":"Lara Furtado Sousa","mat":"3232","flag":""},{"nome":"Lucas de Souza de Oliveira","mat":"1081","flag":""},{"nome":"Mariana Hernandes Severo","mat":"5080","flag":""},{"nome":"Martina Gruppelli Pedroso","mat":"3431","flag":""},{"nome":"Theo Soares Giusti","mat":"5670","flag":"ok","destino":"Kids 6.2 – 3ª/5ª 10h45"}]},{"curso":"Kids Course","turma":"Kids 5.3","horario":"3ª/5ª 18h15","prof":"Lays Pereira","alunos":[{"nome":"Antônia Beloto D Avila","mat":"4129","flag":""},{"nome":"João Vitola da Cunha","mat":"848","flag":""},{"nome":"Marina Freire de Oliveira","mat":"5710","flag":""},{"nome":"Vítor Goebel Pinto","mat":"4193","flag":""}]},{"curso":"Kids Course","turma":"Kids 7.2","horario":"2ª/4ª 18h15","prof":"Laura Santana","alunos":[{"nome":"Antônio Crizel Rodrigues","mat":"4630","flag":""},{"nome":"Eliza Vieira Correa","mat":"5389","flag":""},{"nome":"Gabriel Obelheiro Martins","mat":"5861","flag":""},{"nome":"Helena Oliveira Freda Soares","mat":"5679","flag":""},{"nome":"Lais Braga Ramos","mat":"5680","flag":""}]},{"curso":"Kids Course","turma":"Kids 7.3","horario":"3ª/5ª 10h45","prof":"Giovani Atencio","alunos":[{"nome":"Arthur Vieira Cardoso","mat":"2333","flag":""},{"nome":"Lívia Soares Bessa","mat":"3044","flag":""},{"nome":"Louise Costa da Silva","mat":"5438","flag":""},{"nome":"Luiza Lameirão Zanusso Medeiros","mat":"1070","flag":""},{"nome":"Maia Soares Serra","mat":"3045","flag":""},{"nome":"Maitê Duarte Soares","mat":"1492","flag":""},{"nome":"Pedro Machado Prestes Delgado","mat":"5329","flag":""},{"nome":"Pedro Vieira Nunes","mat":"6020","flag":""},{"nome":"Pietro Dias De Oliveira","mat":"4688","flag":""}]},{"curso":"Preteen Course","turma":"Preteen 1.1","horario":"2ª/4ª 10h","prof":"Marcos Petersen","alunos":[{"nome":"Arthur Ortiz Bortolazzo","mat":"5010","flag":""},{"nome":"Cecília Reis Pinheiro","mat":"5066","flag":""},{"nome":"Clara Schwalbe De Oliveira","mat":"3972","flag":""},{"nome":"Diogo Bender Nunes","mat":"5666","flag":""},{"nome":"Enrico Moraes Gargioni","mat":"770","flag":""},{"nome":"Henrique Conceição Dutra","mat":"3864","flag":""},{"nome":"Isabela Peres Zanotta da Cruz Teixeira","mat":"1638","flag":""},{"nome":"Rafaella Martins Schulte","mat":"1639","flag":""},{"nome":"Yasmin Fonseca Strassburger","mat":"1592","flag":""}]},{"curso":"Preteen Course","turma":"Preteen 1.2","horario":"2ª/4ª 14h","prof":"Marcos Petersen","alunos":[{"nome":"Felipa Teixeira Damasceno","mat":"5635","flag":""},{"nome":"Henrique Osório Marth","mat":"2111","flag":""},{"nome":"Laura Yohana Borges Gayer","mat":"5503","flag":""},{"nome":"Valentina Bilhalva Farias","mat":"5913","flag":"T"}]},{"curso":"Preteen Course","turma":"Preteen 1.3","horario":"3ª int. 14h","prof":"Laura Santana","alunos":[{"nome":"Antônia Dias Ávila","mat":"5925","flag":""},{"nome":"Breno da Fonseca Cuello","mat":"5963","flag":""},{"nome":"Henrique Radke Scheunemann","mat":"4332","flag":""},{"nome":"Júlia Hornke Schiavon","mat":"5282","flag":""}]},{"curso":"Preteen Course","turma":"Preteen 1.4","horario":"5ª int. 9h","prof":"Lays Pereira","alunos":[{"nome":"Antonella Zanatto Bicca","mat":"2100","flag":""},{"nome":"Bernardo Souza Lemes","mat":"6023","flag":""},{"nome":"Cecília Teixeira Braga","mat":"5817","flag":""},{"nome":"Maria Eduarda Porres Hamm","mat":"1429","flag":""},{"nome":"Marina Fernandes Freitas da Silva","mat":"1092","flag":""},{"nome":"Otávio Bonifácio Jardim","mat":"6040","flag":""}]},{"curso":"English Course","turma":"English 4.1","horario":"4ª int. 14h","prof":"Tania Nicolette","alunos":[{"nome":"Stella Gruppelli Pedroso","mat":"3432","flag":""}]},{"curso":"English Course","turma":"English 4.2","horario":"6ª int. 14h","prof":"Eduarda Bilhalva","alunos":[{"nome":"Isadora de Sá Brito Dos Santos","mat":"4191","flag":""},{"nome":"Júlia Crummenauer Pilger","mat":"4309","flag":""},{"nome":"Tiago Machado Dos Reis","mat":"4479","flag":"T"}]},{"curso":"English Course","turma":"English 4.3","horario":"Sáb int. 8h45","prof":"Valquíria Rodrigues","alunos":[{"nome":"Carmem Laura Islabão Moraes","mat":"2940","flag":""},{"nome":"Henry de Barros Borba","mat":"3129","flag":""},{"nome":"Pedro Vitoria Torres","mat":"2937","flag":""}]},{"curso":"English Course","turma":"English 5.1","horario":"2ª/4ª 14h","prof":"Roberto Duval","alunos":[{"nome":"Antonia Venzke Amaral","mat":"5778","flag":""},{"nome":"Beatriz Machado Prestes Delgado","mat":"1018","flag":""},{"nome":"Catarina De Souza Neumann","mat":"4370","flag":""},{"nome":"Helena Silveira Ponci","mat":"5887","flag":""},{"nome":"Isabela Garcia Robertt","mat":"3032","flag":""},{"nome":"Isadora Schumann Iasniewicz","mat":"1700","flag":""},{"nome":"Julia Carvalho Muñoz","mat":"1124","flag":""},{"nome":"Leonardo de Mello Sopeña","mat":"1044","flag":""},{"nome":"Vitória Ramires Noguêz","mat":"1206","flag":""}]},{"curso":"English Course","turma":"English 5.2","horario":"2ª/4ª 18h15","prof":"Tania Nicolette","alunos":[{"nome":"Pedro Redmer Morales","mat":"450","flag":""}]},{"curso":"English Course","turma":"English 5.3","horario":"3ª/5ª 19h30","prof":"Roberto Duval","alunos":[{"nome":"Francisco Carlos Aires Ferreira","mat":"2117","flag":""},{"nome":"Gabriel Goulart Caetano","mat":"1967","flag":""}]},{"curso":"English Course","turma":"English 5.4","horario":"4ª int. 14h","prof":"Elizabeti Reis","alunos":[{"nome":"Antonela Corvello de Oliveira","mat":"1805","flag":""},{"nome":"Bento da Silva Pitol","mat":"1267","flag":""},{"nome":"Henry de Matos Amaro","mat":"6030","flag":""},{"nome":"José Inácio Silveira Puyo","mat":"960","flag":""},{"nome":"Lucas Hallal Megiato","mat":"1727","flag":""},{"nome":"Luiz Felipe Silveira Puyo","mat":"961","flag":""},{"nome":"Olívia Massot Bleggi","mat":"1073","flag":""},{"nome":"Vicente Goulart Dutra","mat":"790","flag":""}]},{"curso":"English Course","turma":"English 5.5","horario":"6ª int. 14h","prof":"Tania Nicolette","alunos":[{"nome":"Isabella Perleberg Betemps","mat":"3843","flag":""},{"nome":"Manuela Aguirres Kuhn","mat":"5969","flag":"T"},{"nome":"Otávio Osório Lopes","mat":"1690","flag":""},{"nome":"Rafael Martins da Silva","mat":"1764","flag":""}]},{"curso":"English Course","turma":"English 6.1","horario":"3ª int. 14h","prof":"Elizabeti Reis","alunos":[{"nome":"Laura Pereira e Silva","mat":"1203","flag":""}]},{"curso":"English Course","turma":"English 6.2","horario":"3ª/5ª 19h","prof":"Marcos Petersen","alunos":[{"nome":"Amanda Gonçalves da Silveira Veber","mat":"5542","flag":""},{"nome":"Arthur Hirdes Bica","mat":"5935","flag":""},{"nome":"Michael Alves da Silva","mat":"4501","flag":""},{"nome":"Samuel Munhoz dos Santos","mat":"1085","flag":""}]},{"curso":"English Course","turma":"English 6.3","horario":"6ª int. 14h","prof":"Laura Santana","alunos":[{"nome":"Eduardo Iven Baschi","mat":"1935","flag":""},{"nome":"Gabriela Dittgen da Silva","mat":"2502","flag":""},{"nome":"Hamilton Ornes Bitencourt Junior","mat":"4659","flag":""},{"nome":"Marina Moreno Kirinus","mat":"1071","flag":""},{"nome":"Natália Da Rosa Mendonça","mat":"4216","flag":""}]},{"curso":"English Course","turma":"English 7.1","horario":"2ª int. 14h","prof":"Elizabeti Reis","alunos":[{"nome":"Eduardo Mesquita Bastos","mat":"5540","flag":""},{"nome":"Luis Eduardo Krause Peres","mat":"5904","flag":""},{"nome":"Rafaela Haffele Bandeira Radmann","mat":"1069","flag":""}]},{"curso":"English Course","turma":"English 7.2","horario":"3ª/5ª 15h30","prof":"Marcos Petersen","alunos":[{"nome":"Anne Sauer Nunes","mat":"3829","flag":""},{"nome":"Eduarda da Silva de Paula","mat":"5905","flag":""},{"nome":"Emílio Alves Machado","mat":"514","flag":""},{"nome":"Henrique Bueno Lima","mat":"519","flag":""},{"nome":"Henrique Smiths Primo","mat":"768","flag":""},{"nome":"Maria Carolina Dias Lopes","mat":"1504","flag":""},{"nome":"Maria Clara Nunes Peter Vanier","mat":"769","flag":""}]},{"curso":"English Course","turma":"English 7.3","horario":"6ª int. 14h","prof":"Marcos Petersen","alunos":[{"nome":"Antônia Chiapinotto Cruzetta","mat":"668","flag":""},{"nome":"Betina Müller Chatkin","mat":"812","flag":""},{"nome":"Carolina Martins Mendes","mat":"451","flag":""},{"nome":"Gabriel Holz Vahl","mat":"5806","flag":""},{"nome":"João Francisco Teixeira Ruivo","mat":"1007","flag":""},{"nome":"Maria Flor Sanghi de Andrade","mat":"529","flag":""},{"nome":"Nícolas Rittmann Felippe","mat":"1137","flag":""},{"nome":"Olga de Carvalho Ferreira","mat":"1057","flag":""},{"nome":"Vinicius Lobato Lapique","mat":"444","flag":""}]},{"curso":"English Course","turma":"English 7.4","horario":"Sáb int. 8h45","prof":"Giovani Atencio","alunos":[{"nome":"Arthur Blank Freitas","mat":"1089","flag":""},{"nome":"Giulia Marcili Alvariza Gomes","mat":"511","flag":""},{"nome":"Henrique Lenon Moreira Pinheiro","mat":"1004","flag":""},{"nome":"Joana da Silva Leon","mat":"6082","flag":""},{"nome":"Laura Bugs Sigales","mat":"763","flag":""},{"nome":"Murillo Moreira Köpp","mat":"1006","flag":""},{"nome":"Vitória Prietsch Lopes","mat":"844","flag":""}]},{"curso":"English Course","turma":"English 8.1","horario":"6ª int. 14h","prof":"Amanda H. Bica","alunos":[{"nome":"Enrico Costa Kraft Soares","mat":"1922","flag":""},{"nome":"Isadora Tonial Ferreira","mat":"1007","flag":""},{"nome":"Suzana Mastella Fernandes","mat":"4525","flag":""},{"nome":"Vinícius Leite de Garcia","mat":"508","flag":"T"}]},{"curso":"English Course","turma":"English 9.1","horario":"2ª/4ª 18h15","prof":"Roberto Duval","alunos":[{"nome":"Bernardo Barreto Cezar","mat":"460","flag":""},{"nome":"Carla Galho Braga","mat":"757","flag":""},{"nome":"Carolina da Costa Cavalheiro","mat":"605","flag":""},{"nome":"Estela Bacchi Steinmetz","mat":"1821","flag":""},{"nome":"Henrique Augusti Coradini","mat":"732","flag":""},{"nome":"Júlia Soares Cassana","mat":"777","flag":"ok","destino":"10.2 – 2ª/4ª 18h15"},{"nome":"Juliana Guido Tavares dos Santos","mat":"1011","flag":""},{"nome":"Maria Eduarda Pinheiro Botozele","mat":"456","flag":""},{"nome":"Mariana Duarte Eicholz","mat":"766","flag":""},{"nome":"Valentina Morales Selbach","mat":"464","flag":""}]},{"curso":"English Course","turma":"English 9.2","horario":"2ª/3ª 17h","prof":"Elizabeti Reis","alunos":[{"nome":"Adelita de Fatima Andrade Soares","mat":"984","flag":""},{"nome":"Maria Ângela Cornelli Engelmann","mat":"3721","flag":""},{"nome":"Vítor Moreira Timm","mat":"813","flag":""}]},{"curso":"English Course","turma":"English 9.3","horario":"6ª int. 14h","prof":"Giovani Atencio","alunos":[{"nome":"Artur Martini Centeno","mat":"459","flag":""},{"nome":"Cecília de Souza de Oliveira","mat":"702","flag":""},{"nome":"Nicolas Eduardo Couto Guterres","mat":"5608","flag":""},{"nome":"Tiago Cardoso de Lima","mat":"854","flag":""}]},{"curso":"English Course","turma":"English 10.1","horario":"2ª/4ª 18h15","prof":"Marcos Petersen","alunos":[{"nome":"Alice da Cruz do Couto","mat":"480","flag":""},{"nome":"Catarina Souza Silva","mat":"4041","flag":""},{"nome":"Eduarda Brockstedt Alves","mat":"6079","flag":""},{"nome":"Josana Pires dos Santos","mat":"870","flag":""},{"nome":"Lorenzo de Mattos Nunes","mat":"507","flag":""},{"nome":"Mara Elaine de Lima Elias","mat":"612","flag":""},{"nome":"Marli Pardo Legemann Oliveira","mat":"613","flag":""},{"nome":"Renata Harter Unteciski","mat":"4569","flag":"ok","destino":"11.1 – 2ª/4ª 18h15"},{"nome":"Thais Aldrighi Machado","mat":"920","flag":""}]},{"curso":"English Course","turma":"English 10.2","horario":"5ª int. 14h","prof":"","alunos":[{"nome":"Amanda Pilger de Souza","mat":"4308","flag":""}]},{"curso":"English Course","turma":"English 10.2","horario":"6ª int. 14h","prof":"Roberto Duval","alunos":[{"nome":"Alana Reis Corteletti","mat":"6058","flag":""},{"nome":"Bernardo Cortez Catarino","mat":"534","flag":""},{"nome":"Luzia dos Santos de Souza Soares","mat":"5488","flag":""},{"nome":"Valentina Martins Fagundes","mat":"723","flag":""}]},{"curso":"English Course","turma":"English 11.1","horario":"6ª int. 14h","prof":"Lays Pereira","alunos":[{"nome":"Arthur Gonzales Aprato","mat":"470","flag":""},{"nome":"Bernardo Pinto Wickboldt","mat":"912","flag":""},{"nome":"Bianca Campelo Gularte","mat":"513","flag":""},{"nome":"Daniela Soares De Moraes","mat":"4390","flag":""},{"nome":"Helena Kichkofel Kickhoel","mat":"560","flag":""},{"nome":"João Vitor Matias Athaide","mat":"540","flag":""},{"nome":"Júlia Nunes Dutra","mat":"488","flag":""},{"nome":"Júlia Osório Lopes","mat":"476","flag":""},{"nome":"Laura de Faria Vargas","mat":"504","flag":""},{"nome":"Laura Quadro Neumann","mat":"2160","flag":""},{"nome":"Manuela Kohls Silva Félix","mat":"471","flag":""},{"nome":"Pedro André Telmo","mat":"461","flag":""},{"nome":"Rafaela Torchelsen Teixeira","mat":"1056","flag":""}]},{"curso":"English Course","turma":"English 11.2","horario":"Sáb int. 8h45","prof":"Roberto Duval","alunos":[{"nome":"Arthur Alves Coelho","mat":"523","flag":""},{"nome":"Bruno Coutinho Lucas Pereira","mat":"4502","flag":""},{"nome":"Eduarda da Porciúncula Silva","mat":"1154","flag":""},{"nome":"Felipe Lise Garcia","mat":"631","flag":""},{"nome":"Fernanda Gouveia Lima","mat":"5081","flag":""},{"nome":"Filipe Lucas Soares de Lima","mat":"475","flag":""},{"nome":"Gabriele Islabão Moraes","mat":"543","flag":""},{"nome":"Gabrielito Rauter Menezes","mat":"499","flag":""},{"nome":"Isabella Schmitt Dolinski","mat":"586","flag":""},{"nome":"Isabella Teixeira Eslabão","mat":"2349","flag":""},{"nome":"Lucas Cardozo da Silva","mat":"506","flag":""},{"nome":"Luiza Ferreira Domingues","mat":"527","flag":""},{"nome":"Otávio Schmitt Dolinski","mat":"588","flag":""},{"nome":"Pedro Henrique Martini Pacheco","mat":"5641","flag":""}]},{"curso":"English A (Adultos)","turma":"A1.1","horario":"2ª/4ª 19h","prof":"Laura Santana","alunos":[{"nome":"Adriane da Silva Goulart","mat":"5424","flag":""},{"nome":"Daniela Cardoso de Melo","mat":"5517","flag":""},{"nome":"Eliana Gonçalves Lopes Barbosa","mat":"5311","flag":""},{"nome":"Fernanda da Silva Lacerda","mat":"5826","flag":""},{"nome":"Francielle Braga da Rosa","mat":"5656","flag":""},{"nome":"Idemar Duarte Junior","mat":"5843","flag":""},{"nome":"Jairo Luiz Caetano Farias","mat":"5844","flag":""},{"nome":"Lara Bueno Martins","mat":"5841","flag":""},{"nome":"Leonarda Bianchini Magnus","mat":"5914","flag":""},{"nome":"Martha Mattos Portella Gargioni","mat":"5696","flag":""},{"nome":"Matheus Goulart Tanhote","mat":"2237","flag":""},{"nome":"Sergio Gabriel Barros Lima","mat":"5534","flag":""},{"nome":"Sérgio Roberto da Rosa Nogueira","mat":"5327","flag":""},{"nome":"Thaila Cristine da Silveira Dutra","mat":"5506","flag":""},{"nome":"Thais Shaillene Costa","mat":"5931","flag":""}]},{"curso":"English A (Adultos)","turma":"A1.2","horario":"2ª int. 8h15","prof":"Valquíria Rodrigues","alunos":[{"nome":"Flávia Candido Silva","mat":"6121","flag":"T"},{"nome":"Jonas Borges Pereira","mat":"5960","flag":""},{"nome":"Ketlyn Vieira Becker","mat":"6139","flag":""},{"nome":"Nicolas Peres Rosler Andrade","mat":"6118","flag":""},{"nome":"Raquel Chiattone Corvello","mat":"5796","flag":""},{"nome":"Rosemeri Fernanda Castro","mat":"5709","flag":"T"}]},{"curso":"English A (Adultos)","turma":"A1.3","horario":"Sáb int. 8h45","prof":"Lays Pereira","alunos":[{"nome":"Alice da Silva Leon","mat":"6083","flag":""},{"nome":"Cintia Rosa de Oliveira","mat":"5591","flag":""},{"nome":"Juliana Magalhães de Bem","mat":"6021","flag":""},{"nome":"Kelvin de Souza da Rosa","mat":"5376","flag":""},{"nome":"Laura Soares dos Reis","mat":"5388","flag":""},{"nome":"Manuela Rosa Ribeiro","mat":"6140","flag":""},{"nome":"Pedro da Rosa Amaral","mat":"5139","flag":""},{"nome":"Rosiméri Nunes Borges","mat":"5924","flag":""}]},{"curso":"English A (Adultos)","turma":"A1-2.1 (Condensado maio)","horario":"3ª/5ª 19h","prof":"Laura Santana","alunos":[{"nome":"Amanda Ulrich Soldi","mat":"6239","flag":""},{"nome":"Anna Clara Martins Moraes","mat":"3096","flag":""},{"nome":"Camila Alves Gomes Vilela","mat":"5964","flag":""},{"nome":"Eduarda Holz","mat":"6198","flag":""},{"nome":"Erick Ramos de Azevedo","mat":"6218","flag":""},{"nome":"Luana Soares dos Reis","mat":"6187","flag":""}]},{"curso":"English A (Adultos)","turma":"A2.1","horario":"3ª int. 9h","prof":"Elizabeti Reis","alunos":[{"nome":"Maiara Andressa Thurow","mat":"1412","flag":""},{"nome":"Maitê Peters Teixeira","mat":"5076","flag":""}]},{"curso":"English A (Adultos)","turma":"A2.2","horario":"Sáb int. 8h45","prof":"Marcos Petersen","alunos":[{"nome":"Anita Gentilini Moreira","mat":"4988","flag":""},{"nome":"Evyllin Oliveira Buchweitz","mat":"3395","flag":""},{"nome":"Guilherme Leiria Schlee Gomes","mat":"4833","flag":""},{"nome":"Jordhana Batista da Silva","mat":"5001","flag":""},{"nome":"Julio Farias Barbosa","mat":"4867","flag":""},{"nome":"Súellen de Medeiros Cortes","mat":"5075","flag":""}]},{"curso":"English A (Adultos)","turma":"A3.1","horario":"3ª/5ª 19h","prof":"Ana Millan","alunos":[{"nome":"Dario Luciano Lucas Brum","mat":"4040","flag":""},{"nome":"Júlia Vieira Cardoso","mat":"1156","flag":""},{"nome":"Thiago Bueno Peres","mat":"4333","flag":"T"},{"nome":"Washington Luiz Pereira Júnior","mat":"1008","flag":""}]},{"curso":"English Teen","turma":"T1.1","horario":"2ª/4ª 10h30","prof":"Elizabeti Reis","alunos":[{"nome":"Artur Pieper Ferreira","mat":"1222","flag":""},{"nome":"Oscar Jardim Gularte","mat":"601","flag":""},{"nome":"Pedro Lourenço Leal","mat":"6123","flag":""},{"nome":"Valentyna da Cruz Vergara","mat":"5962","flag":""}]},{"curso":"English Teen","turma":"T1.2","horario":"2ª/4ª 14h (TN)","prof":"Lays Pereira","alunos":[{"nome":"Carolina Braun Carpe","mat":"5422","flag":""},{"nome":"Helena Osório Gonçalves","mat":"5842","flag":""},{"nome":"João Pedro Carvalho Machado","mat":"5906","flag":""},{"nome":"Karoline Tavares da Rosa","mat":"6029","flag":""},{"nome":"Maria Clara Hoch Martins","mat":"5927","flag":""},{"nome":"Maria Eduarda Borges Ribeiro","mat":"5781","flag":""},{"nome":"Pedro Freda Paz","mat":"5908","flag":""},{"nome":"Rafaella de Oliveira Nienczeski","mat":"5387","flag":""}]},{"curso":"English Teen","turma":"T1.3","horario":"2ª/4ª 14h","prof":"Laura Santana","alunos":[{"nome":"Felipe Canielles Caprara","mat":"1058","flag":""},{"nome":"Giovana Diel Soares","mat":"1075","flag":""},{"nome":"Maria Antônia Osório Marth","mat":"2112","flag":""},{"nome":"Maria Fernanda Souto Corrêa de Mendonça","mat":"1127","flag":""},{"nome":"Maria Luiza Yazye Gonçalves","mat":"811","flag":""},{"nome":"Miguel De Lima Da Silveira","mat":"3727","flag":""},{"nome":"Pedro Henrique Orlandi Do Nascimento","mat":"3896","flag":""},{"nome":"Vinicius Gonçalves Sinnott Filho","mat":"1307","flag":""}]},{"curso":"English Teen","turma":"T1.4","horario":"3ª int. 14h","prof":"Tania Nicolette","alunos":[{"nome":"Alessandra dos Anjos Bueno","mat":"6128","flag":""},{"nome":"Anna Luiza Hornke Schiavon","mat":"5283","flag":""},{"nome":"Cecilia Beher Valadão","mat":"6137","flag":""},{"nome":"Davi Bull Martins","mat":"4038","flag":""},{"nome":"Joana Zambrano dos Santos Silva","mat":"5871","flag":""},{"nome":"João Lucas Timm Ferreira","mat":"3039","flag":""},{"nome":"Lara da Silveira Santin","mat":"5348","flag":""},{"nome":"Maria Eduarda Bergmann da Silveira","mat":"1837","flag":""},{"nome":"Maria Luiza Fischer Aguiar","mat":"4200","flag":""},{"nome":"Mariana Teixeira Bom","mat":"4144","flag":""},{"nome":"Pedro Henrique Costa Farias","mat":"4207","flag":""},{"nome":"Yure Escoto Kurz","mat":"5719","flag":""}]},{"curso":"English Teen","turma":"T1.5","horario":"3ª/5ª 14h","prof":"Giovani Atencio","alunos":[{"nome":"Bernardo da Silva Tavares","mat":"5675","flag":""},{"nome":"Bernardo dos Santos Trindade","mat":"5362","flag":""},{"nome":"Franco Muniz Gauterio de Souza","mat":"6129","flag":""},{"nome":"João Brauner Gervini","mat":"3798","flag":""},{"nome":"Luís Otavio Nolasco Pereira","mat":"6051","flag":""},{"nome":"Otávio Barckfeld Duarte","mat":"5615","flag":""}]},{"curso":"English Teen","turma":"T2.1","horario":"6ª int. 14h","prof":"Ana Millan","alunos":[{"nome":"Benício Menchaca Rodrigues","mat":"5042","flag":""},{"nome":"Helena Chiattone Berti Rodrigues","mat":"4616","flag":""},{"nome":"Larissa Cecagno Lopes","mat":"5721","flag":""},{"nome":"Laura Cecagno Lopes","mat":"5720","flag":""},{"nome":"Luiza Girão Ribeiro","mat":"4664","flag":""},{"nome":"Manuela Tavares dos Santos","mat":"4724","flag":""}]},{"curso":"English Teen","turma":"T3.1","horario":"2ª/4ª 14h","prof":"Eduarda Bilhalva","alunos":[{"nome":"Gabriela Garcia Robertt","mat":"3033","flag":""},{"nome":"Helena Costa Kraft Soares","mat":"1921","flag":""},{"nome":"Helena Michel de Oliveira","mat":"1955","flag":""},{"nome":"Isabela da Silva Manetti","mat":"490","flag":""},{"nome":"Otávio Soares Bessa","mat":"3043","flag":""},{"nome":"Sophia Linhares Ferreira","mat":"1183","flag":""}]},{"curso":"English Teen","turma":"T3.2","horario":"2ª/4ª 14h","prof":"Giovani Atencio","alunos":[{"nome":"Catarina Xavier de Oliveira","mat":"828","flag":""},{"nome":"Gonçalo Di Primio Sousa","mat":"4322","flag":"ok","destino":"4.3 – 2ª/4ª 14h"},{"nome":"Guilherme Tavares Radmann","mat":"4315","flag":""},{"nome":"Heitor Iturbide Fanka","mat":"781","flag":""},{"nome":"Isabela Antunes Schwingel","mat":"800","flag":""},{"nome":"Otávio da Silveira Borba","mat":"1740","flag":""},{"nome":"Sabrina Lopes Scaglioni","mat":"749","flag":""}]},{"curso":"English Teen","turma":"T3.3","horario":"2ª/4ª 18h15","prof":"Giovani Atencio","alunos":[{"nome":"Cecília Bittencourt Macedo da Silva","mat":"774","flag":""},{"nome":"Frederico Lange Peter","mat":"2143","flag":""},{"nome":"Heitor da Silva Caldasso","mat":"563","flag":""},{"nome":"Lorenzo Rita Garcia","mat":"1025","flag":""},{"nome":"Otavio Garcia Reis","mat":"2821","flag":""}]},{"curso":"English Teen","turma":"T3.4","horario":"CANGUÇU – 3ª int. 14h","prof":"Valquíria Rodrigues","alunos":[{"nome":"Luiza Coelho Muniz Furtado","mat":"3720","flag":""},{"nome":"Maryana Ferreira Campão Soares","mat":"4356","flag":""}]},{"curso":"English Teen","turma":"T3.5","horario":"4ª int. 14h","prof":"Amanda H. Bica","alunos":[{"nome":"Érica Feijó da Rosa","mat":"1246","flag":""},{"nome":"Gustavo Carreia Silva","mat":"4229","flag":""},{"nome":"Nicoly Oliveira Monteiro","mat":"1266","flag":""},{"nome":"Pedro Indu Teixeira Ferrari","mat":"4091","flag":""},{"nome":"Sofia Megiato Barros","mat":"3846","flag":""}]},{"curso":"English Teen","turma":"T3.6","horario":"3ª/5ª 14h","prof":"Marcos Petersen","alunos":[{"nome":"Ana Carolina Aires de Matos","mat":"3548","flag":""},{"nome":"Antônia Bilhalva Fogaça","mat":"4444","flag":""},{"nome":"Antônia Machado Placido","mat":"1223","flag":""},{"nome":"Artur Bandeira Afonso","mat":"1826","flag":""},{"nome":"Catarina Calai de Ávila","mat":"1398","flag":""},{"nome":"Daniele Rosinha Silvano","mat":"3103","flag":""},{"nome":"Francisca Cunha Faria","mat":"934","flag":""},{"nome":"Maria Sofia Victória Rodrigues Manta","mat":"1224","flag":""}]},{"curso":"English Teen","turma":"T3.7","horario":"6ª int. 14h","prof":"Valquíria Rodrigues","alunos":[{"nome":"Bernardo de Mello Mendes","mat":"1065","flag":""},{"nome":"João Pedro Heres Real","mat":"4099","flag":""},{"nome":"Lucas Castilhos Nebel","mat":"3027","flag":""}]},{"curso":"English VIP","turma":"VIP 9.1","horario":"3ª/5ª 18h","prof":"Roberto Duval","alunos":[{"nome":"Antônio Claro Rosales Rodrigues","mat":"6283","flag":""}]},{"curso":"English VIP","turma":"VIP 10.1","horario":"3ª/5ª 9h","prof":"Giovani Atencio","alunos":[{"nome":"Larissa Rita Garcia","mat":"510","flag":""}]},{"curso":"Español","turma":"Español 1.1","horario":"2ª int. 18h","prof":"Raquel Corvello","alunos":[{"nome":"Alessandra Gonçalves Martins","mat":"6101","flag":""},{"nome":"Alice Gastal","mat":"5947","flag":""},{"nome":"Caterine Henriques Mendes","mat":"6093","flag":""},{"nome":"Eduarda Fonseca Radmann","mat":"5730","flag":""},{"nome":"Flávia Candido Silva","mat":"6121","flag":"T"},{"nome":"Maria Eduarda Marroni Weiler","mat":"5930","flag":""},{"nome":"Nathália Silva Caprio","mat":"5981","flag":""},{"nome":"Tainara Montano","mat":"5808","flag":""}]},{"curso":"Español","turma":"Español 1.2","horario":"3ª/5ª 10h","prof":"Larissa Silva","alunos":[{"nome":"Ilvôni Dias Islabão","mat":"5758","flag":""},{"nome":"Laura Lacerda Santana","mat":"973","flag":""},{"nome":"Paula Katiuscia Vergutz Diel","mat":"5757","flag":""}]},{"curso":"Español","turma":"VIP Español 1.1","horario":"2ª/5ª/6ª 18h","prof":"Larissa Silva","alunos":[{"nome":"Laura Provensi Stefenon","mat":"6229","flag":""}]},{"curso":"Español","turma":"VIP Español 1.2","horario":"6ª 10h30","prof":"Ana Millan","alunos":[{"nome":"Camila Pedroso Molina","mat":"6346","flag":""}]}];
+
+function aaRender(){
+  const filtroCurso = document.getElementById('aaFiltroCurso');
+  // popula o filtro de curso uma vez
+  if(filtroCurso.options.length <= 1){
+    [...new Set(ALUNOS_ATIVOS.map(t=>t.curso))].forEach(c=>{
+      filtroCurso.innerHTML += `<option value="${c}">${c}</option>`;
+    });
+  }
+  const curso = filtroCurso.value;
+  const busca = normTexto(document.getElementById('aaBusca').value);
+
+  const todos = ALUNOS_ATIVOS.flatMap(t=>t.alunos);
+  const nOk = todos.filter(a=>a.flag==='ok').length;
+  const nT  = todos.filter(a=>a.flag==='T').length;
+  document.getElementById('aaResumoBar').innerHTML = `
+    <div class="fin-stat"><div class="fin-stat-n">${todos.length}</div><div class="fin-stat-l">Alunos ativos</div></div>
+    <div class="fin-stat"><div class="fin-stat-n">${ALUNOS_ATIVOS.length}</div><div class="fin-stat-l">Turmas</div></div>
+    <div class="fin-stat"><div class="fin-stat-n" style="color:var(--live)">${nOk}</div><div class="fin-stat-l">Já rematriculados</div></div>
+    <div class="fin-stat"><div class="fin-stat-n" style="color:var(--text-dim)">${nT}</div><div class="fin-stat-l">Trancamentos (1º sem)</div></div>`;
+
+  let turmas = ALUNOS_ATIVOS;
+  if(curso) turmas = turmas.filter(t=>t.curso===curso);
+  if(busca){
+    turmas = turmas.map(t=>({
+      ...t,
+      alunos: normTexto(t.turma).includes(busca) ? t.alunos
+        : t.alunos.filter(a=>normTexto(a.nome).includes(busca) || a.mat.includes(busca))
+    })).filter(t=>t.alunos.length);
+  }
+  document.getElementById('aaVazio').style.display = turmas.length ? 'none' : 'block';
+
+  // agrupa por curso
+  const cursos = [];
+  turmas.forEach(t=>{
+    let g = cursos.find(x=>x.curso===t.curso);
+    if(!g){ g={curso:t.curso, turmas:[]}; cursos.push(g); }
+    g.turmas.push(t);
+  });
+  document.getElementById('aaLista').innerHTML = cursos.map(g=>`
+    <div style="margin-bottom:22px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <span style="font-family:'Bricolage Grotesque',sans-serif;font-size:15px;font-weight:800;color:var(--text)">${g.curso}</span>
+        <span style="font-size:11px;font-weight:800;color:var(--ccaa-blue);background:color-mix(in srgb,var(--ccaa-blue) 10%,transparent);padding:2px 9px;border-radius:99px">${g.turmas.reduce((s,t)=>s+t.alunos.length,0)} alunos</span>
+        <span style="flex:1;height:1px;background:var(--border)"></span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px">
+        ${g.turmas.map(t=>`
+        <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-md);padding:14px 16px">
+          <div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap">
+            <span style="font-size:14px;font-weight:800;color:var(--text)">${t.turma}</span>
+            <span style="font-size:11.5px;color:var(--text-dim)">${t.horario}</span>
+            <span style="margin-left:auto;font-size:11px;font-weight:800;color:var(--ccaa-blue)">${t.alunos.length}</span>
+          </div>
+          ${t.prof ? `<div style="font-size:11.5px;color:var(--text-mute);font-weight:600;margin-top:2px">Prof. ${t.prof}</div>` : ''}
+          <div style="margin-top:10px;display:flex;flex-direction:column;gap:5px">
+            ${t.alunos.map(a=>`
+            <div style="display:flex;align-items:center;gap:7px;font-size:12.5px;line-height:1.4">
+              <span style="color:var(--text)">${a.nome}</span>
+              <span style="color:var(--text-dim);font-size:11px;font-weight:600">${a.mat}</span>
+              ${a.flag==='ok' ? `<span style="margin-left:auto;font-size:10px;font-weight:800;color:var(--live);background:color-mix(in srgb,var(--live) 12%,transparent);padding:1.5px 7px;border-radius:99px;white-space:nowrap" title="${a.destino?('Vai para: '+a.destino):''}">REMATRICULADO</span>` : ''}
+              ${a.flag==='T' ? '<span style="margin-left:auto;font-size:10px;font-weight:800;color:var(--text-dim);background:var(--surface-2);border:1px solid var(--border);padding:1.5px 7px;border-radius:99px;white-space:nowrap">TRANCADO</span>' : ''}
+            </div>`).join('')}
+          </div>
+        </div>`).join('')}
+      </div>
+    </div>`).join('');
+}
+document.getElementById('aaFiltroCurso').addEventListener('change', aaRender);
+document.getElementById('aaBusca').addEventListener('input', aaRender);
+
+// ===== SAÍDA DE MATERIAIS 2026/2 =====
+const MAT_KEY = 'ccaa_materiais_20262_v1';
+function matCarregar(){ try{ return JSON.parse(localStorage.getItem(MAT_KEY)||'[]'); }catch(e){ return []; } }
+function matSalvarLista(l){ try{ localStorage.setItem(MAT_KEY, JSON.stringify(l)); }catch(e){} }
+let _matEditandoId = null;
+// Todos os alunos conhecidos (ativos + novos do Comercial) para o autocomplete
+function matTodosAlunos(){
+  const ativos = ALUNOS_ATIVOS.flatMap(t=>t.alunos.map(a=>({nome:a.nome, mat:a.mat, turma:t.turma})));
+  const novos = comCarregar().map(m=>({nome:m.nome, mat:(m.matricula||'').split('/')[0], turma:m.turma||''}));
+  const vistos = {};
+  return [...ativos, ...novos].filter(a=>{
+    const k = normTexto(a.nome);
+    if(vistos[k]) return false;
+    vistos[k] = 1; return true;
+  });
+}
+function matPopularDatalist(){
+  document.getElementById('matListaAlunos').innerHTML =
+    matTodosAlunos().map(a=>`<option value="${a.nome.replace(/"/g,'&quot;')}">`).join('');
+}
+function matRender(){
+  matPopularDatalist();
+  const lista = matCarregar();
+  const filtro = document.getElementById('matFiltroStatus').value;
+  const busca = normTexto(document.getElementById('matBusca').value);
+  const pend = lista.filter(m=>m.status!=='entregue').length;
+  const entr = lista.length - pend;
+  document.getElementById('matResumoBar').innerHTML = `
+    <div class="fin-stat"><div class="fin-stat-n">${lista.length}</div><div class="fin-stat-l">Registros</div></div>
+    <div class="fin-stat"><div class="fin-stat-n" style="color:${pend?'var(--soon)':'var(--live)'}">${pend}</div><div class="fin-stat-l">Pendentes</div></div>
+    <div class="fin-stat"><div class="fin-stat-n" style="color:var(--live)">${entr}</div><div class="fin-stat-l">Entregues</div></div>`;
+  let visiveis = lista.slice().sort((a,b)=>(b.criado||0)-(a.criado||0));
+  if(filtro) visiveis = visiveis.filter(m=>m.status===filtro);
+  if(busca) visiveis = visiveis.filter(m=>normTexto(m.nome).includes(busca)||normTexto(m.material||'').includes(busca));
+  document.getElementById('matVazio').style.display = visiveis.length ? 'none' : 'block';
+  document.getElementById('matLista').innerHTML = !visiveis.length ? '' : `
+    <div class="int-table-wrap">
+      <table class="int-table" style="table-layout:fixed;width:100%;min-width:760px">
+        <colgroup>
+          <col style="width:24%"><col style="width:9%"><col style="width:12%"><col style="width:17%"><col style="width:10%"><col style="width:11%"><col style="width:17%">
+        </colgroup>
+        <thead><tr>
+          <th>Aluno(a)</th><th>Matrícula</th><th>Turma</th><th>Material</th><th>Status</th><th>Entrega</th><th style="text-align:right">Ações</th>
+        </tr></thead>
+        <tbody>${visiveis.map(m=>`<tr>
+          <td data-label="Aluno(a)" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><b>${m.nome}</b></td>
+          <td data-label="Matrícula">${m.mat||'—'}</td>
+          <td data-label="Turma" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${m.turma||'—'}</td>
+          <td data-label="Material" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${m.material||'—'}</td>
+          <td data-label="Status">${m.status==='entregue'
+            ? '<span style="color:var(--live);font-size:12px;font-weight:700">Entregue</span>'
+            : '<span style="color:var(--soon);font-size:12px;font-weight:700">Pendente</span>'}</td>
+          <td data-label="Entrega">${m.dataEntrega ? comISOparaBR(m.dataEntrega) : '—'}</td>
+          <td data-label="Ações" style="text-align:right;white-space:nowrap">
+            <button type="button" title="Imprimir termo de entrega" onclick="matTermo('${m.id}')" style="cursor:pointer;background:var(--surface-2);border:1px solid var(--border);border-radius:7px;padding:5px 9px;color:var(--text-mute);font-size:11px;font-weight:700;font-family:inherit;vertical-align:middle">Termo</button>
+            <button type="button" title="Editar" onclick="matEditar('${m.id}')" style="cursor:pointer;background:var(--surface-2);border:1px solid var(--border);border-radius:7px;padding:6px 8px;color:var(--text-mute);vertical-align:middle;margin-left:6px">${COM_SVG_EDIT}</button>
+            <button type="button" title="Excluir" onclick="matExcluir('${m.id}')" style="cursor:pointer;background:var(--surface-2);border:1px solid var(--border);border-radius:7px;padding:6px 8px;color:var(--text-mute);vertical-align:middle;margin-left:6px">${COM_SVG_DEL}</button>
+          </td>
+        </tr>`).join('')}</tbody>
+      </table>
+    </div>`;
+}
+function matAbrirForm(m){
+  _matEditandoId = m ? m.id : null;
+  document.getElementById('matNome').value      = m ? m.nome : '';
+  document.getElementById('matMatricula').value = m ? (m.mat||'') : '';
+  document.getElementById('matTurma').value     = m ? (m.turma||'') : '';
+  document.getElementById('matMaterial').value  = m ? (m.material||'') : '';
+  document.getElementById('matStatus').value    = m ? (m.status||'pendente') : 'pendente';
+  document.getElementById('matData').value      = m ? (m.dataEntrega||'') : '';
+  document.getElementById('matRetirado').value  = m ? (m.retiradoPor||'') : '';
+  document.getElementById('matForm').style.display = 'block';
+  document.getElementById('matNome').focus();
+}
+function matEditar(id){
+  if(!comPedirSenha()) return;
+  const m = matCarregar().find(x=>x.id===id);
+  if(m) matAbrirForm(m);
+}
+function matExcluir(id){
+  const lista = matCarregar();
+  const m = lista.find(x=>x.id===id);
+  if(!m) return;
+  if(!comPedirSenha()) return;
+  if(!confirm(`Excluir o registro de ${m.nome}?`)) return;
+  matSalvarLista(lista.filter(x=>x.id!==id));
+  matRender();
+  toast('Registro excluído');
+}
+function matTermo(id){
+  const m = matCarregar().find(x=>x.id===id);
+  if(!m) return;
+  const dataBR = m.dataEntrega ? comISOparaBR(m.dataEntrega) : '____/____/________';
+  const via = (titulo)=>`
+    <div style="border:1.5px solid #333;border-radius:8px;padding:22px 26px;margin-bottom:26px;page-break-inside:avoid">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px">
+        <strong style="font-size:15px">CCAA Pelotas — Termo de Entrega de Material</strong>
+        <span style="font-size:11px;color:#555">${titulo}</span>
+      </div>
+      <p style="margin:0 0 12px;font-size:13px;line-height:1.7">
+        Declaro que recebi o material didático abaixo, referente ao semestre <strong>2026/2</strong>:
+      </p>
+      <table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:16px">
+        <tr><td style="padding:6px 8px;border:1px solid #999;width:30%"><strong>Aluno(a)</strong></td><td style="padding:6px 8px;border:1px solid #999">${m.nome}${m.mat?(' — Mat. '+m.mat):''}</td></tr>
+        <tr><td style="padding:6px 8px;border:1px solid #999"><strong>Turma</strong></td><td style="padding:6px 8px;border:1px solid #999">${m.turma||''}</td></tr>
+        <tr><td style="padding:6px 8px;border:1px solid #999"><strong>Material</strong></td><td style="padding:6px 8px;border:1px solid #999">${m.material||''}</td></tr>
+        <tr><td style="padding:6px 8px;border:1px solid #999"><strong>Data da entrega</strong></td><td style="padding:6px 8px;border:1px solid #999">${dataBR}</td></tr>
+        <tr><td style="padding:6px 8px;border:1px solid #999"><strong>Retirado por</strong></td><td style="padding:6px 8px;border:1px solid #999">${m.retiradoPor||''}</td></tr>
+      </table>
+      <div style="display:flex;gap:40px;margin-top:34px">
+        <div style="flex:1;text-align:center;border-top:1px solid #333;padding-top:6px;font-size:12px">Assinatura do responsável</div>
+        <div style="flex:1;text-align:center;border-top:1px solid #333;padding-top:6px;font-size:12px">CCAA Pelotas</div>
+      </div>
+    </div>`;
+  const w = window.open('', '_blank');
+  if(!w){ toast('Libere pop-ups para imprimir o termo','erro'); return; }
+  w.document.write(`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Termo de Entrega — ${m.nome}</title></head>
+    <body style="font-family:Arial,sans-serif;color:#111;max-width:720px;margin:24px auto;padding:0 16px">
+      ${via('1ª via — Escola')}
+      ${via('2ª via — Responsável')}
+      <script>window.onload=function(){window.print();}<\/script>
+    </body></html>`);
+  w.document.close();
+}
+document.getElementById('matBtnNovo').addEventListener('click', ()=>matAbrirForm(null));
+document.getElementById('matCancelar').addEventListener('click', ()=>{ document.getElementById('matForm').style.display='none'; });
+document.getElementById('matSalvar').addEventListener('click', ()=>{
+  const nome = document.getElementById('matNome').value.trim();
+  if(!nome){ toast('Informe o nome do aluno','erro'); return; }
+  const lista = matCarregar();
+  const dados = {
+    nome: nome,
+    mat: document.getElementById('matMatricula').value.trim(),
+    turma: document.getElementById('matTurma').value.trim(),
+    material: document.getElementById('matMaterial').value.trim(),
+    status: document.getElementById('matStatus').value,
+    dataEntrega: document.getElementById('matData').value,
+    retiradoPor: document.getElementById('matRetirado').value.trim(),
+  };
+  if(_matEditandoId){
+    const m = lista.find(x=>x.id===_matEditandoId);
+    if(m) Object.assign(m, dados);
+  } else {
+    lista.push({ id:'mt'+Date.now(), criado:Date.now(), ...dados });
+  }
+  matSalvarLista(lista);
+  document.getElementById('matForm').style.display='none';
+  matRender();
+  toast('Registro salvo ✓');
+});
+document.getElementById('matFiltroStatus').addEventListener('change', matRender);
+document.getElementById('matBusca').addEventListener('input', matRender);
+// Ao escolher um aluno no autocomplete, preenche matrícula e turma sozinho
+document.getElementById('matNome').addEventListener('change', ()=>{
+  const alvo = normTexto(document.getElementById('matNome').value);
+  const a = matTodosAlunos().find(x=>normTexto(x.nome)===alvo);
+  if(a){
+    if(!document.getElementById('matMatricula').value) document.getElementById('matMatricula').value = a.mat||'';
+    if(!document.getElementById('matTurma').value) document.getElementById('matTurma').value = a.turma||'';
+  }
+});
+
 // ===== ROTEAMENTO: detecta app pela URL =====
 (function rotearApp(){
   const params = new URLSearchParams(location.search);
@@ -2850,24 +3243,32 @@ document.getElementById('comBtnResumo').addEventListener('click', ()=>{
     if(path.includes('controledeaplicacoes')) app = 'controle';
     else if(path.includes('financeiro')) app = 'financeiro';
     else if(path.includes('comercial')) app = 'comercial';
+    else if(path.includes('alunosativos')) app = 'alunos2';
+    else if(path.includes('materiais')) app = 'materiais';
   }
   if(!app) return;
   if(!hubAutenticado()) return; // sem autenticação prévia, fica na home com login normal
 
   // URL bonita na barra (sem ?app=)
   try{
-    const pretty = app==='controle' ? 'controledeaplicacoes' : app; // 'financeiro'
+    const pretty = app==='controle' ? 'controledeaplicacoes' : app==='alunos2' ? 'alunosativos' : app;
     if(params.get('app')) history.replaceState({}, '', hubBase()+pretty+'/');
   }catch(e){}
 
   const iniciar = app==='controle' ? iniciarPainel
                 : app==='comercial' ? iniciarComercialApp
+                : app==='alunos2' ? iniciarAlunosAtivosApp
+                : app==='materiais' ? iniciarMateriaisApp
                 : iniciarFinanceiroApp;
   if(document.readyState!=='loading') iniciar();
   else document.addEventListener('DOMContentLoaded', iniciar, {once:true});
 })();
 
 document.getElementById('launchControle').addEventListener('click', abrirControle);
+document.getElementById('pedCardPlanilha').addEventListener('click', pedAbrirPlanilha);
+document.getElementById('pedCardAlunos').addEventListener('click', pedAbrirAlunos);
+document.getElementById('pedCardMateriais').addEventListener('click', pedAbrirMateriais);
+document.getElementById('btnVoltarPedagogico').addEventListener('click', pedMostrarMenu);
 document.getElementById('launchFinanceiro').addEventListener('click', abrirFinanceiro);
 document.getElementById('launchComercial').addEventListener('click', abrirComercial);
 document.getElementById('launchMkt').addEventListener('click', ()=> abrirFerramenta('Painel de Marketing', 'https://ccaapel.github.io/mkt/'));
