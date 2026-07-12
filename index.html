@@ -2050,15 +2050,25 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
     <div id="viewAlunosAtivos" style="display:none">
       <h3 style="font-family:'Bricolage Grotesque',sans-serif;font-size:19px;font-weight:800;letter-spacing:-0.015em;color:var(--text);margin:0 0 14px">Alunos Ativos 2026/2</h3>
       <div id="aaResumoBar" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px"></div>
+      <div class="int-actions" style="margin-bottom:10px">
+        <select class="int-select" id="aaFiltroCurso" style="min-width:180px"><option value="">Todos os cursos</option></select>
+        <select class="int-select" id="aaFiltroStatus" style="min-width:190px">
+          <option value="">Todos os status</option>
+          <option value="pedido">Pedido feito</option>
+          <option value="sem-pedido">Pedido pendente</option>
+          <option value="entregue">Material entregue</option>
+          <option value="trancado">Trancados</option>
+          <option value="cancelado">Cancelados</option>
+        </select>
+        <input class="int-select" type="text" id="aaBusca" placeholder="Buscar aluno, matrícula exata ou turma…" style="flex:1;min-width:200px">
+      </div>
       <div class="int-actions" style="margin-bottom:14px">
-        <select class="int-select" id="aaFiltroCurso" style="min-width:200px"><option value="">Todos os cursos</option></select>
-        <input class="int-select" type="text" id="aaBusca" placeholder="Buscar aluno, matrícula ou turma…" style="flex:1;min-width:220px">
+        <button class="int-btn int-btn-reload" id="aaRelPedidos" type="button" title="Copiar relatório de quem já tem pedido feito">Relatório: pedidos feitos</button>
+        <button class="int-btn int-btn-reload" id="aaRelPendentes" type="button" title="Copiar relatório de quem ainda falta pedir">Relatório: pedidos pendentes</button>
+        <span style="font-size:11px;color:var(--text-dim);align-self:center">Clique em P (pedido) ou E (entregue) ao lado do aluno para marcar. T tranca e C cancela (com observação).</span>
       </div>
       <div id="aaLista"></div>
       <div class="int-loading" id="aaVazio" style="display:none">Nenhum aluno encontrado com esse filtro.</div>
-      <div style="font-size:11.5px;color:var(--text-dim);margin-top:12px;line-height:1.6">
-        Turmas já no módulo do 2º semestre (agosto). Fonte: relatórios do Sponte, conferência manual.
-      </div>
     </div><!-- /viewAlunosAtivos -->
 
     <!-- ===== SAÍDA DE MATERIAIS ===== -->
@@ -2769,6 +2779,7 @@ function pedAbrirAlunos(){
   document.getElementById('viewAlunosAtivos').style.display='block';
   aaRender();
   comSincronizar(aaRender);   // novos do Comercial vêm da nuvem em qualquer navegador
+  aaSincronizarStatus();      // pedidos/entregas/trancamentos/cancelamentos compartilhados
 }
 function pedAbrirMateriais(){
   pedEsconderTudo();
@@ -2912,15 +2923,25 @@ function comRender(){
   const filtroAssin = document.getElementById('comFiltroAssin').value;
   const busca = normTexto(document.getElementById('comBusca').value);
 
-  // Turmas em formação
+  // Turmas em formação: a contagem considera TODOS os alunos ativos da turma
+  // (os que vieram do 1º semestre + os novos), não só os novos do Comercial.
   const porTurma = {};
   lista.forEach(m=>{
     const t = (m.turma||'').trim();
     if(!t) return;
     (porTurma[t] = porTurma[t] || []).push(m);
   });
+  const normEqCom = s => normTexto(s).replace(/espanhol/g,'espanol').replace(/español/g,'espanol');
+  const totalNaTurma = {};
+  try{
+    aaComDadosDoComercial_().forEach(t=>{
+      const ativos = t.alunos.filter(a=>{ const st = aaStatusDe_(a); return !st.c && !st.t; });
+      totalNaTurma[normEqCom(t.turma)] = ativos.length;
+    });
+  }catch(e){}
   const semTurma = lista.filter(m=>!(m.turma||'').trim()).length;
-  const formadas = Object.values(porTurma).filter(a=>a.length>=3).length;
+  const contaTurma = t => totalNaTurma[normEqCom(t.split('·')[0])] ?? (porTurma[t]||[]).length;
+  const formadas = Object.keys(porTurma).filter(t=>contaTurma(t)>=3).length;
   const pend = lista.filter(m=>(m.assinatura||'pendente')!=='assinada').length;
 
   document.getElementById('comResumoBar').innerHTML = `
@@ -2928,9 +2949,9 @@ function comRender(){
     <div class="fin-stat"><div class="fin-stat-n" style="color:var(--live)">${formadas}</div><div class="fin-stat-l">Turmas formadas (3+)</div></div>
     <div class="fin-stat"><div class="fin-stat-n" style="color:${pend?'var(--ccaa-red)':'var(--live)'}">${pend}</div><div class="fin-stat-l">Assinaturas em aberto</div></div>`;
 
-  const turmasOrd = Object.entries(porTurma).sort((a,b)=> b[1].length - a[1].length || a[0].localeCompare(b[0]));
-  document.getElementById('comTurmasGrid').innerHTML = turmasOrd.map(([t, alunos])=>{
-    const n = alunos.length;
+  const turmasOrd = Object.entries(porTurma).sort((a,b)=> contaTurma(b[0]) - contaTurma(a[0]) || a[0].localeCompare(b[0]));
+  document.getElementById('comTurmasGrid').innerHTML = turmasOrd.map(([t, novosDaTurma])=>{
+    const n = contaTurma(t);
     const ok = n >= 3;
     const cor = ok ? 'var(--live)' : 'var(--soon)';
     const status = ok ? 'Formada' : `Faltam ${3-n}`;
@@ -2938,10 +2959,10 @@ function comRender(){
       <div style="font-size:13px;font-weight:800;color:var(--text)">${t}</div>
       <div style="display:flex;align-items:baseline;gap:8px;margin-top:6px">
         <span style="font-size:22px;font-weight:800;color:${cor}">${n}</span>
-        <span style="font-size:11px;color:var(--text-dim)">aluno${n>1?'s':''}</span>
+        <span style="font-size:11px;color:var(--text-dim)">aluno${n>1?'s':''} na turma</span>
         <span style="margin-left:auto;font-size:10.5px;font-weight:800;color:${cor};text-transform:uppercase;letter-spacing:.05em">${status}</span>
       </div>
-      <div style="font-size:11px;color:var(--text-dim);margin-top:6px;line-height:1.5">${alunos.map(a=>a.nome.split(' ').slice(0,2).join(' ')).join(', ')}</div>
+      <div style="font-size:11px;color:var(--text-dim);margin-top:6px;line-height:1.5">Novos: ${novosDaTurma.map(a=>a.nome.split(' ').slice(0,2).join(' ')).join(', ')}</div>
     </div>`;
   }).join('') + (semTurma ? `<div style="background:var(--surface-2);border:1.5px dashed var(--border);border-radius:var(--r-md);padding:12px 14px;display:flex;flex-direction:column;justify-content:center">
       <div style="font-size:13px;font-weight:800;color:var(--text-mute)">Sem turma definida</div>
@@ -3085,7 +3106,7 @@ document.getElementById('comBtnResumo').addEventListener('click', ()=>{
 // English Course por livro (T1/A1, T2/A2 + condensado, T3/A3, 4 a 11), VIP, Español.
 // novo:1 = aluno novo 2026/2 | c:1 = matrícula CANCELADA (aparece C vermelho).
 // Professores omitidos de propósito: serão redefinidos por turma.
-const ALUNOS_ATIVOS = [{"curso":"Baby Class","turma":"Baby 2.1","horario":"2ª/4ª 11h","alunos":[{"nome":"Enzo Borraz Barbosa Maass","mat":"6163"},{"nome":"Martina Berrutti Lopes","mat":"6069"},{"nome":"Saulo Pereira Robis","mat":"5762"},{"nome":"Aurora Damasceno Foster","mat":"6394","novo":1},{"nome":"Maitê Rodrigues Nunes","mat":"6382","novo":1}]},{"curso":"Baby Class","turma":"Baby 6.1","horario":"3ª/5ª 11h","alunos":[{"nome":"Lucas Soares Giusti","mat":"5671"},{"nome":"Noah Christino Cardozo","mat":"4969"}]},{"curso":"Kids Course","turma":"Kids 2.1","horario":"2ª/4ª 11h","alunos":[{"nome":"André Islabão Lemos","mat":"1031"},{"nome":"Catarina Novinski Ferreira","mat":"5952"},{"nome":"Felipe Gonçalves Arabar","mat":"2727"},{"nome":"Helena Canabarro Fouchy","mat":"3035"},{"nome":"Leonardo Rodeghiero Schmechel","mat":"1039"},{"nome":"Lorena Clan Milgarejo","mat":"2954"},{"nome":"Mathias Lopes Saraya","mat":"4911"},{"nome":"Isaac Soares Lima","mat":"6259","novo":1},{"nome":"Lucas Zanetti de Lima","mat":"6242","novo":1}]},{"curso":"Kids Course","turma":"Kids 4.1","horario":"2ª/4ª 18h15 às 19h15","alunos":[{"nome":"Ana Clara Souza Esteves","mat":"5867"},{"nome":"Maryana Gonçalves do Rosário","mat":"5595"},{"nome":"Henrique Silveira da Rocha","mat":"6275","novo":1},{"nome":"Lorenzo Soares Lima","mat":"6258","novo":1},{"nome":"Mariana Minozzo Bressiani","mat":"6358","novo":1}]},{"curso":"Kids Course","turma":"Kids 6.1","horario":"2ª/4ª 18h15","alunos":[{"nome":"Athena Corrêa Cazaubon Soares","mat":"1990"},{"nome":"Bento Corrêa Cazaubon Soares","mat":"1992"},{"nome":"Izadora Braga Ribeiro","mat":"5482"},{"nome":"João Victor Ustra Moura","mat":"4463"},{"nome":"Larissa Antunes Schwingel","mat":"1581"},{"nome":"Laura Caldeira Kist","mat":"1496"},{"nome":"Luíza Ustra Moura","mat":"4462"},{"nome":"Maria Alice Schmitt Oliz","mat":"5367"},{"nome":"Maria Antônia Sabin Schreiner","mat":"5858"}]},{"curso":"Kids Course","turma":"Kids 6.2","horario":"3ª/5ª 10h45","alunos":[{"nome":"Amanda Dittgen da Silva","mat":"1027","c":1},{"nome":"Bernardo Gomes Mendes","mat":"5736"},{"nome":"Davi Ortiz Bortolazzo","mat":"5011"},{"nome":"Gustavo de Azevedo Cunha","mat":"5818"},{"nome":"Lara Furtado Sousa","mat":"3232","c":1},{"nome":"Lucas de Souza de Oliveira","mat":"1081"},{"nome":"Mariana Hernandes Severo","mat":"5080"},{"nome":"Martina Gruppelli Pedroso","mat":"3431"},{"nome":"Theo Soares Giusti","mat":"5670"},{"nome":"Ísis Custodio do Amaral Vasconcelos","mat":"1003","novo":1},{"nome":"Clara Soares Pereira","mat":"6200","novo":1}]},{"curso":"Kids Course","turma":"Kids 6.3","horario":"3ª/5ª 18h15","alunos":[{"nome":"Antônia Beloto D Avila","mat":"4129"},{"nome":"João Vitola da Cunha","mat":"848"},{"nome":"Marina Freire de Oliveira","mat":"5710"},{"nome":"Vítor Goebel Pinto","mat":"4193"}]},{"curso":"Kids Course","turma":"Kids 8.2","horario":"2ª/4ª 18h15","alunos":[{"nome":"Antônio Crizel Rodrigues","mat":"4630"},{"nome":"Eliza Vieira Correa","mat":"5389"},{"nome":"Gabriel Obelheiro Martins","mat":"5861"},{"nome":"Helena Oliveira Freda Soares","mat":"5679"},{"nome":"Lais Braga Ramos","mat":"5680"}]},{"curso":"Kids Course","turma":"Kids 8.3","horario":"3ª/5ª 10h45","alunos":[{"nome":"Arthur Vieira Cardoso","mat":"2333"},{"nome":"Lívia Soares Bessa","mat":"3044"},{"nome":"Louise Costa da Silva","mat":"5438"},{"nome":"Luiza Lameirão Zanusso Medeiros","mat":"1070"},{"nome":"Maia Soares Serra","mat":"3045"},{"nome":"Maitê Duarte Soares","mat":"1492"},{"nome":"Pedro Machado Prestes Delgado","mat":"5329"},{"nome":"Pedro Vieira Nunes","mat":"6020"},{"nome":"Pietro Dias De Oliveira","mat":"4688"},{"nome":"Anthony Lopes Gouvea","mat":"6391","novo":1}]},{"curso":"Preteen Course","turma":"Preteen 2.1","horario":"2ª/4ª 10h","alunos":[{"nome":"Arthur Ortiz Bortolazzo","mat":"5010"},{"nome":"Cecília Reis Pinheiro","mat":"5066"},{"nome":"Clara Schwalbe De Oliveira","mat":"3972"},{"nome":"Diogo Bender Nunes","mat":"5666"},{"nome":"Enrico Moraes Gargioni","mat":"770"},{"nome":"Henrique Conceição Dutra","mat":"3864"},{"nome":"Isabela Peres Zanotta da Cruz Teixeira","mat":"1638"},{"nome":"Rafaella Martins Schulte","mat":"1639"},{"nome":"Yasmin Fonseca Strassburger","mat":"1592"}]},{"curso":"Preteen Course","turma":"Preteen 2.2","horario":"2ª/4ª 14h","alunos":[{"nome":"Felipa Teixeira Damasceno","mat":"5635"},{"nome":"Henrique Osório Marth","mat":"2111"},{"nome":"Laura Yohana Borges Gayer","mat":"5503"},{"nome":"Valentina Bilhalva Farias","mat":"5913"}]},{"curso":"Preteen Course","turma":"Preteen 2.3","horario":"3ª int. 14h","alunos":[{"nome":"Antônia Dias Ávila","mat":"5925"},{"nome":"Breno da Fonseca Cuello","mat":"5963"},{"nome":"Henrique Radke Scheunemann","mat":"4332"},{"nome":"Júlia Hornke Schiavon","mat":"5282"}]},{"curso":"Preteen Course","turma":"Preteen 2.4","horario":"5ª int. 9h","alunos":[{"nome":"Antonella Zanatto Bicca","mat":"2100"},{"nome":"Bernardo Souza Lemes","mat":"6023"},{"nome":"Cecília Teixeira Braga","mat":"5817"},{"nome":"Maria Eduarda Porres Hamm","mat":"1429"},{"nome":"Marina Fernandes Freitas da Silva","mat":"1092"},{"nome":"Otávio Bonifácio Jardim","mat":"6040"}]},{"curso":"Preteen Course","turma":"Preteen 2.5","horario":"3ª/5ª 15h30","alunos":[{"nome":"Antônia da Silva Couto","mat":"6233","novo":1},{"nome":"Manuela da Silva Couto","mat":"6234","novo":1},{"nome":"Joaquim da Silva Couto","mat":"6235","novo":1}]},{"curso":"English Course","turma":"T1.1","horario":"2ª/4ª 15h30","alunos":[{"nome":"Manuela Montagna Aguiar","mat":"6228","novo":1}]},{"curso":"English Course","turma":"T1.2","horario":"3ª int. 14h","alunos":[{"nome":"Helena de Sá Valente","mat":"6341","novo":1},{"nome":"Eduardo Fioresi Leston","mat":"6334","novo":1},{"nome":"Guilherme Bueno Acosta","mat":"6308","novo":1}]},{"curso":"English Course","turma":"T2.1","horario":"2ª/4ª 10h30","alunos":[{"nome":"Artur Pieper Ferreira","mat":"1222"},{"nome":"Oscar Jardim Gularte","mat":"601"},{"nome":"Pedro Lourenço Leal","mat":"6123"},{"nome":"Valentyna da Cruz Vergara","mat":"5962"}]},{"curso":"English Course","turma":"T2.2","horario":"2ª/4ª 14h (TN)","alunos":[{"nome":"Carolina Braun Carpe","mat":"5422"},{"nome":"Helena Osório Gonçalves","mat":"5842"},{"nome":"João Pedro Carvalho Machado","mat":"5906"},{"nome":"Karoline Tavares da Rosa","mat":"6029"},{"nome":"Maria Clara Hoch Martins","mat":"5927"},{"nome":"Maria Eduarda Borges Ribeiro","mat":"5781"},{"nome":"Pedro Freda Paz","mat":"5908"},{"nome":"Rafaella de Oliveira Nienczeski","mat":"5387"}]},{"curso":"English Course","turma":"T2.3","horario":"2ª/4ª 14h","alunos":[{"nome":"Felipe Canielles Caprara","mat":"1058"},{"nome":"Giovana Diel Soares","mat":"1075"},{"nome":"Maria Antônia Osório Marth","mat":"2112"},{"nome":"Maria Fernanda Souto Corrêa de Mendonça","mat":"1127"},{"nome":"Maria Luiza Yazye Gonçalves","mat":"811"},{"nome":"Miguel De Lima Da Silveira","mat":"3727"},{"nome":"Pedro Henrique Orlandi Do Nascimento","mat":"3896"},{"nome":"Vinicius Gonçalves Sinnott Filho","mat":"1307"}]},{"curso":"English Course","turma":"T2.4","horario":"3ª int. 14h","alunos":[{"nome":"Alessandra dos Anjos Bueno","mat":"6128"},{"nome":"Anna Luiza Hornke Schiavon","mat":"5283"},{"nome":"Cecilia Beher Valadão","mat":"6137"},{"nome":"Davi Bull Martins","mat":"4038"},{"nome":"Joana Zambrano dos Santos Silva","mat":"5871"},{"nome":"João Lucas Timm Ferreira","mat":"3039"},{"nome":"Lara da Silveira Santin","mat":"5348"},{"nome":"Maria Eduarda Bergmann da Silveira","mat":"1837"},{"nome":"Maria Luiza Fischer Aguiar","mat":"4200"},{"nome":"Mariana Teixeira Bom","mat":"4144"},{"nome":"Pedro Henrique Costa Farias","mat":"4207"},{"nome":"Yure Escoto Kurz","mat":"5719"}]},{"curso":"English Course","turma":"T2.5","horario":"3ª/5ª 14h","alunos":[{"nome":"Bernardo da Silva Tavares","mat":"5675"},{"nome":"Bernardo dos Santos Trindade","mat":"5362"},{"nome":"Franco Muniz Gauterio de Souza","mat":"6129"},{"nome":"João Brauner Gervini","mat":"3798"},{"nome":"Luís Otavio Nolasco Pereira","mat":"6051"},{"nome":"Otávio Barckfeld Duarte","mat":"5615"}]},{"curso":"English Course","turma":"A2.1","horario":"2ª/4ª 19h","alunos":[{"nome":"Adriane da Silva Goulart","mat":"5424"},{"nome":"Daniela Cardoso de Melo","mat":"5517"},{"nome":"Eliana Gonçalves Lopes Barbosa","mat":"5311"},{"nome":"Fernanda da Silva Lacerda","mat":"5826"},{"nome":"Francielle Braga da Rosa","mat":"5656"},{"nome":"Idemar Duarte Junior","mat":"5843"},{"nome":"Jairo Luiz Caetano Farias","mat":"5844"},{"nome":"Lara Bueno Martins","mat":"5841"},{"nome":"Leonarda Bianchini Magnus","mat":"5914"},{"nome":"Martha Mattos Portella Gargioni","mat":"5696"},{"nome":"Matheus Goulart Tanhote","mat":"2237"},{"nome":"Sergio Gabriel Barros Lima","mat":"5534"},{"nome":"Sérgio Roberto da Rosa Nogueira","mat":"5327"},{"nome":"Thaila Cristine da Silveira Dutra","mat":"5506"},{"nome":"Thais Shaillene Costa","mat":"5931"}]},{"curso":"English Course","turma":"A2.2","horario":"2ª int. 8h15","alunos":[{"nome":"Flávia Candido Silva","mat":"6121"},{"nome":"Jonas Borges Pereira","mat":"5960"},{"nome":"Ketlyn Vieira Becker","mat":"6139"},{"nome":"Nicolas Peres Rosler Andrade","mat":"6118"},{"nome":"Raquel Chiattone Corvello","mat":"5796"},{"nome":"Rosemeri Fernanda Castro","mat":"5709"}]},{"curso":"English Course","turma":"A2.3","horario":"Sáb int. 8h45","alunos":[{"nome":"Alice da Silva Leon","mat":"6083"},{"nome":"Cintia Rosa de Oliveira","mat":"5591"},{"nome":"Juliana Magalhães de Bem","mat":"6021"},{"nome":"Kelvin de Souza da Rosa","mat":"5376"},{"nome":"Laura Soares dos Reis","mat":"5388"},{"nome":"Manuela Rosa Ribeiro","mat":"6140"},{"nome":"Pedro da Rosa Amaral","mat":"5139"},{"nome":"Rosiméri Nunes Borges","mat":"5924"}]},{"curso":"English Course","turma":"A1-2.1 (Condensado maio)","horario":"3ª/5ª 19h","alunos":[{"nome":"Amanda Ulrich Soldi","mat":"6239"},{"nome":"Anna Clara Martins Moraes","mat":"3096"},{"nome":"Camila Alves Gomes Vilela","mat":"5964"},{"nome":"Eduarda Holz","mat":"6198"},{"nome":"Erick Ramos de Azevedo","mat":"6218"},{"nome":"Luana Soares dos Reis","mat":"6187"}]},{"curso":"English Course","turma":"T3.1","horario":"6ª int. 14h","alunos":[{"nome":"Benício Menchaca Rodrigues","mat":"5042"},{"nome":"Helena Chiattone Berti Rodrigues","mat":"4616"},{"nome":"Larissa Cecagno Lopes","mat":"5721"},{"nome":"Laura Cecagno Lopes","mat":"5720"},{"nome":"Luiza Girão Ribeiro","mat":"4664"},{"nome":"Manuela Tavares dos Santos","mat":"4724"}]},{"curso":"English Course","turma":"A3.1","horario":"3ª int. 9h","alunos":[{"nome":"Maiara Andressa Thurow","mat":"1412"},{"nome":"Maitê Peters Teixeira","mat":"5076"}]},{"curso":"English Course","turma":"A3.2","horario":"Sáb int. 8h45","alunos":[{"nome":"Anita Gentilini Moreira","mat":"4988"},{"nome":"Evyllin Oliveira Buchweitz","mat":"3395"},{"nome":"Guilherme Leiria Schlee Gomes","mat":"4833"},{"nome":"Jordhana Batista da Silva","mat":"5001"},{"nome":"Julio Farias Barbosa","mat":"4867"},{"nome":"Súellen de Medeiros Cortes","mat":"5075"}]},{"curso":"English Course","turma":"English 4","horario":"2ª/4ª 14h às 15h15","alunos":[{"nome":"Laura Provensi Stefenon","mat":"6229","novo":1}]},{"curso":"English Course","turma":"English 4.1","horario":"2ª/4ª 14h","alunos":[{"nome":"Gabriela Garcia Robertt","mat":"3033"},{"nome":"Helena Costa Kraft Soares","mat":"1921"},{"nome":"Helena Michel de Oliveira","mat":"1955"},{"nome":"Isabela da Silva Manetti","mat":"490"},{"nome":"Otávio Soares Bessa","mat":"3043"},{"nome":"Sophia Linhares Ferreira","mat":"1183"}]},{"curso":"English Course","turma":"English 4.2","horario":"2ª/4ª 14h","alunos":[{"nome":"Catarina Xavier de Oliveira","mat":"828"},{"nome":"Gonçalo Di Primio Sousa","mat":"4322"},{"nome":"Guilherme Tavares Radmann","mat":"4315"},{"nome":"Heitor Iturbide Fanka","mat":"781"},{"nome":"Isabela Antunes Schwingel","mat":"800"},{"nome":"Otávio da Silveira Borba","mat":"1740"},{"nome":"Sabrina Lopes Scaglioni","mat":"749"}]},{"curso":"English Course","turma":"English 4.3","horario":"2ª/4ª 18h15","alunos":[{"nome":"Cecília Bittencourt Macedo da Silva","mat":"774"},{"nome":"Frederico Lange Peter","mat":"2143"},{"nome":"Heitor da Silva Caldasso","mat":"563"},{"nome":"Lorenzo Rita Garcia","mat":"1025"},{"nome":"Otavio Garcia Reis","mat":"2821"}]},{"curso":"English Course","turma":"English 4.4","horario":"CANGUÇU – 3ª int. 14h","alunos":[{"nome":"Luiza Coelho Muniz Furtado","mat":"3720"},{"nome":"Maryana Ferreira Campão Soares","mat":"4356"}]},{"curso":"English Course","turma":"English 4.5","horario":"4ª int. 14h","alunos":[{"nome":"Érica Feijó da Rosa","mat":"1246"},{"nome":"Gustavo Carreia Silva","mat":"4229"},{"nome":"Nicoly Oliveira Monteiro","mat":"1266"},{"nome":"Pedro Indu Teixeira Ferrari","mat":"4091"},{"nome":"Sofia Megiato Barros","mat":"3846"},{"nome":"Lucas Davila Marten","mat":"6272","novo":1}]},{"curso":"English Course","turma":"English 4.6","horario":"3ª/5ª 14h","alunos":[{"nome":"Ana Carolina Aires de Matos","mat":"3548"},{"nome":"Antônia Bilhalva Fogaça","mat":"4444"},{"nome":"Antônia Machado Placido","mat":"1223"},{"nome":"Artur Bandeira Afonso","mat":"1826"},{"nome":"Catarina Calai de Ávila","mat":"1398"},{"nome":"Daniele Rosinha Silvano","mat":"3103"},{"nome":"Francisca Cunha Faria","mat":"934"},{"nome":"Maria Sofia Victória Rodrigues Manta","mat":"1224"}]},{"curso":"English Course","turma":"English 4.7","horario":"6ª int. 14h","alunos":[{"nome":"Bernardo de Mello Mendes","mat":"1065"},{"nome":"João Pedro Heres Real","mat":"4099"},{"nome":"Lucas Castilhos Nebel","mat":"3027"}]},{"curso":"English Course","turma":"English 4.8","horario":"3ª/5ª 19h","alunos":[{"nome":"Dario Luciano Lucas Brum","mat":"4040"},{"nome":"Júlia Vieira Cardoso","mat":"1156"},{"nome":"Thiago Bueno Peres","mat":"4333"},{"nome":"Washington Luiz Pereira Júnior","mat":"1008"}]},{"curso":"English Course","turma":"English 5.1","horario":"4ª int. 14h","alunos":[{"nome":"Stella Gruppelli Pedroso","mat":"3432"}]},{"curso":"English Course","turma":"English 5.2","horario":"6ª int. 14h","alunos":[{"nome":"Isadora de Sá Brito Dos Santos","mat":"4191"},{"nome":"Júlia Crummenauer Pilger","mat":"4309"},{"nome":"Tiago Machado Dos Reis","mat":"4479"}]},{"curso":"English Course","turma":"English 5.3","horario":"Sáb int. 8h45","alunos":[{"nome":"Carmem Laura Islabão Moraes","mat":"2940"},{"nome":"Henry de Barros Borba","mat":"3129"},{"nome":"Pedro Vitoria Torres","mat":"2937"}]},{"curso":"English Course","turma":"English 6.1","horario":"2ª/4ª 14h","alunos":[{"nome":"Antonia Venzke Amaral","mat":"5778"},{"nome":"Beatriz Machado Prestes Delgado","mat":"1018"},{"nome":"Catarina De Souza Neumann","mat":"4370"},{"nome":"Helena Silveira Ponci","mat":"5887"},{"nome":"Isabela Garcia Robertt","mat":"3032"},{"nome":"Isadora Schumann Iasniewicz","mat":"1700"},{"nome":"Julia Carvalho Muñoz","mat":"1124"},{"nome":"Leonardo de Mello Sopeña","mat":"1044"},{"nome":"Vitória Ramires Noguêz","mat":"1206"}]},{"curso":"English Course","turma":"English 6.2","horario":"2ª/4ª 18h15","alunos":[{"nome":"Pedro Redmer Morales","mat":"450"}]},{"curso":"English Course","turma":"English 6.3","horario":"3ª/5ª 19h30","alunos":[{"nome":"Francisco Carlos Aires Ferreira","mat":"2117"},{"nome":"Gabriel Goulart Caetano","mat":"1967"}]},{"curso":"English Course","turma":"English 6.4","horario":"4ª int. 14h","alunos":[{"nome":"Antonela Corvello de Oliveira","mat":"1805"},{"nome":"Bento da Silva Pitol","mat":"1267"},{"nome":"Henry de Matos Amaro","mat":"6030"},{"nome":"José Inácio Silveira Puyo","mat":"960"},{"nome":"Lucas Hallal Megiato","mat":"1727"},{"nome":"Luiz Felipe Silveira Puyo","mat":"961"},{"nome":"Olívia Massot Bleggi","mat":"1073"},{"nome":"Vicente Goulart Dutra","mat":"790"}]},{"curso":"English Course","turma":"English 6.5","horario":"6ª int. 14h","alunos":[{"nome":"Isabella Perleberg Betemps","mat":"3843"},{"nome":"Manuela Aguirres Kuhn","mat":"5969"},{"nome":"Otávio Osório Lopes","mat":"1690"},{"nome":"Rafael Martins da Silva","mat":"1764"}]},{"curso":"English Course","turma":"English 7.1","horario":"3ª int. 14h","alunos":[{"nome":"Laura Pereira e Silva","mat":"1203"},{"nome":"Nikolas Ryuiti Oike","mat":"6221","novo":1}]},{"curso":"English Course","turma":"English 7.2","horario":"3ª/5ª 19h","alunos":[{"nome":"Amanda Gonçalves da Silveira Veber","mat":"5542"},{"nome":"Arthur Hirdes Bica","mat":"5935"},{"nome":"Michael Alves da Silva","mat":"4501"},{"nome":"Samuel Munhoz dos Santos","mat":"1085"}]},{"curso":"English Course","turma":"English 7.3","horario":"6ª int. 14h","alunos":[{"nome":"Eduardo Iven Baschi","mat":"1935"},{"nome":"Gabriela Dittgen da Silva","mat":"2502"},{"nome":"Hamilton Ornes Bitencourt Junior","mat":"4659"},{"nome":"Marina Moreno Kirinus","mat":"1071"},{"nome":"Natália Da Rosa Mendonça","mat":"4216"},{"nome":"Pedro de Matos Campelo","mat":"1062","novo":1}]},{"curso":"English Course","turma":"English 8.1","horario":"2ª int. 14h","alunos":[{"nome":"Eduardo Mesquita Bastos","mat":"5540"},{"nome":"Luis Eduardo Krause Peres","mat":"5904"},{"nome":"Rafaela Haffele Bandeira Radmann","mat":"1069"}]},{"curso":"English Course","turma":"English 8.2","horario":"3ª/5ª 15h30","alunos":[{"nome":"Anne Sauer Nunes","mat":"3829"},{"nome":"Eduarda da Silva de Paula","mat":"5905"},{"nome":"Emílio Alves Machado","mat":"514"},{"nome":"Henrique Bueno Lima","mat":"519"},{"nome":"Henrique Smiths Primo","mat":"768"},{"nome":"Maria Carolina Dias Lopes","mat":"1504"},{"nome":"Maria Clara Nunes Peter Vanier","mat":"769"}]},{"curso":"English Course","turma":"English 8.3","horario":"6ª int. 14h","alunos":[{"nome":"Antônia Chiapinotto Cruzetta","mat":"668"},{"nome":"Betina Müller Chatkin","mat":"812"},{"nome":"Carolina Martins Mendes","mat":"451"},{"nome":"Gabriel Holz Vahl","mat":"5806"},{"nome":"João Francisco Teixeira Ruivo","mat":"1007"},{"nome":"Maria Flor Sanghi de Andrade","mat":"529"},{"nome":"Nícolas Rittmann Felippe","mat":"1137"},{"nome":"Olga de Carvalho Ferreira","mat":"1057"},{"nome":"Vinicius Lobato Lapique","mat":"444"},{"nome":"Bernardo Bilharva Rodrigues","mat":"824","novo":1}]},{"curso":"English Course","turma":"English 8.4","horario":"Sáb int. 8h45","alunos":[{"nome":"Arthur Blank Freitas","mat":"1089"},{"nome":"Giulia Marcili Alvariza Gomes","mat":"511"},{"nome":"Henrique Lenon Moreira Pinheiro","mat":"1004"},{"nome":"Joana da Silva Leon","mat":"6082"},{"nome":"Laura Bugs Sigales","mat":"763"},{"nome":"Murillo Moreira Köpp","mat":"1006"},{"nome":"Vitória Prietsch Lopes","mat":"844"}]},{"curso":"English Course","turma":"English 9.1","horario":"6ª int. 14h","alunos":[{"nome":"Enrico Costa Kraft Soares","mat":"1922"},{"nome":"Isadora Tonial Ferreira","mat":"1007"},{"nome":"Suzana Mastella Fernandes","mat":"4525"},{"nome":"Vinícius Leite de Garcia","mat":"508"}]},{"curso":"English Course","turma":"English 10.1","horario":"2ª/4ª 18h15","alunos":[{"nome":"Bernardo Barreto Cezar","mat":"460"},{"nome":"Carla Galho Braga","mat":"757"},{"nome":"Carolina da Costa Cavalheiro","mat":"605"},{"nome":"Estela Bacchi Steinmetz","mat":"1821"},{"nome":"Henrique Augusti Coradini","mat":"732"},{"nome":"Júlia Soares Cassana","mat":"777"},{"nome":"Juliana Guido Tavares dos Santos","mat":"1011"},{"nome":"Maria Eduarda Pinheiro Botozele","mat":"456"},{"nome":"Mariana Duarte Eicholz","mat":"766"},{"nome":"Valentina Morales Selbach","mat":"464"}]},{"curso":"English Course","turma":"English 10.2","horario":"2ª/3ª 17h","alunos":[{"nome":"Adelita de Fatima Andrade Soares","mat":"984"},{"nome":"Maria Ângela Cornelli Engelmann","mat":"3721"},{"nome":"Vítor Moreira Timm","mat":"813"}]},{"curso":"English Course","turma":"English 10.3","horario":"6ª int. 14h","alunos":[{"nome":"Artur Martini Centeno","mat":"459"},{"nome":"Cecília de Souza de Oliveira","mat":"702"},{"nome":"Nicolas Eduardo Couto Guterres","mat":"5608"},{"nome":"Tiago Cardoso de Lima","mat":"854"}]},{"curso":"English Course","turma":"English 11.1","horario":"2ª/4ª 18h15","alunos":[{"nome":"Alice da Cruz do Couto","mat":"480"},{"nome":"Catarina Souza Silva","mat":"4041"},{"nome":"Eduarda Brockstedt Alves","mat":"6079"},{"nome":"Josana Pires dos Santos","mat":"870"},{"nome":"Lorenzo de Mattos Nunes","mat":"507"},{"nome":"Mara Elaine de Lima Elias","mat":"612"},{"nome":"Marli Pardo Legemann Oliveira","mat":"613"},{"nome":"Renata Harter Unteciski","mat":"4569"},{"nome":"Thais Aldrighi Machado","mat":"920"}]},{"curso":"English Course","turma":"English 11.2","horario":"5ª int. 14h","alunos":[{"nome":"Amanda Pilger de Souza","mat":"4308"}]},{"curso":"English Course","turma":"English 11.2","horario":"6ª int. 14h","alunos":[{"nome":"Alana Reis Corteletti","mat":"6058"},{"nome":"Bernardo Cortez Catarino","mat":"534"},{"nome":"Luzia dos Santos de Souza Soares","mat":"5488"},{"nome":"Valentina Martins Fagundes","mat":"723"}]},{"curso":"English VIP","turma":"VIP 10.1","horario":"3ª/5ª 18h","alunos":[{"nome":"Antônio Claro Rosales Rodrigues","mat":"6283"}]},{"curso":"English VIP","turma":"VIP 11.1","horario":"3ª/5ª 9h","alunos":[{"nome":"Larissa Rita Garcia","mat":"510"}]},{"curso":"Español","turma":"Español 1.1","horario":"2ª/4ª 14h","alunos":[{"nome":"Morgana Pilição da Cruz","mat":"6356","novo":1},{"nome":"Morgana Guerra Menchaca","mat":"6348","novo":1},{"nome":"Robertha Antunes Leal Westphal","mat":"6339","novo":1}]},{"curso":"Español","turma":"Español 2.1","horario":"2ª int. 18h","alunos":[{"nome":"Alessandra Gonçalves Martins","mat":"6101"},{"nome":"Alice Gastal","mat":"5947"},{"nome":"Caterine Henriques Mendes","mat":"6093"},{"nome":"Eduarda Fonseca Radmann","mat":"5730"},{"nome":"Flávia Candido Silva","mat":"6121"},{"nome":"Maria Eduarda Marroni Weiler","mat":"5930"},{"nome":"Nathália Silva Caprio","mat":"5981"},{"nome":"Tainara Montano","mat":"5808"}]},{"curso":"Español","turma":"VIP Español 2.1","horario":"2ª/5ª/6ª 18h","alunos":[{"nome":"Laura Provensi Stefenon","mat":"6229"}]},{"curso":"Español","turma":"Español 2.2","horario":"3ª/5ª 10h","alunos":[{"nome":"Ilvôni Dias Islabão","mat":"5758"},{"nome":"Laura Lacerda Santana","mat":"973"},{"nome":"Paula Katiuscia Vergutz Diel","mat":"5757"}]},{"curso":"Español","turma":"VIP Español 2.2","horario":"6ª 10h30","alunos":[{"nome":"Camila Pedroso Molina","mat":"6346"}]},{"curso":"Turma a definir","turma":"Turma a definir","horario":"","alunos":[{"nome":"Beatriz Dias Chollet","mat":"6386","novo":1},{"nome":"Maria Luiza Gonçalves Neuenfeld","mat":"2924","novo":1},{"nome":"Melânia Vitória Matos Ferst","mat":"6320","novo":1},{"nome":"Marcus Boeira de Medeiros Filho","mat":"6321","novo":1}]}];
+const ALUNOS_ATIVOS = [{"curso":"Baby Class","turma":"Baby 2.1","horario":"2ª/4ª 11h","alunos":[{"nome":"Enzo Borraz Barbosa Maass","mat":"6163"},{"nome":"Martina Berrutti Lopes","mat":"6069"},{"nome":"Saulo Pereira Robis","mat":"5762"},{"nome":"Aurora Damasceno Foster","mat":"6394","novo":1},{"nome":"Maitê Rodrigues Nunes","mat":"6382","novo":1}]},{"curso":"Baby Class","turma":"Baby 6.1","horario":"3ª/5ª 11h","alunos":[{"nome":"Lucas Soares Giusti","mat":"5671"},{"nome":"Noah Christino Cardozo","mat":"4969"}]},{"curso":"Kids Course","turma":"Kids 2.1","horario":"2ª/4ª 11h","alunos":[{"nome":"André Islabão Lemos","mat":"1031"},{"nome":"Catarina Novinski Ferreira","mat":"5952"},{"nome":"Felipe Gonçalves Arabar","mat":"2727"},{"nome":"Helena Canabarro Fouchy","mat":"3035"},{"nome":"Leonardo Rodeghiero Schmechel","mat":"1039"},{"nome":"Lorena Clan Milgarejo","mat":"2954"},{"nome":"Mathias Lopes Saraya","mat":"4911"},{"nome":"Isaac Soares Lima","mat":"6259","novo":1},{"nome":"Lucas Zanetti de Lima","mat":"6242","novo":1}]},{"curso":"Kids Course","turma":"Kids 4.1","horario":"2ª/4ª 18h15 às 19h15","alunos":[{"nome":"Ana Clara Souza Esteves","mat":"5867"},{"nome":"Maryana Gonçalves do Rosário","mat":"5595"},{"nome":"Henrique Silveira da Rocha","mat":"6275","novo":1},{"nome":"Lorenzo Soares Lima","mat":"6258","novo":1},{"nome":"Mariana Minozzo Bressiani","mat":"6358","novo":1}]},{"curso":"Kids Course","turma":"Kids 6.1","horario":"2ª/4ª 18h15","alunos":[{"nome":"Athena Corrêa Cazaubon Soares","mat":"1990"},{"nome":"Bento Corrêa Cazaubon Soares","mat":"1992"},{"nome":"Izadora Braga Ribeiro","mat":"5482"},{"nome":"João Victor Ustra Moura","mat":"4463"},{"nome":"Larissa Antunes Schwingel","mat":"1581"},{"nome":"Laura Caldeira Kist","mat":"1496"},{"nome":"Luíza Ustra Moura","mat":"4462"},{"nome":"Maria Alice Schmitt Oliz","mat":"5367"},{"nome":"Maria Antônia Sabin Schreiner","mat":"5858"}]},{"curso":"Kids Course","turma":"Kids 6.2","horario":"3ª/5ª 10h45","alunos":[{"nome":"Amanda Dittgen da Silva","mat":"1027","c":1},{"nome":"Bernardo Gomes Mendes","mat":"5736"},{"nome":"Davi Ortiz Bortolazzo","mat":"5011"},{"nome":"Gustavo de Azevedo Cunha","mat":"5818"},{"nome":"Lara Furtado Sousa","mat":"3232","c":1},{"nome":"Lucas de Souza de Oliveira","mat":"1081"},{"nome":"Mariana Hernandes Severo","mat":"5080"},{"nome":"Martina Gruppelli Pedroso","mat":"3431"},{"nome":"Theo Soares Giusti","mat":"5670"},{"nome":"Ísis Custodio do Amaral Vasconcelos","mat":"1003","novo":1},{"nome":"Clara Soares Pereira","mat":"6200","novo":1}]},{"curso":"Kids Course","turma":"Kids 6.3","horario":"3ª/5ª 18h15","alunos":[{"nome":"Antônia Beloto D Avila","mat":"4129"},{"nome":"João Vitola da Cunha","mat":"848"},{"nome":"Marina Freire de Oliveira","mat":"5710"},{"nome":"Vítor Goebel Pinto","mat":"4193"}]},{"curso":"Kids Course","turma":"Kids 8.2","horario":"2ª/4ª 18h15","alunos":[{"nome":"Antônio Crizel Rodrigues","mat":"4630"},{"nome":"Eliza Vieira Correa","mat":"5389"},{"nome":"Gabriel Obelheiro Martins","mat":"5861"},{"nome":"Helena Oliveira Freda Soares","mat":"5679"},{"nome":"Lais Braga Ramos","mat":"5680"}]},{"curso":"Kids Course","turma":"Kids 8.3","horario":"3ª/5ª 10h45","alunos":[{"nome":"Arthur Vieira Cardoso","mat":"2333"},{"nome":"Lívia Soares Bessa","mat":"3044"},{"nome":"Louise Costa da Silva","mat":"5438"},{"nome":"Luiza Lameirão Zanusso Medeiros","mat":"1070"},{"nome":"Maia Soares Serra","mat":"3045"},{"nome":"Maitê Duarte Soares","mat":"1492"},{"nome":"Pedro Machado Prestes Delgado","mat":"5329"},{"nome":"Pedro Vieira Nunes","mat":"6020"},{"nome":"Pietro Dias De Oliveira","mat":"4688"},{"nome":"Anthony Lopes Gouvea","mat":"6391","novo":1}]},{"curso":"Preteen Course","turma":"Preteen 2.1","horario":"2ª/4ª 10h","alunos":[{"nome":"Arthur Ortiz Bortolazzo","mat":"5010"},{"nome":"Cecília Reis Pinheiro","mat":"5066"},{"nome":"Clara Schwalbe De Oliveira","mat":"3972"},{"nome":"Diogo Bender Nunes","mat":"5666"},{"nome":"Enrico Moraes Gargioni","mat":"770"},{"nome":"Henrique Conceição Dutra","mat":"3864"},{"nome":"Isabela Peres Zanotta da Cruz Teixeira","mat":"1638"},{"nome":"Rafaella Martins Schulte","mat":"1639"},{"nome":"Yasmin Fonseca Strassburger","mat":"1592"}]},{"curso":"Preteen Course","turma":"Preteen 2.2","horario":"2ª/4ª 14h","alunos":[{"nome":"Felipa Teixeira Damasceno","mat":"5635"},{"nome":"Henrique Osório Marth","mat":"2111"},{"nome":"Laura Yohana Borges Gayer","mat":"5503"},{"nome":"Valentina Bilhalva Farias","mat":"5913","t":1,"obs":"Trancamento no 1º semestre"}]},{"curso":"Preteen Course","turma":"Preteen 2.3","horario":"3ª int. 14h","alunos":[{"nome":"Antônia Dias Ávila","mat":"5925"},{"nome":"Breno da Fonseca Cuello","mat":"5963"},{"nome":"Henrique Radke Scheunemann","mat":"4332"},{"nome":"Júlia Hornke Schiavon","mat":"5282"}]},{"curso":"Preteen Course","turma":"Preteen 2.4","horario":"5ª int. 9h","alunos":[{"nome":"Antonella Zanatto Bicca","mat":"2100"},{"nome":"Bernardo Souza Lemes","mat":"6023"},{"nome":"Cecília Teixeira Braga","mat":"5817"},{"nome":"Maria Eduarda Porres Hamm","mat":"1429"},{"nome":"Marina Fernandes Freitas da Silva","mat":"1092"},{"nome":"Otávio Bonifácio Jardim","mat":"6040"}]},{"curso":"Preteen Course","turma":"Preteen 2.5","horario":"3ª/5ª 15h30","alunos":[{"nome":"Antônia da Silva Couto","mat":"6233","novo":1},{"nome":"Manuela da Silva Couto","mat":"6234","novo":1},{"nome":"Joaquim da Silva Couto","mat":"6235","novo":1}]},{"curso":"English Course","turma":"T1.1","horario":"2ª/4ª 15h30","alunos":[{"nome":"Manuela Montagna Aguiar","mat":"6228","novo":1}]},{"curso":"English Course","turma":"T1.2","horario":"3ª int. 14h","alunos":[{"nome":"Helena de Sá Valente","mat":"6341","novo":1},{"nome":"Eduardo Fioresi Leston","mat":"6334","novo":1},{"nome":"Guilherme Bueno Acosta","mat":"6308","novo":1}]},{"curso":"English Course","turma":"T2.1","horario":"2ª/4ª 10h30","alunos":[{"nome":"Artur Pieper Ferreira","mat":"1222"},{"nome":"Oscar Jardim Gularte","mat":"601"},{"nome":"Pedro Lourenço Leal","mat":"6123"},{"nome":"Valentyna da Cruz Vergara","mat":"5962"}]},{"curso":"English Course","turma":"T2.2","horario":"2ª/4ª 14h (TN)","alunos":[{"nome":"Carolina Braun Carpe","mat":"5422"},{"nome":"Helena Osório Gonçalves","mat":"5842"},{"nome":"João Pedro Carvalho Machado","mat":"5906"},{"nome":"Karoline Tavares da Rosa","mat":"6029"},{"nome":"Maria Clara Hoch Martins","mat":"5927"},{"nome":"Maria Eduarda Borges Ribeiro","mat":"5781"},{"nome":"Pedro Freda Paz","mat":"5908"},{"nome":"Rafaella de Oliveira Nienczeski","mat":"5387"}]},{"curso":"English Course","turma":"T2.3","horario":"2ª/4ª 14h","alunos":[{"nome":"Felipe Canielles Caprara","mat":"1058"},{"nome":"Giovana Diel Soares","mat":"1075"},{"nome":"Maria Antônia Osório Marth","mat":"2112"},{"nome":"Maria Fernanda Souto Corrêa de Mendonça","mat":"1127"},{"nome":"Maria Luiza Yazye Gonçalves","mat":"811"},{"nome":"Miguel De Lima Da Silveira","mat":"3727"},{"nome":"Pedro Henrique Orlandi Do Nascimento","mat":"3896"},{"nome":"Vinicius Gonçalves Sinnott Filho","mat":"1307"}]},{"curso":"English Course","turma":"T2.4","horario":"3ª int. 14h","alunos":[{"nome":"Alessandra dos Anjos Bueno","mat":"6128"},{"nome":"Anna Luiza Hornke Schiavon","mat":"5283"},{"nome":"Cecilia Beher Valadão","mat":"6137"},{"nome":"Davi Bull Martins","mat":"4038"},{"nome":"Joana Zambrano dos Santos Silva","mat":"5871"},{"nome":"João Lucas Timm Ferreira","mat":"3039"},{"nome":"Lara da Silveira Santin","mat":"5348"},{"nome":"Maria Eduarda Bergmann da Silveira","mat":"1837"},{"nome":"Maria Luiza Fischer Aguiar","mat":"4200"},{"nome":"Mariana Teixeira Bom","mat":"4144"},{"nome":"Pedro Henrique Costa Farias","mat":"4207"},{"nome":"Yure Escoto Kurz","mat":"5719"}]},{"curso":"English Course","turma":"T2.5","horario":"3ª/5ª 14h","alunos":[{"nome":"Bernardo da Silva Tavares","mat":"5675"},{"nome":"Bernardo dos Santos Trindade","mat":"5362"},{"nome":"Franco Muniz Gauterio de Souza","mat":"6129"},{"nome":"João Brauner Gervini","mat":"3798"},{"nome":"Luís Otavio Nolasco Pereira","mat":"6051"},{"nome":"Otávio Barckfeld Duarte","mat":"5615"}]},{"curso":"English Course","turma":"A2.1","horario":"2ª/4ª 19h","alunos":[{"nome":"Adriane da Silva Goulart","mat":"5424"},{"nome":"Daniela Cardoso de Melo","mat":"5517"},{"nome":"Eliana Gonçalves Lopes Barbosa","mat":"5311"},{"nome":"Fernanda da Silva Lacerda","mat":"5826"},{"nome":"Francielle Braga da Rosa","mat":"5656"},{"nome":"Idemar Duarte Junior","mat":"5843"},{"nome":"Jairo Luiz Caetano Farias","mat":"5844"},{"nome":"Lara Bueno Martins","mat":"5841"},{"nome":"Leonarda Bianchini Magnus","mat":"5914"},{"nome":"Martha Mattos Portella Gargioni","mat":"5696"},{"nome":"Matheus Goulart Tanhote","mat":"2237"},{"nome":"Sergio Gabriel Barros Lima","mat":"5534"},{"nome":"Sérgio Roberto da Rosa Nogueira","mat":"5327"},{"nome":"Thaila Cristine da Silveira Dutra","mat":"5506"},{"nome":"Thais Shaillene Costa","mat":"5931"}]},{"curso":"English Course","turma":"A2.2","horario":"2ª int. 8h15","alunos":[{"nome":"Flávia Candido Silva","mat":"6121","t":1,"obs":"Trancamento no 1º semestre"},{"nome":"Jonas Borges Pereira","mat":"5960"},{"nome":"Ketlyn Vieira Becker","mat":"6139"},{"nome":"Nicolas Peres Rosler Andrade","mat":"6118"},{"nome":"Raquel Chiattone Corvello","mat":"5796"},{"nome":"Rosemeri Fernanda Castro","mat":"5709","t":1,"obs":"Trancamento no 1º semestre"}]},{"curso":"English Course","turma":"A2.3","horario":"Sáb int. 8h45","alunos":[{"nome":"Alice da Silva Leon","mat":"6083"},{"nome":"Cintia Rosa de Oliveira","mat":"5591"},{"nome":"Juliana Magalhães de Bem","mat":"6021"},{"nome":"Kelvin de Souza da Rosa","mat":"5376"},{"nome":"Laura Soares dos Reis","mat":"5388"},{"nome":"Manuela Rosa Ribeiro","mat":"6140"},{"nome":"Pedro da Rosa Amaral","mat":"5139"},{"nome":"Rosiméri Nunes Borges","mat":"5924"}]},{"curso":"English Course","turma":"A1-2.1 (Condensado maio)","horario":"3ª/5ª 19h","alunos":[{"nome":"Amanda Ulrich Soldi","mat":"6239"},{"nome":"Anna Clara Martins Moraes","mat":"3096"},{"nome":"Camila Alves Gomes Vilela","mat":"5964"},{"nome":"Eduarda Holz","mat":"6198"},{"nome":"Erick Ramos de Azevedo","mat":"6218"},{"nome":"Luana Soares dos Reis","mat":"6187"}]},{"curso":"English Course","turma":"T3.1","horario":"6ª int. 14h","alunos":[{"nome":"Benício Menchaca Rodrigues","mat":"5042"},{"nome":"Helena Chiattone Berti Rodrigues","mat":"4616"},{"nome":"Larissa Cecagno Lopes","mat":"5721"},{"nome":"Laura Cecagno Lopes","mat":"5720"},{"nome":"Luiza Girão Ribeiro","mat":"4664"},{"nome":"Manuela Tavares dos Santos","mat":"4724"}]},{"curso":"English Course","turma":"A3.1","horario":"3ª int. 9h","alunos":[{"nome":"Maiara Andressa Thurow","mat":"1412"},{"nome":"Maitê Peters Teixeira","mat":"5076"}]},{"curso":"English Course","turma":"A3.2","horario":"Sáb int. 8h45","alunos":[{"nome":"Anita Gentilini Moreira","mat":"4988"},{"nome":"Evyllin Oliveira Buchweitz","mat":"3395"},{"nome":"Guilherme Leiria Schlee Gomes","mat":"4833"},{"nome":"Jordhana Batista da Silva","mat":"5001"},{"nome":"Julio Farias Barbosa","mat":"4867"},{"nome":"Súellen de Medeiros Cortes","mat":"5075"}]},{"curso":"English Course","turma":"English 4.1","horario":"2ª/4ª 14h","alunos":[{"nome":"Gabriela Garcia Robertt","mat":"3033"},{"nome":"Helena Costa Kraft Soares","mat":"1921"},{"nome":"Helena Michel de Oliveira","mat":"1955"},{"nome":"Isabela da Silva Manetti","mat":"490"},{"nome":"Otávio Soares Bessa","mat":"3043"},{"nome":"Sophia Linhares Ferreira","mat":"1183"},{"nome":"Laura Provensi Stefenon","mat":"6229","novo":1}]},{"curso":"English Course","turma":"English 4.2","horario":"2ª/4ª 14h","alunos":[{"nome":"Catarina Xavier de Oliveira","mat":"828"},{"nome":"Gonçalo Di Primio Sousa","mat":"4322"},{"nome":"Guilherme Tavares Radmann","mat":"4315"},{"nome":"Heitor Iturbide Fanka","mat":"781"},{"nome":"Isabela Antunes Schwingel","mat":"800"},{"nome":"Otávio da Silveira Borba","mat":"1740"},{"nome":"Sabrina Lopes Scaglioni","mat":"749"}]},{"curso":"English Course","turma":"English 4.3","horario":"2ª/4ª 18h15","alunos":[{"nome":"Cecília Bittencourt Macedo da Silva","mat":"774"},{"nome":"Frederico Lange Peter","mat":"2143"},{"nome":"Heitor da Silva Caldasso","mat":"563"},{"nome":"Lorenzo Rita Garcia","mat":"1025"},{"nome":"Otavio Garcia Reis","mat":"2821"}]},{"curso":"English Course","turma":"English 4.4","horario":"CANGUÇU – 3ª int. 14h","alunos":[{"nome":"Luiza Coelho Muniz Furtado","mat":"3720"},{"nome":"Maryana Ferreira Campão Soares","mat":"4356"}]},{"curso":"English Course","turma":"English 4.5","horario":"4ª int. 14h","alunos":[{"nome":"Érica Feijó da Rosa","mat":"1246"},{"nome":"Gustavo Carreia Silva","mat":"4229"},{"nome":"Nicoly Oliveira Monteiro","mat":"1266"},{"nome":"Pedro Indu Teixeira Ferrari","mat":"4091"},{"nome":"Sofia Megiato Barros","mat":"3846"},{"nome":"Lucas Davila Marten","mat":"6272","novo":1}]},{"curso":"English Course","turma":"English 4.6","horario":"3ª/5ª 14h","alunos":[{"nome":"Ana Carolina Aires de Matos","mat":"3548"},{"nome":"Antônia Bilhalva Fogaça","mat":"4444"},{"nome":"Antônia Machado Placido","mat":"1223"},{"nome":"Artur Bandeira Afonso","mat":"1826"},{"nome":"Catarina Calai de Ávila","mat":"1398"},{"nome":"Daniele Rosinha Silvano","mat":"3103"},{"nome":"Francisca Cunha Faria","mat":"934"},{"nome":"Maria Sofia Victória Rodrigues Manta","mat":"1224"}]},{"curso":"English Course","turma":"English 4.7","horario":"6ª int. 14h","alunos":[{"nome":"Bernardo de Mello Mendes","mat":"1065"},{"nome":"João Pedro Heres Real","mat":"4099"},{"nome":"Lucas Castilhos Nebel","mat":"3027"}]},{"curso":"English Course","turma":"English 4.8","horario":"3ª/5ª 19h","alunos":[{"nome":"Dario Luciano Lucas Brum","mat":"4040"},{"nome":"Júlia Vieira Cardoso","mat":"1156"},{"nome":"Thiago Bueno Peres","mat":"4333","t":1,"obs":"Trancamento no 1º semestre"},{"nome":"Washington Luiz Pereira Júnior","mat":"1008"}]},{"curso":"English Course","turma":"English 5.1","horario":"4ª int. 14h","alunos":[{"nome":"Stella Gruppelli Pedroso","mat":"3432"}]},{"curso":"English Course","turma":"English 5.2","horario":"6ª int. 14h","alunos":[{"nome":"Isadora de Sá Brito Dos Santos","mat":"4191"},{"nome":"Júlia Crummenauer Pilger","mat":"4309"},{"nome":"Tiago Machado Dos Reis","mat":"4479","t":1,"obs":"Trancamento no 1º semestre"}]},{"curso":"English Course","turma":"English 5.3","horario":"Sáb int. 8h45","alunos":[{"nome":"Carmem Laura Islabão Moraes","mat":"2940"},{"nome":"Henry de Barros Borba","mat":"3129"},{"nome":"Pedro Vitoria Torres","mat":"2937"}]},{"curso":"English Course","turma":"English 6.1","horario":"2ª/4ª 14h","alunos":[{"nome":"Antonia Venzke Amaral","mat":"5778"},{"nome":"Beatriz Machado Prestes Delgado","mat":"1018"},{"nome":"Catarina De Souza Neumann","mat":"4370"},{"nome":"Helena Silveira Ponci","mat":"5887"},{"nome":"Isabela Garcia Robertt","mat":"3032"},{"nome":"Isadora Schumann Iasniewicz","mat":"1700"},{"nome":"Julia Carvalho Muñoz","mat":"1124"},{"nome":"Leonardo de Mello Sopeña","mat":"1044"},{"nome":"Vitória Ramires Noguêz","mat":"1206"}]},{"curso":"English Course","turma":"English 6.2","horario":"2ª/4ª 18h15","alunos":[{"nome":"Pedro Redmer Morales","mat":"450"}]},{"curso":"English Course","turma":"English 6.3","horario":"3ª/5ª 19h30","alunos":[{"nome":"Francisco Carlos Aires Ferreira","mat":"2117"},{"nome":"Gabriel Goulart Caetano","mat":"1967"}]},{"curso":"English Course","turma":"English 6.4","horario":"4ª int. 14h","alunos":[{"nome":"Antonela Corvello de Oliveira","mat":"1805"},{"nome":"Bento da Silva Pitol","mat":"1267"},{"nome":"Henry de Matos Amaro","mat":"6030"},{"nome":"José Inácio Silveira Puyo","mat":"960"},{"nome":"Lucas Hallal Megiato","mat":"1727"},{"nome":"Luiz Felipe Silveira Puyo","mat":"961"},{"nome":"Olívia Massot Bleggi","mat":"1073"},{"nome":"Vicente Goulart Dutra","mat":"790"}]},{"curso":"English Course","turma":"English 6.5","horario":"6ª int. 14h","alunos":[{"nome":"Isabella Perleberg Betemps","mat":"3843"},{"nome":"Manuela Aguirres Kuhn","mat":"5969","t":1,"obs":"Trancamento no 1º semestre"},{"nome":"Otávio Osório Lopes","mat":"1690"},{"nome":"Rafael Martins da Silva","mat":"1764"}]},{"curso":"English Course","turma":"English 7.1","horario":"3ª int. 14h","alunos":[{"nome":"Laura Pereira e Silva","mat":"1203"},{"nome":"Nikolas Ryuiti Oike","mat":"6221","novo":1}]},{"curso":"English Course","turma":"English 7.2","horario":"3ª/5ª 19h","alunos":[{"nome":"Amanda Gonçalves da Silveira Veber","mat":"5542"},{"nome":"Arthur Hirdes Bica","mat":"5935"},{"nome":"Michael Alves da Silva","mat":"4501"},{"nome":"Samuel Munhoz dos Santos","mat":"1085"}]},{"curso":"English Course","turma":"English 7.3","horario":"6ª int. 14h","alunos":[{"nome":"Eduardo Iven Baschi","mat":"1935"},{"nome":"Gabriela Dittgen da Silva","mat":"2502"},{"nome":"Hamilton Ornes Bitencourt Junior","mat":"4659"},{"nome":"Marina Moreno Kirinus","mat":"1071"},{"nome":"Natália Da Rosa Mendonça","mat":"4216"},{"nome":"Pedro de Matos Campelo","mat":"1062","novo":1}]},{"curso":"English Course","turma":"English 8.1","horario":"2ª int. 14h","alunos":[{"nome":"Eduardo Mesquita Bastos","mat":"5540"},{"nome":"Luis Eduardo Krause Peres","mat":"5904"},{"nome":"Rafaela Haffele Bandeira Radmann","mat":"1069"}]},{"curso":"English Course","turma":"English 8.2","horario":"3ª/5ª 15h30","alunos":[{"nome":"Anne Sauer Nunes","mat":"3829"},{"nome":"Eduarda da Silva de Paula","mat":"5905"},{"nome":"Emílio Alves Machado","mat":"514"},{"nome":"Henrique Bueno Lima","mat":"519"},{"nome":"Henrique Smiths Primo","mat":"768"},{"nome":"Maria Carolina Dias Lopes","mat":"1504"},{"nome":"Maria Clara Nunes Peter Vanier","mat":"769"}]},{"curso":"English Course","turma":"English 8.3","horario":"6ª int. 14h","alunos":[{"nome":"Antônia Chiapinotto Cruzetta","mat":"668"},{"nome":"Betina Müller Chatkin","mat":"812"},{"nome":"Carolina Martins Mendes","mat":"451"},{"nome":"Gabriel Holz Vahl","mat":"5806"},{"nome":"João Francisco Teixeira Ruivo","mat":"1007"},{"nome":"Maria Flor Sanghi de Andrade","mat":"529"},{"nome":"Nícolas Rittmann Felippe","mat":"1137"},{"nome":"Olga de Carvalho Ferreira","mat":"1057"},{"nome":"Vinicius Lobato Lapique","mat":"444"},{"nome":"Bernardo Bilharva Rodrigues","mat":"824","novo":1}]},{"curso":"English Course","turma":"English 8.4","horario":"Sáb int. 8h45","alunos":[{"nome":"Arthur Blank Freitas","mat":"1089"},{"nome":"Giulia Marcili Alvariza Gomes","mat":"511"},{"nome":"Henrique Lenon Moreira Pinheiro","mat":"1004"},{"nome":"Joana da Silva Leon","mat":"6082"},{"nome":"Laura Bugs Sigales","mat":"763"},{"nome":"Murillo Moreira Köpp","mat":"1006"},{"nome":"Vitória Prietsch Lopes","mat":"844"}]},{"curso":"English Course","turma":"English 9.1","horario":"6ª int. 14h","alunos":[{"nome":"Enrico Costa Kraft Soares","mat":"1922"},{"nome":"Isadora Tonial Ferreira","mat":"1007"},{"nome":"Suzana Mastella Fernandes","mat":"4525"},{"nome":"Vinícius Leite de Garcia","mat":"508","t":1,"obs":"Trancamento no 1º semestre"}]},{"curso":"English Course","turma":"English 10.1","horario":"2ª/4ª 18h15","alunos":[{"nome":"Bernardo Barreto Cezar","mat":"460"},{"nome":"Carla Galho Braga","mat":"757"},{"nome":"Carolina da Costa Cavalheiro","mat":"605"},{"nome":"Estela Bacchi Steinmetz","mat":"1821"},{"nome":"Henrique Augusti Coradini","mat":"732"},{"nome":"Júlia Soares Cassana","mat":"777"},{"nome":"Juliana Guido Tavares dos Santos","mat":"1011"},{"nome":"Maria Eduarda Pinheiro Botozele","mat":"456"},{"nome":"Mariana Duarte Eicholz","mat":"766"},{"nome":"Valentina Morales Selbach","mat":"464"}]},{"curso":"English Course","turma":"English 10.2","horario":"2ª/3ª 17h","alunos":[{"nome":"Adelita de Fatima Andrade Soares","mat":"984"},{"nome":"Maria Ângela Cornelli Engelmann","mat":"3721"},{"nome":"Vítor Moreira Timm","mat":"813"}]},{"curso":"English Course","turma":"English 10.3","horario":"6ª int. 14h","alunos":[{"nome":"Artur Martini Centeno","mat":"459"},{"nome":"Cecília de Souza de Oliveira","mat":"702"},{"nome":"Nicolas Eduardo Couto Guterres","mat":"5608"},{"nome":"Tiago Cardoso de Lima","mat":"854"}]},{"curso":"English Course","turma":"English 11.1","horario":"2ª/4ª 18h15","alunos":[{"nome":"Alice da Cruz do Couto","mat":"480"},{"nome":"Catarina Souza Silva","mat":"4041"},{"nome":"Eduarda Brockstedt Alves","mat":"6079"},{"nome":"Josana Pires dos Santos","mat":"870"},{"nome":"Lorenzo de Mattos Nunes","mat":"507"},{"nome":"Mara Elaine de Lima Elias","mat":"612"},{"nome":"Marli Pardo Legemann Oliveira","mat":"613"},{"nome":"Renata Harter Unteciski","mat":"4569"},{"nome":"Thais Aldrighi Machado","mat":"920"}]},{"curso":"English Course","turma":"English 11.2","horario":"6ª int. 14h","alunos":[{"nome":"Alana Reis Corteletti","mat":"6058"},{"nome":"Bernardo Cortez Catarino","mat":"534"},{"nome":"Luzia dos Santos de Souza Soares","mat":"5488"},{"nome":"Valentina Martins Fagundes","mat":"723"}]},{"curso":"English Course VIP","turma":"VIP 10.1","horario":"3ª/5ª 18h","alunos":[{"nome":"Antônio Claro Rosales Rodrigues","mat":"6283"}]},{"curso":"English Course VIP","turma":"VIP 11.1","horario":"3ª/5ª 9h","alunos":[{"nome":"Larissa Rita Garcia","mat":"510"}]},{"curso":"Español","turma":"Español 1.1","horario":"2ª/4ª 14h","alunos":[{"nome":"Morgana Pilição da Cruz","mat":"6356","novo":1},{"nome":"Morgana Guerra Menchaca","mat":"6348","novo":1},{"nome":"Robertha Antunes Leal Westphal","mat":"6339","novo":1}]},{"curso":"Español","turma":"Español 2.1","horario":"2ª int. 18h","alunos":[{"nome":"Alessandra Gonçalves Martins","mat":"6101"},{"nome":"Alice Gastal","mat":"5947"},{"nome":"Caterine Henriques Mendes","mat":"6093"},{"nome":"Eduarda Fonseca Radmann","mat":"5730"},{"nome":"Flávia Candido Silva","mat":"6121","t":1,"obs":"Trancamento no 1º semestre"},{"nome":"Maria Eduarda Marroni Weiler","mat":"5930"},{"nome":"Nathália Silva Caprio","mat":"5981"},{"nome":"Tainara Montano","mat":"5808"}]},{"curso":"Español","turma":"VIP Español 2.1","horario":"2ª/5ª/6ª 18h","alunos":[{"nome":"Laura Provensi Stefenon","mat":"6229"}]},{"curso":"Español","turma":"Español 2.2","horario":"3ª/5ª 10h","alunos":[{"nome":"Ilvôni Dias Islabão","mat":"5758"},{"nome":"Laura Lacerda Santana","mat":"973"},{"nome":"Paula Katiuscia Vergutz Diel","mat":"5757"}]},{"curso":"Español","turma":"VIP Español 2.2","horario":"6ª 10h30","alunos":[{"nome":"Camila Pedroso Molina","mat":"6346"}]},{"curso":"Turma a definir","turma":"Turma a definir","horario":"","alunos":[{"nome":"Beatriz Dias Chollet","mat":"6386","novo":1},{"nome":"Maria Luiza Gonçalves Neuenfeld","mat":"2924","novo":1},{"nome":"Melânia Vitória Matos Ferst","mat":"6320","novo":1},{"nome":"Marcus Boeira de Medeiros Filho","mat":"6321","novo":1}]}];
 
 // Junta os dados fixos com os alunos cadastrados no Painel Comercial (mesmo navegador):
 // quem for adicionado lá aparece aqui na hora, na sua turma (dedupe pela matrícula).
@@ -3114,35 +3135,145 @@ function aaComDadosDoComercial_(){
   });
   return copia;
 }
+// ===== STATUS POR ALUNO (pedido/entrega/trancado/cancelado), sincronizado na planilha =====
+// Mapa mat -> {p:1, e:1, t:1, c:1, obs:'...'}. Sobrepõe as flags fixas dos dados.
+const AA_STATUS_KEY = 'ccaa_alunos_status_v1';
+let _aaStatus = (function(){ try{ return JSON.parse(localStorage.getItem(AA_STATUS_KEY)||'{}'); }catch(e){ return {}; } })();
+function aaStatusSalvar_(){
+  try{ localStorage.setItem(AA_STATUS_KEY, JSON.stringify(_aaStatus)); }catch(e){}
+  nuvemSalvar('alunos_status', _aaStatus);
+}
+function aaSincronizarStatus(){
+  nuvemCarregar('alunos_status', (dados)=>{
+    if(dados === undefined) return;
+    if(dados === null || typeof dados !== 'object'){
+      if(Object.keys(_aaStatus).length) nuvemSalvar('alunos_status', _aaStatus);
+      return;
+    }
+    if(JSON.stringify(dados) !== JSON.stringify(_aaStatus)){
+      _aaStatus = dados;
+      try{ localStorage.setItem(AA_STATUS_KEY, JSON.stringify(_aaStatus)); }catch(e){}
+      aaRender();
+      toast('Status sincronizados com a planilha ✓');
+    }
+  });
+}
+// Status efetivo do aluno: flags fixas dos dados + ajustes feitos pelo site
+function aaStatusDe_(a){
+  const ov = _aaStatus[a.mat] || {};
+  return {
+    p: ov.p !== undefined ? ov.p : 0,
+    e: ov.e !== undefined ? ov.e : 0,
+    t: ov.t !== undefined ? ov.t : (a.t ? 1 : 0),
+    c: ov.c !== undefined ? ov.c : (a.c ? 1 : 0),
+    obs: ov.obs !== undefined ? ov.obs : (a.obs || '')
+  };
+}
+function aaAlterarStatus(mat, campo){
+  const base = aaComDadosDoComercial_().flatMap(t=>t.alunos).find(a=>a.mat===mat);
+  if(!base) return;
+  const atual = aaStatusDe_(base);
+  const ov = Object.assign({}, _aaStatus[mat] || { p:atual.p, e:atual.e, t:atual.t, c:atual.c, obs:atual.obs });
+  if(campo==='p' || campo==='e'){
+    ov[campo] = atual[campo] ? 0 : 1;
+  } else if(campo==='t' || campo==='c'){
+    if(atual[campo]){                      // reativar
+      if(!confirm(`Reativar ${base.nome}?`)) return;
+      ov[campo] = 0;
+    } else {
+      const rotulo = campo==='t' ? 'TRANCAR' : 'CANCELAR';
+      const obs = prompt(`${rotulo} ${base.nome} — observação:`, atual.obs||'');
+      if(obs === null) return;
+      ov[campo] = 1; ov.obs = obs.trim();
+      if(campo==='c') ov.t = 0; else ov.c = 0;
+    }
+  }
+  _aaStatus[mat] = ov;
+  aaStatusSalvar_();
+  aaRender();
+}
+function aaEditarObs(mat){
+  const base = aaComDadosDoComercial_().flatMap(t=>t.alunos).find(a=>a.mat===mat);
+  if(!base) return;
+  const atual = aaStatusDe_(base);
+  const obs = prompt(`Observação de ${base.nome}:`, atual.obs||'');
+  if(obs === null) return;
+  _aaStatus[mat] = Object.assign({}, _aaStatus[mat]||{p:atual.p,e:atual.e,t:atual.t,c:atual.c}, {obs:obs.trim()});
+  aaStatusSalvar_();
+  aaRender();
+}
+function aaChip_(rotulo, ativo, corOn, titulo, onclick){
+  const cor = ativo ? corOn : 'var(--text-dim)';
+  const bg = ativo ? `color-mix(in srgb,${corOn} 14%,transparent)` : 'transparent';
+  const bd = ativo ? `color-mix(in srgb,${corOn} 40%,transparent)` : 'var(--border)';
+  return `<button type="button" onclick="${onclick}" title="${titulo}" style="cursor:pointer;font-family:inherit;font-size:10px;font-weight:800;color:${cor};background:${bg};border:1px solid ${bd};border-radius:6px;padding:2px 6.5px;line-height:1.4;transition:all .12s">${rotulo}</button>`;
+}
+function aaLinhaAluno_(a, st){
+  return `<div style="display:flex;align-items:center;gap:7px;font-size:12.5px;line-height:1.5">
+    ${a.novo ? '<span class="aa-dot-novo" title="Aluno novo 2026/2"></span>' : ''}
+    <span style="color:var(--text)">${a.nome}</span>
+    <span style="color:var(--text-dim);font-size:11px;font-weight:600">${a.mat}</span>
+    <span style="margin-left:auto;display:flex;gap:4px;flex-shrink:0">
+      ${aaChip_('P', st.p, 'var(--ccaa-blue)', st.p?'Pedido do material FEITO (clique para desfazer)':'Marcar pedido do material', `aaAlterarStatus('${a.mat}','p')`)}
+      ${aaChip_('E', st.e, 'var(--live)', st.e?'Material ENTREGUE (clique para desfazer)':'Marcar material entregue', `aaAlterarStatus('${a.mat}','e')`)}
+      ${aaChip_('T', st.t, 'var(--soon)', st.t?'Trancado (clique para reativar)':'Trancar matrícula', `aaAlterarStatus('${a.mat}','t')`)}
+      ${aaChip_('C', st.c, 'var(--ccaa-red)', st.c?'Cancelado (clique para reativar)':'Cancelar matrícula', `aaAlterarStatus('${a.mat}','c')`)}
+    </span>
+  </div>`;
+}
 function aaRender(){
   const filtroCurso = document.getElementById('aaFiltroCurso');
-  // popula o filtro de curso uma vez
   if(filtroCurso.options.length <= 1){
     [...new Set(ALUNOS_ATIVOS.map(t=>t.curso))].forEach(c=>{
       filtroCurso.innerHTML += `<option value="${c}">${c}</option>`;
     });
   }
   const curso = filtroCurso.value;
+  const fStatus = document.getElementById('aaFiltroStatus').value;
   const busca = normTexto(document.getElementById('aaBusca').value);
 
   const dadosAtivos = aaComDadosDoComercial_();
-  const todos = dadosAtivos.flatMap(t=>t.alunos);
-  const nNovos = todos.filter(a=>a.novo).length;
-  document.getElementById('aaResumoBar').innerHTML = `
-    <div class="fin-stat"><div class="fin-stat-n">${todos.length}</div><div class="fin-stat-l">Alunos ativos</div></div>
-    <div class="fin-stat"><div class="fin-stat-n">${dadosAtivos.length}</div><div class="fin-stat-l">Turmas</div></div>
-    <div class="fin-stat"><div class="fin-stat-n" style="color:var(--live)">${nNovos}</div><div class="fin-stat-l">Novos 2026/2</div></div>`;
+  // separa ativos, trancados e cancelados (com turma de origem)
+  const trancados = [], cancelados = [];
+  const turmasComStatus = dadosAtivos.map(t=>{
+    const ativos = [];
+    t.alunos.forEach(a=>{
+      const st = aaStatusDe_(a);
+      const info = { ...a, _st:st, _turma:t.turma };
+      if(st.c) cancelados.push(info);
+      else if(st.t) trancados.push(info);
+      else ativos.push(info);
+    });
+    return { ...t, alunos: ativos };
+  });
 
-  let turmas = dadosAtivos;
+  const todosAtivos = turmasComStatus.flatMap(t=>t.alunos);
+  const nNovos = todosAtivos.filter(a=>a.novo).length;
+  const nPedidos = todosAtivos.filter(a=>a._st.p).length;
+  document.getElementById('aaResumoBar').innerHTML = `
+    <div class="fin-stat"><div class="fin-stat-n">${todosAtivos.length}</div><div class="fin-stat-l">Alunos ativos</div></div>
+    <div class="fin-stat"><div class="fin-stat-n">${turmasComStatus.filter(t=>t.alunos.length).length}</div><div class="fin-stat-l">Turmas</div></div>
+    <div class="fin-stat"><div class="fin-stat-n" style="color:var(--live)">${nNovos}</div><div class="fin-stat-l">Novos 2026/2</div></div>
+    <div class="fin-stat"><div class="fin-stat-n" style="color:var(--ccaa-blue)">${nPedidos}</div><div class="fin-stat-l">Pedidos feitos</div></div>
+    <div class="fin-stat"><div class="fin-stat-n" style="color:${todosAtivos.length-nPedidos?'var(--soon)':'var(--live)'}">${todosAtivos.length-nPedidos}</div><div class="fin-stat-l">Pedidos pendentes</div></div>`;
+
+  // filtros
+  const passaStatus = a =>
+    !fStatus ||
+    (fStatus==='pedido' && a._st.p) ||
+    (fStatus==='sem-pedido' && !a._st.p) ||
+    (fStatus==='entregue' && a._st.e);
+  let turmas = turmasComStatus;
   if(curso) turmas = turmas.filter(t=>t.curso===curso);
-  if(busca){
+  if(fStatus==='trancado' || fStatus==='cancelado'){
+    turmas = [];
+  } else {
     turmas = turmas.map(t=>({
       ...t,
-      alunos: normTexto(t.turma).includes(busca) ? t.alunos
-        : t.alunos.filter(a=>normTexto(a.nome).includes(busca) || a.mat.includes(busca))
+      alunos: t.alunos.filter(a=> passaStatus(a) &&
+        (!busca || normTexto(t.turma).includes(busca) || normTexto(a.nome).includes(busca) || a.mat===busca.trim() || a.mat.includes(busca)))
     })).filter(t=>t.alunos.length);
   }
-  document.getElementById('aaVazio').style.display = turmas.length ? 'none' : 'block';
 
   // agrupa por curso
   const cursos = [];
@@ -3151,14 +3282,14 @@ function aaRender(){
     if(!g){ g={curso:t.curso, turmas:[]}; cursos.push(g); }
     g.turmas.push(t);
   });
-  document.getElementById('aaLista').innerHTML = cursos.map(g=>`
+  let htmlLista = cursos.map(g=>`
     <div style="margin-bottom:22px">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
         <span style="font-family:'Bricolage Grotesque',sans-serif;font-size:15px;font-weight:800;color:var(--text)">${g.curso}</span>
         <span style="font-size:11px;font-weight:800;color:var(--ccaa-blue);background:color-mix(in srgb,var(--ccaa-blue) 10%,transparent);padding:2px 9px;border-radius:99px">${g.turmas.reduce((s,t)=>s+t.alunos.length,0)} alunos</span>
         <span style="flex:1;height:1px;background:var(--border)"></span>
       </div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px">
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px">
         ${g.turmas.map(t=>`
         <div class="aa-turma">
           <div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap">
@@ -3166,21 +3297,72 @@ function aaRender(){
             <span style="font-size:11.5px;color:var(--text-dim)">${t.horario}</span>
             <span style="margin-left:auto;font-size:11px;font-weight:800;color:var(--ccaa-blue)">${t.alunos.length}</span>
           </div>
-          <div style="margin-top:10px;display:flex;flex-direction:column;gap:5px">
-            ${t.alunos.map(a=>`
-            <div style="display:flex;align-items:center;gap:7px;font-size:12.5px;line-height:1.4">
-              ${a.novo ? '<span class="aa-dot-novo" title="Aluno novo 2026/2"></span>' : ''}
-              <span style="color:var(--text)">${a.nome}</span>
-              <span style="color:var(--text-dim);font-size:11px;font-weight:600">${a.mat}</span>
-              ${a.c ? '<span title="Matrícula cancelada" style="color:var(--ccaa-red);font-size:11px;font-weight:800">C</span>' : ''}
-            </div>`).join('')}
+          <div style="margin-top:10px;display:flex;flex-direction:column;gap:6px">
+            ${t.alunos.map(a=>aaLinhaAluno_(a, a._st)).join('')}
           </div>
         </div>`).join('')}
       </div>
     </div>`).join('');
+
+  // seções finais: Trancamentos e Cancelados (com observação e reativação)
+  const filtraFinal = lista => lista.filter(a=> !busca || normTexto(a.nome).includes(busca) || a.mat.includes(busca) || normTexto(a._turma).includes(busca));
+  const secaoFinal = (titulo, cor, lista, campo)=>{
+    if(!lista.length) return '';
+    if(fStatus && fStatus!==campo && fStatus!=='') {
+      if((campo==='trancado' && fStatus!=='trancado') || (campo==='cancelado' && fStatus!=='cancelado')) return '';
+    }
+    return `<div style="margin-top:26px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <span style="font-family:'Bricolage Grotesque',sans-serif;font-size:15px;font-weight:800;color:${cor}">${titulo}</span>
+        <span style="font-size:11px;font-weight:800;color:${cor};background:color-mix(in srgb,${cor} 10%,transparent);padding:2px 9px;border-radius:99px">${lista.length}</span>
+        <span style="flex:1;height:1px;background:var(--border)"></span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        ${lista.map(a=>`
+        <div style="display:flex;align-items:center;gap:9px;font-size:12.5px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);padding:8px 12px;flex-wrap:wrap">
+          <span style="color:var(--text);font-weight:700">${a.nome}</span>
+          <span style="color:var(--text-dim);font-size:11px;font-weight:600">${a.mat}</span>
+          <span style="color:var(--text-dim);font-size:11px">${a._turma}</span>
+          ${a._st.obs ? `<span style="color:var(--text-mute);font-size:11.5px;font-style:italic">${a._st.obs}</span>` : ''}
+          <span style="margin-left:auto;display:flex;gap:6px">
+            <button type="button" onclick="aaEditarObs('${a.mat}')" style="cursor:pointer;font-family:inherit;font-size:10.5px;font-weight:700;color:var(--text-mute);background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:3px 8px">Observação</button>
+            <button type="button" onclick="aaAlterarStatus('${a.mat}','${a._st.c?'c':'t'}')" style="cursor:pointer;font-family:inherit;font-size:10.5px;font-weight:700;color:var(--live);background:color-mix(in srgb,var(--live) 10%,transparent);border:1px solid color-mix(in srgb,var(--live) 30%,transparent);border-radius:6px;padding:3px 8px">Reativar</button>
+          </span>
+        </div>`).join('')}
+      </div>
+    </div>`;
+  };
+  const mostraTrancados = !fStatus || fStatus==='trancado';
+  const mostraCancelados = !fStatus || fStatus==='cancelado';
+  if(mostraTrancados) htmlLista += secaoFinal('Trancamentos', 'var(--soon)', filtraFinal(trancados), 'trancado');
+  if(mostraCancelados) htmlLista += secaoFinal('Cancelados', 'var(--ccaa-red)', filtraFinal(cancelados), 'cancelado');
+
+  document.getElementById('aaLista').innerHTML = htmlLista;
+  document.getElementById('aaVazio').style.display = htmlLista.trim() ? 'none' : 'block';
+}
+// Relatórios de pedidos (copiam texto pronto para WhatsApp)
+function aaRelatorioPedidos_(feitos){
+  const dadosAtivos = aaComDadosDoComercial_();
+  const grupos = [];
+  dadosAtivos.forEach(t=>{
+    const alunos = t.alunos.filter(a=>{
+      const st = aaStatusDe_(a);
+      if(st.c || st.t) return false;
+      return feitos ? st.p : !st.p;
+    });
+    if(alunos.length) grupos.push({turma:t.turma, alunos});
+  });
+  const total = grupos.reduce((s,g)=>s+g.alunos.length,0);
+  const titulo = feitos ? 'PEDIDOS DE MATERIAL FEITOS' : 'PEDIDOS DE MATERIAL PENDENTES';
+  const txt = `*${titulo} — 2026/2 (${total})*\n\n` +
+    grupos.map(g=>`*${g.turma}*\n${g.alunos.map(a=>`• ${a.nome} (${a.mat})`).join('\n')}`).join('\n\n');
+  copiarTexto(txt, `Relatório copiado: ${total} aluno(s) ✓`);
 }
 document.getElementById('aaFiltroCurso').addEventListener('change', aaRender);
+document.getElementById('aaFiltroStatus').addEventListener('change', aaRender);
 document.getElementById('aaBusca').addEventListener('input', aaRender);
+document.getElementById('aaRelPedidos').addEventListener('click', ()=>aaRelatorioPedidos_(true));
+document.getElementById('aaRelPendentes').addEventListener('click', ()=>aaRelatorioPedidos_(false));
 
 // ===== SAÍDA DE MATERIAIS 2026/2 =====
 const MAT_KEY = 'ccaa_materiais_20262_v1';
