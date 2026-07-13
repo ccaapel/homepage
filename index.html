@@ -654,6 +654,57 @@ html { scroll-behavior:smooth; }
   width:6px; height:6px; border-radius:99px; background:var(--live);
   display:inline-block; flex-shrink:0;
 }
+/* Linha do aluno: nome flexível, matrícula em coluna fixa alinhada, ações fixas */
+.aa-aluno {
+  display:grid; grid-template-columns: minmax(0,1fr) 46px auto;
+  gap:8px; align-items:center; font-size:12.5px; line-height:1.45;
+}
+.aa-aluno .aa-nome {
+  display:flex; align-items:center; gap:6px; min-width:0;
+  color:var(--text); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.aa-aluno .aa-nome > span { overflow:hidden; text-overflow:ellipsis; }
+.aa-aluno .aa-mat {
+  text-align:right; font-size:11px; font-weight:600; color:var(--text-dim);
+  font-variant-numeric:tabular-nums; white-space:nowrap;
+}
+.aa-acoes { display:flex; gap:5px; align-items:center; }
+.aa-pill {
+  cursor:pointer; font-family:inherit; font-size:10px; font-weight:800;
+  color:var(--text-dim); background:transparent; border:1px solid var(--border);
+  border-radius:99px; padding:3px 9px; line-height:1.3; transition:all .12s;
+  letter-spacing:0.02em;
+}
+.aa-pill:hover { border-color:var(--text-dim); }
+.aa-pill.on-azul { color:#fff; background:var(--ccaa-blue); border-color:var(--ccaa-blue); }
+.aa-pill.on-verde { color:#fff; background:var(--live); border-color:var(--live); }
+.aa-mais {
+  cursor:pointer; font-family:inherit; font-size:12px; font-weight:800;
+  color:var(--text-dim); background:var(--surface-2); border:1px solid var(--border);
+  border-radius:99px; width:24px; height:24px; line-height:1; transition:all .12s;
+}
+.aa-mais:hover { color:var(--ccaa-blue); border-color:var(--ccaa-blue); }
+#aaMenu {
+  position:absolute; z-index:300; display:none; min-width:190px;
+  background:var(--surface); border:1.5px solid var(--border); border-radius:10px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.35); padding:6px; flex-direction:column; gap:2px;
+}
+#aaMenu button {
+  cursor:pointer; font-family:inherit; font-size:12.5px; font-weight:600; text-align:left;
+  color:var(--text); background:none; border:none; border-radius:7px; padding:8px 10px;
+}
+#aaMenu button:hover { background:var(--surface-2); }
+#aaMenu button.perigo { color:var(--ccaa-red); }
+/* Selo de sincronização */
+.selo-sync {
+  display:inline-flex; align-items:center; gap:6px; font-size:11px; font-weight:700;
+  padding:4px 11px; border-radius:99px; border:1px solid;
+}
+.selo-sync .dotzinho { width:7px; height:7px; border-radius:99px; }
+.selo-sync.ok { color:var(--live); border-color:color-mix(in srgb,var(--live) 40%,transparent); background:color-mix(in srgb,var(--live) 8%,transparent); }
+.selo-sync.ok .dotzinho { background:var(--live); }
+.selo-sync.off { color:var(--soon); border-color:color-mix(in srgb,var(--soon) 40%,transparent); background:color-mix(in srgb,var(--soon) 8%,transparent); }
+.selo-sync.off .dotzinho { background:var(--soon); }
 
 /* ===== GATE DE ENTRADA (tela de acesso à homepage) ===== */
 #gate {
@@ -1997,6 +2048,7 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
           <option value="pendente">Assinatura pendente</option>
         </select>
         <input class="int-select" type="text" id="comBusca" placeholder="Buscar aluno ou turma…" style="flex:1;min-width:180px">
+        <span class="selo-sync off selo-sync-auto" style="align-self:center"><span class="dotzinho"></span>Verificando sincronização…</span>
       </div>
 
       <!-- Formulário de inclusão/edição -->
@@ -2065,7 +2117,8 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
       <div class="int-actions" style="margin-bottom:14px">
         <button class="int-btn int-btn-reload" id="aaRelPedidos" type="button" title="Copiar relatório de quem já tem pedido feito">Relatório: pedidos feitos</button>
         <button class="int-btn int-btn-reload" id="aaRelPendentes" type="button" title="Copiar relatório de quem ainda falta pedir">Relatório: pedidos pendentes</button>
-        <span style="font-size:11px;color:var(--text-dim);align-self:center">Clique em P (pedido) ou E (entregue) ao lado do aluno para marcar. T tranca e C cancela (com observação).</span>
+        <span id="aaSeloSync" class="selo-sync off selo-sync-auto" style="align-self:center"><span class="dotzinho"></span>Verificando sincronização…</span>
+        <span style="font-size:11px;color:var(--text-dim);align-self:center">Pedido e Entrega marcam com um clique. O botão de três pontos tranca, cancela ou anota observação.</span>
       </div>
       <div id="aaLista"></div>
       <div class="int-loading" id="aaVazio" style="display:none">Nenhum aluno encontrado com esse filtro.</div>
@@ -2084,6 +2137,7 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
           <option value="entregue">Entregues</option>
         </select>
         <input class="int-select" type="text" id="matBusca" placeholder="Buscar aluno ou material…" style="flex:1;min-width:200px">
+        <span class="selo-sync off selo-sync-auto" style="align-self:center"><span class="dotzinho"></span>Verificando sincronização…</span>
       </div>
 
       <!-- Termos em lote: imprime o termo de todos os alunos da seleção em um único trabalho -->
@@ -2516,6 +2570,29 @@ function nuvemCarregar(chave, cb){
     (j)=>{ cb(j && j.ok ? j.dados : undefined); },
     ()=>cb(undefined));
 }
+// Mostra em cada tela se a sincronização com a planilha está ATIVA ou não.
+// Verde: o backend respondeu (dados valem em todos os navegadores).
+// Âmbar: backend ainda sem as ações getConfig/setConfig (dados só neste navegador).
+let _nuvemStatusCache = null;
+function nuvemAtualizarSelos(){
+  const aplicar = (ok)=>{
+    document.querySelectorAll('.selo-sync-auto').forEach(el=>{
+      el.classList.toggle('ok', ok);
+      el.classList.toggle('off', !ok);
+      el.innerHTML = '<span class="dotzinho"></span>' + (ok
+        ? 'Sincronizado com a planilha'
+        : 'Somente neste navegador. Falta implantar a atualização do Código.gs');
+      el.title = ok
+        ? 'As alterações feitas aqui valem em qualquer navegador ou computador.'
+        : 'As alterações feitas aqui ficam só neste navegador até o Código.gs ser atualizado e reimplantado.';
+    });
+  };
+  if(_nuvemStatusCache !== null){ aplicar(_nuvemStatusCache); }
+  nuvemCarregar('ping', (dados)=>{
+    _nuvemStatusCache = (dados !== undefined);
+    aplicar(_nuvemStatusCache);
+  });
+}
 // Sincroniza uma lista local (localStorage) com a nuvem:
 // nuvem tem dados diferentes -> adota e re-renderiza; nuvem vazia e local cheio -> sobe o local.
 function nuvemSincronizarLista(chave, carregarLocal, salvarLocalSo, aposAdotar){
@@ -2780,6 +2857,7 @@ function pedAbrirAlunos(){
   aaRender();
   comSincronizar(aaRender);   // novos do Comercial vêm da nuvem em qualquer navegador
   aaSincronizarStatus();      // pedidos/entregas/trancamentos/cancelamentos compartilhados
+  nuvemAtualizarSelos();
 }
 function pedAbrirMateriais(){
   pedEsconderTudo();
@@ -2790,6 +2868,7 @@ function pedAbrirMateriais(){
   matRender();
   matSincronizar(matRender);
   comSincronizar(matRender);  // autocomplete de alunos também usa os novos do Comercial
+  nuvemAtualizarSelos();
 }
 function iniciarPainel(){
   modoGuiaUnica();
@@ -2842,6 +2921,7 @@ function iniciarComercialApp(){
   document.getElementById('viewComercial').style.display = 'block';
   comRender();
   comSincronizar(comRender);
+  nuvemAtualizarSelos();
 }
 
 // ===== PAINEL COMERCIAL: Novos Alunos 2026/2 =====
@@ -2893,11 +2973,26 @@ const COM_TURMA_MIGRACAO_ = {
   'Baby 6.2': 'Kids 4.1',
   'Espanhol 1.1': 'Español 1.1',
 };
+// "English Course X.X" é o nome da aula semanal regular (tela inicial, FLAT);
+// "English X.X" é a turma real de 2026/2 (Alunos Ativos). São coisas diferentes,
+// mas o dropdown antigo misturava os dois nomes parecidos e confundia. Sempre que
+// existir uma turma oficial em Alunos Ativos com o mesmo número, usa o nome dela.
+function comNomeCanonico_(nome){
+  const s = String(nome||'').trim();
+  const m = s.match(/^English Course\s+(.+)$/i);
+  if(m && typeof ALUNOS_ATIVOS!=='undefined'){
+    const alvo = 'English ' + m[1];
+    if(ALUNOS_ATIVOS.some(t=>t.turma===alvo)) return alvo;
+  }
+  return s;
+}
 function comMigrarTurmas_(lista){
   let mudou = false;
   lista.forEach(m=>{
-    const alvo = COM_TURMA_MIGRACAO_[(m.turma||'').trim()];
-    if(alvo){ m.turma = alvo; mudou = true; }
+    const atual = (m.turma||'').trim();
+    const doMapa = COM_TURMA_MIGRACAO_[atual];
+    const alvo = doMapa || comNomeCanonico_(atual);
+    if(alvo && alvo !== atual){ m.turma = alvo; mudou = true; }
   });
   return mudou;
 }
@@ -2917,9 +3012,10 @@ function comCarregar(){
 function comSalvarLocalSo_(lista){ try{ localStorage.setItem(COM_KEY, JSON.stringify(lista)); }catch(e){} }
 function comSalvarLista(lista){ comSalvarLocalSo_(lista); nuvemSalvar('matriculas_20262', lista); }
 function comSincronizar(aposAdotar){
-  // Migra também o que chegar da planilha (outro navegador pode subir nomes antigos)
+  // Migra também o que chegar da planilha (outro navegador pode subir nomes antigos),
+  // e sobe a versão corrigida de volta para a nuvem, para não repetir o problema.
   nuvemSincronizarLista('matriculas_20262', comCarregar, (lista)=>{
-    comMigrarTurmas_(lista);
+    if(comMigrarTurmas_(lista)) nuvemSalvar('matriculas_20262', lista);
     comSalvarLocalSo_(lista);
   }, aposAdotar);
 }
@@ -2991,7 +3087,8 @@ function comRender(){
     <div class="fin-stat"><div class="fin-stat-n" style="color:${pend?'var(--ccaa-red)':'var(--live)'}">${pend}</div><div class="fin-stat-l">Assinaturas em aberto</div></div>`;
 
   const turmasOficiais = comTurmasOficiais_();
-  const turmasOrd = Object.entries(porTurma).sort((a,b)=> contaTurma(b[0]) - contaTurma(a[0]) || a[0].localeCompare(b[0]));
+  // Ordem pedagógica: Baby Class no canto superior esquerdo, English Course 11 por último
+  const turmasOrd = comOrdenarTurmas_(Object.keys(porTurma)).map(t=>[t, porTurma[t]]);
   document.getElementById('comTurmasGrid').innerHTML = turmasOrd.map(([t, novosDaTurma])=>{
     const n = contaTurma(t);
     const ok = n >= 3;
@@ -3074,8 +3171,12 @@ function comTrocarMes(chave){ _comMesAtivo = chave; comRender(); }
 // Nomes oficiais de turma reconhecidos pelo site (evita digitar/gravar nome
 // divergente do que existe de verdade em Alunos Ativos ou na tela inicial).
 function comTurmasOficiais_(){
-  const doTimetable = (typeof FLAT!=='undefined' && FLAT.length) ? FLAT.map(t=>t.nome) : [];
   const doAlunosAtivos = (typeof ALUNOS_ATIVOS!=='undefined') ? ALUNOS_ATIVOS.map(t=>t.turma) : [];
+  // Da tela inicial, só entram as que NÃO colidem com uma turma real de Alunos
+  // Ativos (evita duas opções parecidas: "English Course 4.1" e "English 4.1").
+  const doTimetable = (typeof FLAT!=='undefined' && FLAT.length)
+    ? FLAT.map(t=>t.nome).filter(n=>comNomeCanonico_(n)===n)
+    : [];
   return [...new Set([...doTimetable, ...doAlunosAtivos])];
 }
 // Ordem pedagógica oficial: Baby Class, Kids, Preteen, English Course (Teen T,
@@ -3279,24 +3380,37 @@ function aaEditarObs(mat){
   aaStatusSalvar_();
   aaRender();
 }
-function aaChip_(rotulo, ativo, corOn, titulo, onclick){
-  const cor = ativo ? corOn : 'var(--text-dim)';
-  const bg = ativo ? `color-mix(in srgb,${corOn} 14%,transparent)` : 'transparent';
-  const bd = ativo ? `color-mix(in srgb,${corOn} 40%,transparent)` : 'var(--border)';
-  return `<button type="button" onclick="${onclick}" title="${titulo}" style="cursor:pointer;font-family:inherit;font-size:10px;font-weight:800;color:${cor};background:${bg};border:1px solid ${bd};border-radius:6px;padding:2px 6.5px;line-height:1.4;transition:all .12s">${rotulo}</button>`;
-}
 function aaLinhaAluno_(a, st){
-  return `<div style="display:flex;align-items:center;gap:7px;font-size:12.5px;line-height:1.5">
-    ${a.novo ? '<span class="aa-dot-novo" title="Aluno novo 2026/2"></span>' : ''}
-    <span style="color:var(--text)">${a.nome}</span>
-    <span style="color:var(--text-dim);font-size:11px;font-weight:600">${a.mat}</span>
-    <span style="margin-left:auto;display:flex;gap:4px;flex-shrink:0">
-      ${aaChip_('P', st.p, 'var(--ccaa-blue)', st.p?'Pedido do material FEITO (clique para desfazer)':'Marcar pedido do material', `aaAlterarStatus('${a.mat}','p')`)}
-      ${aaChip_('E', st.e, 'var(--live)', st.e?'Material ENTREGUE (clique para desfazer)':'Marcar material entregue', `aaAlterarStatus('${a.mat}','e')`)}
-      ${aaChip_('T', st.t, 'var(--soon)', st.t?'Trancado (clique para reativar)':'Trancar matrícula', `aaAlterarStatus('${a.mat}','t')`)}
-      ${aaChip_('C', st.c, 'var(--ccaa-red)', st.c?'Cancelado (clique para reativar)':'Cancelar matrícula', `aaAlterarStatus('${a.mat}','c')`)}
+  return `<div class="aa-aluno">
+    <span class="aa-nome">${a.novo ? '<span class="aa-dot-novo" title="Aluno novo 2026/2"></span>' : ''}<span title="${a.nome.replace(/"/g,'&quot;')}">${a.nome}</span></span>
+    <span class="aa-mat">${a.mat}</span>
+    <span class="aa-acoes">
+      <button type="button" class="aa-pill ${st.p?'on-azul':''}" title="${st.p?'Pedido do material feito. Clique para desfazer.':'Marcar pedido do material'}" onclick="aaAlterarStatus('${a.mat}','p')">Pedido</button>
+      <button type="button" class="aa-pill ${st.e?'on-verde':''}" title="${st.e?'Material entregue. Clique para desfazer.':'Marcar material entregue'}" onclick="aaAlterarStatus('${a.mat}','e')">Entrega</button>
+      <button type="button" class="aa-mais" title="Trancar, cancelar ou anotar observação" onclick="aaAbrirMenu(event,'${a.mat}')">&#8942;</button>
     </span>
   </div>`;
+}
+// Menu "Mais" (um único popover global, reposicionado ao lado do botão clicado)
+function aaAbrirMenu(ev, mat){
+  ev.stopPropagation();
+  let menu = document.getElementById('aaMenu');
+  if(!menu){
+    menu = document.createElement('div');
+    menu.id = 'aaMenu';
+    document.body.appendChild(menu);
+    document.addEventListener('click', ()=>{ menu.style.display='none'; });
+  }
+  menu.innerHTML = `
+    <button type="button" onclick="aaAlterarStatus('${mat}','t')">Trancar matrícula</button>
+    <button type="button" class="perigo" onclick="aaAlterarStatus('${mat}','c')">Cancelar matrícula</button>
+    <button type="button" onclick="aaEditarObs('${mat}')">Editar observação</button>`;
+  const r = ev.currentTarget.getBoundingClientRect();
+  menu.style.display = 'flex';
+  const largura = 200;
+  const x = Math.min(r.left + window.scrollX, window.scrollX + document.documentElement.clientWidth - largura - 12);
+  menu.style.left = x + 'px';
+  menu.style.top = (r.bottom + window.scrollY + 6) + 'px';
 }
 function aaRender(){
   const filtroCurso = document.getElementById('aaFiltroCurso');
@@ -3418,7 +3532,8 @@ function aaRender(){
   document.getElementById('aaLista').innerHTML = htmlLista;
   document.getElementById('aaVazio').style.display = htmlLista.trim() ? 'none' : 'block';
 }
-// Relatórios de pedidos (copiam texto pronto para WhatsApp)
+// Relatórios de pedidos em formato de documento (abre a janela de impressão,
+// pronto para imprimir ou salvar em PDF, agrupado por turma e sem erro de formatação).
 function aaRelatorioPedidos_(feitos){
   const dadosAtivos = aaComDadosDoComercial_();
   const grupos = [];
@@ -3428,13 +3543,41 @@ function aaRelatorioPedidos_(feitos){
       if(st.c || st.t) return false;
       return feitos ? st.p : !st.p;
     });
-    if(alunos.length) grupos.push({turma:t.turma, alunos});
+    if(alunos.length) grupos.push({turma:t.turma, horario:t.horario||'', alunos});
   });
+  // "Turma a definir" sempre por último
+  grupos.sort((a,b)=> (a.turma==='Turma a definir') - (b.turma==='Turma a definir'));
   const total = grupos.reduce((s,g)=>s+g.alunos.length,0);
-  const titulo = feitos ? 'PEDIDOS DE MATERIAL FEITOS' : 'PEDIDOS DE MATERIAL PENDENTES';
-  const txt = `*${titulo} — 2026/2 (${total})*\n\n` +
-    grupos.map(g=>`*${g.turma}*\n${g.alunos.map(a=>`• ${a.nome} (${a.mat})`).join('\n')}`).join('\n\n');
-  copiarTexto(txt, `Relatório copiado: ${total} aluno(s) ✓`);
+  const titulo = feitos ? 'Pedidos de material feitos' : 'Pedidos de material pendentes';
+  const hoje = new Date();
+  const dataBR = ('0'+hoje.getDate()).slice(-2)+'/'+('0'+(hoje.getMonth()+1)).slice(-2)+'/'+hoje.getFullYear();
+  const blocos = grupos.map(g=>`
+    <div style="page-break-inside:avoid;margin-bottom:22px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
+        <strong style="font-size:14px">${g.turma}</strong>
+        <span style="font-size:11px;color:#555">${g.horario}${g.horario?' · ':''}${g.alunos.length} aluno(s)</span>
+      </div>
+      <table style="width:100%;border-collapse:collapse;font-size:12.5px">
+        <thead><tr>
+          <th style="padding:5px 8px;border:1px solid #999;width:7%;text-align:center">#</th>
+          <th style="padding:5px 8px;border:1px solid #999;text-align:left">Aluno(a)</th>
+          <th style="padding:5px 8px;border:1px solid #999;width:15%;text-align:center">Matrícula</th>
+        </tr></thead>
+        <tbody>${g.alunos.map((a,i)=>`<tr>
+          <td style="padding:5px 8px;border:1px solid #999;text-align:center">${i+1}</td>
+          <td style="padding:5px 8px;border:1px solid #999">${a.nome}</td>
+          <td style="padding:5px 8px;border:1px solid #999;text-align:center">${a.mat}</td>
+        </tr>`).join('')}</tbody>
+      </table>
+    </div>`).join('');
+  const doc = `
+    <div style="margin-bottom:24px;border-bottom:2px solid #333;padding-bottom:12px">
+      <div style="font-size:11px;color:#555;letter-spacing:0.06em;text-transform:uppercase;font-weight:700">CCAA Pelotas · 2026/2</div>
+      <div style="font-size:20px;font-weight:700;margin-top:2px">${titulo}</div>
+      <div style="font-size:12px;color:#555;margin-top:4px">Emitido em ${dataBR} · Total: ${total} aluno(s) em ${grupos.length} turma(s)</div>
+    </div>
+    ${blocos || '<p style="font-size:13px;color:#555">Nenhum aluno nesta situação.</p>'}`;
+  matImprimirTermos_([doc], `${titulo} (${total})`);
 }
 document.getElementById('aaFiltroCurso').addEventListener('change', aaRender);
 document.getElementById('aaFiltroStatus').addEventListener('change', aaRender);
