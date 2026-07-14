@@ -57,3 +57,10 @@ Por que importa: <impacto prático em uma linha>
 - Cores em **OKLCH** (espaço de cor perceptualmente uniforme).
 - Temas claro e escuro via atributo `data-theme` no `<html>`.
 - Raios de borda: 8–18px (sóbrio, sem exagero de "bolha").
+
+
+## Regra de publicação (obrigatória)
+A cada push que altere o `index.html`, incrementar JUNTOS:
+1. `const VERSAO_SITE = N` no index.html
+2. `{"v": N}` no versao.json
+É isso que faz navegadores presos em cache antigo se atualizarem sozinhos.

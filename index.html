@@ -2475,6 +2475,28 @@ function jsonpCall(baseUrl, onSuccess, onError){
   };
   document.head.appendChild(script);
 }
+// ===== AUTOATUALIZAÇÃO: garante que TODO navegador rode a versão mais nova =====
+// O arquivo versao.json é buscado com um número único a cada acesso (impossível
+// de ficar preso em cache). Se a versão publicada for maior que a desta cópia,
+// a página recarrega sozinha já apontando para a versão nova.
+const VERSAO_SITE = 2;
+(function verificarVersao(){
+  try{
+    const base = '/' + (location.pathname.split('/')[1] || '') ;
+    fetch(base + '/versao.json?t=' + Date.now(), { cache: 'no-store' })
+      .then(r => r.json())
+      .then(j => {
+        if(j && Number(j.v) > VERSAO_SITE){
+          const u = new URL(location.href);
+          if(u.searchParams.get('v') === String(j.v)) return;  // evita loop
+          u.searchParams.set('v', j.v);
+          location.replace(u.toString());
+        }
+      })
+      .catch(()=>{});
+  }catch(e){}
+})();
+
 const SENHA_LOGIN  = "inglesouespanhol";  // senha de acesso interno (login do painel)
 const SENHA_PAINEL = "ccaa2026";  // senha de comunicação com o Apps Script (igual à SENHA_ADMIN do Script)
 
