@@ -1892,6 +1892,10 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/></svg>
         Lembretes de amanhã
       </button>
+      <button class="int-btn int-btn-reload" id="btnEquiparacoes" type="button" title="Alunos que atingiram o limite de 4 equiparações e taxas por excedente">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M12 20h9M3 20h4M3 4v16M3 4h11l2 3h5v9h-7l-2-3H3"/></svg>
+        Limite de equiparações
+      </button>
     </div>
     <div class="int-filtros">
       <select class="int-select" id="filtroTeacher"><option value="">Teachers</option></select>
@@ -2495,7 +2499,7 @@ function jsonpCall(baseUrl, onSuccess, onError){
 // O arquivo versao.json é buscado com um número único a cada acesso (impossível
 // de ficar preso em cache). Se a versão publicada for maior que a desta cópia,
 // a página recarrega sozinha já apontando para a versão nova.
-const VERSAO_SITE = 6;
+const VERSAO_SITE = 7;
 (function verificarVersao(){
   try{
     const base = '/' + (location.pathname.split('/')[1] || '') ;
@@ -4538,6 +4542,86 @@ function mostrarConflitos(){
   }).join('') || '<div class="hist-linha">Nenhum conflito</div>';
   document.getElementById('histOverlay').classList.add('open');
 }
+
+// ===== LIMITE DE EQUIPARAÇÕES (máx. 4 por aluno; taxa por excedente) =====
+const EQUIP_LIMITE = 4;
+const EQUIP_TAXA = 60;   // R$ por equiparação além do limite
+// Agrupa por aluno, considerando TODAS as abas já carregadas da planilha.
+// "Usadas" = equiparações que aconteceram (Realizado ou Faltou). Agendadas ainda
+// não contam para a taxa, mas são mostradas como previsão.
+function contarEquiparacoes_(){
+  const porAluno = {};
+  todosRegistros.forEach(r=>{
+    if(normTexto(r.formato) !== 'equiparacao') return;
+    const nome = String(r.aluno||'').trim();
+    if(!nome) return;
+    const k = normTexto(nome);
+    if(!porAluno[k]) porAluno[k] = { nome, usadas:[], agendadas:[] };
+    if(nome.length > porAluno[k].nome.length) porAluno[k].nome = nome; // guarda o nome mais completo
+    const st = normTexto(r.status);
+    if(st==='realizado' || st==='faltou') porAluno[k].usadas.push(r);
+    else if(st==='agendado' || st==='remarcado') porAluno[k].agendadas.push(r);
+  });
+  return Object.values(porAluno).map(a=>{
+    const n = a.usadas.length;
+    const excedente = Math.max(0, n - EQUIP_LIMITE);
+    return { ...a, n, excedente, taxa: excedente * EQUIP_TAXA, previstas: a.agendadas.length };
+  });
+}
+function equipLinhaAula_(r){
+  const conteudo = [r.lessons, r.situation].filter(Boolean).join(' · ') || 'sem conteúdo registrado';
+  const st = normTexto(r.status);
+  const cor = st==='faltou' ? 'var(--ccaa-red)' : (st==='realizado' ? 'var(--live)' : 'var(--text-dim)');
+  return `<div style="padding:3px 0;color:var(--text-dim);font-size:12px">
+    • ${r.data||'sem data'} · ${r.teacher||''}${r.turma?(' · '+r.turma):''} · ${conteudo}
+    <span style="color:${cor};font-weight:700"> (${r.status||'?'})</span></div>`;
+}
+function equipCard_(a){
+  const excede = a.excedente > 0;
+  const cor = excede ? 'var(--ccaa-red)' : 'var(--soon)';
+  const resumo = excede
+    ? `${a.n} equiparações · ${a.excedente} acima do limite · ${finFmtBRL(a.taxa)} em taxa`
+    : `${a.n} equiparações · no limite`;
+  const prev = a.previstas ? ` · ${a.previstas} agendada(s)` : '';
+  return `<details class="hist-linha" style="display:block;padding:10px 12px">
+    <summary style="cursor:pointer;list-style:none;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+      <span style="font-weight:700;color:var(--text)">${a.nome}</span>
+      <span style="font-size:11.5px;font-weight:700;color:${cor};background:color-mix(in srgb,${cor} 12%,transparent);padding:2px 9px;border-radius:99px">${resumo}${prev}</span>
+    </summary>
+    <div style="margin-top:8px;border-top:1px solid var(--border);padding-top:8px">
+      <div style="font-size:11px;color:var(--text-dim);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px">Equiparações já dadas</div>
+      ${a.usadas.slice().sort((x,y)=>dataMs(x.data)-dataMs(y.data)).map(equipLinhaAula_).join('')}
+      ${a.agendadas.length ? `<div style="font-size:11px;color:var(--text-dim);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin:6px 0 2px">Agendadas (ainda não contam)</div>${a.agendadas.slice().sort((x,y)=>dataMs(x.data)-dataMs(y.data)).map(equipLinhaAula_).join('')}` : ''}
+    </div>
+  </details>`;
+}
+function mostrarLimiteEquiparacoes(){
+  const todos = contarEquiparacoes_();
+  const noLimite = todos.filter(a=>a.n >= EQUIP_LIMITE).sort((a,b)=> b.n-a.n || a.nome.localeCompare(b.nome));
+  const proximos = todos.filter(a=>a.n === EQUIP_LIMITE-1).sort((a,b)=> a.nome.localeCompare(b.nome));
+  const comTaxa = noLimite.filter(a=>a.excedente>0);
+  const totalTaxa = comTaxa.reduce((s,a)=>s+a.taxa,0);
+
+  document.getElementById('histNome').textContent = 'Equiparações · limite de 4 por aluno';
+  document.getElementById('histStats').innerHTML = `
+    <div style="display:flex;gap:16px;flex-wrap:wrap;font-size:12.5px;margin:2px 0 4px">
+      <span><b style="color:var(--soon)">${noLimite.length}</b> no limite ou acima</span>
+      <span><b style="color:var(--ccaa-red)">${comTaxa.length}</b> com taxa a cobrar</span>
+      <span><b style="color:var(--ccaa-red)">${finFmtBRL(totalTaxa)}</b> total em taxas</span>
+    </div>
+    <div style="font-size:11.5px;color:var(--text-dim);margin-bottom:6px">Taxa de ${finFmtBRL(EQUIP_TAXA)} por equiparação após a 4ª. Conta as equiparações realizadas ou com falta, de todas as abas da planilha. Clique no aluno para ver as aulas já dadas.</div>`;
+
+  let html = '';
+  html += noLimite.length
+    ? noLimite.map(equipCard_).join('')
+    : '<div class="hist-linha">Nenhum aluno atingiu o limite de 4 equiparações.</div>';
+  if(proximos.length){
+    html += `<div style="margin-top:16px;font-size:12px;font-weight:800;color:var(--text-dim);text-transform:uppercase;letter-spacing:.05em">Próximos do limite (3 equiparações)</div>`;
+    html += proximos.map(equipCard_).join('');
+  }
+  document.getElementById('histLista').innerHTML = html;
+  document.getElementById('histOverlay').classList.add('open');
+}
 function renderResumo(){
   const el = document.getElementById('resumoBar');
   if(!el) return;
@@ -6009,6 +6093,7 @@ document.getElementById('btnExportar').addEventListener('click', exportarWhatsAp
 // Lembrete
 document.getElementById('btnLembrete').addEventListener('click', abrirLembrete);
 document.getElementById('btnLembretesLote').addEventListener('click', abrirLembretesLote);
+document.getElementById('btnEquiparacoes').addEventListener('click', mostrarLimiteEquiparacoes);
 document.getElementById('lembreteSel').addEventListener('change', selecionarLembrete);
 document.getElementById('lembreteCopiar').addEventListener('click', ()=>{ if(window._lembreteMsg) copiarTexto(window._lembreteMsg,'Lembrete copiado! Cole no WhatsApp ✓'); });
 document.getElementById('lembreteFechar').addEventListener('click', fecharLembrete);
