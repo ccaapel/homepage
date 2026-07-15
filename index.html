@@ -2491,7 +2491,7 @@ function jsonpCall(baseUrl, onSuccess, onError){
 // O arquivo versao.json é buscado com um número único a cada acesso (impossível
 // de ficar preso em cache). Se a versão publicada for maior que a desta cópia,
 // a página recarrega sozinha já apontando para a versão nova.
-const VERSAO_SITE = 4;
+const VERSAO_SITE = 5;
 (function verificarVersao(){
   try{
     const base = '/' + (location.pathname.split('/')[1] || '') ;
@@ -3394,6 +3394,14 @@ function aaStatusDe_(a){
     wobs: ov.wobs !== undefined ? ov.wobs : (a.wobs || '')
   };
 }
+// Alunos que NÃO entram na conta de pedido de material: turma condensada
+// A1-2.1 (livro fechado, já com material), cancelados, trancados e quem está
+// marcado como possível saída (pendente de decisão de trancamento/cancelamento).
+function aaPrecisaPedido_(a, turma, st){
+  if(turma && turma.indexOf('A1-2.1') !== -1) return false;
+  if(st.c || st.t || st.w) return false;
+  return true;
+}
 function aaAlterarStatus(mat, campo){
   const base = aaComDadosDoComercial_().flatMap(t=>t.alunos).find(a=>a.mat===mat);
   if(!base) return;
@@ -3448,11 +3456,14 @@ function aaEditarMotivo(mat){
   aaRender();
 }
 function aaLinhaAluno_(a, st){
+  const isento = !aaPrecisaPedido_(a, a._turma, st);
   return `<div class="aa-aluno">
     <span class="aa-nome">${a.novo ? '<span class="aa-dot-novo" title="Aluno novo 2026/2"></span>' : ''}${st.w ? `<span class="aa-dot-possivel" title="Possível saída: ${(st.wobs||'').replace(/"/g,'&quot;')}"></span>` : ''}<span title="${a.nome.replace(/"/g,'&quot;')}">${a.nome}</span></span>
     <span class="aa-mat">${a.mat}</span>
     <span class="aa-acoes">
-      <button type="button" class="aa-pill ${st.p?'on-azul':''}" title="${st.p?'Pedido do material feito. Clique para desfazer.':'Marcar pedido do material'}" onclick="aaAlterarStatus('${a.mat}','p')">Pedido</button>
+      ${isento
+        ? `<span class="aa-pill" title="Não entra na conta de pedido de material (livro condensado ou possível saída)" style="opacity:.5;cursor:default">Sem pedido</span>`
+        : `<button type="button" class="aa-pill ${st.p?'on-azul':''}" title="${st.p?'Pedido do material feito. Clique para desfazer.':'Marcar pedido do material'}" onclick="aaAlterarStatus('${a.mat}','p')">Pedido</button>`}
       <button type="button" class="aa-pill ${st.e?'on-verde':''}" title="${st.e?'Material entregue. Clique para desfazer.':'Marcar material entregue'}" onclick="aaAlterarStatus('${a.mat}','e')">Entrega</button>
       <button type="button" class="aa-mais" title="Possível saída, trancar, cancelar ou anotar observação" onclick="aaAbrirMenu(event,'${a.mat}')">&#8942;</button>
     </span>
@@ -3510,19 +3521,22 @@ function aaRender(){
 
   const todosAtivos = turmasComStatus.flatMap(t=>t.alunos);
   const nNovos = todosAtivos.filter(a=>a.novo).length;
-  const nPedidos = todosAtivos.filter(a=>a._st.p).length;
+  // Base do pedido de material: exclui condensado A1-2.1, cancelados, trancados e possíveis saídas
+  const baseDoPedido = todosAtivos.filter(a=>aaPrecisaPedido_(a, a._turma, a._st));
+  const nPedidos = baseDoPedido.filter(a=>a._st.p).length;
+  const nPendentesPedido = baseDoPedido.length - nPedidos;
   document.getElementById('aaResumoBar').innerHTML = `
     <div class="fin-stat"><div class="fin-stat-n">${todosAtivos.length}</div><div class="fin-stat-l">Alunos ativos</div></div>
     <div class="fin-stat"><div class="fin-stat-n">${turmasComStatus.filter(t=>t.alunos.length).length}</div><div class="fin-stat-l">Turmas</div></div>
     <div class="fin-stat"><div class="fin-stat-n" style="color:var(--live)">${nNovos}</div><div class="fin-stat-l">Novos 2026/2</div></div>
     <div class="fin-stat"><div class="fin-stat-n" style="color:var(--ccaa-blue)">${nPedidos}</div><div class="fin-stat-l">Pedidos feitos</div></div>
-    <div class="fin-stat"><div class="fin-stat-n" style="color:${todosAtivos.length-nPedidos?'var(--soon)':'var(--live)'}">${todosAtivos.length-nPedidos}</div><div class="fin-stat-l">Pedidos pendentes</div></div>`;
+    <div class="fin-stat"><div class="fin-stat-n" style="color:${nPendentesPedido?'var(--soon)':'var(--live)'}">${nPendentesPedido}</div><div class="fin-stat-l">Pedidos pendentes</div></div>`;
 
   // filtros
   const passaStatus = a =>
     !fStatus ||
     (fStatus==='pedido' && a._st.p) ||
-    (fStatus==='sem-pedido' && !a._st.p) ||
+    (fStatus==='sem-pedido' && !a._st.p && aaPrecisaPedido_(a, a._turma, a._st)) ||
     (fStatus==='entregue' && a._st.e);
   let turmas = turmasComStatus;
   if(curso) turmas = turmas.filter(t=>t.curso===curso);
@@ -3639,7 +3653,7 @@ function aaRelatorioPedidos_(feitos){
   dadosAtivos.forEach(t=>{
     const alunos = t.alunos.filter(a=>{
       const st = aaStatusDe_(a);
-      if(st.c || st.t) return false;
+      if(!aaPrecisaPedido_(a, t.turma, st)) return false;
       return feitos ? st.p : !st.p;
     });
     if(alunos.length) grupos.push({turma:t.turma, horario:t.horario||'', alunos});
