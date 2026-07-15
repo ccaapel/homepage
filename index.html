@@ -682,13 +682,17 @@ html { scroll-behavior:smooth; }
 .aa-acoes { display:flex; gap:5px; align-items:center; }
 .aa-pill {
   cursor:pointer; font-family:inherit; font-size:10px; font-weight:800;
-  color:var(--text-dim); background:transparent; border:1px solid var(--border);
-  border-radius:99px; padding:3px 9px; line-height:1.3; transition:all .12s;
-  letter-spacing:0.02em;
+  border-radius:99px; padding:3px 10px; line-height:1.3; transition:all .12s;
+  letter-spacing:0.02em; border:1.5px solid var(--border);
+  color:var(--text-dim); background:transparent;
 }
-.aa-pill:hover { border-color:var(--text-dim); }
-.aa-pill.on-azul { color:#fff; background:var(--ccaa-blue); border-color:var(--ccaa-blue); }
-.aa-pill.on-verde { color:#fff; background:var(--live); border-color:var(--live); }
+.aa-pill:hover { filter:brightness(1.15); }
+/* Estado "não marcado" já vem com contorno colorido, para diferenciar Pedido
+   de Entrega à primeira vista, mesmo antes de qualquer clique. */
+.aa-pill.tipo-pedido { color:var(--ccaa-blue); border-color:color-mix(in srgb,var(--ccaa-blue) 45%,transparent); background:color-mix(in srgb,var(--ccaa-blue) 6%,transparent); }
+.aa-pill.tipo-entrega { color:var(--live); border-color:color-mix(in srgb,var(--live) 45%,transparent); background:color-mix(in srgb,var(--live) 6%,transparent); }
+.aa-pill.on-azul { color:#fff; background:var(--ccaa-blue); border-color:var(--ccaa-blue); box-shadow:0 0 0 2px color-mix(in srgb,var(--ccaa-blue) 25%,transparent); }
+.aa-pill.on-verde { color:#fff; background:var(--live); border-color:var(--live); box-shadow:0 0 0 2px color-mix(in srgb,var(--live) 25%,transparent); }
 .aa-mais {
   cursor:pointer; font-family:inherit; font-size:12px; font-weight:800;
   color:var(--text-dim); background:var(--surface-2); border:1px solid var(--border);
@@ -2491,7 +2495,7 @@ function jsonpCall(baseUrl, onSuccess, onError){
 // O arquivo versao.json é buscado com um número único a cada acesso (impossível
 // de ficar preso em cache). Se a versão publicada for maior que a desta cópia,
 // a página recarrega sozinha já apontando para a versão nova.
-const VERSAO_SITE = 5;
+const VERSAO_SITE = 6;
 (function verificarVersao(){
   try{
     const base = '/' + (location.pathname.split('/')[1] || '') ;
@@ -3463,8 +3467,8 @@ function aaLinhaAluno_(a, st){
     <span class="aa-acoes">
       ${isento
         ? `<span class="aa-pill" title="Não entra na conta de pedido de material (livro condensado ou possível saída)" style="opacity:.5;cursor:default">Sem pedido</span>`
-        : `<button type="button" class="aa-pill ${st.p?'on-azul':''}" title="${st.p?'Pedido do material feito. Clique para desfazer.':'Marcar pedido do material'}" onclick="aaAlterarStatus('${a.mat}','p')">Pedido</button>`}
-      <button type="button" class="aa-pill ${st.e?'on-verde':''}" title="${st.e?'Material entregue. Clique para desfazer.':'Marcar material entregue'}" onclick="aaAlterarStatus('${a.mat}','e')">Entrega</button>
+        : `<button type="button" class="aa-pill tipo-pedido ${st.p?'on-azul':''}" title="${st.p?'Pedido do material feito. Clique para desfazer.':'Marcar pedido do material'}" onclick="aaAlterarStatus('${a.mat}','p')">Pedido</button>`}
+      <button type="button" class="aa-pill tipo-entrega ${st.e?'on-verde':''}" title="${st.e?'Material entregue. Clique para desfazer.':'Marcar material entregue'}" onclick="aaAlterarStatus('${a.mat}','e')">Entrega</button>
       <button type="button" class="aa-mais" title="Possível saída, trancar, cancelar ou anotar observação" onclick="aaAbrirMenu(event,'${a.mat}')">&#8942;</button>
     </span>
   </div>`;
@@ -3523,6 +3527,7 @@ function aaRender(){
   const nNovos = todosAtivos.filter(a=>a.novo).length;
   // Base do pedido de material: exclui condensado A1-2.1, cancelados, trancados e possíveis saídas
   const baseDoPedido = todosAtivos.filter(a=>aaPrecisaPedido_(a, a._turma, a._st));
+  const nIsentos = todosAtivos.length - baseDoPedido.length;
   const nPedidos = baseDoPedido.filter(a=>a._st.p).length;
   const nPendentesPedido = baseDoPedido.length - nPedidos;
   document.getElementById('aaResumoBar').innerHTML = `
@@ -3530,7 +3535,8 @@ function aaRender(){
     <div class="fin-stat"><div class="fin-stat-n">${turmasComStatus.filter(t=>t.alunos.length).length}</div><div class="fin-stat-l">Turmas</div></div>
     <div class="fin-stat"><div class="fin-stat-n" style="color:var(--live)">${nNovos}</div><div class="fin-stat-l">Novos 2026/2</div></div>
     <div class="fin-stat"><div class="fin-stat-n" style="color:var(--ccaa-blue)">${nPedidos}</div><div class="fin-stat-l">Pedidos feitos</div></div>
-    <div class="fin-stat"><div class="fin-stat-n" style="color:${nPendentesPedido?'var(--soon)':'var(--live)'}">${nPendentesPedido}</div><div class="fin-stat-l">Pedidos pendentes</div></div>`;
+    <div class="fin-stat"><div class="fin-stat-n" style="color:${nPendentesPedido?'var(--soon)':'var(--live)'}">${nPendentesPedido}</div><div class="fin-stat-l">Pedidos pendentes</div></div>
+    <div class="fin-stat" title="Condensado A1-2.1, cancelados, trancados e possíveis saídas — não entram na conta de material"><div class="fin-stat-n" style="color:var(--text-dim)">${nIsentos}</div><div class="fin-stat-l">Isentos de pedido</div></div>`;
 
   // filtros
   const passaStatus = a =>
