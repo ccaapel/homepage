@@ -1054,9 +1054,13 @@ html.locked .app { display:none !important; }
       <div class="brand-sub-row">
         <span class="brand-sub">Aulas on-line &middot; Quadro de horários</span>
         <div style="display:flex;gap:8px;align-items:center">
-          <button class="acesso-interno" id="btnInterno">
+          <button class="acesso-interno" id="btnInterno" style="display:none">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
             Acesso interno
+          </button>
+          <button class="acesso-interno" id="btnVoltarHorarios" type="button" style="display:none">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            Voltar ao Painel Pedagógico
           </button>
           <button class="acesso-interno" id="btnAdmin" title="Painel de administração (turmas, teachers, links)" style="background:color-mix(in srgb,var(--ccaa-blue) 12%,transparent);color:var(--ccaa-blue)">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
@@ -1859,6 +1863,12 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
             <span class="launcher-desc">Entrega de material por aluno, com termo de assinatura e impressão em lote.</span>
             <span class="launcher-acao">Abrir →</span>
           </button>
+          <button class="launcher-card" id="pedCardHorarios" type="button">
+            <span class="launcher-tag tag-pedagogico">Turmas</span>
+            <span class="launcher-titulo">Horários das Turmas</span>
+            <span class="launcher-desc">O quadro público de horários das aulas on-line, para conferir turma, teacher e link do Zoom.</span>
+            <span class="launcher-acao">Abrir →</span>
+          </button>
         </div>
       </div>
     </div>
@@ -2499,7 +2509,7 @@ function jsonpCall(baseUrl, onSuccess, onError){
 // O arquivo versao.json é buscado com um número único a cada acesso (impossível
 // de ficar preso em cache). Se a versão publicada for maior que a desta cópia,
 // a página recarrega sozinha já apontando para a versão nova.
-const VERSAO_SITE = 9;
+const VERSAO_SITE = 10;
 (function verificarVersao(){
   try{
     const base = '/' + (location.pathname.split('/')[1] || '') ;
@@ -2909,6 +2919,21 @@ function pedAbrirMateriais(){
   comSincronizar(matRender);  // autocomplete de alunos também usa os novos do Comercial
   nuvemAtualizarSelos();
 }
+// Horários das Turmas: o quadro público de horários vive por trás do painel
+// interno o tempo todo (já carregado e renderizado). Aqui só fechamos o painel
+// para revelar essa tela, e mostramos um botão dedicado de "voltar" que reabre
+// o Painel Pedagógico exatamente no menu, sem depender do login de novo.
+function pedAbrirHorarios(){
+  document.title = 'Horários das Turmas · CCAA Pelotas';
+  document.getElementById('internoOverlay').classList.remove('open','scroll-ok');
+  document.getElementById('btnVoltarHorarios').style.display = '';
+  logAcesso('abriu_horarios_internamente', 'Painel Pedagógico');
+}
+document.getElementById('btnVoltarHorarios').addEventListener('click', ()=>{
+  document.getElementById('btnVoltarHorarios').style.display = 'none';
+  document.getElementById('internoOverlay').classList.add('open');
+  pedMostrarMenu();
+});
 function iniciarPainel(){
   modoGuiaUnica();
   logAcesso('abriu_app', 'Controle Pedagógico');
@@ -4003,6 +4028,7 @@ document.getElementById('launchControle').addEventListener('click', abrirControl
 document.getElementById('pedCardPlanilha').addEventListener('click', pedAbrirPlanilha);
 document.getElementById('pedCardAlunos').addEventListener('click', pedAbrirAlunos);
 document.getElementById('pedCardMateriais').addEventListener('click', pedAbrirMateriais);
+document.getElementById('pedCardHorarios').addEventListener('click', pedAbrirHorarios);
 document.getElementById('btnVoltarPedagogico').addEventListener('click', pedMostrarMenu);
 document.getElementById('launchFinanceiro').addEventListener('click', abrirFinanceiro);
 document.getElementById('launchComercial').addEventListener('click', abrirComercial);
@@ -6297,10 +6323,36 @@ const GATE_SENHA   = "Pel551*";
   let jaLiberado=false;
   try{ jaLiberado = sessionStorage.getItem('ccaa_acesso')==='1'; }catch(e){}
 
+  // Detecta se a URL já é um link direto para uma ferramenta específica
+  // (ex.: /controledeaplicacoes/, ?app=financeiro). Nesses casos, o roteamento
+  // próprio (rotearApp) cuida de tudo — aqui não mexemos em nada, pra não
+  // atropelar a tela que ele já vai abrir.
+  function ehLinkDireto(){
+    try{
+      if(new URLSearchParams(location.search).get('app')) return true;
+      const p = location.pathname.toLowerCase();
+      return /controledeaplicacoes|financeiro|comercial|alunosativos|materiais/.test(p);
+    }catch(e){ return false; }
+  }
+
   function liberar(){
     try{ sessionStorage.setItem('ccaa_acesso','1'); }catch(e){}
     document.documentElement.classList.remove('locked');
     gate.style.display='none';
+    // A partir de agora, a primeira tela depois do portão é o Ferramentas CCAA
+    // Pelotas (Painel Pedagógico, Financeiro, Marketing, Comercial), não mais
+    // o quadro de horários. O quadro continua existindo por trás, acessível
+    // pelo card "Horários das Turmas" dentro do Painel Pedagógico.
+    if(!ehLinkDireto()){
+      const overlay = document.getElementById('internoOverlay');
+      if(overlay && !overlay.classList.contains('open')){
+        overlay.classList.add('open');
+        if(typeof hubAutenticado==='function' && hubAutenticado()){
+          logado = true;
+          if(typeof mostrarLauncher==='function') mostrarLauncher();
+        }
+      }
+    }
   }
 
   if(jaLiberado){ liberar(); return; }
