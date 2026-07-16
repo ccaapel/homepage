@@ -1962,7 +1962,7 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
       <div id="finGate" style="display:none;max-width:360px;margin:40px auto">
         <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-lg);padding:28px 28px 24px;box-shadow:var(--shadow-hover)">
           <div style="font-size:13px;font-weight:700;color:var(--text-mute);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px">Acesso restrito</div>
-          <div style="font-size:19px;font-weight:800;color:var(--text);margin-bottom:20px">Pagamentos de Aplicações</div>
+          <div style="font-size:19px;font-weight:800;color:var(--text);margin-bottom:20px">Painel Financeiro</div>
           <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px">
             <input class="int-select" type="text" id="finUsuario" placeholder="Usuário" autocomplete="username" style="width:100%">
             <input class="int-select" type="password" id="finSenha" placeholder="Senha" autocomplete="current-password" style="width:100%">
@@ -2510,7 +2510,7 @@ function jsonpCall(baseUrl, onSuccess, onError){
 // O arquivo versao.json é buscado com um número único a cada acesso (impossível
 // de ficar preso em cache). Se a versão publicada for maior que a desta cópia,
 // a página recarrega sozinha já apontando para a versão nova.
-const VERSAO_SITE = 11;
+const VERSAO_SITE = 12;
 (function verificarVersao(){
   try{
     const base = '/' + (location.pathname.split('/')[1] || '') ;
@@ -2798,16 +2798,19 @@ function hubBase(){
 // ===== GATE UNIFICADO DE FERRAMENTAS =====
 const TOOLS_AUTH_KEY = 'ccaa_tools_authed';
 function toolsAutenticado(){ try{ return sessionStorage.getItem(TOOLS_AUTH_KEY)==='1'; }catch(e){ return false; } }
-let _toolPendingUrl = '';
+let _toolPendingAcao = null;
 let _toolPendingNome = '';
 
-function abrirFerramenta(nome, url){
+// Gate ÚNICO e padronizado de acesso a qualquer ferramenta ("Acesso restrito ·
+// Painel X"). `acao` é o que roda depois do login: abrir a guia dedicada
+// (pelo launcher) ou renderizar o painel na hora (acesso direto por URL).
+function pedirAcessoFerramenta(nome, acao){
   if(toolsAutenticado()){
     logAcesso('abriu_ferramenta', nome);
-    window.open(url, '_blank', 'noopener');
+    if(acao) acao();
     return;
   }
-  _toolPendingUrl = url;
+  _toolPendingAcao = acao || null;
   _toolPendingNome = nome;
   document.getElementById('toolGateNome').textContent = nome;
   document.getElementById('toolGateErro').style.display = 'none';
@@ -2817,9 +2820,14 @@ function abrirFerramenta(nome, url){
   ov.style.display = 'flex';
   setTimeout(()=>{ const u=document.getElementById('toolGateUsuario'); if(u) u.focus(); }, 60);
 }
+// Abre a ferramenta numa guia dedicada. SEM 'noopener': a nova guia precisa
+// herdar a sessão (sessionStorage) para não pedir a senha do portão de novo.
+function abrirFerramenta(nome, url){
+  pedirAcessoFerramenta(nome, ()=>{ window.open(url, '_blank'); });
+}
 function fecharToolGate(){
   document.getElementById('toolGateOverlay').style.display = 'none';
-  _toolPendingUrl = '';
+  _toolPendingAcao = null;
 }
 function toolTentarLogin(){
   const u = document.getElementById('toolGateUsuario').value.trim();
@@ -2827,9 +2835,9 @@ function toolTentarLogin(){
   if(u === 'ccaa' && s === 'inglesouespanhol'){
     sessionStorage.setItem(TOOLS_AUTH_KEY, '1');
     logAcesso('login_ferramenta', _toolPendingNome);
-    const urlPendente = _toolPendingUrl;
+    const acao = _toolPendingAcao;
     fecharToolGate();
-    if(urlPendente) window.open(urlPendente, '_blank', 'noopener');
+    if(acao) acao();
   } else {
     logAcesso('falha_login_ferramenta', _toolPendingNome+' · usuário: '+u);
     document.getElementById('toolGateErro').style.display = 'block';
@@ -4043,8 +4051,20 @@ document.getElementById('matNome').addEventListener('change', ()=>{
                 : app==='alunos2' ? iniciarAlunosAtivosApp
                 : app==='materiais' ? iniciarMateriaisApp
                 : iniciarFinanceiroApp;
-  if(document.readyState!=='loading') iniciar();
-  else document.addEventListener('DOMContentLoaded', iniciar, {once:true});
+  const nome = (app==='financeiro') ? 'Painel Financeiro'
+             : (app==='comercial')  ? 'Painel Comercial'
+             : 'Painel Pedagógico';
+  // Acesso direto por URL: mostra o MESMO gate padronizado ("Acesso restrito ·
+  // Painel X") antes de abrir. Pela guia do launcher a sessão já vem herdada,
+  // então o gate não reaparece.
+  const arrancar = ()=>{
+    if(toolsAutenticado()){ iniciar(); return; }
+    modoGuiaUnica();
+    document.getElementById('painelBox').style.display = 'block';
+    pedirAcessoFerramenta(nome, iniciar);
+  };
+  if(document.readyState!=='loading') arrancar();
+  else document.addEventListener('DOMContentLoaded', arrancar, {once:true});
 })();
 
 document.getElementById('launchControle').addEventListener('click', abrirControle);
