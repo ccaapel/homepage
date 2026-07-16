@@ -103,7 +103,8 @@ body {
   transition:background .3s, color .3s;
   padding-bottom: env(safe-area-inset-bottom);
 }
-.app { max-width: 1200px; margin:0 auto; padding:0 24px 90px; }
+.app { max-width: 1200px; margin:0 auto; padding:0 24px 90px; display:none; }
+html.ver-horarios .app { display:block; }
 /* Grid de cards na lista completa: responsivo 1/2/3 colunas */
 .cards-grid { display:grid; grid-template-columns:1fr; gap:0; }
 @media (min-width:760px){
@@ -2509,7 +2510,7 @@ function jsonpCall(baseUrl, onSuccess, onError){
 // O arquivo versao.json é buscado com um número único a cada acesso (impossível
 // de ficar preso em cache). Se a versão publicada for maior que a desta cópia,
 // a página recarrega sozinha já apontando para a versão nova.
-const VERSAO_SITE = 10;
+const VERSAO_SITE = 11;
 (function verificarVersao(){
   try{
     const base = '/' + (location.pathname.split('/')[1] || '') ;
@@ -2754,9 +2755,10 @@ function toast(msg, tipo='ok'){
   el._t = setTimeout(()=>{ el.className='toast'; }, 3000);
 }
 
-// Fechar interno
+// Fechar interno: revela o quadro de horários por trás (evita tela em branco,
+// já que o quadro fica oculto por padrão para não piscar no fundo)
 document.getElementById('internoFechar').addEventListener('click', ()=>{
-  document.getElementById('internoOverlay').classList.remove('open');
+  pedAbrirHorarios();
 });
 
 // Login
@@ -2873,6 +2875,7 @@ function pedEsconderTudo(){
 }
 function pedMostrarMenu(){
   pedEsconderTudo();
+  document.documentElement.classList.remove('ver-horarios');
   document.title = 'Painel Pedagógico · CCAA Pelotas';
   document.querySelector('.interno-header h2').textContent = 'Painel Pedagógico';
   document.getElementById('pedagogicoMenu').style.display='block';
@@ -2926,11 +2929,13 @@ function pedAbrirMateriais(){
 function pedAbrirHorarios(){
   document.title = 'Horários das Turmas · CCAA Pelotas';
   document.getElementById('internoOverlay').classList.remove('open','scroll-ok');
+  document.documentElement.classList.add('ver-horarios');   // revela o quadro (fica oculto por padrão, sem flash)
   document.getElementById('btnVoltarHorarios').style.display = '';
   logAcesso('abriu_horarios_internamente', 'Painel Pedagógico');
 }
 document.getElementById('btnVoltarHorarios').addEventListener('click', ()=>{
   document.getElementById('btnVoltarHorarios').style.display = 'none';
+  document.documentElement.classList.remove('ver-horarios');
   document.getElementById('internoOverlay').classList.add('open');
   pedMostrarMenu();
 });
@@ -3125,6 +3130,25 @@ function comRender(){
     (porTurma[t] = porTurma[t] || []).push(m);
   });
   const normEqCom = s => normTexto(s).replace(/espanhol/g,'espanol').replace(/español/g,'espanol');
+  // Integração com o Pedagógico: qualquer aluno marcado como "novo" em
+  // ALUNOS_ATIVOS (fonte única) também aparece nos cards de turma do Comercial,
+  // mesmo que ainda não esteja salvo na lista de matrículas deste navegador.
+  // Casa pelo nome normalizado da turma; dedup por matrícula.
+  try{
+    const jaNaLista = new Set(lista.map(m=>String(m.matricula||'').split('/')[0].trim()).filter(Boolean));
+    const chavePorNorm = {};
+    Object.keys(porTurma).forEach(k=>{ chavePorNorm[normEqCom(k)] = k; });
+    ALUNOS_ATIVOS.forEach(t=>{
+      t.alunos.forEach(a=>{
+        if(!a.novo || jaNaLista.has(String(a.mat))) return;
+        const nk = normEqCom(t.turma);
+        let chave = chavePorNorm[nk];
+        if(!chave){ chave = t.turma; chavePorNorm[nk] = chave; porTurma[chave] = porTurma[chave] || []; }
+        porTurma[chave].push({ nome:a.nome, matricula:String(a.mat), turma:chave, data:'', assinatura:'assinada', _deAtivos:1 });
+        jaNaLista.add(String(a.mat));
+      });
+    });
+  }catch(e){}
   const totalNaTurma = {};
   try{
     aaComDadosDoComercial_().forEach(t=>{
@@ -3135,7 +3159,6 @@ function comRender(){
   const semTurma = lista.filter(m=>!(m.turma||'').trim()).length;
   const contaTurma = t => totalNaTurma[normEqCom(t.split('·')[0])] ?? (porTurma[t]||[]).length;
   const formadas = Object.keys(porTurma).filter(t=>contaTurma(t)>=3).length;
-  const pend = lista.filter(m=>(m.assinatura||'pendente')!=='assinada').length;
 
   // Verificação de integridade: matrícula repetida e aluno sem turma (conferência com o Sponte)
   const porMat = {};
@@ -3149,8 +3172,7 @@ function comRender(){
   document.getElementById('comResumoBar').innerHTML = `
     ${alertas.length ? `<div style="flex-basis:100%;background:color-mix(in srgb,var(--soon) 12%,transparent);border:1px solid color-mix(in srgb,var(--soon) 35%,transparent);color:var(--text);border-radius:var(--r-md);padding:10px 14px;font-size:12px;font-weight:600;line-height:1.5">Conferência: ${alertas.join('. ')}</div>` : ''}
     <div class="fin-stat"><div class="fin-stat-n">${lista.length}</div><div class="fin-stat-l">Novos alunos 2026/2</div></div>
-    <div class="fin-stat"><div class="fin-stat-n" style="color:var(--live)">${formadas}</div><div class="fin-stat-l">Turmas formadas (3+)</div></div>
-    <div class="fin-stat"><div class="fin-stat-n" style="color:${pend?'var(--ccaa-red)':'var(--live)'}">${pend}</div><div class="fin-stat-l">Assinaturas em aberto</div></div>`;
+    <div class="fin-stat"><div class="fin-stat-n" style="color:var(--live)">${formadas}</div><div class="fin-stat-l">Turmas formadas (3+)</div></div>`;
 
   const turmasOficiais = comTurmasOficiais_();
   // Ordem pedagógica: Baby Class no canto superior esquerdo, English Course 11 por último
@@ -3428,10 +3450,11 @@ function aaStatusDe_(a){
   };
 }
 // Alunos que NÃO entram na conta de pedido de material: turma condensada
-// A1-2.1 (livro fechado, já com material), cancelados, trancados e quem está
-// marcado como possível saída (pendente de decisão de trancamento/cancelamento).
+// A1-2.1 (livro fechado, já com material), turmas VIP (material à parte),
+// cancelados, trancados e quem está marcado como possível saída (pendente de
+// decisão de trancamento/cancelamento).
 function aaPrecisaPedido_(a, turma, st){
-  if(turma && turma.indexOf('A1-2.1') !== -1) return false;
+  if(turma && (turma.indexOf('A1-2.1') !== -1 || /vip/i.test(turma))) return false;
   if(st.c || st.t || st.w) return false;
   return true;
 }
@@ -3565,7 +3588,7 @@ function aaRender(){
     <div class="fin-stat"><div class="fin-stat-n" style="color:var(--live)">${nNovos}</div><div class="fin-stat-l">Novos 2026/2</div></div>
     <div class="fin-stat"><div class="fin-stat-n" style="color:var(--ccaa-blue)">${nPedidos}</div><div class="fin-stat-l">Pedidos feitos</div></div>
     <div class="fin-stat"><div class="fin-stat-n" style="color:${nPendentesPedido?'var(--soon)':'var(--live)'}">${nPendentesPedido}</div><div class="fin-stat-l">Pedidos pendentes</div></div>
-    <div class="fin-stat" title="Condensado A1-2.1, cancelados, trancados e possíveis saídas — não entram na conta de material"><div class="fin-stat-n" style="color:var(--text-dim)">${nIsentos}</div><div class="fin-stat-l">Isentos de pedido</div></div>`;
+    <div class="fin-stat" title="Condensado A1-2.1, turmas VIP, cancelados, trancados e possíveis saídas — não entram na conta de material"><div class="fin-stat-n" style="color:var(--text-dim)">${nIsentos}</div><div class="fin-stat-l">Isentos de pedido</div></div>`;
 
   // filtros
   const passaStatus = a =>
