@@ -1790,6 +1790,7 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
       <img src="https://ccaapel.github.io/mkt/assets/ccaa-logo.png?v=5" alt="CCAA" class="launcher-logo">
       <h3 class="launcher-h3">Ferramentas CCAA Pelotas</h3>
       <p class="launcher-sub">Escolha a ferramenta que deseja abrir.</p>
+      <div id="launcherResumo" style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:0 0 26px"></div>
       <div class="launcher-grid">
         <button class="launcher-card" id="launchControle" type="button">
           <span class="launcher-tag tag-pedagogico">Pedagógico</span>
@@ -2510,7 +2511,7 @@ function jsonpCall(baseUrl, onSuccess, onError){
 // O arquivo versao.json é buscado com um número único a cada acesso (impossível
 // de ficar preso em cache). Se a versão publicada for maior que a desta cópia,
 // a página recarrega sozinha já apontando para a versão nova.
-const VERSAO_SITE = 12;
+const VERSAO_SITE = 13;
 (function verificarVersao(){
   try{
     const base = '/' + (location.pathname.split('/')[1] || '') ;
@@ -2786,6 +2787,45 @@ function mostrarLauncher(){
   lb.style.display = '';
   lb.classList.add('visivel');
   document.getElementById('internoOverlay').classList.remove('scroll-ok');
+  launcherResumo();
+  // Atualiza os números com o que estiver na nuvem (matrículas/status de outro
+  // navegador), sem travar caso a rede falhe.
+  try{ if(typeof comSincronizar==='function') comSincronizar(launcherResumo); }catch(e){}
+  try{ if(typeof aaSincronizarStatusSilencioso==='function') aaSincronizarStatusSilencioso(launcherResumo); }catch(e){}
+}
+// ===== VISÃO GERAL: resumo ao vivo na tela de Ferramentas =====
+// Lê dos dados que o site já tem (Alunos Ativos + Comercial + status) e mostra
+// os números que a equipe toda consulta, num relance, antes de abrir um painel.
+// Blindado em try/catch: se algo faltar, o resumo some sem quebrar o launcher.
+function launcherResumo(){
+  const box = document.getElementById('launcherResumo');
+  if(!box) return;
+  try{
+    const dados = (typeof aaComDadosDoComercial_==='function') ? aaComDadosDoComercial_() : (typeof ALUNOS_ATIVOS!=='undefined' ? ALUNOS_ATIVOS : []);
+    const st = a => (typeof aaStatusDe_==='function') ? aaStatusDe_(a) : {p:a.p?1:0,c:a.c?1:0,t:a.t?1:0};
+    const ativos = [];
+    let nTurmas = 0;
+    dados.forEach(t=>{
+      const vivos = t.alunos.filter(a=>{ const s=st(a); return !s.c && !s.t; });
+      if(vivos.length) nTurmas++;
+      vivos.forEach(a=> ativos.push({ ...a, _st:st(a), _turma:t.turma }));
+    });
+    const nAtivos = ativos.length;
+    const nNovos = ativos.filter(a=>a.novo).length;
+    const base = ativos.filter(a=> (typeof aaPrecisaPedido_==='function') ? aaPrecisaPedido_(a, a._turma, a._st) : false);
+    const nPendentes = base.filter(a=>!a._st.p).length;
+    let nMatriculas = 0;
+    try{ if(typeof comCarregar==='function') nMatriculas = comCarregar().length; }catch(e){}
+    const card = (n, l, cor)=>`<div class="fin-stat" style="min-width:112px">`+
+      `<div class="fin-stat-n"${cor?` style="color:${cor}"`:''}>${n}</div>`+
+      `<div class="fin-stat-l">${l}</div></div>`;
+    box.innerHTML =
+      card(nAtivos, 'Alunos ativos') +
+      card(nTurmas, 'Turmas') +
+      card(nNovos, 'Novos 2026/2', 'var(--live)') +
+      card(nPendentes, 'Pedidos pendentes', nPendentes ? 'var(--soon)' : 'var(--live)') +
+      card(nMatriculas, 'Matrículas 2026/2', 'var(--ccaa-blue)');
+  }catch(e){ box.innerHTML = ''; }
 }
 
 // ===== LAUNCHER: cada ferramenta abre em guia única dedicada =====
@@ -2859,6 +2899,7 @@ function voltarAoMenu(){
   lb.style.display = '';
   lb.classList.add('visivel');
   document.getElementById('internoOverlay').classList.remove('scroll-ok');
+  launcherResumo();
 }
 
 // Esconde launcher e login de vez (modo guia única)
@@ -3443,6 +3484,19 @@ function aaSincronizarStatus(){
       toast('Status sincronizados com a planilha ✓');
     }
   });
+}
+// Igual ao de cima, porém sem re-renderizar a tela de alunos nem mostrar toast:
+// usado pela Visão Geral do launcher só para atualizar os números da nuvem.
+function aaSincronizarStatusSilencioso(cb){
+  try{
+    nuvemCarregar('alunos_status', (dados)=>{
+      if(dados && typeof dados === 'object' && JSON.stringify(dados) !== JSON.stringify(_aaStatus)){
+        _aaStatus = dados;
+        try{ localStorage.setItem(AA_STATUS_KEY, JSON.stringify(_aaStatus)); }catch(e){}
+      }
+      if(typeof cb === 'function') cb();
+    });
+  }catch(e){}
 }
 // Status efetivo do aluno: flags fixas dos dados + ajustes feitos pelo site
 function aaStatusDe_(a){
