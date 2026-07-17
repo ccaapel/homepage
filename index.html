@@ -700,6 +700,21 @@ html { scroll-behavior:smooth; }
   border-radius:99px; width:24px; height:24px; line-height:1; transition:all .12s;
 }
 .aa-mais:hover { color:var(--ccaa-blue); border-color:var(--ccaa-blue); }
+/* Botão e selo de observação (motivo do material pendente) ao lado do nome */
+.aa-obs-btn {
+  cursor:pointer; font-family:inherit; font-size:11px; line-height:1; flex-shrink:0;
+  color:var(--text-dim); background:transparent; border:1px solid var(--border);
+  border-radius:6px; padding:2px 6px; transition:all .12s;
+}
+.aa-obs-btn:hover { color:var(--ccaa-blue); border-color:var(--ccaa-blue); }
+.aa-obs-btn.tem-obs { color:var(--soon); border-color:color-mix(in srgb,var(--soon) 50%,transparent); }
+.aa-obs-tag {
+  flex-shrink:1; min-width:0; max-width:190px;
+  font-size:10.5px; font-weight:700; color:var(--soon);
+  background:color-mix(in srgb,var(--soon) 13%,transparent);
+  border-radius:6px; padding:1px 7px;
+}
+.aa-obs-tag.neutro { color:var(--text-dim); background:var(--surface-2); }
 #aaMenu {
   position:absolute; z-index:300; display:none; min-width:190px;
   background:var(--surface); border:1.5px solid var(--border); border-radius:10px;
@@ -2511,7 +2526,7 @@ function jsonpCall(baseUrl, onSuccess, onError){
 // O arquivo versao.json é buscado com um número único a cada acesso (impossível
 // de ficar preso em cache). Se a versão publicada for maior que a desta cópia,
 // a página recarrega sozinha já apontando para a versão nova.
-const VERSAO_SITE = 13;
+const VERSAO_SITE = 14;
 (function verificarVersao(){
   try{
     const base = '/' + (location.pathname.split('/')[1] || '') ;
@@ -3557,7 +3572,7 @@ function aaEditarObs(mat){
   const base = aaComDadosDoComercial_().flatMap(t=>t.alunos).find(a=>a.mat===mat);
   if(!base) return;
   const atual = aaStatusDe_(base);
-  const obs = prompt(`Observação de ${base.nome}:`, atual.obs||'');
+  const obs = prompt(`Motivo / observação de ${base.nome}\n(ex.: Inadimplente · Não respondeu · Aguardando material · Vai buscar):`, atual.obs||'');
   if(obs === null) return;
   _aaStatus[mat] = Object.assign({}, _aaStatus[mat]||{p:atual.p,e:atual.e,t:atual.t,c:atual.c,w:atual.w,wobs:atual.wobs}, {obs:obs.trim()});
   aaStatusSalvar_();
@@ -3575,8 +3590,11 @@ function aaEditarMotivo(mat){
 }
 function aaLinhaAluno_(a, st){
   const isento = !aaPrecisaPedido_(a, a._turma, st);
+  const obs = (st.obs||'').trim();
+  const obsEsc = obs.replace(/"/g,'&quot;');
+  const pendente = !isento && !st.p;   // material ainda não pedido → motivo em destaque
   return `<div class="aa-aluno">
-    <span class="aa-nome">${a.novo ? '<span class="aa-dot-novo" title="Aluno novo 2026/2"></span>' : ''}${st.w ? `<span class="aa-dot-possivel" title="Possível saída: ${(st.wobs||'').replace(/"/g,'&quot;')}"></span>` : ''}<span title="${a.nome.replace(/"/g,'&quot;')}">${a.nome}</span></span>
+    <span class="aa-nome">${a.novo ? '<span class="aa-dot-novo" title="Aluno novo 2026/2"></span>' : ''}${st.w ? `<span class="aa-dot-possivel" title="Possível saída: ${(st.wobs||'').replace(/"/g,'&quot;')}"></span>` : ''}<span title="${a.nome.replace(/"/g,'&quot;')}">${a.nome}</span><button type="button" class="aa-obs-btn${obs?' tem-obs':''}" title="${obs?'Motivo: '+obsEsc+' (clique para editar)':'Anotar motivo (ex.: material pendente)'}" onclick="aaEditarObs('${a.mat}')">✎</button>${obs?`<span class="aa-obs-tag${pendente?'':' neutro'}" title="${obsEsc}">${obs}</span>`:''}</span>
     <span class="aa-mat">${a.mat}</span>
     <span class="aa-acoes">
       ${isento
@@ -3795,11 +3813,13 @@ function aaRelatorioPedidos_(feitos){
           <th style="padding:5px 8px;border:1px solid #999;width:8%;text-align:center">Nº</th>
           <th style="padding:5px 8px;border:1px solid #999;text-align:left">Aluno(a)</th>
           <th style="padding:5px 8px;border:1px solid #999;width:15%;text-align:center">Matrícula</th>
+          ${!feitos?'<th style="padding:5px 8px;border:1px solid #999;width:28%;text-align:left">Motivo</th>':''}
         </tr></thead>
         <tbody>${g.alunos.map((a,i)=>`<tr>
           <td style="padding:5px 8px;border:1px solid #999;text-align:center">${i+1}</td>
           <td style="padding:5px 8px;border:1px solid #999">${a.nome}</td>
           <td style="padding:5px 8px;border:1px solid #999;text-align:center">${a.mat}</td>
+          ${!feitos?`<td style="padding:5px 8px;border:1px solid #999">${(aaStatusDe_(a).obs||'').trim()}</td>`:''}
         </tr>`).join('')}</tbody>
       </table>
     </div>`).join('');
