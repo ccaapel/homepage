@@ -1805,6 +1805,10 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
       <img src="https://ccaapel.github.io/mkt/assets/ccaa-logo.png?v=5" alt="CCAA" class="launcher-logo">
       <h3 class="launcher-h3">Ferramentas CCAA Pelotas</h3>
       <p class="launcher-sub">Escolha a ferramenta que deseja abrir.</p>
+      <div id="hubBuscaWrap" style="position:relative;max-width:420px;margin:-10px auto 24px">
+        <input class="int-select" type="text" id="hubBusca" placeholder="Buscar aluno ou turma…  (Ctrl+K)" autocomplete="off" style="width:100%;text-align:center">
+        <div id="hubBuscaResultados" style="display:none;position:absolute;top:calc(100% + 6px);left:0;right:0;z-index:50;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-md);box-shadow:var(--shadow-hover);max-height:280px;overflow-y:auto;text-align:left"></div>
+      </div>
       <div class="launcher-grid">
         <button class="launcher-card" id="launchControle" type="button">
           <span class="launcher-tag tag-pedagogico">Pedagógico</span>
@@ -1909,6 +1913,10 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
       <button class="int-btn int-btn-reload" id="btnExportar" type="button" title="Resumo para WhatsApp">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"/><path d="M16 6l-4-4-4 4"/><path d="M12 2v14"/></svg>
         Resumo semanal
+      </button>
+      <button class="int-btn int-btn-reload" id="btnFechamentoDia" type="button" title="Resumo executivo de hoje: agendamentos, entregas de material e alunos novos — pronto para o grupo da equipe">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        Fechamento do dia
       </button>
       <button class="int-btn int-btn-reload" id="btnLembrete" type="button" title="Lembrete para um aluno">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
@@ -2162,6 +2170,7 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
       <div class="int-actions" style="margin-bottom:14px">
         <button class="int-btn int-btn-reload" id="aaRelPedidos" type="button" title="Copiar relatório de quem já tem pedido feito">Relatório: pedidos feitos</button>
         <button class="int-btn int-btn-reload" id="aaRelPendentes" type="button" title="Copiar relatório de quem ainda falta pedir">Relatório: pedidos pendentes</button>
+        <button class="int-btn int-btn-reload" id="aaRelPendentesZap" type="button" title="Copiar lista de pendentes agrupada por motivo, pronta para o WhatsApp">Pendentes p/ WhatsApp</button>
         <span style="font-size:11px;color:var(--text-dim);align-self:center">Pedido e Entrega marcam com um clique. O botão de três pontos marca possível saída, tranca, cancela ou anota observação.</span>
       </div>
       <div id="aaLista"></div>
@@ -2525,7 +2534,7 @@ function jsonpCall(baseUrl, onSuccess, onError){
 // O arquivo versao.json é buscado com um número único a cada acesso (impossível
 // de ficar preso em cache). Se a versão publicada for maior que a desta cópia,
 // a página recarrega sozinha já apontando para a versão nova.
-const VERSAO_SITE = 15;
+const VERSAO_SITE = 16;
 (function verificarVersao(){
   try{
     const base = '/' + (location.pathname.split('/')[1] || '') ;
@@ -3512,6 +3521,8 @@ function aaAlterarStatus(mat, campo){
   }
   _aaStatus[mat] = ov;
   aaStatusSalvar_();
+  // Entrega marcada/desmarcada aqui também atualiza a Saída de Materiais
+  if(campo==='e') matSincronizarEntrega_(base, ov.e);
   aaRender();
 }
 function aaEditarObs(mat){
@@ -3649,7 +3660,19 @@ function aaRender(){
         <span style="flex:1;height:1px;background:var(--border)"></span>
       </div>
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(430px,1fr));gap:14px">
-        ${g.turmas.map(t=>`
+        ${g.turmas.map(t=>{
+          // Progresso de material da turma: pedido (azul) e entregue (verde)
+          // sobre a base de quem precisa de pedido — leitura de relance
+          const base = t.alunos.filter(a=>aaPrecisaPedido_(a, t.turma, a._st));
+          const nPed = base.filter(a=>a._st.p).length;
+          const nEnt = base.filter(a=>a._st.e).length;
+          const pct = n => base.length ? Math.round(n/base.length*100) : 0;
+          const barra = base.length ? `
+          <div title="Material: ${nPed}/${base.length} pedidos · ${nEnt}/${base.length} entregues" style="margin-top:8px;height:4px;border-radius:99px;background:var(--surface-2);position:relative;overflow:hidden">
+            <div style="position:absolute;inset:0;width:${pct(nPed)}%;background:color-mix(in srgb,var(--ccaa-blue) 55%,transparent);border-radius:99px"></div>
+            <div style="position:absolute;inset:0;width:${pct(nEnt)}%;background:var(--live);border-radius:99px"></div>
+          </div>` : '';
+          return `
         <div class="aa-turma">
           <div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap">
             <span style="font-size:14px;font-weight:800;color:var(--text)">${t.turma}</span>
@@ -3657,10 +3680,11 @@ function aaRender(){
             <button type="button" title="Imprimir lista da turma" onclick="aaImprimirTurma('${t.turma.replace(/'/g,"\\'")}')" style="cursor:pointer;font-family:inherit;font-size:10px;font-weight:700;color:var(--text-dim);background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:2px 7px">Lista</button>
             <span style="margin-left:auto;font-size:11px;font-weight:800;color:var(--ccaa-blue)">${t.alunos.length}</span>
           </div>
+          ${barra}
           <div style="margin-top:10px;display:flex;flex-direction:column;gap:6px">
             ${t.alunos.map(a=>aaLinhaAluno_(a, a._st)).join('')}
           </div>
-        </div>`).join('')}
+        </div>`;}).join('')}
       </div>
     </div>`).join('');
 
@@ -3731,6 +3755,37 @@ function aaRender(){
 }
 // Relatórios de pedidos em formato de documento (abre a janela de impressão,
 // pronto para imprimir ou salvar em PDF, agrupado por turma e sem erro de formatação).
+// ===== PAPEL TIMBRADO: identidade visual única de todos os documentos impressos =====
+// Um único "molde" (cabeçalho com logo, cores da marca, rodapé) que envolve o
+// conteúdo de qualquer relatório/termo. Mudou a identidade? Muda aqui, uma vez.
+const DOC_CORES = { azul:'#0F2D5F', borda:'#c9d4e5', zebra:'#f4f7fc', cab:'#e8eef8', dim:'#5a6b85', texto:'#1c2b41' };
+function docHoje_(){ const h=new Date(); return ('0'+h.getDate()).slice(-2)+'/'+('0'+(h.getMonth()+1)).slice(-2)+'/'+h.getFullYear(); }
+function docCCAA_(titulo, subtitulo, corpo){
+  return `<div>
+    <div style="display:flex;align-items:center;gap:14px;border-bottom:3px solid ${DOC_CORES.azul};padding-bottom:12px;margin-bottom:20px">
+      <img src="https://ccaapel.github.io/mkt/assets/ccaa-logo.png?v=5" alt="CCAA" style="width:46px;height:46px;object-fit:contain;border-radius:10px">
+      <div>
+        <div style="font-size:10.5px;color:${DOC_CORES.dim};letter-spacing:.08em;text-transform:uppercase;font-weight:700">CCAA Pelotas · 2026/2</div>
+        <div style="font-size:21px;font-weight:800;color:${DOC_CORES.azul};margin-top:1px">${titulo}</div>
+        ${subtitulo?`<div style="font-size:11.5px;color:${DOC_CORES.dim};margin-top:2px">${subtitulo}</div>`:''}
+      </div>
+    </div>
+    ${corpo}
+    <div style="margin-top:26px;border-top:1px solid ${DOC_CORES.borda};padding-top:8px;font-size:10px;color:${DOC_CORES.dim};display:flex;justify-content:space-between">
+      <span>Emitido pelo painel interno em ${docHoje_()}</span><span>ccaapel.github.io/homepage</span>
+    </div>
+  </div>`;
+}
+// Tabela padronizada: cabeçalho azul-claro, linhas zebradas, bordas suaves.
+// cols: [{t:'Título', w:'15%', al:'center'}] · linhas: array de arrays de células
+function docTabela_(cols, linhas){
+  const th = c=>`<th style="padding:7px 9px;border:1px solid ${DOC_CORES.borda};background:${DOC_CORES.cab};color:${DOC_CORES.azul};font-size:11px;text-transform:uppercase;letter-spacing:.04em;${c.w?`width:${c.w};`:''}text-align:${c.al||'left'}">${c.t}</th>`;
+  const td = (v,c,zebra)=>`<td style="padding:6px 9px;border:1px solid ${DOC_CORES.borda};${zebra?`background:${DOC_CORES.zebra};`:''}text-align:${c.al||'left'}">${v}</td>`;
+  return `<table style="width:100%;border-collapse:collapse;font-size:12.5px;color:${DOC_CORES.texto}">
+    <thead><tr>${cols.map(th).join('')}</tr></thead>
+    <tbody>${linhas.map((l,i)=>`<tr>${l.map((v,j)=>td(v,cols[j]||{},i%2===1)).join('')}</tr>`).join('')}</tbody>
+  </table>`;
+}
 function aaRelatorioPedidos_(feitos){
   const dadosAtivos = aaComDadosDoComercial_();
   const grupos = [];
@@ -3746,36 +3801,21 @@ function aaRelatorioPedidos_(feitos){
   grupos.sort((a,b)=> (a.turma==='Turma a definir') - (b.turma==='Turma a definir'));
   const total = grupos.reduce((s,g)=>s+g.alunos.length,0);
   const titulo = feitos ? 'Pedidos de material feitos' : 'Pedidos de material pendentes';
-  const hoje = new Date();
-  const dataBR = ('0'+hoje.getDate()).slice(-2)+'/'+('0'+(hoje.getMonth()+1)).slice(-2)+'/'+hoje.getFullYear();
+  const cols = feitos
+    ? [{t:'Nº',w:'8%',al:'center'},{t:'Aluno(a)'},{t:'Matrícula',w:'15%',al:'center'}]
+    : [{t:'Nº',w:'8%',al:'center'},{t:'Aluno(a)'},{t:'Matrícula',w:'15%',al:'center'},{t:'Motivo',w:'28%'}];
   const blocos = grupos.map(g=>`
-    <div style="page-break-inside:avoid;margin-bottom:22px">
+    <div style="page-break-inside:avoid;margin-bottom:20px">
       <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
-        <strong style="font-size:14px">${g.turma}</strong>
-        <span style="font-size:11px;color:#555">${g.horario}${g.horario?' · ':''}${g.alunos.length} aluno(s)</span>
+        <strong style="font-size:14px;color:${DOC_CORES.azul}">${g.turma}</strong>
+        <span style="font-size:11px;color:${DOC_CORES.dim}">${g.horario}${g.horario?' · ':''}${g.alunos.length} aluno(s)</span>
       </div>
-      <table style="width:100%;border-collapse:collapse;font-size:12.5px">
-        <thead><tr>
-          <th style="padding:5px 8px;border:1px solid #999;width:8%;text-align:center">Nº</th>
-          <th style="padding:5px 8px;border:1px solid #999;text-align:left">Aluno(a)</th>
-          <th style="padding:5px 8px;border:1px solid #999;width:15%;text-align:center">Matrícula</th>
-          ${!feitos?'<th style="padding:5px 8px;border:1px solid #999;width:28%;text-align:left">Motivo</th>':''}
-        </tr></thead>
-        <tbody>${g.alunos.map((a,i)=>`<tr>
-          <td style="padding:5px 8px;border:1px solid #999;text-align:center">${i+1}</td>
-          <td style="padding:5px 8px;border:1px solid #999">${a.nome}</td>
-          <td style="padding:5px 8px;border:1px solid #999;text-align:center">${a.mat}</td>
-          ${!feitos?`<td style="padding:5px 8px;border:1px solid #999">${(aaStatusDe_(a).obs||'').trim()}</td>`:''}
-        </tr>`).join('')}</tbody>
-      </table>
+      ${docTabela_(cols, g.alunos.map((a,i)=> feitos
+        ? [i+1, a.nome, a.mat]
+        : [i+1, a.nome, a.mat, (aaStatusDe_(a).obs||'').trim()]))}
     </div>`).join('');
-  const doc = `
-    <div style="margin-bottom:24px;border-bottom:2px solid #333;padding-bottom:12px">
-      <div style="font-size:11px;color:#555;letter-spacing:0.06em;text-transform:uppercase;font-weight:700">CCAA Pelotas · 2026/2</div>
-      <div style="font-size:20px;font-weight:700;margin-top:2px">${titulo}</div>
-      <div style="font-size:12px;color:#555;margin-top:4px">Emitido em ${dataBR} · Total: ${total} aluno(s) em ${grupos.length} turma(s)</div>
-    </div>
-    ${blocos || '<p style="font-size:13px;color:#555">Nenhum aluno nesta situação.</p>'}`;
+  const doc = docCCAA_(titulo, `Total: ${total} aluno(s) em ${grupos.length} turma(s)`,
+    blocos || `<p style="font-size:13px;color:${DOC_CORES.dim}">Nenhum aluno nesta situação.</p>`);
   matImprimirTermos_([doc], `${titulo} (${total})`);
 }
 document.getElementById('aaFiltroCurso').addEventListener('change', aaRender);
@@ -3786,27 +3826,34 @@ function aaImprimirTurma(nomeTurma){
   const t = aaComDadosDoComercial_().find(x=>x.turma===nomeTurma);
   if(!t) return;
   const ativos = t.alunos.filter(a=>{ const st=aaStatusDe_(a); return !st.c && !st.t; });
-  const linhas = ativos.map((a,i)=>`<tr><td style="padding:6px 8px;border:1px solid #999;text-align:center">${i+1}</td><td style="padding:6px 8px;border:1px solid #999">${a.nome}</td><td style="padding:6px 8px;border:1px solid #999">${a.mat}</td><td style="padding:6px 8px;border:1px solid #999"></td></tr>`).join('');
-  const bloco = `<div style="page-break-after:always">
-    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px">
-      <strong style="font-size:16px">CCAA Pelotas — Lista da turma ${nomeTurma}</strong>
-      <span style="font-size:12px;color:#555">${t.horario||''}</span>
-    </div>
-    <table style="width:100%;border-collapse:collapse;font-size:13px">
-      <thead><tr>
-        <th style="padding:6px 8px;border:1px solid #999;width:8%;text-align:center">Nº</th>
-        <th style="padding:6px 8px;border:1px solid #999;text-align:left">Aluno(a)</th>
-        <th style="padding:6px 8px;border:1px solid #999;width:16%">Matrícula</th>
-        <th style="padding:6px 8px;border:1px solid #999;width:28%">Presença / Observação</th>
-      </tr></thead>
-      <tbody>${linhas}</tbody>
-    </table>
-    <p style="font-size:12px;color:#555;margin-top:14px">${ativos.length} aluno(s) ativo(s).</p>
-  </div>`;
+  const corpo = docTabela_(
+    [{t:'Nº',w:'8%',al:'center'},{t:'Aluno(a)'},{t:'Matrícula',w:'16%',al:'center'},{t:'Presença / Observação',w:'28%'}],
+    ativos.map((a,i)=>[i+1, a.nome, a.mat, ''])) +
+    `<p style="font-size:12px;color:${DOC_CORES.dim};margin-top:12px">${ativos.length} aluno(s) ativo(s).</p>`;
+  const bloco = docCCAA_(`Lista da turma ${nomeTurma}`, t.horario||'', corpo);
   if(typeof matImprimirTermos_==='function') matImprimirTermos_([bloco], `Lista da turma ${nomeTurma}`);
 }
 document.getElementById('aaRelPedidos').addEventListener('click', ()=>aaRelatorioPedidos_(true));
 document.getElementById('aaRelPendentes').addEventListener('click', ()=>aaRelatorioPedidos_(false));
+// Pendentes agrupados por MOTIVO (Inadimplente, Não respondeu…), pronto p/ WhatsApp
+function aaCopiarPendentesMotivo_(){
+  const grupos = {};
+  let total = 0;
+  aaComDadosDoComercial_().forEach(t=>t.alunos.forEach(a=>{
+    const st = aaStatusDe_(a);
+    if(!aaPrecisaPedido_(a, t.turma, st) || st.p) return;
+    const motivo = (st.obs||'').trim() || 'Sem motivo anotado';
+    (grupos[motivo] = grupos[motivo] || []).push(`• ${a.nome} — ${t.turma}${a.mat&&a.mat!=='?'?' · Mat. '+a.mat:''}`);
+    total++;
+  }));
+  const chaves = Object.keys(grupos).sort((a,b)=>
+    (a==='Sem motivo anotado')-(b==='Sem motivo anotado') || a.localeCompare(b,'pt-BR'));
+  const txt = `*PEDIDOS DE MATERIAL PENDENTES — CCAA Pelotas 2026/2*\n_${docHoje_()}_\n\n`+
+    chaves.map(k=>`*${k} (${grupos[k].length})*\n${grupos[k].join('\n')}`).join('\n\n')+
+    `\n\nTotal: ${total} aluno(s)`;
+  copiarTexto(txt, 'Pendentes por motivo copiados! Cole no WhatsApp ✓');
+}
+document.getElementById('aaRelPendentesZap').addEventListener('click', aaCopiarPendentesMotivo_);
 
 // ===== SAÍDA DE MATERIAIS 2026/2 =====
 const MAT_KEY = 'ccaa_materiais_20262_v1';
@@ -3814,6 +3861,42 @@ function matCarregar(){ try{ return JSON.parse(localStorage.getItem(MAT_KEY)||'[
 function matSalvarLocalSo_(l){ try{ localStorage.setItem(MAT_KEY, JSON.stringify(l)); }catch(e){} }
 function matSalvarLista(l){ matSalvarLocalSo_(l); nuvemSalvar('materiais_20262', l); }
 function matSincronizar(aposAdotar){ nuvemSincronizarLista('materiais_20262', matCarregar, matSalvarLocalSo_, aposAdotar); }
+// Integração com Alunos Ativos: marcar/desmarcar "Entrega" lá reflete aqui.
+// Acha o registro pela matrícula; se não existir e a entrega foi marcada, cria.
+function matSincronizarEntrega_(aluno, entregue){
+  try{
+    const lista = matCarregar();
+    const hojeISO = new Date().toISOString().slice(0,10);
+    const matAluno = String(aluno.mat||'').trim();
+    if(!matAluno || matAluno==='?') return;
+    let m = lista.find(x=>String(x.mat||'').trim()===matAluno);
+    if(!m){
+      if(!entregue) return;   // desmarcou algo que nunca teve registro: nada a fazer
+      let turma = '';
+      try{ aaComDadosDoComercial_().forEach(t=>{ if(t.alunos.some(a=>String(a.mat)===matAluno)) turma = t.turma; }); }catch(e){}
+      m = { id:'mt'+Date.now(), criado:Date.now(), nome:aluno.nome, mat:matAluno, turma,
+            material:'Material didático 2026/2', status:'entregue', dataEntrega:hojeISO, retiradoPor:'' };
+      lista.push(m);
+    } else {
+      m.status = entregue ? 'entregue' : 'pendente';
+      m.dataEntrega = entregue ? (m.dataEntrega||hojeISO) : '';
+    }
+    matSalvarLista(lista);
+    const view = document.getElementById('viewMateriais');
+    if(view && view.style.display!=='none') matRender();
+  }catch(e){}
+}
+// Botão rápido "Entregue hoje": 1 clique marca entregue com a data de hoje
+function matEntregueHoje(id){
+  const lista = matCarregar();
+  const m = lista.find(x=>x.id===id);
+  if(!m) return;
+  m.status = 'entregue';
+  m.dataEntrega = new Date().toISOString().slice(0,10);
+  matSalvarLista(lista);
+  matRender();
+  toast(`Entrega de ${m.nome.split(' ')[0]} registrada ✓`);
+}
 let _matEditandoId = null;
 // Todos os alunos conhecidos (ativos + novos do Comercial) para o autocomplete
 function matTodosAlunos(){
@@ -3865,6 +3948,7 @@ function matRender(){
             : '<span style="color:var(--soon);font-size:12px;font-weight:700">Pendente</span>'}</td>
           <td data-label="Entrega">${m.dataEntrega ? comISOparaBR(m.dataEntrega) : '—'}</td>
           <td data-label="Ações" style="text-align:right;white-space:nowrap">
+            ${m.status!=='entregue' ? `<button type="button" title="Marcar entregue com a data de hoje" onclick="matEntregueHoje('${m.id}')" style="cursor:pointer;background:color-mix(in srgb,var(--live) 10%,transparent);border:1px solid color-mix(in srgb,var(--live) 45%,transparent);border-radius:7px;padding:5px 9px;color:var(--live);font-size:11px;font-weight:700;font-family:inherit;vertical-align:middle;margin-right:6px">Entregue hoje ✓</button>` : ''}
             <button type="button" title="Imprimir termo de entrega" onclick="matTermo('${m.id}')" style="cursor:pointer;background:var(--surface-2);border:1px solid var(--border);border-radius:7px;padding:5px 9px;color:var(--text-mute);font-size:11px;font-weight:700;font-family:inherit;vertical-align:middle">Termo</button>
             <button type="button" title="Editar" onclick="matEditar('${m.id}')" style="cursor:pointer;background:var(--surface-2);border:1px solid var(--border);border-radius:7px;padding:6px 8px;color:var(--text-mute);vertical-align:middle;margin-left:6px">${COM_SVG_EDIT}</button>
             <button type="button" title="Excluir" onclick="matExcluir('${m.id}')" style="cursor:pointer;background:var(--surface-2);border:1px solid var(--border);border-radius:7px;padding:6px 8px;color:var(--text-mute);vertical-align:middle;margin-left:6px">${COM_SVG_DEL}</button>
@@ -3903,25 +3987,32 @@ function matExcluir(id){
 // Gera o HTML do termo (2 vias por página) para UM aluno — usado no individual e no lote
 function matTermoHTML_(m){
   const dataBR = m.dataEntrega ? comISOparaBR(m.dataEntrega) : '____/____/________';
+  const linha = (rot, val)=>`<tr>
+    <td style="padding:6px 9px;border:1px solid ${DOC_CORES.borda};width:30%;background:${DOC_CORES.cab};color:${DOC_CORES.azul};font-weight:700;font-size:12px">${rot}</td>
+    <td style="padding:6px 9px;border:1px solid ${DOC_CORES.borda};color:${DOC_CORES.texto}">${val}</td></tr>`;
   const via = (titulo)=>`
-    <div style="border:1.5px solid #333;border-radius:8px;padding:22px 26px;margin-bottom:26px;page-break-inside:avoid">
-      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px">
-        <strong style="font-size:15px">CCAA Pelotas — Termo de Entrega de Material</strong>
-        <span style="font-size:11px;color:#555">${titulo}</span>
+    <div style="border:1.5px solid ${DOC_CORES.azul};border-radius:10px;padding:20px 24px;margin-bottom:24px;page-break-inside:avoid">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;border-bottom:2px solid ${DOC_CORES.azul};padding-bottom:10px">
+        <img src="https://ccaapel.github.io/mkt/assets/ccaa-logo.png?v=5" alt="CCAA" style="width:34px;height:34px;object-fit:contain;border-radius:8px">
+        <div style="flex:1">
+          <div style="font-size:10px;color:${DOC_CORES.dim};letter-spacing:.08em;text-transform:uppercase;font-weight:700">CCAA Pelotas · 2026/2</div>
+          <strong style="font-size:14.5px;color:${DOC_CORES.azul}">Termo de Entrega de Material</strong>
+        </div>
+        <span style="font-size:10.5px;color:${DOC_CORES.dim};font-weight:700">${titulo}</span>
       </div>
-      <p style="margin:0 0 12px;font-size:13px;line-height:1.7">
+      <p style="margin:0 0 12px;font-size:13px;line-height:1.7;color:${DOC_CORES.texto}">
         Declaro que recebi o material didático abaixo, referente ao semestre <strong>2026/2</strong>:
       </p>
-      <table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:16px">
-        <tr><td style="padding:6px 8px;border:1px solid #999;width:30%"><strong>Aluno(a)</strong></td><td style="padding:6px 8px;border:1px solid #999">${m.nome}${m.mat?(' — Mat. '+m.mat):''}</td></tr>
-        <tr><td style="padding:6px 8px;border:1px solid #999"><strong>Turma</strong></td><td style="padding:6px 8px;border:1px solid #999">${m.turma||''}</td></tr>
-        <tr><td style="padding:6px 8px;border:1px solid #999"><strong>Material</strong></td><td style="padding:6px 8px;border:1px solid #999">${m.material||''}</td></tr>
-        <tr><td style="padding:6px 8px;border:1px solid #999"><strong>Data da entrega</strong></td><td style="padding:6px 8px;border:1px solid #999">${dataBR}</td></tr>
-        <tr><td style="padding:6px 8px;border:1px solid #999"><strong>Retirado por</strong></td><td style="padding:6px 8px;border:1px solid #999">${m.retiradoPor||''}</td></tr>
+      <table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:14px">
+        ${linha('Aluno(a)', `${m.nome}${m.mat?(' — Mat. '+m.mat):''}`)}
+        ${linha('Turma', m.turma||'')}
+        ${linha('Material', m.material||'')}
+        ${linha('Data da entrega', dataBR)}
+        ${linha('Retirado por', m.retiradoPor||'')}
       </table>
-      <div style="display:flex;gap:40px;margin-top:34px">
-        <div style="flex:1;text-align:center;border-top:1px solid #333;padding-top:6px;font-size:12px">Assinatura do responsável</div>
-        <div style="flex:1;text-align:center;border-top:1px solid #333;padding-top:6px;font-size:12px">CCAA Pelotas</div>
+      <div style="display:flex;gap:40px;margin-top:32px">
+        <div style="flex:1;text-align:center;border-top:1px solid ${DOC_CORES.azul};padding-top:6px;font-size:12px;color:${DOC_CORES.texto}">Assinatura do responsável</div>
+        <div style="flex:1;text-align:center;border-top:1px solid ${DOC_CORES.azul};padding-top:6px;font-size:12px;color:${DOC_CORES.texto}">CCAA Pelotas</div>
       </div>
     </div>`;
   return `<div style="page-break-after:always">${via('1ª via: Escola')}${via('2ª via: Responsável')}</div>`;
@@ -4119,6 +4210,73 @@ function calcIdade(n){
   return (idade>=0 && idade<120) ? idade : '';
 }
 document.getElementById('btnVoltarMenu').addEventListener('click', voltarAoMenu);
+
+// ===== BUSCA GLOBAL DO HUB (Ctrl+K): acha aluno/turma e abre Alunos Ativos filtrado =====
+(function hubBuscaInit(){
+  try{
+    const input = document.getElementById('hubBusca');
+    const drop = document.getElementById('hubBuscaResultados');
+    if(!input || !drop) return;
+    function abrirComBusca(termo){
+      drop.style.display = 'none';
+      input.value = '';
+      const lb = document.getElementById('launcherBox');
+      lb.style.display = 'none';
+      lb.classList.remove('visivel');
+      document.getElementById('painelBox').style.display = 'block';
+      document.getElementById('btnVoltarMenu').style.display = '';
+      document.getElementById('internoOverlay').classList.add('scroll-ok');
+      pedAbrirAlunos();
+      const b = document.getElementById('aaBusca');
+      b.value = termo;
+      aaRender();
+      logAcesso('busca_hub', termo);
+    }
+    window._hubAbrirBusca = abrirComBusca;   // usado pelos resultados (onclick)
+    function render(){
+      const q = normTexto(input.value);
+      if(q.length < 2){ drop.style.display='none'; return; }
+      const vistos = new Set();
+      const res = [];
+      aaComDadosDoComercial_().forEach(t=>{
+        if(res.length>=30) return;
+        if(normTexto(t.turma).includes(q) && !vistos.has('t'+t.turma)){
+          vistos.add('t'+t.turma);
+          res.push({tipo:'Turma', rotulo:t.turma, extra:`${t.alunos.length} aluno(s)`, termo:t.turma});
+        }
+        t.alunos.forEach(a=>{
+          if(res.length>=30) return;
+          if(normTexto(a.nome).includes(q) && !vistos.has('a'+a.mat+a.nome)){
+            vistos.add('a'+a.mat+a.nome);
+            res.push({tipo:'Aluno', rotulo:a.nome, extra:t.turma, termo:a.nome});
+          }
+        });
+      });
+      drop.innerHTML = res.length
+        ? res.map(r=>`<button type="button" onclick="_hubAbrirBusca('${r.termo.replace(/'/g,'&#39;').replace(/"/g,'&quot;')}')" style="display:flex;gap:8px;align-items:baseline;width:100%;text-align:left;cursor:pointer;background:none;border:none;border-bottom:1px solid color-mix(in srgb,var(--border) 60%,transparent);padding:9px 14px;font-family:inherit;font-size:13px;color:var(--text)">
+            <span style="font-size:9.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:${r.tipo==='Turma'?'var(--soon)':'var(--ccaa-blue)'};flex-shrink:0">${r.tipo}</span>
+            <span style="font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.rotulo}</span>
+            <span style="margin-left:auto;font-size:11px;color:var(--text-dim);flex-shrink:0">${r.extra}</span>
+          </button>`).join('')
+        : `<div style="padding:12px 14px;font-size:12.5px;color:var(--text-dim)">Nada encontrado para "${input.value}".</div>`;
+      drop.style.display = 'block';
+    }
+    input.addEventListener('input', render);
+    input.addEventListener('keydown', e=>{
+      if(e.key==='Escape'){ drop.style.display='none'; input.blur(); }
+      if(e.key==='Enter'){ const b = drop.querySelector('button'); if(b) b.click(); }
+    });
+    document.addEventListener('click', e=>{ if(!e.target.closest('#hubBuscaWrap')) drop.style.display='none'; });
+    document.addEventListener('keydown', e=>{
+      if((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==='k'){
+        const lb = document.getElementById('launcherBox');
+        if(lb && lb.style.display !== 'none' && lb.classList.contains('visivel')){
+          e.preventDefault(); input.focus();
+        }
+      }
+    });
+  }catch(e){ const w=document.getElementById('hubBuscaWrap'); if(w) w.style.display='none'; }
+})();
 
 // Popular selects de aba
 function popularAbas(){
@@ -4703,10 +4861,11 @@ function mostrarLimiteEquiparacoes(){
 
   document.getElementById('histNome').textContent = 'Equiparações · limite de 4 por aluno';
   document.getElementById('histStats').innerHTML = `
-    <div style="display:flex;gap:16px;flex-wrap:wrap;font-size:12.5px;margin:2px 0 4px">
+    <div style="display:flex;gap:16px;flex-wrap:wrap;font-size:12.5px;margin:2px 0 4px;align-items:center">
       <span><b style="color:var(--soon)">${noLimite.length}</b> no limite ou acima</span>
       <span><b style="color:var(--ccaa-red)">${comTaxa.length}</b> com taxa a cobrar</span>
       <span><b style="color:var(--ccaa-red)">${finFmtBRL(totalTaxa)}</b> total em taxas</span>
+      <button class="int-btn int-btn-reload" type="button" onclick="imprimirLimiteEquiparacoes()" style="font-size:11px">Imprimir relatório</button>
     </div>
     <div style="font-size:11.5px;color:var(--text-dim);margin-bottom:6px">Taxa de ${finFmtBRL(EQUIP_TAXA)} por equiparação após a 4ª. Conta as equiparações realizadas ou com falta, de todas as abas da planilha. Clique no aluno para ver as aulas já dadas.</div>`;
 
@@ -4720,6 +4879,27 @@ function mostrarLimiteEquiparacoes(){
   }
   document.getElementById('histLista').innerHTML = html;
   document.getElementById('histOverlay').classList.add('open');
+}
+// Versão imprimível do controle de equiparações (papel timbrado + tabela padrão)
+function imprimirLimiteEquiparacoes(){
+  const todos = contarEquiparacoes_();
+  const noLimite = todos.filter(a=>a.n >= EQUIP_LIMITE).sort((a,b)=> b.n-a.n || a.nome.localeCompare(b.nome));
+  const proximos = todos.filter(a=>a.n === EQUIP_LIMITE-1).sort((a,b)=> a.nome.localeCompare(b.nome));
+  const totalTaxa = noLimite.reduce((s,a)=>s+a.taxa,0);
+  const turmaDe = a => { const r = a.usadas[a.usadas.length-1] || a.agendadas[0]; return (r && r.turma) || ''; };
+  const cols = [{t:'Aluno(a)'},{t:'Turma',w:'16%'},{t:'Equiparações',w:'13%',al:'center'},{t:'Acima do limite',w:'14%',al:'center'},{t:'Taxa',w:'14%',al:'right'}];
+  const corpo =
+    docTabela_(cols, noLimite.map(a=>[a.nome, turmaDe(a), a.n, a.excedente||'—', a.taxa?finFmtBRL(a.taxa):'—'])) +
+    `<p style="font-size:12.5px;color:${DOC_CORES.texto};margin-top:10px;text-align:right"><strong>Total em taxas: ${finFmtBRL(totalTaxa)}</strong></p>` +
+    (proximos.length ? `
+      <div style="margin-top:18px;page-break-inside:avoid">
+        <div style="font-size:12px;font-weight:800;color:${DOC_CORES.azul};text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">Próximos do limite (${EQUIP_LIMITE-1} equiparações)</div>
+        ${docTabela_([{t:'Aluno(a)'},{t:'Turma',w:'20%'},{t:'Equiparações',w:'15%',al:'center'}], proximos.map(a=>[a.nome, turmaDe(a), a.n]))}
+      </div>` : '') +
+    `<p style="font-size:11px;color:${DOC_CORES.dim};margin-top:12px">Limite de ${EQUIP_LIMITE} equiparações por aluno; taxa de ${finFmtBRL(EQUIP_TAXA)} por equiparação excedente. Conta as realizadas ou com falta, de todas as abas da planilha.</p>`;
+  const doc = docCCAA_('Controle de Equiparações', `${noLimite.length} aluno(s) no limite ou acima · ${finFmtBRL(totalTaxa)} em taxas`,
+    noLimite.length || proximos.length ? corpo : `<p style="font-size:13px;color:${DOC_CORES.dim}">Nenhum aluno no limite.</p>`);
+  matImprimirTermos_([doc], 'Controle de Equiparações');
 }
 function renderResumo(){
   const el = document.getElementById('resumoBar');
@@ -6189,6 +6369,50 @@ document.getElementById('finBtnMes').addEventListener('click', ()=>{
 });
 // Exportar WhatsApp
 document.getElementById('btnExportar').addEventListener('click', exportarWhatsApp);
+// ===== FECHAMENTO DO DIA: resumo executivo copiável para o grupo da equipe =====
+function fechamentoDoDia(){
+  const hojeBR = docHoje_();
+  const hISO = hojeLocalISO();
+  const linhas = [`*FECHAMENTO DO DIA — CCAA Pelotas*`, `_${hojeBR}_`, ''];
+  // 1) Agendamentos de hoje por status
+  const deHoje = todosRegistros.filter(r=>ehHoje(r.data));
+  if(deHoje.length){
+    linhas.push(`*Aplicações de hoje (${deHoje.length})*`);
+    const porStatus = {};
+    deHoje.forEach(r=>{ const s=(r.status||'Sem status').trim(); (porStatus[s]=porStatus[s]||[]).push(r); });
+    Object.keys(porStatus).sort().forEach(s=>{
+      linhas.push(`${s} (${porStatus[s].length}):`);
+      porStatus[s].forEach(r=> linhas.push(`• ${nomeCurto(r.aluno)} — ${r.formato||''}${r.horario?' · '+r.horario:''}${r.teacher?' · '+r.teacher:''}`));
+    });
+  } else {
+    linhas.push('*Aplicações de hoje:* nenhuma.');
+  }
+  // 2) Entregas de material de hoje
+  try{
+    const entregas = matCarregar().filter(m=>m.status==='entregue' && m.dataEntrega===hISO);
+    linhas.push('');
+    if(entregas.length){
+      linhas.push(`*Materiais entregues hoje (${entregas.length})*`);
+      entregas.forEach(m=> linhas.push(`• ${m.nome}${m.turma?' — '+m.turma:''}`));
+    } else {
+      linhas.push('*Materiais entregues hoje:* nenhum.');
+    }
+  }catch(e){}
+  // 3) Matrículas novas de hoje (Comercial)
+  try{
+    const novos = comCarregar().filter(m=>m.data===hISO);
+    linhas.push('');
+    if(novos.length){
+      linhas.push(`*Matrículas de hoje (${novos.length})* 🎉`);
+      novos.forEach(m=> linhas.push(`• ${m.nome}${m.turma?' — '+m.turma:''}`));
+    } else {
+      linhas.push('*Matrículas de hoje:* nenhuma.');
+    }
+  }catch(e){}
+  copiarTexto(linhas.join('\n'), 'Fechamento do dia copiado! Cole no WhatsApp ✓');
+  logAcesso('fechamento_dia', hojeBR);
+}
+document.getElementById('btnFechamentoDia').addEventListener('click', fechamentoDoDia);
 // Lembrete
 document.getElementById('btnLembrete').addEventListener('click', abrirLembrete);
 document.getElementById('btnLembretesLote').addEventListener('click', abrirLembretesLote);
