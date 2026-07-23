@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0B1020">
+<title>Dias sem Uber</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --r-xs: 8px; --r-sm: 10px; --r-md: 13px; --r-lg: 18px;
+  --ccaa-blue: oklch(48.7% 0.160 259.2);
+  --live:      oklch(62.7% 0.170 149.2);
+}
+@supports (color: oklch(from white l c h)){
+  :root { --live-hover: oklch(from var(--live) calc(l + 0.07) c h); }
+}
+[data-theme="light"] {
+  --bg: oklch(97.6% 0.006 264.5);
+  --bg-grad: linear-gradient(180deg, oklch(48.7% 0.160 259.2 / 0.05), transparent 420px);
+  --surface: #FFFFFF;
+  --surface-2: #F6F8FC;
+  --border: #E4E9F1;
+  --border-strong: #CBD4E3;
+  --text: oklch(20.5% 0.030 264.5);
+  --text-mute: #4E576E;
+  --text-dim: #828BA1;
+  --shadow-card: 0 1px 3px rgba(15,45,95,0.06), 0 1px 2px rgba(15,45,95,0.04);
+}
+[data-theme="dark"] {
+  --bg: oklch(16.5% 0.028 264.5);
+  --bg-grad: linear-gradient(180deg, oklch(64.7% 0.160 258.3 / 0.09), transparent 420px);
+  --surface: oklch(21.5% 0.030 264.5);
+  --surface-2: oklch(24.8% 0.032 264.5);
+  --border: rgba(255,255,255,0.08);
+  --border-strong: rgba(255,255,255,0.15);
+  --text: oklch(95.8% 0.013 266.7);
+  --text-mute: oklch(76.4% 0.039 268.8);
+  --text-dim: oklch(59.1% 0.046 268.7);
+  --ccaa-blue: oklch(64.7% 0.160 258.3);
+  --live: oklch(69.7% 0.170 149.2);
+  --shadow-card: 0 1px 3px rgba(0,0,0,0.4);
+}
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+body {
+  font-family:'Inter',system-ui,sans-serif;
+  background:var(--bg); background-image:var(--bg-grad); background-attachment:fixed;
+  color:var(--text); line-height:1.5; -webkit-font-smoothing:antialiased;
+  transition:background .3s, color .3s;
+  min-height:100vh; display:flex; justify-content:center;
+}
+.wrap { width:100%; max-width:420px; padding:22px 16px 60px; }
+.top { display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; }
+.top h1 { font-family:'Bricolage Grotesque',sans-serif; font-size:20px; font-weight:800; letter-spacing:-0.02em; }
+.tool-btn {
+  width:36px; height:36px; border-radius:var(--r-sm);
+  border:1.4px solid var(--border-strong); background:var(--surface);
+  color:var(--text-mute); cursor:pointer; font-size:15px;
+  display:flex; align-items:center; justify-content:center; transition:all .15s;
+}
+.tool-btn:hover { border-color:var(--ccaa-blue); color:var(--ccaa-blue); }
+
+.stat-card {
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--r-lg);
+  box-shadow:var(--shadow-card); padding:20px; text-align:center; margin-bottom:18px;
+}
+.stat-mes { font-size:12px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--text-dim); }
+.stat-num { font-family:'Bricolage Grotesque',sans-serif; font-size:44px; font-weight:800; color:var(--live); line-height:1.15; margin:4px 0 2px; }
+.stat-sub { font-size:13px; color:var(--text-mute); }
+
+.cal-card {
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--r-lg);
+  box-shadow:var(--shadow-card); padding:16px;
+}
+.weekdays, .days { display:grid; grid-template-columns:repeat(7,1fr); gap:6px; }
+.weekdays { margin-bottom:8px; }
+.weekdays span { text-align:center; font-size:11px; font-weight:700; color:var(--text-dim); }
+.day {
+  aspect-ratio:1; border-radius:var(--r-sm); border:1.4px solid transparent;
+  background:var(--surface-2); color:var(--text); font-size:13px; font-weight:600;
+  display:flex; align-items:center; justify-content:center; cursor:pointer;
+  transition:all .15s; position:relative;
+}
+.day:hover:not(.futuro):not(.vazio) { border-color:var(--ccaa-blue); }
+.day.hoje { border-color:var(--ccaa-blue); border-style:dashed; }
+.day.marcado { background:var(--live); color:#06210F; font-weight:800; }
+.day.marcado.hoje { border-color:var(--live); }
+.day.futuro { color:var(--text-dim); opacity:.45; cursor:default; }
+.day.vazio { visibility:hidden; cursor:default; }
+
+.legenda { display:flex; align-items:center; gap:8px; justify-content:center; margin-top:16px; font-size:12px; color:var(--text-mute); }
+.legenda .dot { width:11px; height:11px; border-radius:4px; background:var(--live); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <h1>Dias sem Uber</h1>
+    <button class="tool-btn" id="btnTema" title="Alternar tema">🌙</button>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-mes" id="statMes">—</div>
+    <div class="stat-num"><span id="statMarcados">0</span>/<span id="statTotal">0</span></div>
+    <div class="stat-sub">dias sem pedir Uber neste mês</div>
+  </div>
+
+  <div class="cal-card">
+    <div class="weekdays">
+      <span>D</span><span>S</span><span>T</span><span>Q</span><span>Q</span><span>S</span><span>S</span>
+    </div>
+    <div class="days" id="days"></div>
+    <div class="legenda"><span class="dot"></span> dia sem Uber · toque para marcar/desmarcar</div>
+  </div>
+</div>
+
+<script>
+const root = document.documentElement;
+function aplicarTema(t){
+  root.setAttribute('data-theme', t);
+  localStorage.setItem('ccaa_tema', t);
+  document.querySelector('meta[name=theme-color]').setAttribute('content', t==='dark' ? '#0B1020' : '#0F2D5F');
+  document.getElementById('btnTema').textContent = t==='dark' ? '☀️' : '🌙';
+}
+const temaSalvo = localStorage.getItem('ccaa_tema') || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+aplicarTema(temaSalvo);
+document.getElementById('btnTema').addEventListener('click', () => {
+  aplicarTema(root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+});
+
+const hoje = new Date();
+const ano = hoje.getFullYear();
+const mes = hoje.getMonth();
+const diaHoje = hoje.getDate();
+const diasNoMes = new Date(ano, mes + 1, 0).getDate();
+const chave = `diasSemUber_${ano}-${mes + 1}`;
+
+function carregarMarcados() {
+  try { return JSON.parse(localStorage.getItem(chave)) || {}; }
+  catch { return {}; }
+}
+function salvarMarcados(marcados) {
+  localStorage.setItem(chave, JSON.stringify(marcados));
+}
+
+const MESES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+document.getElementById('statMes').textContent = `${MESES[mes]} de ${ano}`;
+document.getElementById('statTotal').textContent = diaHoje;
+
+let marcados = carregarMarcados();
+
+function atualizarContador() {
+  const total = Object.values(marcados).filter(Boolean).length;
+  document.getElementById('statMarcados').textContent = total;
+}
+
+function render() {
+  const container = document.getElementById('days');
+  container.innerHTML = '';
+  const offset = new Date(ano, mes, 1).getDay();
+
+  for (let i = 0; i < offset; i++) {
+    const vazio = document.createElement('div');
+    vazio.className = 'day vazio';
+    container.appendChild(vazio);
+  }
+
+  for (let dia = 1; dia <= diasNoMes; dia++) {
+    const cel = document.createElement('div');
+    cel.className = 'day';
+    cel.textContent = dia;
+    if (dia === diaHoje) cel.classList.add('hoje');
+    if (dia > diaHoje) {
+      cel.classList.add('futuro');
+    } else {
+      if (marcados[dia]) cel.classList.add('marcado');
+      cel.addEventListener('click', () => {
+        marcados[dia] = !marcados[dia];
+        if (!marcados[dia]) delete marcados[dia];
+        salvarMarcados(marcados);
+        atualizarContador();
+        cel.classList.toggle('marcado');
+      });
+    }
+    container.appendChild(cel);
+  }
+  atualizarContador();
+}
+render();
+</script>
+</body>
+</html>
