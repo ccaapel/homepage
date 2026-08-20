@@ -7,6 +7,9 @@
 // ============================================================
 
 const SENHA_ADMIN = "ccaa2026";
+// Senha nova padronizada. Durante a troca o backend aceita as duas, então o
+// site continua funcionando antes e depois de você reimplantar este script.
+const SENHA_ADMIN_NOVA = "ccaa551";
 
 // ID da planilha CCAA (extraído da URL do Google Sheets).
 const SHEET_ID = "1MG3pQOlH5kYksNBUavNfmd23IPl-iiiimGVJKG1w8xA";
@@ -84,7 +87,7 @@ function handleRequest(e) {
   const senha    = params.senha    || "";
   const callback = params.callback || "";
 
-  if (senha !== SENHA_ADMIN) {
+  if (senha !== SENHA_ADMIN && senha !== SENHA_ADMIN_NOVA) {
     return jsonOut({ ok: false, erro: "Senha inválida" }, callback);
   }
 

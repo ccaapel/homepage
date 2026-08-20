@@ -1281,7 +1281,7 @@ TURMAS.forEach((g,gi)=>g.turmas.forEach((t,ti)=>{ FLAT.push({...t, grupo:g.grupo
 // Campos editáveis pelo admin: teacher, sala, link
 // Override é guardado em localStorage como JSON. FLAT é remontado com os overrides.
 const ADMIN_KEY = 'ccaa_turmas_overrides';
-const ADMIN_SENHA = 'Admin2026@';
+const ADMIN_SENHA = 'ccaa551';
 
 function carregarOverrides(){
   try { return JSON.parse(Store.get(ADMIN_KEY)||'{}'); } catch(e){ return {}; }
@@ -2538,7 +2538,7 @@ function jsonpCall(baseUrl, onSuccess, onError){
 // O arquivo versao.json é buscado com um número único a cada acesso (impossível
 // de ficar preso em cache). Se a versão publicada for maior que a desta cópia,
 // a página recarrega sozinha já apontando para a versão nova.
-const VERSAO_SITE = 21;
+const VERSAO_SITE = 22;
 (function verificarVersao(){
   try{
     const base = '/' + (location.pathname.split('/')[1] || '') ;
@@ -2556,7 +2556,7 @@ const VERSAO_SITE = 21;
   }catch(e){}
 })();
 
-const SENHA_LOGIN  = "inglesouespanhol";  // senha de acesso interno (login do painel)
+const SENHA_LOGIN  = "ccaa551";  // senha de acesso interno (login do painel)
 const SENHA_PAINEL = "ccaa2026";  // senha de comunicação com o Apps Script (igual à SENHA_ADMIN do Script)
 
 // ===== REGISTRO DE ACESSOS =====
@@ -2575,22 +2575,22 @@ function logAcesso(evento, detalhe){
 // Abas ativas por padrão. A Tânia está INDISPONÍVEL (2026/2) — fora da lista,
 // mas continua em HORARIOS_POR_ABA para poder ser reativada no editor de horários.
 const ABAS_DISPONIVEIS = [
-  "Valquíria: SEGUNDA-FEIRA - Sala 14",
-  "Eduarda: SEGUNDA-FEIRA - Sala 2",
-  "Valquíria: QUARTA-FEIRA - Sala 13",
+  "Ana: SEGUNDA-FEIRA - Sala ?",
+  "Daniela: SEGUNDA-FEIRA - SALA ?",
+  "Ana: TERÇA-FEIRA - Sala ?",
+  "Marcos: TERÇA-FEIRA - Sala ?",
+  "Marcos: QUINTA-FEIRA - Sala ?",
+  "Daniela: SEXTA-FEIRA - Sala ?",
 ];
 
 // Horários possíveis em cada aba (slots de 30 min conforme dropdown da planilha)
 const HORARIOS_POR_ABA = {
-  "Valquíria: SEGUNDA-FEIRA - Sala 14": ["16:00","16:30","17:00","17:30"],
-  "Eduarda: SEGUNDA-FEIRA - Sala 2":    ["15:30","16:00","16:30","17:00","17:30"],
-  "Laura: SEGUNDA-FEIRA - Sala 13":     ["15:30","16:00","16:30","17:00","19:30","20:00"],
-  "Laura: TERÇA-FEIRA - Sala 2":        ["17:00","17:30","18:00","18:30"],
-  "Tânia: TERÇA-FEIRA - Sala 2":        [],
-  "Laura: QUARTA-FEIRA - Sala 2":       ["08:00","08:30","09:00","09:30"],
-  "Valquíria: QUARTA-FEIRA - Sala 13":  ["15:30","16:00","16:30","17:00","17:30"],
-  "OFF Laura: QUINTA-FEIRA - Sala 8":   [],
-  "Laura: SEXTA-FEIRA - Sala 2":        ["09:00","09:30","10:00","10:30"],
+  "Ana: SEGUNDA-FEIRA - Sala ?": [],
+  "Daniela: SEGUNDA-FEIRA - SALA ?": [],
+  "Ana: TERÇA-FEIRA - Sala ?": [],
+  "Marcos: TERÇA-FEIRA - Sala ?": [],
+  "Marcos: QUINTA-FEIRA - Sala ?": [],
+  "Daniela: SEXTA-FEIRA - Sala ?": [],
 };
 
 // ===== EDITOR DE HORÁRIOS (override manual, sincronizado com a planilha) =====
@@ -2714,9 +2714,12 @@ const HORARIOS_PADRAO_FABRICA = {
   "Laura: SEXTA-FEIRA - Sala 2":        ["09:00","09:30","10:00","10:30"],
 };
 const ABAS_ATIVAS_FABRICA = [
-  "Valquíria: SEGUNDA-FEIRA - Sala 14",
-  "Eduarda: SEGUNDA-FEIRA - Sala 2",
-  "Valquíria: QUARTA-FEIRA - Sala 13",
+  "Ana: SEGUNDA-FEIRA - Sala ?",
+  "Daniela: SEGUNDA-FEIRA - SALA ?",
+  "Ana: TERÇA-FEIRA - Sala ?",
+  "Marcos: TERÇA-FEIRA - Sala ?",
+  "Marcos: QUINTA-FEIRA - Sala ?",
+  "Daniela: SEXTA-FEIRA - Sala ?",
 ];
 function abrirEditorHorarios(){
   const lista = document.getElementById('horariosLista');
@@ -2860,7 +2863,7 @@ function fecharToolGate(){
 function toolTentarLogin(){
   const u = document.getElementById('toolGateUsuario').value.trim();
   const s = document.getElementById('toolGateSenha').value;
-  if(u === 'ccaa' && s === 'inglesouespanhol'){
+  if(u === 'ccaa' && s === 'ccaa551'){
     sessionStorage.setItem(TOOLS_AUTH_KEY, '1');
     logAcesso('login_ferramenta', _toolPendingNome);
     const acao = _toolPendingAcao;
@@ -6287,7 +6290,7 @@ function finMostrarConteudo(){
 function finTentarLogin(){
   const u = document.getElementById('finUsuario').value.trim();
   const s = document.getElementById('finSenha').value;
-  if(u === 'ccaa' && s === 'inglesouespanhol'){
+  if(u === 'ccaa' && s === 'ccaa551'){
     sessionStorage.setItem(TOOLS_AUTH_KEY, '1');
     logAcesso('login_ferramenta', 'Financeiro (acesso direto)');
     finMostrarConteudo();
