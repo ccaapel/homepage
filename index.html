@@ -1875,19 +1875,19 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
             <span class="launcher-desc">Equiparações, aulas de apoio, nivelamentos e provas.</span>
             <span class="launcher-acao">Abrir →</span>
           </button>
-          <button class="launcher-card" id="pedCardAlunos" type="button">
+          <button class="launcher-card" id="pedCardAlunos" type="button" style="display:none">
             <span class="launcher-tag tag-pedagogico">Cadastro</span>
             <span class="launcher-titulo">Alunos Ativos 2026/2</span>
             <span class="launcher-desc">Todos os alunos por curso e turma, com matrícula e professor.</span>
             <span class="launcher-acao">Abrir →</span>
           </button>
-          <button class="launcher-card" id="pedCardMateriais" type="button">
+          <button class="launcher-card" id="pedCardMateriais" type="button" style="display:none">
             <span class="launcher-tag tag-pedagogico">Materiais</span>
             <span class="launcher-titulo">Saída de Materiais</span>
             <span class="launcher-desc">Entrega de material por aluno, com termo de assinatura e impressão em lote.</span>
             <span class="launcher-acao">Abrir →</span>
           </button>
-          <button class="launcher-card" id="pedCardHorarios" type="button">
+          <button class="launcher-card" id="pedCardHorarios" type="button" style="display:none">
             <span class="launcher-tag tag-pedagogico">Turmas</span>
             <span class="launcher-titulo">Horários das Turmas</span>
             <span class="launcher-desc">O quadro público de horários das aulas on-line, para conferir turma, teacher e link do Zoom.</span>
@@ -2538,7 +2538,7 @@ function jsonpCall(baseUrl, onSuccess, onError){
 // O arquivo versao.json é buscado com um número único a cada acesso (impossível
 // de ficar preso em cache). Se a versão publicada for maior que a desta cópia,
 // a página recarrega sozinha já apontando para a versão nova.
-const VERSAO_SITE = 23;
+const VERSAO_SITE = 24;
 (function verificarVersao(){
   try{
     const base = '/' + (location.pathname.split('/')[1] || '') ;
@@ -2979,7 +2979,9 @@ function iniciarPainel(){
   modoGuiaUnica();
   logAcesso('abriu_app', 'Controle Pedagógico');
   document.getElementById('painelBox').style.display = 'block';
-  pedMostrarMenu();
+  // Só a planilha de equiparações está ativa no menu do Pedagógico, então
+  // abrimos direto nela — passar por um menu de um card só seria atrito à toa.
+  pedAbrirPlanilha();
 }
 function iniciarAlunosAtivosApp(){
   modoGuiaUnica();
