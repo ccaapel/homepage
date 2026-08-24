@@ -23,9 +23,10 @@ function debugInfo(){
     out.planilha_nome = ss.getName();
     out.planilha_url = ss.getUrl();
     out.abas_na_planilha = ss.getSheets().map(function(s){ return s.getName(); });
-    out.abas_esperadas = ABAS;
-    const aba = "Valquíria: QUARTA-FEIRA - Sala 13";
-    const sheet = ss.getSheetByName(aba);
+    out.abas_esperadas = getABAS();
+    const aba = getABAS()[0] || "";   // testa a 1ª aba de controle que existir hoje
+    out.aba_teste = aba;
+    const sheet = aba ? ss.getSheetByName(aba) : null;
     out.aba_teste_existe = !!sheet;
     if (sheet) {
       const ultima = sheet.getLastRow();
@@ -44,18 +45,21 @@ function debugInfo(){
   return out;
 }
 
-// Abas da planilha (nomes EXATOS conforme o Google Sheets)
-const ABAS = [
-  "Valquíria: SEGUNDA-FEIRA - Sala 14",
-  "Eduarda: SEGUNDA-FEIRA - Sala 2",
-  "Laura: SEGUNDA-FEIRA - Sala 13",
-  "Laura: TERÇA-FEIRA - Sala 2",
-  "Tânia: TERÇA-FEIRA - Sala 2",
-  "Laura: QUARTA-FEIRA - Sala 2",
-  "Valquíria: QUARTA-FEIRA - Sala 13",
-  "OFF Laura: QUINTA-FEIRA - Sala 8",
-  "Laura: SEXTA-FEIRA - Sala 2",
-];
+// Abas de controle da planilha, lidas DIRETO do Google Sheets.
+// Antes esta lista era fixa no código: quando as abas mudavam de semestre
+// (professores/dias diferentes), o getSheetByName não encontrava mais nada e
+// o site ficava sem nenhum registro. Agora basta renomear/criar a aba na
+// planilha — o backend acompanha sozinho.
+// Reconhece qualquer aba no padrão "Professor: DIA-FEIRA - Sala X" e ignora
+// as abas de sistema (Acessos, Config) e quaisquer outras auxiliares.
+const RE_ABA_CONTROLE = /:\s*(SEGUNDA|TER[ÇC]A|QUARTA|QUINTA|SEXTA|S[ÁA]BADO|DOMINGO)/i;
+function getABAS() {
+  try {
+    return getSS().getSheets()
+      .map(function (s) { return s.getName(); })
+      .filter(function (n) { return RE_ABA_CONTROLE.test(n); });
+  } catch (e) { return []; }
+}
 
 // Índices das colunas (0-based)
 const COL = {
@@ -116,7 +120,7 @@ function listarTodos() {
   const ss = getSS();
   const registros = [];
 
-  ABAS.forEach(nomeAba => {
+  getABAS().forEach(nomeAba => {
     const sheet = ss.getSheetByName(nomeAba);
     if (!sheet) return;
 
@@ -543,7 +547,7 @@ function reordenarTudo() {
   let abasOrdenadas = 0;
   const detalhe = [];
 
-  ABAS.forEach(nomeAba => {
+  getABAS().forEach(nomeAba => {
     const sheet = ss.getSheetByName(nomeAba);
     if (!sheet) return;
     const disp = sheet.getDataRange().getDisplayValues();
@@ -624,7 +628,7 @@ function padronizarTudo() {
   let alteradas = 0;
   const detalhe = [];
 
-  ABAS.forEach(nomeAba => {
+  getABAS().forEach(nomeAba => {
     const sheet = ss.getSheetByName(nomeAba);
     if (!sheet) return;
 
