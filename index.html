@@ -1076,7 +1076,7 @@ html.locked .app { display:none !important; }
           </button>
           <button class="acesso-interno" id="btnVoltarHorarios" type="button" style="display:none">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-            Voltar ao Painel Pedagógico
+            Voltar ao Painel Escolar
           </button>
           <button class="acesso-interno" id="btnAdmin" title="Painel de administração (turmas, teachers, links)" style="background:color-mix(in srgb,var(--ccaa-blue) 12%,transparent);color:var(--ccaa-blue)">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
@@ -1815,24 +1815,24 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
       </div>
       <div class="launcher-grid">
         <button class="launcher-card" id="launchControle" type="button">
-          <span class="launcher-tag tag-pedagogico">Pedagógico</span>
-          <span class="launcher-titulo">Painel Pedagógico</span>
-          <span class="launcher-desc">Agendamentos, alunos ativos e saída de materiais.</span>
+          <span class="launcher-tag tag-pedagogico">Escolar</span>
+          <span class="launcher-titulo">Painel Escolar</span>
+          <span class="launcher-desc">Equiparações, aulas de apoio, nivelamentos e provas.</span>
           <span class="launcher-acao">Abrir ferramenta →</span>
         </button>
-        <button class="launcher-card" id="launchFinanceiro" type="button">
+        <button class="launcher-card" id="launchFinanceiro" type="button" style="display:none">
           <span class="launcher-tag tag-financeiro">Financeiro</span>
           <span class="launcher-titulo">Painel Financeiro</span>
           <span class="launcher-desc">Cálculo de pagamento por teacher.</span>
           <span class="launcher-acao">Abrir ferramenta →</span>
         </button>
-        <button class="launcher-card" id="launchMkt" type="button">
+        <button class="launcher-card" id="launchMkt" type="button" style="display:none">
           <span class="launcher-tag tag-mkt">Marketing</span>
           <span class="launcher-titulo">Painel de Marketing</span>
           <span class="launcher-desc">Análise de conteúdos, criativos e concorrentes.</span>
           <span class="launcher-acao">Abrir ferramenta →</span>
         </button>
-        <button class="launcher-card" id="launchComercial" type="button">
+        <button class="launcher-card" id="launchComercial" type="button" style="display:none">
           <span class="launcher-tag tag-comercial">Comercial</span>
           <span class="launcher-titulo">Painel Comercial</span>
           <span class="launcher-desc">Matrículas e rematrículas 2026/2: novos alunos, contratos e turmas a formar.</span>
@@ -1861,12 +1861,12 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
 
   <div class="interno-body" id="painelBox" style="display:none">
     <button class="int-btn int-btn-reload" id="btnVoltarMenu" type="button" style="margin-bottom:14px">‹ Ferramentas</button>
-    <button class="int-btn int-btn-reload" id="btnVoltarPedagogico" type="button" style="display:none;margin-bottom:14px">‹ Menu do Pedagógico</button>
+    <button class="int-btn int-btn-reload" id="btnVoltarPedagogico" type="button" style="display:none;margin-bottom:14px">‹ Menu do Painel Escolar</button>
 
     <!-- Sub-menu do Pedagógico: 3 telas -->
     <div id="pedagogicoMenu" style="display:none">
       <div class="launcher-center" style="padding-top:8px">
-        <h3 class="launcher-h3" style="font-size:clamp(20px,4vw,26px)">Painel Pedagógico</h3>
+        <h3 class="launcher-h3" style="font-size:clamp(20px,4vw,26px)">Painel Escolar</h3>
         <p class="launcher-sub">Escolha a área que deseja abrir.</p>
         <div class="launcher-grid">
           <button class="launcher-card" id="pedCardPlanilha" type="button">
@@ -2538,7 +2538,7 @@ function jsonpCall(baseUrl, onSuccess, onError){
 // O arquivo versao.json é buscado com um número único a cada acesso (impossível
 // de ficar preso em cache). Se a versão publicada for maior que a desta cópia,
 // a página recarrega sozinha já apontando para a versão nova.
-const VERSAO_SITE = 24;
+const VERSAO_SITE = 25;
 (function verificarVersao(){
   try{
     const base = '/' + (location.pathname.split('/')[1] || '') ;
@@ -2877,7 +2877,7 @@ document.getElementById('toolGateSenha').addEventListener('keydown', e=>{ if(e.k
 document.getElementById('toolGateUsuario').addEventListener('keydown', e=>{ if(e.key==='Enter') document.getElementById('toolGateSenha').focus(); });
 document.getElementById('toolGateOverlay').addEventListener('click', e=>{ if(e.target===e.currentTarget) fecharToolGate(); });
 
-function abrirControle(){ abrirFerramenta('Painel Pedagógico', hubBase()+'controledeaplicacoes/'); }
+function abrirControle(){ abrirFerramenta('Painel Escolar', hubBase()+'controledeaplicacoes/'); }
 function abrirFinanceiro(){ abrirFerramenta('Painel Financeiro', hubBase()+'financeiro/'); }
 function abrirComercial(){ abrirFerramenta('Painel Comercial', hubBase()+'comercial/'); }
 
@@ -2912,8 +2912,8 @@ function pedEsconderTudo(){
 function pedMostrarMenu(){
   pedEsconderTudo();
   document.documentElement.classList.remove('ver-horarios');
-  document.title = 'Painel Pedagógico · CCAA Pelotas';
-  document.querySelector('.interno-header h2').textContent = 'Painel Pedagógico';
+  document.title = 'Painel Escolar · CCAA Pelotas';
+  document.querySelector('.interno-header h2').textContent = 'Painel Escolar';
   document.getElementById('pedagogicoMenu').style.display='block';
 }
 let _planilhaIniciada = false;
@@ -2961,13 +2961,13 @@ function pedAbrirMateriais(){
 // Horários das Turmas: o quadro público de horários vive por trás do painel
 // interno o tempo todo (já carregado e renderizado). Aqui só fechamos o painel
 // para revelar essa tela, e mostramos um botão dedicado de "voltar" que reabre
-// o Painel Pedagógico exatamente no menu, sem depender do login de novo.
+// o Painel Escolar exatamente no menu, sem depender do login de novo.
 function pedAbrirHorarios(){
   document.title = 'Horários das Turmas · CCAA Pelotas';
   document.getElementById('internoOverlay').classList.remove('open','scroll-ok');
   document.documentElement.classList.add('ver-horarios');   // revela o quadro (fica oculto por padrão, sem flash)
   document.getElementById('btnVoltarHorarios').style.display = '';
-  logAcesso('abriu_horarios_internamente', 'Painel Pedagógico');
+  logAcesso('abriu_horarios_internamente', 'Painel Escolar');
 }
 document.getElementById('btnVoltarHorarios').addEventListener('click', ()=>{
   document.getElementById('btnVoltarHorarios').style.display = 'none';
@@ -4174,7 +4174,7 @@ document.getElementById('matNome').addEventListener('change', ()=>{
                 : iniciarFinanceiroApp;
   const nome = (app==='financeiro') ? 'Painel Financeiro'
              : (app==='comercial')  ? 'Painel Comercial'
-             : 'Painel Pedagógico';
+             : 'Painel Escolar';
   // Acesso direto por URL: mostra o MESMO gate padronizado ("Acesso restrito ·
   // Painel X") antes de abrir. Pela guia do launcher a sessão já vem herdada,
   // então o gate não reaparece.
@@ -6640,9 +6640,9 @@ const GATE_SENHA   = "ccaa551";
     document.documentElement.classList.remove('locked');
     gate.style.display='none';
     // A partir de agora, a primeira tela depois do portão é o Ferramentas CCAA
-    // Pelotas (Painel Pedagógico, Financeiro, Marketing, Comercial), não mais
+    // Pelotas (Painel Escolar, Financeiro, Marketing, Comercial), não mais
     // o quadro de horários. O quadro continua existindo por trás, acessível
-    // pelo card "Horários das Turmas" dentro do Painel Pedagógico.
+    // pelo card "Horários das Turmas" dentro do Painel Escolar.
     if(!ehLinkDireto()){
       const overlay = document.getElementById('internoOverlay');
       if(overlay && !overlay.classList.contains('open')){
