@@ -1266,7 +1266,12 @@ const CONFIG = {
   senha: 'ccaa551',
   janelaAntes: 10,      // min antes do inicio que libera "ao vivo"
   janelaAgora: 60,      // <= 60 min => seção AGORA; > 60 min (mesmo dia) => EM BREVE
-  ultimaVerificacao: '24/08/2026'
+  ultimaVerificacao: '24/08/2026',
+  // Links do Zoom das turmas ainda não foram criados. Enquanto isto for false,
+  // os botões "Entrar" e "Copiar" ficam ocultos e clicar no card não abre o
+  // modal de entrada — o quadro funciona como consulta de horários.
+  // Depois de colar os links das turmas, mude para true e tudo volta.
+  zoomAtivo: false
 };
 
 const Store = {
@@ -1389,10 +1394,10 @@ function turmaCard(t, status){
       <div class="turma-status ${stClass}">${status.label}</div>
       ${progressoHTML}
     </div>
-    <div class="turma-actions">
+    ${CONFIG.zoomAtivo ? `<div class="turma-actions">
       ${btnEntrar}
       <button class="turma-copy ${semLink?'disabled':''}" data-idx="${t.idx}" title="${semLink?'Link ainda não configurado':'Copiar dados da aula'}">Copiar<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
-    </div>
+    </div>` : ''}
   </div>`;
 }
 
@@ -1594,7 +1599,7 @@ function bindCards(c){
     const iv = setInterval(trava, 16);
     setTimeout(()=>{ clearInterval(iv); }, 260);
   }));
-  c.querySelectorAll('.turma').forEach(el=>el.addEventListener('click',e=>{ if(e.target.closest('.turma-copy')||e.target.closest('.star')||e.target.closest('.turma-cta'))return; abrirModal(el.dataset.idx); }));
+  c.querySelectorAll('.turma').forEach(el=>el.addEventListener('click',e=>{ if(e.target.closest('.turma-copy')||e.target.closest('.star')||e.target.closest('.turma-cta'))return; if(!CONFIG.zoomAtivo) return; abrirModal(el.dataset.idx); }));
   c.querySelectorAll('.turma-cta:not(.bloqueado)').forEach(el=>el.addEventListener('click',e=>{ e.stopPropagation(); abrirModal(el.closest('.turma').dataset.idx); }));
   c.querySelectorAll('.turma-copy:not(.disabled)').forEach(btn=>btn.addEventListener('click',e=>{
     e.stopPropagation();
@@ -2539,7 +2544,7 @@ function jsonpCall(baseUrl, onSuccess, onError){
 // O arquivo versao.json é buscado com um número único a cada acesso (impossível
 // de ficar preso em cache). Se a versão publicada for maior que a desta cópia,
 // a página recarrega sozinha já apontando para a versão nova.
-const VERSAO_SITE = 26;
+const VERSAO_SITE = 27;
 (function verificarVersao(){
   try{
     const base = '/' + (location.pathname.split('/')[1] || '') ;
