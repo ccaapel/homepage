@@ -2544,7 +2544,7 @@ function jsonpCall(baseUrl, onSuccess, onError){
 // O arquivo versao.json é buscado com um número único a cada acesso (impossível
 // de ficar preso em cache). Se a versão publicada for maior que a desta cópia,
 // a página recarrega sozinha já apontando para a versão nova.
-const VERSAO_SITE = 27;
+const VERSAO_SITE = 28;
 (function verificarVersao(){
   try{
     const base = '/' + (location.pathname.split('/')[1] || '') ;
@@ -4377,7 +4377,7 @@ async function carregarDados(silencioso){
     `${SCRIPT_URL}?action=listar&senha=${encodeURIComponent(SENHA_PAINEL)}`,
     (json) => {
       if(!json.ok){ document.getElementById('intLoading').style.display='none'; toast('Erro: '+json.erro,'erro'); return; }
-      todosRegistros = (json.dados||[]).map(normalizaRegistro).filter(r=>!ehLinhaModeloFront(r));
+      todosRegistros = (json.dados||[]).map(normalizaRegistro).filter(r=>!ehLinhaModeloFront(r)).filter(doSemestreAtual_);
       popularTurmas();
       renderTabela();
       // Guia do Financeiro: atualiza o cálculo assim que os dados chegam
@@ -4451,6 +4451,18 @@ function popularTurmas(){
 
 // Converte dd/MM/yyyy -> yyyy-MM-dd
 function dataBRtoISO(s){ if(!s) return ''; const p=s.split('/'); return p.length===3?`${p[2]}-${p[1]}-${p[0]}`:''; }
+
+// ===== RECORTE DO SEMESTRE =====
+// A planilha guarda o ano inteiro, mas o painel é do 2º semestre de 2026.
+// Tudo que é anterior a 01/08/2026 fica de fora logo na carga dos dados, então
+// o recorte vale para TODAS as telas de uma vez: tabela, resumo, pendências,
+// limite de equiparações e financeiro. Para virar de semestre, muda só a data.
+const INICIO_SEMESTRE_ISO = '2026-08-01';
+function doSemestreAtual_(r){
+  const iso = dataBRtoISO(r && r.data);
+  if(!iso) return true;                    // sem data: não dá para classificar, mantém
+  return iso >= INICIO_SEMESTRE_ISO;
+}
 // Converte ISO (yyyy-mm-dd) para Date no fuso LOCAL (não UTC) — evita o bug de a data "voltar 1 dia"
 function isoParaDataLocal(iso){
   if(!iso) return null;
