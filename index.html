@@ -103,8 +103,7 @@ body {
   transition:background .3s, color .3s;
   padding-bottom: env(safe-area-inset-bottom);
 }
-.app { max-width: 1200px; margin:0 auto; padding:0 24px 90px; display:none; }
-html.ver-horarios .app { display:block; }
+.app { max-width: 1200px; margin:0 auto; padding:0 24px 90px; }
 /* Grid de cards na lista completa: responsivo 1/2/3 colunas */
 .cards-grid { display:grid; grid-template-columns:1fr; gap:0; }
 @media (min-width:760px){
@@ -1070,13 +1069,13 @@ html.locked .app { display:none !important; }
       <div class="brand-sub-row">
         <span class="brand-sub">Aulas on-line &middot; Quadro de horários</span>
         <div style="display:flex;gap:8px;align-items:center">
-          <button class="acesso-interno" id="btnInterno" style="display:none">
+          <button class="acesso-interno" id="btnInterno">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
             Acesso interno
           </button>
           <button class="acesso-interno" id="btnVoltarHorarios" type="button" style="display:none">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-            Voltar ao Painel Escolar
+            Voltar ao quadro de horários
           </button>
           <button class="acesso-interno" id="btnAdmin" title="Painel de administração (turmas, teachers, links)" style="background:color-mix(in srgb,var(--ccaa-blue) 12%,transparent);color:var(--ccaa-blue)">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
@@ -1747,7 +1746,7 @@ document.getElementById('btnFont').addEventListener('click',()=>{ fonteIdx=(font
 document.getElementById('btnInterno').addEventListener('click',()=>{
   const overlay = document.getElementById('internoOverlay');
   overlay.classList.add('open');
-  // Se já autenticou antes, pula login e mostra o launcher
+  // Se já autenticou antes, pula o login e mostra as ferramentas
   if(hubAutenticado()){
     logado = true;
     mostrarLauncher();
@@ -1803,8 +1802,8 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
       </div>
       <div class="launcher-grid">
         <button class="launcher-card" id="launchControle" type="button">
-          <span class="launcher-tag tag-pedagogico">Escolar</span>
-          <span class="launcher-titulo">Painel Escolar</span>
+          <span class="launcher-tag tag-pedagogico">Agendamentos</span>
+          <span class="launcher-titulo">Controle de Aplicações</span>
           <span class="launcher-desc">Equiparações, aulas de apoio, nivelamentos e provas.</span>
           <span class="launcher-acao">Abrir ferramenta →</span>
         </button>
@@ -1849,12 +1848,12 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
 
   <div class="interno-body" id="painelBox" style="display:none">
     <button class="int-btn int-btn-reload" id="btnVoltarMenu" type="button" style="margin-bottom:14px">‹ Ferramentas</button>
-    <button class="int-btn int-btn-reload" id="btnVoltarPedagogico" type="button" style="display:none;margin-bottom:14px">‹ Menu do Painel Escolar</button>
+    <button class="int-btn int-btn-reload" id="btnVoltarPedagogico" type="button" style="display:none;margin-bottom:14px">‹ Voltar</button>
 
     <!-- Sub-menu do Pedagógico: 3 telas -->
     <div id="pedagogicoMenu" style="display:none">
       <div class="launcher-center" style="padding-top:8px">
-        <h3 class="launcher-h3" style="font-size:clamp(20px,4vw,26px)">Painel Escolar</h3>
+        <h3 class="launcher-h3" style="font-size:clamp(20px,4vw,26px)">Controle de Aplicações</h3>
         <p class="launcher-sub">Escolha a área que deseja abrir.</p>
         <div class="launcher-grid">
           <button class="launcher-card" id="pedCardPlanilha" type="button">
@@ -2526,7 +2525,7 @@ function jsonpCall(baseUrl, onSuccess, onError){
 // O arquivo versao.json é buscado com um número único a cada acesso (impossível
 // de ficar preso em cache). Se a versão publicada for maior que a desta cópia,
 // a página recarrega sozinha já apontando para a versão nova.
-const VERSAO_SITE = 29;
+const VERSAO_SITE = 30;
 (function verificarVersao(){
   try{
     const base = '/' + (location.pathname.split('/')[1] || '') ;
@@ -2865,7 +2864,7 @@ document.getElementById('toolGateSenha').addEventListener('keydown', e=>{ if(e.k
 document.getElementById('toolGateUsuario').addEventListener('keydown', e=>{ if(e.key==='Enter') document.getElementById('toolGateSenha').focus(); });
 document.getElementById('toolGateOverlay').addEventListener('click', e=>{ if(e.target===e.currentTarget) fecharToolGate(); });
 
-function abrirControle(){ abrirFerramenta('Painel Escolar', hubBase()+'controledeaplicacoes/'); }
+function abrirControle(){ abrirFerramenta('Controle de Aplicações', hubBase()+'controledeaplicacoes/'); }
 function abrirFinanceiro(){ abrirFerramenta('Painel Financeiro', hubBase()+'financeiro/'); }
 function abrirComercial(){ abrirFerramenta('Painel Comercial', hubBase()+'comercial/'); }
 
@@ -2900,8 +2899,8 @@ function pedEsconderTudo(){
 function pedMostrarMenu(){
   pedEsconderTudo();
   document.documentElement.classList.remove('ver-horarios');
-  document.title = 'Painel Escolar · CCAA Pelotas';
-  document.querySelector('.interno-header h2').textContent = 'Painel Escolar';
+  document.title = 'Controle de Aplicações · CCAA Pelotas';
+  document.querySelector('.interno-header h2').textContent = 'Controle de Aplicações';
   document.getElementById('pedagogicoMenu').style.display='block';
 }
 let _planilhaIniciada = false;
@@ -2949,13 +2948,13 @@ function pedAbrirMateriais(){
 // Horários das Turmas: o quadro público de horários vive por trás do painel
 // interno o tempo todo (já carregado e renderizado). Aqui só fechamos o painel
 // para revelar essa tela, e mostramos um botão dedicado de "voltar" que reabre
-// o Painel Escolar exatamente no menu, sem depender do login de novo.
+// o painel exatamente no menu, sem depender do login de novo.
 function pedAbrirHorarios(){
   document.title = 'Horários das Turmas · CCAA Pelotas';
   document.getElementById('internoOverlay').classList.remove('open','scroll-ok');
   document.documentElement.classList.add('ver-horarios');   // revela o quadro (fica oculto por padrão, sem flash)
   document.getElementById('btnVoltarHorarios').style.display = '';
-  logAcesso('abriu_horarios_internamente', 'Painel Escolar');
+  logAcesso('abriu_horarios_internamente', 'Controle de Aplicações');
 }
 document.getElementById('btnVoltarHorarios').addEventListener('click', ()=>{
   document.getElementById('btnVoltarHorarios').style.display = 'none';
@@ -4162,7 +4161,7 @@ document.getElementById('matNome').addEventListener('change', ()=>{
                 : iniciarFinanceiroApp;
   const nome = (app==='financeiro') ? 'Painel Financeiro'
              : (app==='comercial')  ? 'Painel Comercial'
-             : 'Painel Escolar';
+             : 'Controle de Aplicações';
   // Acesso direto por URL: mostra o MESMO gate padronizado ("Acesso restrito ·
   // Painel X") antes de abrir. Pela guia do launcher a sessão já vem herdada,
   // então o gate não reaparece.
@@ -6639,20 +6638,9 @@ const GATE_SENHA   = "ccaa551";
     try{ sessionStorage.setItem('ccaa_acesso','1'); }catch(e){}
     document.documentElement.classList.remove('locked');
     gate.style.display='none';
-    // A partir de agora, a primeira tela depois do portão é o Ferramentas CCAA
-    // Pelotas (Painel Escolar, Financeiro, Marketing, Comercial), não mais
-    // o quadro de horários. O quadro continua existindo por trás, acessível
-    // pelo card "Horários das Turmas" dentro do Painel Escolar.
-    if(!ehLinkDireto()){
-      const overlay = document.getElementById('internoOverlay');
-      if(overlay && !overlay.classList.contains('open')){
-        overlay.classList.add('open');
-        if(typeof hubAutenticado==='function' && hubAutenticado()){
-          logado = true;
-          if(typeof mostrarLauncher==='function') mostrarLauncher();
-        }
-      }
-    }
+    // A primeira tela depois do portão é o QUADRO DE HORÁRIOS. O painel interno
+    // só abre pelo botão "Acesso interno", então aqui não se abre mais nada.
+    // Links diretos (/controledeaplicacoes/) seguem tratados pelo rotearApp.
   }
 
   if(jaLiberado){ liberar(); return; }
