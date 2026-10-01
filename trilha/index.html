@@ -1,0 +1,942 @@
+<title>Trilha Baby &amp; Kids</title>
+<style>
+/* layout: trilha vertical em zigue-zague, curva SVG conectando 6 paradas, cada parada é o kit real com leve inclinação 3D; toque expande os dados do nível */
+:root{
+  --bg:#fdfaf3;
+  --paper:#ffffff;
+  --ink:#1b2340;
+  --ink-soft:#5b6178;
+  --line:#e4ddc9;
+  --navy:#0e1a3d;
+  --red:#e3182c;
+  --accent:#e3182c;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0c1226;
+    --paper:#141b34;
+    --ink:#eef0fb;
+    --ink-soft:#a9aec8;
+    --line:#232c4d;
+    --navy:#0a1330;
+    --red:#ff5468;
+    --accent:#ff5468;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0c1226;
+  --paper:#141b34;
+  --ink:#eef0fb;
+  --ink-soft:#a9aec8;
+  --line:#232c4d;
+  --navy:#0a1330;
+  --red:#ff5468;
+  --accent:#ff5468;
+  color-scheme:dark;
+}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);margin:0}
+.page{
+  max-width:640px;
+  margin:0 auto;
+  padding:28px 16px 48px;
+  font-family:'Sora',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+}
+
+/* topo */
+.brand{display:flex;align-items:center;gap:10px;margin-bottom:22px}
+.brand-mark{
+  width:34px;height:34px;border-radius:9px;
+  background:conic-gradient(from 210deg,var(--red),#c41022 40%,var(--navy) 65%,var(--red));
+  flex:none;
+}
+.brand-name{font-family:'Fredoka',sans-serif;font-weight:600;font-size:15px;letter-spacing:.02em;color:var(--ink-soft)}
+
+.hero h1{
+  font-family:'Fredoka',sans-serif;
+  font-weight:600;
+  font-size:clamp(28px,7vw,38px);
+  line-height:1.08;
+  margin:0 0 10px;
+  text-wrap:balance;
+}
+.hero p{
+  font-size:15.5px;
+  line-height:1.55;
+  color:var(--ink-soft);
+  margin:0 0 6px;
+  max-width:34em;
+}
+.hero .sub{font-size:13.5px;color:var(--ink-soft);margin-top:14px}
+
+/* faixa etária */
+.age-strip{
+  display:flex;
+  gap:6px;
+  margin:22px 0 6px;
+  overflow-x:auto;
+  padding-bottom:4px;
+}
+.age-chip{
+  flex:none;
+  font-size:12px;
+  font-weight:600;
+  padding:6px 10px;
+  border-radius:999px;
+  background:var(--paper);
+  border:1px solid var(--line);
+  color:var(--ink-soft);
+  white-space:nowrap;
+}
+
+/* trilha */
+.trail{position:relative;margin-top:28px}
+.trail-svg{position:absolute;left:0;top:0;width:100%;height:100%;z-index:0}
+.trail-svg path{
+  fill:none;
+  stroke:var(--line);
+  stroke-width:3;
+  stroke-dasharray:2 10;
+  stroke-linecap:round;
+}
+
+.stop{
+  position:relative;
+  z-index:1;
+  display:flex;
+  margin-bottom:6px;
+  padding:26px 0;
+}
+.stop.right{justify-content:flex-end}
+.stop.left{justify-content:flex-start}
+
+.card{
+  width:78%;
+  max-width:360px;
+  background:var(--paper);
+  border:1px solid var(--line);
+  border-radius:20px;
+  padding:14px 14px 16px;
+  cursor:pointer;
+  transform:perspective(900px) rotateY(var(--ry,-6deg)) rotateX(2deg);
+  transition:transform .35s cubic-bezier(.2,.8,.2,1), box-shadow .35s;
+  box-shadow:0 14px 30px -18px rgba(10,15,35,.35);
+  -webkit-tap-highlight-color:transparent;
+}
+.stop.right .card{--ry:6deg}
+.card:hover, .card:focus-visible{
+  transform:perspective(900px) rotateY(0deg) rotateX(0deg) translateY(-2px);
+  box-shadow:0 18px 34px -16px rgba(10,15,35,.4);
+}
+.card.open{
+  transform:perspective(900px) rotateY(0deg) rotateX(0deg);
+  box-shadow:0 20px 40px -18px rgba(10,15,35,.45);
+}
+
+.card-top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.level-badge{
+  flex:none;
+  width:34px;height:34px;
+  border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Fredoka',sans-serif;
+  font-weight:600;
+  font-size:16px;
+  color:#fff;
+  background:var(--kit-color);
+}
+.card-title{flex:1;min-width:0}
+.card-title .name{font-family:'Fredoka',sans-serif;font-weight:600;font-size:15.5px}
+.card-title .meta{font-size:12px;color:var(--ink-soft);margin-top:1px}
+.chevron{
+  flex:none;
+  width:18px;height:18px;
+  color:var(--ink-soft);
+  transition:transform .3s;
+}
+.card.open .chevron{transform:rotate(180deg)}
+
+.card-photo{
+  width:100%;
+  border-radius:14px;
+  overflow:hidden;
+  background:var(--kit-color);
+  aspect-ratio:4/3;
+}
+.card-photo img{width:100%;height:100%;object-fit:cover;display:block}
+
+.card-detail{
+  display:grid;
+  grid-template-rows:0fr;
+  overflow:hidden;
+  transition:grid-template-rows .35s ease;
+}
+.card.open .card-detail{grid-template-rows:1fr}
+.card-detail-inner{min-height:0;overflow:hidden}
+
+.stat-row{
+  display:flex;
+  gap:8px;
+  margin:14px 0 10px;
+}
+.stat{
+  flex:1;
+  min-width:0;
+  background:var(--bg);
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:8px 10px;
+  text-align:center;
+}
+.stat b{
+  display:block;
+  font-family:'Fredoka',sans-serif;
+  font-size:16px;
+  font-variant-numeric:tabular-nums;
+  color:var(--kit-color);
+}
+.stat span{font-size:10.5px;color:var(--ink-soft);line-height:1.3}
+
+.does{
+  font-size:13.5px;
+  line-height:1.5;
+  color:var(--ink);
+  margin:0;
+}
+.does b{font-weight:600}
+.does.soon{color:var(--ink-soft);font-style:italic}
+.works{
+  font-size:12.5px;
+  line-height:1.5;
+  color:var(--ink-soft);
+  margin:10px 0 0;
+  padding-top:10px;
+  border-top:1px dashed var(--line);
+}
+
+/* rodapé */
+.foot{
+  margin-top:34px;
+  padding-top:20px;
+  border-top:1px solid var(--line);
+}
+.foot-strip{
+  display:flex;
+  gap:14px;
+  align-items:flex-start;
+  margin-bottom:16px;
+}
+.foot-strip .n{
+  font-family:'Fredoka',sans-serif;
+  font-weight:600;
+  font-size:22px;
+  color:var(--red);
+  flex:none;
+  width:44px;
+}
+.foot-strip p{font-size:13px;line-height:1.5;color:var(--ink-soft);margin:0}
+.foot-note{font-size:12px;color:var(--ink-soft);text-align:center;margin-top:22px}
+
+/* insights: pontos contraintuitivos */
+.insight{
+  margin-top:36px;
+  padding-top:24px;
+  border-top:1px solid var(--line);
+  --series-baby:#2a78d6;
+  --series-kids:#eb6834;
+  --series-preteen:#1baf7a;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]) .insight{
+    --series-baby:#3987e5;
+    --series-kids:#d95926;
+    --series-preteen:#199e70;
+  }
+}
+:root[data-theme="dark"] .insight{
+  --series-baby:#3987e5;
+  --series-kids:#d95926;
+  --series-preteen:#199e70;
+}
+.insight h2{
+  font-family:'Fredoka',sans-serif;
+  font-weight:600;
+  font-size:20px;
+  margin:0 0 4px;
+}
+.insight-kicker{font-size:12px;color:var(--ink-soft);margin:0 0 14px}
+.chart-legend{display:flex;gap:16px;margin-bottom:10px;flex-wrap:wrap}
+.chart-legend span{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-soft)}
+.chart-legend i{width:9px;height:9px;border-radius:2px;flex:none}
+.vocab-chart{display:flex;align-items:flex-end;gap:3px;height:120px;margin:0 0 6px;padding:0 2px}
+.vocab-bar{flex:1;border-radius:4px 4px 0 0;min-width:4px;position:relative}
+.vocab-chart .axis-base{border-top:1px solid var(--line);margin:0 2px 8px}
+.insight-cap{font-size:13px;line-height:1.55;color:var(--ink-soft);margin:0 0 22px}
+.insight-grid{display:grid;gap:14px}
+.insight-card{
+  background:var(--paper);
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:14px 16px;
+}
+.insight-card p{font-size:13px;line-height:1.55;color:var(--ink-soft);margin:0}
+.insight-card b{color:var(--ink)}
+
+@media (max-width:380px){
+  .card{width:84%}
+}
+
+/* CTA da demonstração */
+.demo-cta{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  margin-top:16px;
+  padding:11px 18px;
+  border:none;
+  border-radius:999px;
+  background:var(--navy);
+  color:#fff;
+  font-family:'Fredoka',sans-serif;
+  font-weight:600;
+  font-size:14px;
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+}
+.demo-cta svg{flex:none}
+
+/* overlay de demonstração */
+.demo-overlay{
+  position:fixed;
+  inset:0;
+  z-index:50;
+  background:var(--bg);
+  display:flex;
+  flex-direction:column;
+}
+.demo-overlay[hidden]{display:none}
+
+.demo-head{
+  flex:none;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:calc(14px + env(safe-area-inset-top,0px)) 16px 12px;
+}
+.demo-head .label{font-family:'Fredoka',sans-serif;font-weight:600;font-size:14px;color:var(--ink-soft)}
+.demo-close{
+  flex:none;
+  width:34px;height:34px;
+  border-radius:50%;
+  border:1px solid var(--line);
+  background:var(--paper);
+  color:var(--ink-soft);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;
+}
+
+/* tela de escolha do nível */
+.demo-picker{
+  flex:1;
+  overflow-y:auto;
+  padding:4px 20px calc(24px + env(safe-area-inset-bottom,0px));
+  display:flex;
+  flex-direction:column;
+}
+.demo-picker h2{
+  font-family:'Fredoka',sans-serif;
+  font-weight:600;
+  font-size:22px;
+  line-height:1.2;
+  margin:8px 0 4px;
+  text-wrap:balance;
+}
+.demo-picker .hint{font-size:13.5px;color:var(--ink-soft);margin:0 0 18px}
+.pick-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+.pick-course{
+  grid-column:1 / -1;
+  font-family:'Fredoka',sans-serif;
+  font-weight:600;
+  font-size:12px;
+  letter-spacing:.03em;
+  text-transform:uppercase;
+  color:var(--ink-soft);
+  margin:14px 0 -2px;
+}
+.pick-course:first-child{margin-top:2px}
+.pick-item{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px;
+  border-radius:16px;
+  border:1px solid var(--line);
+  background:var(--paper);
+  cursor:pointer;
+  text-align:left;
+  -webkit-tap-highlight-color:transparent;
+}
+.pick-item .num{
+  flex:none;
+  width:36px;height:36px;
+  border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Fredoka',sans-serif;
+  font-weight:600;
+  font-size:15px;
+  color:#fff;
+  background:var(--pick-color);
+}
+.pick-item .txt .t{font-size:13.5px;font-weight:600}
+.pick-item .txt .a{font-size:11.5px;color:var(--ink-soft)}
+
+/* tela de apresentação (story) */
+.demo-story{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  min-height:0;
+}
+.demo-story[hidden]{display:none}
+.dots{
+  flex:none;
+  display:flex;
+  gap:5px;
+  padding:0 16px 10px;
+}
+.dot{
+  flex:1;
+  height:3px;
+  border-radius:2px;
+  background:var(--line);
+}
+.dot.on{background:var(--dot-color,var(--red))}
+
+.slide-frame{
+  position:relative;
+  flex:1;
+  min-height:0;
+  overflow:hidden;
+}
+.slide{
+  position:absolute;
+  inset:0;
+  display:flex;
+  flex-direction:column;
+  overflow-y:auto;
+  padding:0 20px calc(20px + env(safe-area-inset-bottom,0px));
+}
+.slide-photo{
+  flex:none;
+  margin:0 -20px 16px;
+  aspect-ratio:16/11;
+  background:var(--slide-color);
+  overflow:hidden;
+}
+.slide-photo img{width:100%;height:100%;object-fit:cover;display:block}
+.slide-kicker{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-bottom:6px;
+}
+.slide-kicker .num{
+  flex:none;
+  width:28px;height:28px;
+  border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Fredoka',sans-serif;
+  font-weight:600;
+  font-size:13px;
+  color:#fff;
+  background:var(--slide-color);
+}
+.slide-kicker .meta{font-size:12.5px;color:var(--ink-soft)}
+.slide h3{
+  font-family:'Fredoka',sans-serif;
+  font-weight:600;
+  font-size:22px;
+  margin:0 0 12px;
+}
+.slide .stat-row{margin:2px 0 14px}
+.slide .does{font-size:14.5px}
+.slide .works{font-size:12.5px}
+
+.demo-nav{
+  flex:none;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));
+}
+.nav-btn{
+  flex:none;
+  width:42px;height:42px;
+  border-radius:50%;
+  border:1px solid var(--line);
+  background:var(--paper);
+  color:var(--ink);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;
+}
+.nav-btn:disabled{opacity:.35;cursor:default}
+.nav-mid{
+  flex:1;
+  text-align:center;
+  font-size:12px;
+  color:var(--ink-soft);
+}
+.nav-restart{
+  font-size:12px;
+  color:var(--ink-soft);
+  background:none;
+  border:none;
+  text-decoration:underline;
+  cursor:pointer;
+  padding:0;
+}
+</style>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Sora:wght@400;500;600&display=swap">
+
+<div class="page">
+
+  <div class="brand">
+    <div class="brand-mark"></div>
+    <div class="brand-name">CCAA PELOTAS</div>
+  </div>
+
+  <div class="hero">
+    <h1>A trilha do inglês do seu filho</h1>
+    <p>Toque em cada parada da trilha e veja o que ela já vai saber dizer.</p>
+    <p class="sub"><b>Baby Class → Kids' Course → Preteen Course</b> → English Course</p>
+    <button class="demo-cta" id="openDemo" type="button">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 1.5l9 5.5-9 5.5v-11z" fill="currentColor"/></svg>
+      Ver demonstração pro nível do seu filho
+    </button>
+  </div>
+
+  <div class="age-strip" id="ageStrip"></div>
+
+  <div class="trail" id="trail">
+    <svg class="trail-svg" id="trailSvg" preserveAspectRatio="none"></svg>
+    <!-- stops inserted by script -->
+  </div>
+
+  <div class="insight" id="insightSection">
+    <h2>O vocabulário não cresce em linha reta</h2>
+    <p class="insight-kicker">Palavras novas por nível, do Baby Class 1 ao Preteen Course 2</p>
+    <div class="chart-legend" id="chartLegend"></div>
+    <div class="vocab-chart" id="vocabChart"></div>
+    <div class="axis-base"></div>
+    <p class="insight-cap" id="vocabCap"></p>
+
+    <div class="insight-grid">
+      <div class="insight-card">
+        <p>Os 8 níveis do Kids' Course são <b>independentes</b>. Uma criança que nunca estudou inglês entra direto no nível que acompanha a idade dela, sem passar pelos anteriores, porque cada material já foi pensado pra receber aluno novo. A vaga segue a idade e o ano escolar, não o quanto a criança já sabe de inglês.</p>
+      </div>
+      <div class="insight-card">
+        <p>O Baby Class nunca dobra aula no mesmo dia, mesmo quando isso encaixaria melhor na rotina dos pais. Com 3 a 5 anos, a criança não mantém atenção em duas aulas seguidas. A grade de 2x por semana existe por causa da criança, não por limite de horário da escola.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot">
+    <div class="foot-strip">
+      <div class="n">01</div>
+      <p><b>2x melhor em atendimento</b> na categoria Escola de Idiomas, eleito pelo Reclame Aqui em 2025.</p>
+    </div>
+    <div class="foot-strip">
+      <div class="n">02</div>
+      <p>Faltou aula? <b>Reforço e reposição são gratuitos</b>, a criança não fica atrás do resto da turma.</p>
+    </div>
+    <div class="foot-strip">
+      <div class="n">03</div>
+      <p>Modalidade <b>híbrida</b>: a criança escolhe presencial ou online a cada aula, sem perder o ritmo da turma.</p>
+    </div>
+  </div>
+
+  <p class="foot-note">CCAA Pelotas · Baby Class 1 ao 6 · Kids' Course 1 ao 8 · Preteen Course 1 e 2</p>
+</div>
+
+<div class="demo-overlay" id="demoOverlay" hidden>
+  <div class="demo-head">
+    <span class="label" id="demoLabel">Onde seu filho está</span>
+    <button class="demo-close" id="closeDemo" type="button" aria-label="Fechar demonstração">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 1l12 12M13 1L1 13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+
+  <div class="demo-picker" id="demoPicker">
+    <h2>De qual nível seu filho vai partir?</h2>
+    <p class="hint">Escolha o Baby Class ou Kids' Course em que ele está agora e a apresentação segue a trilha a partir dali.</p>
+    <div class="pick-grid" id="pickGrid"></div>
+  </div>
+
+  <div class="demo-story" id="demoStory" hidden>
+    <div class="dots" id="dots"></div>
+    <div class="slide-frame" id="slideFrame"></div>
+    <div class="demo-nav">
+      <button class="nav-btn" id="prevSlide" type="button" aria-label="Anterior">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <span class="nav-mid"><button class="nav-restart" id="restartDemo" type="button">escolher outro nível</button></span>
+      <button class="nav-btn" id="nextSlide" type="button" aria-label="Próximo">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 3l5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var LEVELS = [
+    {
+      course:'Baby Class', n:1, color:'#2f5fb8', img:'img/baby1.jpg',
+      age:'3 anos', grade:'Ed. Infantil · 1º sem.', words:69,
+      does:'Já cumprimenta, se desculpa e conta até <b>10</b>, com palavras de cores, família, bichinhos e comida.',
+      works:'Cada aula abre e fecha com música, sempre a mesma rotina, o que dá segurança pra uma criança de 3 anos. O vocabulário vem de piquenique, Páscoa e animais de fazenda, com o app Baby Class 1 reforçando em casa.'
+    },
+    {
+      course:'Baby Class', n:2, color:'#2c9e57', img:'img/baby2.jpg',
+      age:'3 anos', grade:'Ed. Infantil · 2º sem.', words:69,
+      does:'Já convida alguém pra entrar, deseja bom-dia e boa-noite, agradece e conta até <b>10</b>.',
+      works:'Soma vestuário, profissões e o Natal ao repertório, sempre pela mesma rotina de músicas e brincadeiras que fecha cada aula, o que ajuda a manter a atenção nessa idade.'
+    },
+    {
+      course:'Baby Class', n:3, color:'#e8b71f', img:'img/baby3.jpg',
+      age:'4 anos', grade:'Ed. Infantil · 1º sem.', words:84,
+      does:'Já chama atenção pra algo, sugere uma brincadeira e responde "How are you?" e "How’s the weather?", contando até <b>15</b>.',
+      works:'Entra em partes da casa, animais selvagens, natureza e meios de transporte, com a criança montando o próprio livro ao longo das lições, o que prende mais o interesse nessa fase.'
+    },
+    {
+      course:'Baby Class', n:4, color:'#7a4fc4', img:'img/baby4.jpg',
+      age:'4 anos', grade:'Ed. Infantil · 2º sem.', words:81,
+      does:'Já se apresenta, expressa uma opinião e pergunta a cor de algo, contando até <b>15</b>.',
+      works:'Usa parque de diversões, fotografia e praia como cenário, misturando desenho animado e brincadeira nas 38 aulas do semestre, sempre com a mesma rotina de abertura e fechamento.'
+    },
+    {
+      course:'Baby Class', n:5, color:'#e07a1f', img:'img/baby5.jpg',
+      age:'5 anos', grade:'Ed. Infantil · 1º sem.', words:88,
+      does:'Já oferece algo, aceita e agradece, e conta até <b>20</b>, com dias da semana e instrumentos musicais.',
+      works:'Cobre transporte, móveis, jogos e profissões, quase dobrando o vocabulário do Baby 1, com o professor guiando tudo pelo Interactive Classroom Program em sala.'
+    },
+    {
+      course:'Baby Class', n:6, color:'#d81f4c', img:'img/baby6.jpg',
+      age:'5 anos', grade:'Ed. Infantil · 2º sem.', words:92,
+      does:'Já pede permissão, diz quantos anos tem e conta até <b>20</b>, encerrando com reciclagem e neve no vocabulário.',
+      works:'Fecha o Baby Class com o maior vocabulário da fase, ainda sem provas (a passagem de nível é automática), preparando a criança pro salto de rotina do Kids’ Course.'
+    },
+    {
+      course:'Kids’ Course', n:1, color:'#d81f2e', img:'img/kit1.jpg',
+      age:'6 anos', grade:'1º ano · 1º sem.', words:109,
+      does:'Já cumprimenta os colegas, apresenta a família e conta até <b>10</b>, junto com as cores e os bichinhos de estimação.',
+      works:'Cada uma das 8 lições entra pelo lúdico: história, desenho animado ou música apresentam a palavra nova, e a prática vem por atividade escrita, auditiva e de movimento corporal. Uma das lições usa o Carnaval de Nova Orleans pra ensinar vocabulário de família.'
+    },
+    {
+      course:'Kids’ Course', n:2, color:'#ef8a1e', img:'img/kit2.jpg',
+      age:'6 anos', grade:'1º ano · 2º sem.', words:128,
+      does:'Já diz a hora, comemora a vitória de um colega e conta sobre a vida no fundo do mar, contando até <b>30</b>.',
+      works:'Segue a mesma dinâmica de histórias e canções do nível anterior, mas já cobra frases mais longas: elogiar alguém, dar instruções e descrever a vida marinha, sempre ligando a palavra nova a uma cena do livro.'
+    },
+    {
+      course:'Kids’ Course', n:3, color:'#f4a51f', img:'img/kit3.jpg',
+      age:'7 anos', grade:'2º ano · 1º sem.', words:160,
+      does:'Já fala da própria casa, das estações do ano, e se vira numa conversa sobre viagem de avião.',
+      works:'Trabalha vocabulário de casa, Páscoa e aeroporto dentro de atividades colaborativas e digitais acessadas pelo professor em sala, reforçando contagem e as perguntas de "que horas são?".'
+    },
+    {
+      course:'Kids’ Course', n:4, color:'#3fa64a', img:'img/kit4.jpg',
+      age:'7 anos', grade:'2º ano · 2º sem.', words:177,
+      does:'Já fala de esportes e do espaço sideral, conta até <b>40</b> e sabe pedir e dar permissão em inglês.',
+      works:'Usa aula de ciências e corrida de carros como pretexto pra ensinar espaço sideral, permissão e contagem, misturando exercício escrito com vídeo e desenho animado nas 8 lições do semestre.'
+    },
+    {
+      course:'Kids’ Course', n:5, color:'#1f9e93', img:'img/kit5.jpg',
+      age:'8 anos', grade:'3º ano · 1º sem.', words:222,
+      does:'Já faz compras de supermercado, fala do tempo e das próprias emoções, contando até <b>59</b>.',
+      works:'Entra em compras de mercado, clima e emoções por meio de diálogos guiados e atividades interativas no ICP, com o vocabulário quase dobrando em relação ao nível anterior.'
+    },
+    {
+      course:'Kids’ Course', n:6, color:'#2255c9', img:'img/kit6.jpg',
+      age:'8 anos', grade:'3º ano · 2º sem.', words:249,
+      does:'Já conversa sobre profissões, cuida de um bichinho de estimação e discute uma festa tradicional.',
+      works:'Explora profissões, cuidado com um animal de estimação e uma festividade tradicional, juntando prática escrita, auditiva e colaborativa nas 8 lições que fecham o nível.'
+    },
+    {
+      course:'Kids’ Course', n:7, color:'#b23a1f', img:'img/kit7.jpg',
+      age:'9 anos', grade:'4º ano · 1º sem.', words:null,
+      note:'Enquanto o Amazing Adventures 7 não chega (previsto pra nov/2026), esse nível segue no Password: Communication for Bigger Kids 1. Não temos aqui o detalhamento de lição a lição desse material antigo.'
+    },
+    {
+      course:'Kids’ Course', n:8, color:'#1f5fa8', img:'img/kit8.jpg',
+      age:'9 anos', grade:'4º ano · 2º sem.', words:null,
+      note:'Mesma obra do nível anterior, agora no livro 2. O Amazing Adventures 8 está previsto pra jun/2027, e o detalhamento desse material antigo também não está disponível aqui.'
+    },
+    {
+      course:'Preteen Course', n:1, color:'#e07a1f', img:'img/preteen1.jpg',
+      age:'10 anos', grade:'5º ano · 1º sem.', words:279,
+      does:'Já faz sugestões, vai às compras perguntando preço e as horas, pede comida e soletra palavras em inglês.',
+      works:'Entra no textbook e workbook separados, trabalhando as 4 habilidades (listening, speaking, reading, writing) em 10 lições, com telefonema e e-mail no meio do conteúdo, quase o dobro do vocabulário do último nível do Kids’ Course.'
+    },
+    {
+      course:'Preteen Course', n:2, color:'#2f5fb8', img:'img/preteen2.jpg',
+      age:'10 anos', grade:'5º ano · 2º sem.', words:289,
+      does:'Já compra ingresso pela internet, entende endereços e fala sobre opiniões e planos próprios, apresentando outra pessoa em inglês.',
+      works:'Fecha o Preteen Course com prova parcial escrita, prova final escrita e prova final oral no meio e no fim do semestre, a primeira vez que o aluno passa por avaliação formal desde que começou no CCAA.'
+    }
+  ];
+
+  function shortName(l){
+    var tag = l.course === 'Baby Class' ? 'Baby' : (l.course === 'Preteen Course' ? 'Preteen' : 'Kids');
+    return tag + ' ' + l.n;
+  }
+  function fullName(l){ return l.course + ' ' + l.n; }
+  function classDur(l){
+    if(l.course === 'Baby Class') return '45min';
+    if(l.course === 'Preteen Course') return '1h10';
+    return '1h';
+  }
+
+  var ageStrip = document.getElementById('ageStrip');
+  LEVELS.forEach(function(l){
+    var chip = document.createElement('div');
+    chip.className = 'age-chip';
+    chip.textContent = shortName(l) + ' · ' + l.age;
+    ageStrip.appendChild(chip);
+  });
+
+  // gráfico de vocabulário: cor por curso (categórica, slots fixos), magnitude por altura
+  (function(){
+    var seriesVar = { 'Baby Class':'--series-baby', "Kids' Course":'--series-kids', 'Preteen Course':'--series-preteen' };
+    var labelByCourse = { 'Baby Class':'Baby Class', "Kids' Course":"Kids' Course", 'Preteen Course':'Preteen Course' };
+    var withWords = LEVELS.filter(function(l){ return l.words; });
+    var max = Math.max.apply(null, withWords.map(function(l){ return l.words; }));
+
+    var chart = document.getElementById('vocabChart');
+    withWords.forEach(function(l){
+      var bar = document.createElement('div');
+      bar.className = 'vocab-bar';
+      bar.style.height = Math.max(6, Math.round((l.words / max) * 100)) + '%';
+      bar.style.background = 'var(' + seriesVar[l.course] + ')';
+      bar.title = shortName(l) + ' · ' + l.words + ' palavras novas';
+      chart.appendChild(bar);
+    });
+
+    var legend = document.getElementById('chartLegend');
+    ['Baby Class', "Kids' Course", 'Preteen Course'].forEach(function(c){
+      var item = document.createElement('span');
+      item.innerHTML = '<i style="background:var(' + seriesVar[c] + ')"></i>' + labelByCourse[c];
+      legend.appendChild(item);
+    });
+
+    function byCourse(course){ return withWords.filter(function(l){ return l.course === course; }); }
+    var baby = byCourse('Baby Class'), kids = byCourse("Kids' Course");
+    var babyGrowth = Math.round((baby[baby.length-1].words / baby[0].words - 1) * 100);
+    var kidsGrowth = Math.round((kids[5].words / kids[0].words - 1) * 100); // Kids 1 -> Kids 6, últimos dois níveis publicados faltam dado
+    document.getElementById('vocabCap').innerHTML =
+      'Do Baby Class 1 ao 6, o ganho é de <b>' + babyGrowth + '%</b>. Do Kids\' Course 1 ao 6, o ganho já é de <b>' + kidsGrowth + '%</b>, mais que o dobro. ' +
+      'O Preteen Course 1 começa em <b>' + withWords[withWords.length-2].words + ' palavras</b>, acima de todo o Kids\' Course. Entrar mais tarde não é entrar na parte mais leve, é entrar direto na parte que acelera.';
+  })();
+
+  var trail = document.getElementById('trail');
+  LEVELS.forEach(function(l, i){
+    var stop = document.createElement('div');
+    stop.className = 'stop ' + (i % 2 === 0 ? 'left' : 'right');
+
+    var card = document.createElement('div');
+    card.className = 'card';
+    card.style.setProperty('--kit-color', l.color);
+    card.tabIndex = 0;
+    card.setAttribute('role','button');
+    card.setAttribute('aria-expanded','false');
+
+    card.innerHTML =
+      '<div class="card-top">' +
+        '<div class="level-badge">' + l.n + '</div>' +
+        '<div class="card-title">' +
+          '<div class="name">' + fullName(l) + '</div>' +
+          '<div class="meta">' + l.age + ' · ' + l.grade + '</div>' +
+        '</div>' +
+        '<svg class="chevron" viewBox="0 0 20 20" fill="none"><path d="M5 8l5 5 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+      '</div>' +
+      '<div class="card-photo"><img src="' + l.img + '" alt="Kit do ' + fullName(l) + '" loading="lazy"></div>' +
+      '<div class="card-detail">' +
+        '<div class="card-detail-inner">' +
+          (l.words ?
+            '<div class="stat-row">' +
+              '<div class="stat"><b>' + l.words + '</b><span>palavras novas</span></div>' +
+              '<div class="stat"><b>38</b><span>aulas no semestre</span></div>' +
+              '<div class="stat"><b>2x</b><span>por semana, ' + classDur(l) + '</span></div>' +
+            '</div>' +
+            '<p class="does">' + l.does + '</p>' +
+            '<p class="works">' + l.works + '</p>'
+          :
+            '<p class="does soon">' + l.note + '</p>'
+          ) +
+        '</div>' +
+      '</div>';
+
+    card.addEventListener('click', function(){
+      var isOpen = card.classList.contains('open');
+      card.classList.toggle('open', !isOpen);
+      card.setAttribute('aria-expanded', String(!isOpen));
+    });
+    card.addEventListener('keydown', function(e){
+      if(e.key === 'Enter' || e.key === ' '){
+        e.preventDefault();
+        card.click();
+      }
+    });
+
+    stop.appendChild(card);
+    trail.appendChild(stop);
+  });
+
+  function drawTrail(){
+    var svg = document.getElementById('trailSvg');
+    var w = trail.clientWidth;
+    var h = trail.clientHeight;
+    svg.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
+    var cards = trail.querySelectorAll('.card');
+    var pts = [];
+    cards.forEach(function(c){
+      var r = c.getBoundingClientRect();
+      var tr = trail.getBoundingClientRect();
+      pts.push({ x: r.left - tr.left + r.width/2, y: r.top - tr.top + r.height/2 });
+    });
+    if(pts.length < 2){ svg.innerHTML=''; return; }
+    var d = 'M ' + pts[0].x + ' ' + pts[0].y;
+    for(var i=1;i<pts.length;i++){
+      var p0 = pts[i-1], p1 = pts[i];
+      var midY = (p0.y + p1.y) / 2;
+      d += ' C ' + p0.x + ' ' + midY + ', ' + p1.x + ' ' + midY + ', ' + p1.x + ' ' + p1.y;
+    }
+    svg.innerHTML = '<path d="' + d + '"/>';
+  }
+
+  window.addEventListener('load', drawTrail);
+  window.addEventListener('resize', drawTrail);
+  document.addEventListener('click', function(){ setTimeout(drawTrail, 380); });
+  setTimeout(drawTrail, 60);
+
+  /* ---------- demonstração (modo apresentação) ---------- */
+  function detailBody(l){
+    if(l.words){
+      return '<div class="stat-row">' +
+          '<div class="stat"><b>' + l.words + '</b><span>palavras novas</span></div>' +
+          '<div class="stat"><b>38</b><span>aulas no semestre</span></div>' +
+          '<div class="stat"><b>2x</b><span>por semana, ' + classDur(l) + '</span></div>' +
+        '</div>' +
+        '<p class="does">' + l.does + '</p>' +
+        '<p class="works">' + l.works + '</p>';
+    }
+    return '<p class="does soon">' + l.note + '</p>';
+  }
+
+  var overlay = document.getElementById('demoOverlay');
+  var picker = document.getElementById('demoPicker');
+  var storyEl = document.getElementById('demoStory');
+  var pickGrid = document.getElementById('pickGrid');
+  var slideFrame = document.getElementById('slideFrame');
+  var dotsEl = document.getElementById('dots');
+  var demoLabel = document.getElementById('demoLabel');
+  var current = 0;
+
+  var lastCourse = null;
+  LEVELS.forEach(function(l, i){
+    if(l.course !== lastCourse){
+      var head = document.createElement('div');
+      head.className = 'pick-course';
+      head.textContent = l.course;
+      pickGrid.appendChild(head);
+      lastCourse = l.course;
+    }
+    var item = document.createElement('button');
+    item.type = 'button';
+    item.className = 'pick-item';
+    item.style.setProperty('--pick-color', l.color);
+    item.innerHTML =
+      '<span class="num">' + l.n + '</span>' +
+      '<span class="txt"><span class="t">' + shortName(l) + '</span><br><span class="a">' + l.age + '</span></span>';
+    item.addEventListener('click', function(){ startStory(i); });
+    pickGrid.appendChild(item);
+  });
+
+  LEVELS.forEach(function(l, i){
+    var dot = document.createElement('div');
+    dot.className = 'dot';
+    dot.style.setProperty('--dot-color', l.color);
+    dotsEl.appendChild(dot);
+  });
+
+  LEVELS.forEach(function(l){
+    var slide = document.createElement('div');
+    slide.className = 'slide';
+    slide.innerHTML =
+      '<div class="slide-photo" style="--slide-color:' + l.color + '"><img src="' + l.img + '" alt="Kit do ' + fullName(l) + '"></div>' +
+      '<div class="slide-kicker"><span class="num" style="background:' + l.color + '">' + l.n + '</span><span class="meta">' + l.age + ' · ' + l.grade + '</span></div>' +
+      '<h3>' + fullName(l) + '</h3>' +
+      detailBody(l);
+    slideFrame.appendChild(slide);
+  });
+  var slides = slideFrame.querySelectorAll('.slide');
+
+  function showSlide(i){
+    current = Math.max(0, Math.min(LEVELS.length - 1, i));
+    slides.forEach(function(s, idx){ s.style.display = idx === current ? 'flex' : 'none'; });
+    dotsEl.querySelectorAll('.dot').forEach(function(d, idx){ d.classList.toggle('on', idx === current); });
+    document.getElementById('prevSlide').disabled = current === 0;
+    document.getElementById('nextSlide').disabled = current === LEVELS.length - 1;
+    demoLabel.textContent = fullName(LEVELS[current]) + ' de ' + LEVELS.length;
+  }
+
+  function startStory(i){
+    picker.hidden = true;
+    storyEl.hidden = false;
+    showSlide(i);
+  }
+
+  function backToPicker(){
+    storyEl.hidden = true;
+    picker.hidden = false;
+    demoLabel.textContent = 'Onde seu filho está';
+  }
+
+  document.getElementById('openDemo').addEventListener('click', function(){
+    overlay.hidden = false;
+    picker.hidden = false;
+    storyEl.hidden = true;
+    demoLabel.textContent = 'Onde seu filho está';
+  });
+  document.getElementById('closeDemo').addEventListener('click', function(){ overlay.hidden = true; });
+  document.getElementById('restartDemo').addEventListener('click', backToPicker);
+  document.getElementById('prevSlide').addEventListener('click', function(){ showSlide(current - 1); });
+  document.getElementById('nextSlide').addEventListener('click', function(){ showSlide(current + 1); });
+
+  document.addEventListener('keydown', function(e){
+    if(overlay.hidden) return;
+    if(e.key === 'Escape'){ overlay.hidden = true; return; }
+    if(storyEl.hidden) return;
+    if(e.key === 'ArrowRight') showSlide(current + 1);
+    if(e.key === 'ArrowLeft') showSlide(current - 1);
+  });
+
+  var touchX = null;
+  slideFrame.addEventListener('touchstart', function(e){ touchX = e.touches[0].clientX; }, {passive:true});
+  slideFrame.addEventListener('touchend', function(e){
+    if(touchX === null) return;
+    var dx = e.changedTouches[0].clientX - touchX;
+    if(Math.abs(dx) > 40){ dx < 0 ? showSlide(current + 1) : showSlide(current - 1); }
+    touchX = null;
+  }, {passive:true});
+})();
+</script>
