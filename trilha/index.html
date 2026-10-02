@@ -466,37 +466,55 @@ body{background:var(--bg);color:var(--ink);margin:0}
   min-height:0;
 }
 .demo-story[hidden]{display:none}
-.dots{
+.story-hint{
   flex:none;
-  display:flex;
-  gap:5px;
-  padding:0 16px 10px;
+  font-size:12.5px;
+  color:var(--ink-soft);
+  text-align:center;
+  padding:0 20px 10px;
 }
-.dot{
-  flex:1;
-  height:3px;
-  border-radius:2px;
-  background:var(--line);
-}
-.dot.on{background:var(--dot-color,var(--red))}
+.story-hint b{color:var(--ink)}
 
 .slide-frame{
-  position:relative;
   flex:1;
   min-height:0;
-  overflow:hidden;
-}
-.slide{
-  position:absolute;
-  inset:0;
-  display:flex;
-  flex-direction:column;
   overflow-y:auto;
   padding:0 20px calc(20px + env(safe-area-inset-bottom,0px));
 }
+.slide{
+  display:flex;
+  flex-direction:column;
+  padding:18px 18px 4px;
+  margin-bottom:14px;
+  border-radius:16px;
+  border:1px solid var(--line);
+  background:var(--paper);
+  overflow:hidden;
+  scroll-margin-top:10px;
+}
+.slide.current{
+  border-color:var(--slide-color);
+  box-shadow:0 0 0 2px var(--slide-color);
+}
+.slide.current .slide-pin{
+  display:inline-flex;
+}
+.slide-pin{
+  display:none;
+  align-items:center;
+  gap:5px;
+  font-size:11px;
+  font-weight:600;
+  color:var(--slide-color);
+  background:color-mix(in srgb, var(--slide-color) 14%, transparent);
+  border-radius:99px;
+  padding:3px 10px;
+  margin-bottom:10px;
+  align-self:flex-start;
+}
 .slide-photo{
   flex:none;
-  margin:0 -20px 16px;
+  margin:0 -18px 16px;
   aspect-ratio:16/11;
   background:var(--slide-color);
   overflow:hidden;
@@ -550,25 +568,8 @@ body{background:var(--bg);color:var(--ink);margin:0}
   flex:none;
   display:flex;
   align-items:center;
-  gap:10px;
+  justify-content:center;
   padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));
-}
-.nav-btn{
-  flex:none;
-  width:42px;height:42px;
-  border-radius:50%;
-  border:1px solid var(--line);
-  background:var(--paper);
-  color:var(--ink);
-  display:flex;align-items:center;justify-content:center;
-  cursor:pointer;
-}
-.nav-btn:disabled{opacity:.35;cursor:default}
-.nav-mid{
-  flex:1;
-  text-align:center;
-  font-size:12px;
-  color:var(--ink-soft);
 }
 .nav-restart{
   font-size:12px;
@@ -667,16 +668,10 @@ body{background:var(--bg);color:var(--ink);margin:0}
   </div>
 
   <div class="demo-story" id="demoStory" hidden>
-    <div class="dots" id="dots"></div>
+    <p class="story-hint" id="storyHint"></p>
     <div class="slide-frame" id="slideFrame"></div>
     <div class="demo-nav">
-      <button class="nav-btn" id="prevSlide" type="button" aria-label="Anterior">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </button>
-      <span class="nav-mid"><button class="nav-restart" id="restartDemo" type="button">escolher outro nível</button></span>
-      <button class="nav-btn" id="nextSlide" type="button" aria-label="Próximo">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 3l5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </button>
+      <button class="nav-restart" id="restartDemo" type="button">escolher outro nível</button>
     </div>
   </div>
 </div>
@@ -955,9 +950,8 @@ body{background:var(--bg);color:var(--ink);margin:0}
   var storyEl = document.getElementById('demoStory');
   var pickGrid = document.getElementById('pickGrid');
   var slideFrame = document.getElementById('slideFrame');
-  var dotsEl = document.getElementById('dots');
+  var storyHint = document.getElementById('storyHint');
   var demoLabel = document.getElementById('demoLabel');
-  var current = 0;
 
   var lastCourse = null;
   LEVELS.forEach(function(l, i){
@@ -979,17 +973,11 @@ body{background:var(--bg);color:var(--ink);margin:0}
     pickGrid.appendChild(item);
   });
 
-  LEVELS.forEach(function(l, i){
-    var dot = document.createElement('div');
-    dot.className = 'dot';
-    dot.style.setProperty('--dot-color', l.color);
-    dotsEl.appendChild(dot);
-  });
-
   LEVELS.forEach(function(l){
     var slide = document.createElement('div');
     slide.className = 'slide';
     slide.innerHTML =
+      '<span class="slide-pin">é aqui que ele começa</span>' +
       '<div class="slide-photo" style="--slide-color:' + l.color + '">' +
         '<img src="' + l.img + '" alt="Kit do ' + fullName(l) + '">' +
         '<span class="zoom-hint">' + ZOOM_ICON + '</span>' +
@@ -1005,19 +993,15 @@ body{background:var(--bg);color:var(--ink);margin:0}
   });
   var slides = slideFrame.querySelectorAll('.slide');
 
-  function showSlide(i){
-    current = Math.max(0, Math.min(LEVELS.length - 1, i));
-    slides.forEach(function(s, idx){ s.style.display = idx === current ? 'flex' : 'none'; });
-    dotsEl.querySelectorAll('.dot').forEach(function(d, idx){ d.classList.toggle('on', idx === current); });
-    document.getElementById('prevSlide').disabled = current === 0;
-    document.getElementById('nextSlide').disabled = current === LEVELS.length - 1;
-    demoLabel.textContent = fullName(LEVELS[current]) + ' de ' + LEVELS.length;
-  }
-
+  // mostra a trilha completa (todos os cursos, todos os materiais), com o
+  // nível escolhido marcado e centralizado, não restrita a um nível por vez
   function startStory(i){
     picker.hidden = true;
     storyEl.hidden = false;
-    showSlide(i);
+    slides.forEach(function(s, idx){ s.classList.toggle('current', idx === i); });
+    demoLabel.textContent = 'Trilha completa';
+    storyHint.innerHTML = 'A partir de <b>' + fullName(LEVELS[i]) + '</b>. Role pra ver os outros cursos e níveis, antes e depois.';
+    requestAnimationFrame(function(){ slides[i].scrollIntoView({ block: 'start' }); });
   }
 
   function backToPicker(){
@@ -1034,24 +1018,10 @@ body{background:var(--bg);color:var(--ink);margin:0}
   });
   document.getElementById('closeDemo').addEventListener('click', function(){ overlay.hidden = true; });
   document.getElementById('restartDemo').addEventListener('click', backToPicker);
-  document.getElementById('prevSlide').addEventListener('click', function(){ showSlide(current - 1); });
-  document.getElementById('nextSlide').addEventListener('click', function(){ showSlide(current + 1); });
 
   document.addEventListener('keydown', function(e){
     if(overlay.hidden) return;
-    if(e.key === 'Escape'){ overlay.hidden = true; return; }
-    if(storyEl.hidden) return;
-    if(e.key === 'ArrowRight') showSlide(current + 1);
-    if(e.key === 'ArrowLeft') showSlide(current - 1);
+    if(e.key === 'Escape'){ overlay.hidden = true; }
   });
-
-  var touchX = null;
-  slideFrame.addEventListener('touchstart', function(e){ touchX = e.touches[0].clientX; }, {passive:true});
-  slideFrame.addEventListener('touchend', function(e){
-    if(touchX === null) return;
-    var dx = e.changedTouches[0].clientX - touchX;
-    if(Math.abs(dx) > 40){ dx < 0 ? showSlide(current + 1) : showSlide(current - 1); }
-    touchX = null;
-  }, {passive:true});
 })();
 </script>
