@@ -19,6 +19,7 @@
   --series-baby:#2a78d6;
   --series-kids:#eb6834;
   --series-preteen:#1baf7a;
+  --series-english:#4a3aa7;
   color-scheme:light;
 }
 @media (prefers-color-scheme: dark){
@@ -26,7 +27,7 @@
     --bg:#0c1226; --paper:#141b34; --ink:#eef0fb; --ink-soft:#a9aec8; --line:#232c4d;
     --navy:#2a3a78; --red:#ff5468; --ground:#10172f; --dots:rgba(255,255,255,.05);
     --road:#1f2848; --road-edge:#2b3763; --road-line:rgba(255,255,255,.45); --shadow:rgba(0,0,0,.55);
-    --series-baby:#3987e5; --series-kids:#d95926; --series-preteen:#199e70;
+    --series-baby:#3987e5; --series-kids:#d95926; --series-preteen:#199e70; --series-english:#9085e9;
     color-scheme:dark;
   }
 }
@@ -34,7 +35,7 @@
   --bg:#0c1226; --paper:#141b34; --ink:#eef0fb; --ink-soft:#a9aec8; --line:#232c4d;
   --navy:#2a3a78; --red:#ff5468; --ground:#10172f; --dots:rgba(255,255,255,.05);
   --road:#1f2848; --road-edge:#2b3763; --road-line:rgba(255,255,255,.45); --shadow:rgba(0,0,0,.55);
-  --series-baby:#3987e5; --series-kids:#d95926; --series-preteen:#199e70;
+  --series-baby:#3987e5; --series-kids:#d95926; --series-preteen:#199e70; --series-english:#9085e9;
   color-scheme:dark;
 }
 
@@ -185,7 +186,7 @@ button{font:inherit;color:inherit}
 }
 .pin{
   position:absolute;z-index:5;top:-10px;left:-10px;
-  width:30px;height:30px;border-radius:50%;
+  min-width:30px;height:30px;padding:0 7px;border-radius:15px;white-space:nowrap;
   background:var(--c);color:#fff;
   display:flex;align-items:center;justify-content:center;
   font-family:'Fredoka',sans-serif;font-weight:600;font-size:14px;
@@ -279,7 +280,7 @@ button{font:inherit;color:inherit}
 .sheet-body{padding:18px 20px 8px}
 .sheet-kicker{display:flex;align-items:center;gap:8px;margin-bottom:4px}
 .sheet-kicker .lvl{
-  width:28px;height:28px;border-radius:8px;background:var(--c);color:#fff;
+  min-width:28px;height:28px;padding:0 7px;white-space:nowrap;border-radius:8px;background:var(--c);color:#fff;
   display:flex;align-items:center;justify-content:center;
   font-family:'Fredoka',sans-serif;font-weight:600;font-size:14px;
 }
@@ -342,7 +343,7 @@ button{font:inherit;color:inherit}
   <div class="hero">
     <h1>A trilha do inglês do seu filho</h1>
     <p>Cada parada é um material real que a criança recebe na sala. Toque no kit pra ver o resumo do que ela aprende ali.</p>
-    <p class="sub"><b>Baby Class → Kids' Course → Preteen Course</b> → English Course</p>
+    <p class="sub"><b>Baby Class → Kids' Course → Preteen Course → English Course</b></p>
   </div>
 
   <div class="jump">
@@ -360,7 +361,7 @@ button{font:inherit;color:inherit}
     </div>
     <div id="stations"></div>
     <div class="marker trail-end" id="trailEnd">
-      <span class="marker-pill"><small>Próxima parada</small><b>English Course</b></span>
+      <span class="marker-pill"><small>Chegada</small><b>Certificado e diploma</b></span>
     </div>
   </div>
 
@@ -395,7 +396,7 @@ button{font:inherit;color:inherit}
       <p>Modalidade <b>híbrida</b>: a criança escolhe presencial ou online a cada aula, sem perder o ritmo da turma.</p>
     </div>
   </div>
-  <p class="foot-note">CCAA Pelotas · Baby Class 1 ao 6 · Kids' Course 1 ao 8 · Preteen Course 1 e 2</p>
+  <p class="foot-note">CCAA Pelotas · Baby Class 1 ao 6 · Kids' Course 1 ao 8 · Preteen Course 1 e 2 · English Course 1 ao 11</p>
 </div>
 
 <div class="sheet-wrap" id="sheetWrap" hidden>
@@ -518,6 +519,78 @@ button{font:inherit;color:inherit}
       age:'10 anos', grade:'5º ano · 2º sem.', words:289,
       does:'Já compra ingresso pela internet, entende endereços e fala sobre opiniões e planos próprios, apresentando outra pessoa em inglês.',
       works:'Fecha o Preteen Course com prova parcial escrita, prova final escrita e prova final oral no meio e no fim do semestre, a primeira vez que o aluno passa por avaliação formal desde que começou no CCAA.'
+    },
+    {
+      course:'English Course', n:1, color:'#9e1b22', img:'img/eng1.jpg',
+      age:"a partir de 11 anos", grade:"To the Top 1 · elementar", words:464, classes:38,
+      does:"Já se apresenta, fala de idade, família e profissão, pergunta as horas e o preço das coisas e faz compras em inglês.",
+      works:"Cada lição é feita de diálogos situacionais da vida real. Nos três primeiros níveis adolescentes e adultos ficam em turmas separadas, pra o aluno se adaptar à metodologia com gente da mesma fase."
+    },
+    {
+      course:'English Course', n:2, color:'#d8471f', img:'img/eng2.jpg',
+      age:"estágio elementar", grade:"To the Top 2", words:378, classes:38,
+      does:"Já fala da rotina e do futuro, dá opiniões e orientações, deixa recado por telefone, pede comida no restaurante e diz datas.",
+      works:"Segue nos diálogos do dia a dia, com a seção Fixed Expressions fixando as frases prontas que mais aparecem numa conversa real."
+    },
+    {
+      course:'English Course', n:"C 1-2", color:'#e98a1f', img:'img/engc12.jpg',
+      age:"alternativa ao 1 e 2", grade:"To the Top 1-2 · condensado", words:721, classes:50,
+      does:"Junta o conteúdo do English 1 e do 2 num semestre só: apresentações, compras, rotina, telefone, restaurante e opiniões.",
+      works:"Não é uma parada a mais, é um atalho. São 50 aulas de 1h15 no semestre em vez de 38, e quem faz o condensado conclui o English Course em 10 semestres, não em 11."
+    },
+    {
+      course:'English Course', n:3, color:'#e9a21f', img:'img/eng3.jpg',
+      age:"estágio elementar", grade:"To the Top 3", words:321, classes:38,
+      does:"Já fala do passado, de clima, saúde e endereços, pede e nega permissão, faz previsões e conta o que alguém disse.",
+      works:"Fecha o estágio elementar e é o último nível com turmas separadas por idade. Aqui termina a meta do inglês de dia a dia: cumprimentar, pedir, perguntar e se apresentar."
+    },
+    {
+      course:'English Course', n:4, color:'#2f7a3a', img:'img/eng4.jpg',
+      age:"estágio intermediário", grade:"To the Top 4", words:360, classes:38,
+      does:"Já compara, aconselha, dá desculpas, esclarece mal-entendidos e expressa preocupação, surpresa ou preferência.",
+      works:"Abre o estágio intermediário com mini-sitcoms além dos diálogos. A partir daqui adolescentes e adultos estudam juntos, e entram os exercícios no formato do TOEFL® ITP."
+    },
+    {
+      course:'English Course', n:5, color:'#2e6e6b', img:'img/eng5.jpg',
+      age:"estágio intermediário", grade:"To the Top 5", words:334, classes:38,
+      does:"Já fala de saúde, emoções e viagens, de situações que começaram no passado e seguem até hoje, e faz promessas e pedidos.",
+      works:"Continua com mini-sitcoms e exercícios estilo TOEFL®. O foco passa a ser aprofundar a conversa: expor opinião, desejo e experiência."
+    },
+    {
+      course:'English Course', n:6, color:'#1f4fa8', img:'img/eng6.jpg',
+      age:"estágio intermediário", grade:"To the Top 6", words:288, classes:38,
+      does:"Já fala de sentimentos, entretenimento, hábitos alimentares e meio ambiente, e resolve uma viagem de trem pedindo informação.",
+      works:"Fecha o estágio intermediário. Quem chega aqui já compartilha experiências e fala de viagens e planos com segurança."
+    },
+    {
+      course:'English Course', n:7, color:'#3d2f8f', img:'img/eng7.jpg',
+      age:"estágio avançado", grade:"To the Top 7", words:350, classes:38,
+      does:"Já discute esportes e estilo de vida, pede num drive-thru, compara preços, narra acontecimentos e faz recomendações.",
+      works:"Abre o estágio avançado: as lições trazem anúncios, charges e artigos, não só diálogos. Entra a seção Talking Like an American, com expressões idiomáticas."
+    },
+    {
+      course:'English Course', n:8, color:'#6a2a8a', img:'img/eng8.jpg',
+      age:"estágio avançado", grade:"To the Top 8", words:736, classes:38,
+      does:"Já explica decisões, fala de possibilidades no passado, planeja um acampamento, reserva hotel e lê artigos de revista.",
+      works:"É o maior salto de vocabulário da coleção To the Top, 736 palavras novas, puxado pela leitura de artigos."
+    },
+    {
+      course:'English Course', n:9, color:'#b0246e', img:'img/eng9.jpg',
+      age:"estágio avançado", grade:"To the Top 9", words:695, classes:38,
+      does:"Já debate arte, regras e aprendizado de línguas, resolve um embarque aéreo, persuade, concorda e discorda com argumento.",
+      works:"Fecha a coleção To the Top. O aluno já defende ideias e entende artigos e documentários em inglês."
+    },
+    {
+      course:'English Course', n:10, color:'#4b2f86', img:'img/eng10.jpg',
+      age:"Mastering English", grade:"Mastering English for Success 1", words:1141, classes:38,
+      does:"Já entende palestras e vídeos no geral e no detalhe, e se comunica com fluência em situações sociais, acadêmicas e profissionais.",
+      works:"Cada aula gira em torno de um material central: um vídeo, dois gêneros de texto, um case ou um artigo. São 1141 palavras novas, o maior volume de toda a trilha."
+    },
+    {
+      course:'English Course', n:11, color:'#a3261f', img:'img/eng11.jpg',
+      age:"Mastering English", grade:"Mastering English for Success 2", words:990, classes:38,
+      does:"Já produz textos claros, coesos e bem estruturados, apresenta ideias e participa de palestras com segurança.",
+      works:"Último nível. Quem conclui o curso completo faz a prova do TOEFL® gratuitamente, junto com o certificado e o diploma do CCAA."
     }
   ]
 
@@ -527,24 +600,26 @@ button{font:inherit;color:inherit}
   var ZONES = {
     'Baby Class':     { v:'--series-baby',    sub:'3 a 5 anos · Imagination Planet' },
     "Kids' Course":   { v:'--series-kids',    sub:'6 a 9 anos · Amazing Adventures' },
-    'Preteen Course': { v:'--series-preteen', sub:'10 anos · Password Communication' }
+    'Preteen Course': { v:'--series-preteen', sub:'10 anos · Password Communication' },
+    'English Course': { v:'--series-english', sub:'11 anos em diante · To the Top e Mastering English' }
   };
 
   function shortName(l){
-    var tag = l.course === 'Baby Class' ? 'Baby' : (l.course === 'Preteen Course' ? 'Preteen' : 'Kids');
+    var tag = l.course === 'Baby Class' ? 'Baby' : l.course === 'Preteen Course' ? 'Preteen' : l.course === 'English Course' ? 'English' : 'Kids';
     return tag + ' ' + l.n;
   }
   function fullName(l){ return l.course + ' ' + l.n; }
   function classDur(l){
     if(l.course === 'Baby Class') return '45min';
     if(l.course === 'Preteen Course') return '1h10';
+    if(l.course === 'English Course') return '1h15';
     return '1h';
   }
   function detailBody(l){
     if(!l.words) return '<p class="does soon">' + l.note + '</p>';
     return '<div class="stat-row">' +
         '<div class="stat"><b>' + l.words + '</b><span>palavras novas</span></div>' +
-        '<div class="stat"><b>38</b><span>aulas no semestre</span></div>' +
+        '<div class="stat"><b>' + (l.classes || 38) + '</b><span>aulas no semestre</span></div>' +
         '<div class="stat"><b>2x</b><span>por semana, ' + classDur(l) + '</span></div>' +
       '</div>' +
       '<p class="does">' + l.does + '</p>' +
@@ -576,7 +651,7 @@ button{font:inherit;color:inherit}
         '<span class="here-flag">Seu filho está aqui</span>' +
         '<span class="lift"><span class="float"><span class="box">' +
           '<span class="face front"><img src="' + l.img + '" alt="" loading="lazy" decoding="async"></span>' +
-          '<span class="face back"><b>' + l.n + '</b><small>' + l.course + '</small></span>' +
+          '<span class="face back"><b' + (String(l.n).length > 2 ? ' style="font-size:24px"' : '') + '>' + l.n + '</b><small>' + l.course + '</small></span>' +
           '<span class="face side r"></span><span class="face side l"></span>' +
           '<span class="face cap t"></span><span class="face cap b"></span>' +
         '</span></span></span>' +
@@ -759,7 +834,7 @@ button{font:inherit;color:inherit}
   /* ---------- gráfico de vocabulário ---------- */
   (function(){
     var seriesVar = { 'Baby Class':'--series-baby', "Kids' Course":'--series-kids', 'Preteen Course':'--series-preteen' };
-    var withWords = LEVELS.filter(function(l){ return l.words; });
+    var withWords = LEVELS.filter(function(l){ return l.words && l.course !== 'English Course'; });
     var max = Math.max.apply(null, withWords.map(function(l){ return l.words; }));
     var chart = document.getElementById('vocabChart');
     withWords.forEach(function(l){
