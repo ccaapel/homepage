@@ -82,13 +82,13 @@ a{color:inherit}
 .brand-txt span{font-size:11.5px;color:var(--ink-soft)}
 .top-call{
   margin-left:auto;display:inline-flex;align-items:center;gap:7px;
-  background:var(--red);color:#fff;text-decoration:none;
+  background:#1fa855;color:#fff;text-decoration:none;
   font-size:12.5px;font-weight:700;padding:8px 13px;border-radius:999px;
-  box-shadow:0 4px 12px color-mix(in srgb,var(--red) 35%,transparent);
+  box-shadow:0 4px 12px rgba(31,168,85,.35);
 }
 .top-call svg{flex:none}
 
-.page{max-width:760px;margin:0 auto;padding:26px 16px 56px}
+.page{max-width:760px;margin:0 auto;padding:26px 16px 96px}
 
 /* hero */
 .kicker{
@@ -115,7 +115,7 @@ a{color:inherit}
 .soc .ic{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:none;color:#fff}
 .ic-ig{background:radial-gradient(circle at 30% 107%,#fdf497 0%,#fdf497 5%,#fd5949 45%,#d6249f 60%,#285aeb 90%)}
 .ic-fb{background:#0866ff}
-.ic-ph{background:var(--red)}
+.ic-wa{background:#25d366}
 .facts{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:0 0 30px}
 .fact{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:11px 12px}
 .fact b{display:block;font-size:20px;font-weight:800;letter-spacing:-.01em}
@@ -401,6 +401,47 @@ a{color:inherit}
 .contact .soc{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.18);color:#fff}
 .foot-note{font-size:11.5px;color:var(--ink-mute);text-align:center;margin-top:18px;line-height:1.5}
 
+.wa-float{
+  position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:60;
+  width:56px;height:56px;border-radius:50%;background:#25d366;color:#fff;
+  display:flex;align-items:center;justify-content:center;box-shadow:0 8px 22px rgba(0,0,0,.25);
+  transition:transform .2s;
+}
+.wa-float:hover{transform:scale(1.06)}
+body.sheet-open .wa-float{display:none}
+.how{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:0 0 26px;counter-reset:how}
+.how div{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:11px 12px;font-size:12.5px;line-height:1.4;color:var(--ink-soft)}
+.how div::before{counter-increment:how;content:counter(how);display:inline-flex;width:22px;height:22px;border-radius:50%;background:var(--ink);color:var(--paper);font-size:12px;font-weight:800;align-items:center;justify-content:center;margin-bottom:6px}
+.how b{display:block;color:var(--ink);font-size:13px}
+details.fold{margin:0 0 16px;background:var(--paper);border:1px solid var(--line);border-radius:14px}
+details.fold > summary{list-style:none;cursor:pointer;padding:12px 14px;font-size:13px;font-weight:700;display:flex;align-items:center;gap:8px}
+details.fold > summary::-webkit-details-marker{display:none}
+details.fold > summary::after{content:"";margin-left:auto;width:8px;height:8px;border-right:2px solid var(--ink-soft);border-bottom:2px solid var(--ink-soft);transform:rotate(45deg);transition:transform .2s}
+details.fold[open] > summary::after{transform:rotate(-135deg)}
+details.fold > summary span{font-weight:500;color:var(--ink-soft)}
+.fold-body{padding:0 14px 14px}
+details.deep{margin-top:38px;border-top:1px solid var(--line);padding-top:6px}
+details.deep > summary{list-style:none;cursor:pointer;padding:16px 0;font-size:16px;font-weight:800;display:flex;align-items:center;gap:8px}
+details.deep > summary::-webkit-details-marker{display:none}
+details.deep > summary::after{content:"Ver";margin-left:auto;font-size:12px;font-weight:700;color:var(--brand-ink)}
+details.deep[open] > summary::after{content:"Fechar"}
+details.deep .insight:first-of-type{margin-top:0;border-top:0;padding-top:0}
+.school{margin-top:40px;padding-top:26px;border-top:1px solid var(--line)}
+.map{border-radius:16px;overflow:hidden;border:1px solid var(--line);background:var(--paper)}
+.map iframe{display:block;width:100%;height:240px;border:0}
+.map-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 14px}
+.map-bar b{display:block;font-size:14px}
+.map-bar span{font-size:12.5px;color:var(--ink-soft)}
+.map-bar a{margin-left:auto;font-size:12.5px;font-weight:700;color:var(--brand-ink);text-decoration:none;white-space:nowrap}
+.feat{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:12px}
+.feat-item{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:13px 14px}
+.feat-item .fi{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:8px;font-size:18px;background:color-mix(in srgb,var(--fc) 14%,transparent);color:var(--fc)}
+.feat-item b{display:block;font-size:13.5px;margin-bottom:3px}
+.feat-item p{font-size:12.5px;line-height:1.5;color:var(--ink-soft);margin:0}
+.feat-item.wide{grid-column:1 / -1}
+.events{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.events span{font-size:11.5px;font-weight:700;padding:4px 9px;border-radius:999px;background:var(--bg);border:1px solid var(--line)}
+@media (max-width:520px){.how{grid-template-columns:1fr}.how div{display:grid;grid-template-columns:22px 1fr;column-gap:10px;align-items:center}.how div::before{margin:0;grid-row:1 / span 2}.how b,.how span{grid-column:2}}
 .toast{
   position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);opacity:0;
   background:var(--ink);color:var(--paper);font-size:13px;font-weight:600;padding:10px 16px;border-radius:999px;
@@ -415,10 +456,7 @@ a{color:inherit}
   <div class="topbar-in">
     <img class="logo" src="img/ccaa-logo.png" alt="CCAA">
     <div class="brand-txt"><b>CCAA Pelotas</b><span>Inglês e Espanhol</span></div>
-    <a class="top-call" href="tel:+555330251919">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1z"/></svg>
-      (53) 3025-1919
-    </a>
+    <a class="top-call wa-link" href="https://wa.me/555330251919" target="_blank" rel="noopener"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>WhatsApp</a>
   </div>
 </header>
 
@@ -427,7 +465,12 @@ a{color:inherit}
     <p class="kicker">Jornada do aluno</p>
     <h1>Do primeiro contato com o inglês ao <em>certificado final</em>, semestre a semestre</h1>
     <div class="social" id="heroSocial"></div>
-    <p class="lede">Não existe começar atrasado. Cada curso recebe o aluno pela <b>idade</b>, sem exigir os níveis anteriores, e a partir dos 12 anos o <b>teste de nivelamento</b> encaixa quem já sabe inglês. Escolha o curso e veja o material real de cada semestre, o que se aprende nele e o que vem depois.</p>
+    <p class="lede">Cada curso recebe o aluno pela <b>idade</b>, sem exigir os níveis anteriores, e a partir dos 12 anos o <b>teste de nivelamento</b> encaixa quem já possui conhecimento. Escolha o curso e veja o material real de cada semestre, o que se aprende e o que vem depois!</p>
+    <div class="how">
+      <div><b>Escolha o curso</b><span>pela idade de quem vai estudar</span></div>
+      <div><b>Toque no material</b><span>e veja o que se aprende no semestre</span></div>
+      <div><b>Fale com a gente</b><span>pelo WhatsApp e agende a aula experimental</span></div>
+    </div>
     <div class="facts">
       <div class="fact"><b>4</b><span>cursos em sequência, dos 3 anos à vida adulta</span></div>
       <div class="fact"><b>27</b><span>semestres do Baby Class 1 ao English 11</span></div>
@@ -446,8 +489,11 @@ a{color:inherit}
     <h2 class="sec-h" id="trailTitle">A trilha</h2>
     <p class="sec-sub" id="trailSub"></p>
     <div class="seg" id="seg" role="tablist" aria-label="Escolher curso"></div>
+    <details class="fold" id="nowFold">
+      <summary>Já é aluno? <span>Marque o nível atual</span></summary>
+      <div class="fold-body">
     <div class="now">
-      <p class="now-label">Já é aluno? <span>Marque o nível atual pra ver o que já foi e o que vem.</span></p>
+      
       <div id="nowChips" style="display:contents"></div>
       <button class="link-btn" id="clearHere" type="button" hidden>limpar</button>
       <button class="link-btn" id="copyLink" type="button">
@@ -455,6 +501,8 @@ a{color:inherit}
         copiar link desta trilha
       </button>
     </div>
+      </div>
+    </details>
     <button class="prev-toggle" id="prevToggle" type="button" hidden></button>
     <div class="trail" id="trail">
       <svg class="trail-svg" id="trailSvg" aria-hidden="true"><path class="road-edge"/><path class="road"/><path class="road-line"/><path class="road-progress"/></svg>
@@ -464,6 +512,8 @@ a{color:inherit}
     </div>
   </section>
 
+  <details class="deep" id="deep">
+  <summary>Quer entender a fundo? Veja como o vocabulário evolui</summary>
   <section class="insight" id="insKids" hidden>
     <h2 class="sec-h">Na infância, o vocabulário acelera</h2>
     <p class="sec-sub">Palavras novas por nível, do Baby Class 1 ao Preteen Course 2</p>
@@ -489,17 +539,33 @@ a{color:inherit}
       <div class="insight-card"><p>A referência CEFR vem da comparação oficial do CCAA: <b>A1</b> nos níveis 1 a 3, <b>A2</b> do 3 ao 5, <b>B1</b> do 6 ao 9, <b>B2</b> no 9 e 10, e <b>C1</b> no 10 e 11. Os níveis de fronteira aparecem com as duas faixas porque o próprio quadro do CCAA os coloca nas duas.</p></div>
     </div>
   </section>
+  </details>
+
+  <section class="school" id="escola">
+    <h2 class="sec-h">Conheça o CCAA Pelotas</h2>
+    <p class="sec-sub">Inglês e espanhol no Centro de Pelotas, com aula presencial ou online e atividades que vão além do livro.</p>
+    <div class="map">
+      <iframe title="Mapa do CCAA Pelotas" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps?q=CCAA%20Pelotas%2C%20R.%20Gon%C3%A7alves%20Chaves%2C%20551%2C%20Centro%2C%20Pelotas%20-%20RS&output=embed"></iframe>
+      <div class="map-bar">
+        <div><b>R. Gonçalves Chaves, 551</b><span>Centro · Pelotas/RS</span></div>
+        <a href="https://www.google.com/maps/search/?api=1&query=CCAA%20Pelotas%20R.%20Gon%C3%A7alves%20Chaves%20551%20Pelotas" target="_blank" rel="noopener">Como chegar →</a>
+      </div>
+    </div>
+    <div class="feat">
+      <div class="feat-item" style="--fc:#eb6834"><div class="fi">🍳</div><b>Cooking Class</b><p>Os alunos aprendem a culinária americana na prática, cozinhando e falando inglês ao mesmo tempo.</p></div>
+      <div class="feat-item" style="--fc:#1fa855"><div class="fi">☘</div><b>Agenda cultural o ano todo</b><p>Datas da cultura de língua inglesa viram atividade na escola.</p><div class="events"><span>St. Patrick's Day</span><span>Páscoa</span><span>Halloween</span></div></div>
+      <div class="feat-item" style="--fc:var(--brand)"><div class="fi">⇄</div><b>Aula híbrida</b><p>Presencial ou online a cada aula, com o mesmo conteúdo e o mesmo material.</p></div>
+      <div class="feat-item" style="--fc:#4a3aa7"><div class="fi">↺</div><b>Reforço e reposição gratuitos</b><p>Faltou aula? O aluno repõe sem custo e não fica atrás da turma.</p></div>
+      <div class="feat-item" style="--fc:#d7191f"><div class="fi">✦</div><b>Peter, a IA do CCAA</b><p>Tira dúvidas e conversa em inglês com o aluno fora do horário de aula.</p></div>
+      <div class="feat-item" style="--fc:#e9a21f"><div class="fi">★</div><b>Certificado a cada semestre</b><p>Todo nível concluído rende certificado de promoção, sem custo.</p></div>
+      <div class="feat-item wide" style="--fc:#13235b"><div class="fi">✓</div><b>2x melhor em atendimento no Reclame Aqui</b><p>Eleito na categoria Escola de Idiomas em 2025.</p></div>
+    </div>
+  </section>
 
   <footer class="foot">
-    <div class="diff">
-      <div class="diff-item"><span class="n">01</span><p><b>Certificado a cada semestre</b>, sem custo: todo nível concluído rende certificado de promoção, e o último de cada curso rende também o de conclusão.</p></div>
-      <div class="diff-item"><span class="n">02</span><p>Faltou aula? <b>Reforço e reposição são gratuitos</b>, o aluno não fica atrás do resto da turma.</p></div>
-      <div class="diff-item"><span class="n">03</span><p>Modalidade <b>híbrida</b>: presencial ou online a cada aula, com o mesmo conteúdo e o mesmo material.</p></div>
-      <div class="diff-item"><span class="n">04</span><p><b>2x melhor em atendimento</b> na categoria Escola de Idiomas, eleito pelo Reclame Aqui em 2025.</p></div>
-    </div>
     <div class="contact">
       <img class="logo" src="img/ccaa-logo.png" alt="">
-      <div class="contact-txt"><b>Fale com a CCAA Pelotas</b><span>Aula experimental, matrícula e teste de nivelamento</span></div>
+      <div class="contact-txt"><b>Fale com o CCAA Pelotas</b><span>Aula experimental, matrícula e teste de nivelamento</span></div>
       <div class="social" id="footSocial"></div>
     </div>
     <p class="foot-note">CCAA Pelotas · Baby Class 1 ao 6 · Kids' Course 1 ao 8 · Preteen Course 1 e 2 · English Course 1 ao 11<br>Idades consideradas completas até 31/03 do ano corrente.</p>
@@ -530,6 +596,7 @@ a{color:inherit}
     </div>
   </div>
 </div>
+<a class="wa-float wa-link" href="https://wa.me/555330251919" target="_blank" rel="noopener" aria-label="Falar no WhatsApp"><svg width="28" height="28" viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg></a>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
@@ -633,7 +700,7 @@ a{color:inherit}
     },
     {
       course:'English Course', n:1, color:'#9e1b22', img:'img/eng1.jpg',
-      age:"a partir de 11 anos", grade:"To the Top 1 · básico", words:464, classes:38,
+      age:"a partir de 12 anos (11 vindo do Preteen)", grade:"To the Top 1 · básico", words:464, classes:38,
       does:"Já se apresenta, fala de idade, família e profissão, pergunta as horas e o preço das coisas e faz compras em inglês.",
       works:"Cada lição é feita de diálogos situacionais da vida real. Nos três primeiros níveis adolescentes e adultos ficam em turmas separadas, pra o aluno se adaptar à metodologia com gente da mesma fase."
     },
@@ -712,7 +779,7 @@ a{color:inherit}
     { key:'baby',    name:'Baby Class',     v:'--series-baby',    age:'3 a 5 anos',            sem:'6 semestres',  start:'3 anos',  sub:'3 a 5 anos · Imagination Planet', thumb:'img/baby3.jpg' },
     { key:'kids',    name:"Kids' Course",   v:'--series-kids',    age:'6 a 9 anos',            sem:'8 semestres',  start:'6 anos',  sub:'6 a 9 anos · Amazing Adventures', thumb:'img/kit2.jpg' },
     { key:'preteen', name:'Preteen Course', v:'--series-preteen', age:'10 e 11 anos',          sem:'2 semestres',  start:'10 anos', sub:'10 e 11 anos · Password Communication', thumb:'img/preteen1.jpg' },
-    { key:'english', name:'English Course', v:'--series-english', age:'11 anos em diante e adultos', sem:'11 semestres', start:'11 anos ou mais', sub:'11 anos em diante · To the Top e Mastering English', thumb:'img/eng1.jpg' }
+    { key:'english', name:'English Course', v:'--series-english', age:'12 anos em diante e adultos', sem:'11 semestres', start:'12 anos ou mais', sub:'12 anos em diante · To the Top e Mastering English', thumb:'img/eng1.jpg' }
   ];
   var byName = {}; COURSES.forEach(function(c, i){ c.idx = i; byName[c.name] = c; });
   LEVELS.forEach(function(l, i){
@@ -755,8 +822,8 @@ a{color:inherit}
       '<span class="ic ic-ig"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5.2"/><circle cx="12" cy="12" r="4.1"/><circle cx="17.4" cy="6.6" r="1.1" fill="#fff" stroke="none"/></svg></span>@ccaa.pelotas</a>' +
     '<a class="soc" href="https://www.facebook.com/ccaa.pelotas/" target="_blank" rel="noopener">' +
       '<span class="ic ic-fb"><svg width="15" height="15" viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M9.101 23.691v-7.98H6.627v-3.667h2.474v-1.58c0-4.085 1.848-5.978 5.858-5.978.401 0 .955.042 1.468.103a8.68 8.68 0 0 1 1.141.195v3.325a8.623 8.623 0 0 0-.653-.036 26.805 26.805 0 0 0-.733-.009c-.707 0-1.259.096-1.675.309a1.686 1.686 0 0 0-.679.622c-.258.42-.374.995-.374 1.752v1.297h3.919l-.386 2.103-.287 1.564h-3.246v8.245C19.396 23.238 24 18.179 24 12.044c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.628 3.874 10.35 9.101 11.647Z"/></svg></span>CCAA Pelotas</a>' +
-    '<a class="soc" href="tel:+555330251919">' +
-      '<span class="ic ic-ph"><svg width="14" height="14" viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1z"/></svg></span>(53) 3025-1919</a>';
+    '<a class="soc wa-link" href="https://wa.me/555330251919" target="_blank" rel="noopener">' +
+      '<span class="ic ic-wa"><svg width="15" height="15" viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg></span>(53) 3025-1919</a>';
   document.getElementById('heroSocial').innerHTML = SOCIAL;
   document.getElementById('footSocial').innerHTML = SOCIAL;
 
@@ -966,7 +1033,18 @@ a{color:inherit}
   clearBtn.addEventListener('click', function(){ setHere(-1, false); });
 
   /* ---------- link compartilhável: #kids, #english/english-7 ---------- */
+  function waText(){
+    var msg = 'Olá! Vi a trilha do inglês no site do CCAA Pelotas';
+    if(state.here >= 0) msg += ' e queria saber o próximo passo depois do ' + fullName(LEVELS[state.here]);
+    else if(state.course && state.course !== 'all') msg += ' e quero saber mais sobre o ' + COURSES.filter(function(c){ return c.key === state.course; })[0].name;
+    return msg + '.';
+  }
+  function syncWa(){
+    var href = 'https://wa.me/555330251919?text=' + encodeURIComponent(waText());
+    document.querySelectorAll('.wa-link').forEach(function(a){ a.href = href; });
+  }
   function writeHash(){
+    syncWa();
     var h = '#' + state.course + (state.here >= 0 ? '/' + LEVELS[state.here].slug : '');
     if(history.replaceState) history.replaceState(null, '', h); else location.hash = h;
   }
@@ -1025,14 +1103,14 @@ a{color:inherit}
     if(!wrap.hidden) return;
     openedAt = i; lastFocus = document.activeElement;
     wrap.hidden = false;
-    document.body.style.overflow = 'hidden';
+    document.body.style.overflow = 'hidden'; document.body.classList.add('sheet-open');
     requestAnimationFrame(function(){ requestAnimationFrame(function(){ wrap.classList.add('open'); }); });
     setTimeout(function(){ document.getElementById('sheetClose').focus({ preventScroll:true }); }, 60);
   }
   function closeSheet(){
     if(wrap.hidden) return;
     wrap.classList.remove('open');
-    document.body.style.overflow = '';
+    document.body.style.overflow = ''; document.body.classList.remove('sheet-open');
     stationEls.forEach(function(s){ s.classList.remove('active'); });
     var moved = current !== openedAt, target = stationEls[current];
     setTimeout(function(){
@@ -1095,7 +1173,8 @@ a{color:inherit}
     'A queda no meio do curso coincide com a entrada das mini-sitcoms e dos exercícios no formato TOEFL®: o foco sai de palavra nova e vai pra uso, opinião e fluência. ' +
     'Os saltos do 8 e do Mastering acompanham a chegada de artigos, vídeos e cases nas lições. Quem acha que "parou de aprender" no meio do English está, na prática, consolidando.';
 
-  if(!readHash()) { /* sem link: começa na escolha do curso */ }
+  if(!readHash()) syncWa();
+  if(state.here >= 0) document.getElementById('nowFold').open = true;
   window.addEventListener('hashchange', readHash);
 })();
 </script>
