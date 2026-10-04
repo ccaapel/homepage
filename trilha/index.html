@@ -1,21 +1,38 @@
-<title>Trilha do Inglês</title>
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Jornada do Inglês · CCAA Pelotas</title>
+<meta name="description" content="Do Baby Class ao English 11: todos os materiais, níveis e certificados do CCAA Pelotas, semestre a semestre.">
+<meta name="theme-color" content="#1aa0dc">
+<link rel="icon" type="image/png" href="img/favicon.png">
+<link rel="apple-touch-icon" href="img/ccaa-logo.png">
+<meta property="og:title" content="Jornada do Inglês · CCAA Pelotas">
+<meta property="og:description" content="Veja todos os níveis e materiais, do Baby Class ao English 11.">
+<meta property="og:image" content="img/ccaa-logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
 <style>
-/* layout: estrada SVG sinuosa ligando 16 paradas; cada parada é o kit real como caixa 3D girando; toque abre painel de resumo */
+/* layout: cabeçalho com marca e contato, escolha de curso, estrada asfaltada com kits 3D girando, painel de resumo, gráficos de vocabulário */
 :root{
-  --bg:#fdfaf3;
+  --bg:#f5f7fb;
   --paper:#ffffff;
-  --ink:#1b2340;
-  --ink-soft:#5b6178;
-  --line:#e4ddc9;
-  --navy:#0e1a3d;
-  --red:#e3182c;
-  --ground:#f7f0de;
-  --dots:rgba(27,35,64,.07);
-  --road:#ecdfbf;
-  --road-edge:#dccb9f;
+  --ink:#121a33;
+  --ink-soft:#57607a;
+  --ink-mute:#8a91a6;
+  --line:#e2e6ef;
+  --brand:#1aa0dc;
+  --brand-ink:#0b6f9e;
+  --red:#d7191f;
+  --navy:#13235b;
+  --ground:#eef2f8;
+  --dots:rgba(19,35,91,.06);
+  --road:#5a6273;
+  --road-edge:#d3d9e4;
   --road-line:#ffffff;
-  --shadow:rgba(27,35,64,.22);
+  --shadow:rgba(18,26,51,.16);
   --series-baby:#2a78d6;
   --series-kids:#eb6834;
   --series-preteen:#1baf7a;
@@ -24,154 +41,210 @@
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
-    --bg:#0c1226; --paper:#141b34; --ink:#eef0fb; --ink-soft:#a9aec8; --line:#232c4d;
-    --navy:#2a3a78; --red:#ff5468; --ground:#10172f; --dots:rgba(255,255,255,.05);
-    --road:#1f2848; --road-edge:#2b3763; --road-line:rgba(255,255,255,.45); --shadow:rgba(0,0,0,.55);
+    --bg:#0b1020; --paper:#131a2e; --ink:#eef1fa; --ink-soft:#aab1c7; --ink-mute:#7d849b; --line:#232b45;
+    --brand:#38b3ea; --brand-ink:#7fd0f5; --red:#ff4d55; --navy:#2a3c86;
+    --ground:#0f1528; --dots:rgba(255,255,255,.05);
+    --road:#2c3346; --road-edge:#3a4258; --road-line:rgba(255,255,255,.55); --shadow:rgba(0,0,0,.5);
     --series-baby:#3987e5; --series-kids:#d95926; --series-preteen:#199e70; --series-english:#9085e9;
     color-scheme:dark;
   }
 }
 :root[data-theme="dark"]{
-  --bg:#0c1226; --paper:#141b34; --ink:#eef0fb; --ink-soft:#a9aec8; --line:#232c4d;
-  --navy:#2a3a78; --red:#ff5468; --ground:#10172f; --dots:rgba(255,255,255,.05);
-  --road:#1f2848; --road-edge:#2b3763; --road-line:rgba(255,255,255,.45); --shadow:rgba(0,0,0,.55);
+  --bg:#0b1020; --paper:#131a2e; --ink:#eef1fa; --ink-soft:#aab1c7; --ink-mute:#7d849b; --line:#232b45;
+  --brand:#38b3ea; --brand-ink:#7fd0f5; --red:#ff4d55; --navy:#2a3c86;
+  --ground:#0f1528; --dots:rgba(255,255,255,.05);
+  --road:#2c3346; --road-edge:#3a4258; --road-line:rgba(255,255,255,.55); --shadow:rgba(0,0,0,.5);
   --series-baby:#3987e5; --series-kids:#d95926; --series-preteen:#199e70; --series-english:#9085e9;
   color-scheme:dark;
 }
-
 *{box-sizing:border-box}
-html{-webkit-text-size-adjust:100%}
-body{background:var(--bg);color:var(--ink);margin:0}
-.page{
-  max-width:680px;
-  margin:0 auto;
-  padding:28px 16px 56px;
-  font-family:'Sora',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{
+  margin:0;background:var(--bg);color:var(--ink);
+  font-family:'Plus Jakarta Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  -webkit-font-smoothing:antialiased;
 }
 button{font:inherit;color:inherit}
+a{color:inherit}
+[hidden]{display:none !important}
 
-/* topo */
-.brand{display:flex;align-items:center;gap:10px;margin-bottom:22px}
-.brand-mark{
-  width:34px;height:34px;border-radius:9px;flex:none;
-  background:conic-gradient(from 210deg,var(--red),#c41022 40%,#0e1a3d 65%,var(--red));
+/* cabeçalho */
+.topbar{
+  position:sticky;top:0;z-index:50;
+  background:color-mix(in srgb,var(--bg) 86%,transparent);
+  backdrop-filter:saturate(1.4) blur(12px);-webkit-backdrop-filter:saturate(1.4) blur(12px);
+  border-bottom:1px solid var(--line);
 }
-.brand-name{font-family:'Fredoka',sans-serif;font-weight:600;font-size:15px;letter-spacing:.02em;color:var(--ink-soft)}
+.topbar-in{max-width:760px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:10px}
+.logo{width:36px;height:36px;border-radius:9px;display:block;flex:none;box-shadow:0 2px 8px var(--shadow)}
+.brand-txt{line-height:1.1}
+.brand-txt b{display:block;font-size:14.5px;font-weight:800;letter-spacing:.01em}
+.brand-txt span{font-size:11.5px;color:var(--ink-soft)}
+.top-call{
+  margin-left:auto;display:inline-flex;align-items:center;gap:7px;
+  background:var(--red);color:#fff;text-decoration:none;
+  font-size:12.5px;font-weight:700;padding:8px 13px;border-radius:999px;
+  box-shadow:0 4px 12px color-mix(in srgb,var(--red) 35%,transparent);
+}
+.top-call svg{flex:none}
+
+.page{max-width:760px;margin:0 auto;padding:26px 16px 56px}
+
+/* hero */
+.kicker{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:11.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--brand-ink);
+  margin:0 0 12px;
+}
+.kicker::before{content:"";width:18px;height:2px;background:var(--brand);border-radius:2px}
 .hero h1{
-  font-family:'Fredoka',sans-serif;font-weight:600;
-  font-size:clamp(30px,7.4vw,42px);line-height:1.05;margin:0 0 10px;text-wrap:balance;
+  font-size:clamp(28px,6.4vw,42px);line-height:1.08;font-weight:800;letter-spacing:-.02em;
+  margin:0 0 14px;text-wrap:balance;
 }
-.hero p{font-size:15.5px;line-height:1.55;color:var(--ink-soft);margin:0 0 6px;max-width:520px}
-.hero .sub{font-size:13px;margin-top:10px}
-.hero .sub b{color:var(--ink);font-weight:600}
+.hero h1 em{font-style:normal;color:var(--red)}
+.lede{font-size:15.5px;line-height:1.6;color:var(--ink-soft);margin:0 0 18px;max-width:600px}
+.lede b{color:var(--ink);font-weight:700}
+.social{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 22px}
+.soc{
+  display:inline-flex;align-items:center;gap:8px;text-decoration:none;
+  background:var(--paper);border:1px solid var(--line);border-radius:999px;
+  padding:6px 13px 6px 6px;font-size:12.5px;font-weight:600;
+  transition:border-color .2s,transform .2s;
+}
+.soc:hover{border-color:var(--ink-mute);transform:translateY(-1px)}
+.soc .ic{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:none;color:#fff}
+.ic-ig{background:radial-gradient(circle at 30% 107%,#fdf497 0%,#fdf497 5%,#fd5949 45%,#d6249f 60%,#285aeb 90%)}
+.ic-fb{background:#0866ff}
+.ic-ph{background:var(--red)}
+.facts{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:0 0 30px}
+.fact{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:11px 12px}
+.fact b{display:block;font-size:20px;font-weight:800;letter-spacing:-.01em}
+.fact span{display:block;font-size:11.5px;line-height:1.35;color:var(--ink-soft);margin-top:2px}
+@media (max-width:560px){.facts{grid-template-columns:repeat(2,1fr)}}
 
-/* atalho: onde seu filho está */
-.jump{margin:22px 0 18px}
-.jump-label{font-size:12.5px;font-weight:600;color:var(--ink);margin:0 0 8px}
-.jump-chips{display:flex;flex-wrap:wrap;gap:6px}
+/* escolha do curso */
+.choose h2,.sec-h{font-size:20px;font-weight:800;letter-spacing:-.01em;margin:0 0 4px}
+.choose p.sub,.sec-sub{font-size:13.5px;color:var(--ink-soft);margin:0 0 14px;line-height:1.5}
+.course-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.course-card{
+  position:relative;text-align:left;cursor:pointer;
+  background:var(--paper);border:1px solid var(--line);border-radius:16px;
+  padding:0;overflow:hidden;display:flex;flex-direction:column;
+  transition:transform .2s,box-shadow .2s,border-color .2s;
+}
+.course-card:hover{transform:translateY(-2px);box-shadow:0 10px 26px var(--shadow);border-color:var(--cc)}
+.course-card:focus-visible{outline:3px solid var(--cc);outline-offset:3px}
+.cc-img{height:112px;background:#fff;display:flex;align-items:center;justify-content:center;border-bottom:1px solid var(--line)}
+.cc-img img{height:100%;width:100%;object-fit:contain;padding:8px}
+.cc-body{padding:11px 13px 13px;border-top:3px solid var(--cc)}
+.cc-body b{display:block;font-size:15px;font-weight:800}
+.cc-body span{display:block;font-size:12px;color:var(--ink-soft);margin-top:2px}
+.cc-body small{display:inline-block;margin-top:8px;font-size:11px;font-weight:700;color:var(--cc);letter-spacing:.02em}
+.course-card.full{grid-column:1 / -1;flex-direction:row;align-items:stretch}
+.course-card.full .cc-img{width:42%;height:auto;min-height:104px;border-bottom:0;border-right:1px solid var(--line);gap:0;padding:8px}
+.course-card.full .cc-img img{width:25%;height:auto;padding:2px}
+.course-card.full .cc-body{border-top:0;border-left:3px solid var(--cc);display:flex;flex-direction:column;justify-content:center}
+@media (min-width:640px){.course-grid{grid-template-columns:repeat(4,1fr)}}
+
+/* barra da trilha */
+.trail-head{margin-top:34px;scroll-margin-top:70px}
+.station{scroll-margin-top:90px}
+.seg{
+  display:flex;gap:4px;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:4px;
+  overflow-x:auto;scrollbar-width:none;margin:0 0 12px;
+}
+.seg::-webkit-scrollbar{display:none}
+.seg button{
+  flex:1 0 auto;border:0;background:none;border-radius:9px;padding:8px 11px;
+  font-size:12.5px;font-weight:700;color:var(--ink-soft);cursor:pointer;white-space:nowrap;
+}
+.seg button.on{background:var(--ink);color:var(--paper)}
+.now{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:0 0 16px}
+.now-label{font-size:12.5px;font-weight:700;width:100%;margin-bottom:2px}
+.now-label span{font-weight:500;color:var(--ink-soft)}
 .chip{
   border:1px solid var(--line);background:var(--paper);border-radius:999px;
-  padding:6px 11px;font-size:12px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;
-  transition:border-color .2s,background .2s;
+  padding:5px 10px;font-size:12px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;
 }
 .chip i{width:8px;height:8px;border-radius:50%;background:var(--c);flex:none}
 .chip:hover{border-color:var(--c)}
 .chip.on{background:var(--c);border-color:var(--c);color:#fff}
 .chip.on i{background:#fff}
-.jump-clear{font-size:12px;color:var(--ink-soft);background:none;border:0;text-decoration:underline;cursor:pointer;padding:6px 4px}
-.jump-clear[hidden]{display:none}
+.link-btn{
+  font-size:12px;font-weight:700;color:var(--brand-ink);background:none;border:0;cursor:pointer;padding:5px 4px;
+  display:inline-flex;align-items:center;gap:5px;
+}
+.prev-toggle{
+  display:block;width:100%;margin:0 0 12px;padding:10px;border:1px dashed var(--line);border-radius:12px;
+  background:none;font-size:12.5px;font-weight:600;color:var(--ink-soft);cursor:pointer;
+}
 
 /* trilha */
 .trail{
-  position:relative;
+  position:relative;border-radius:24px;padding:24px 10px 30px;overflow:hidden;
   background-color:var(--ground);
-  background-image:radial-gradient(var(--dots) 1.2px, transparent 1.4px);
-  background-size:22px 22px;
-  border-radius:28px;
-  padding:26px 10px 30px;
-  overflow:hidden;
+  background-image:radial-gradient(var(--dots) 1.2px,transparent 1.4px);background-size:22px 22px;
+  border:1px solid var(--line);
 }
 .trail-svg{position:absolute;left:0;top:0;pointer-events:none;z-index:0;overflow:visible}
 .trail-svg path{fill:none;stroke-linecap:round;stroke-linejoin:round}
-.road-edge{stroke:var(--road-edge);stroke-width:40}
-.road{stroke:var(--road);stroke-width:32}
-.road-line{stroke:var(--road-line);stroke-width:2.5;stroke-dasharray:10 12}
-.road-progress{stroke:var(--red);stroke-width:5;opacity:.85}
+.road-edge{stroke:var(--road-edge);stroke-width:46}
+.road{stroke:var(--road);stroke-width:36}
+.road-line{stroke:var(--road-line);stroke-width:2.5;stroke-dasharray:12 14}
+.road-progress{stroke:#f6c445;stroke-width:3.5}
 
 .marker{position:relative;z-index:2;display:flex;justify-content:center}
 .marker-pill{
   display:inline-flex;flex-direction:column;align-items:center;
-  background:var(--navy);color:#fff;border-radius:18px;padding:9px 18px;
-  box-shadow:0 0 0 5px var(--ground),0 8px 20px var(--shadow);
+  background:var(--navy);color:#fff;border-radius:14px;padding:8px 18px;
+  box-shadow:0 0 0 5px var(--ground),0 8px 18px var(--shadow);
 }
-.marker-pill small{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;opacity:.75}
-.marker-pill b{font-family:'Fredoka',sans-serif;font-weight:600;font-size:16px}
+.marker-pill small{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;opacity:.7}
+.marker-pill b{font-size:15px;font-weight:800}
 .trail-start{margin-bottom:30px}
-.trail-end{margin-top:6px}
+.trail-end{margin-top:8px}
+.trail-end .marker-pill{background:var(--red)}
 
 .zone{
-  position:relative;z-index:2;
-  margin:4px auto 34px;width:max-content;max-width:92%;
-  text-align:center;background:var(--paper);
-  border:2px solid var(--zc);border-radius:16px;padding:8px 18px;
-  box-shadow:0 0 0 5px var(--ground),0 6px 16px var(--shadow);
+  position:relative;z-index:2;margin:6px auto 34px;width:max-content;max-width:94%;
+  background:var(--zc);color:#fff;border-radius:12px;padding:9px 18px 10px;text-align:center;
+  box-shadow:0 0 0 4px var(--ground),0 0 0 6px var(--zc),0 10px 22px var(--shadow);
 }
-.zone b{display:block;font-family:'Fredoka',sans-serif;font-weight:600;font-size:17px;color:var(--zc)}
-.zone span{font-size:11.5px;color:var(--ink-soft)}
+.zone b{display:block;font-size:16px;font-weight:800;letter-spacing:.01em}
+.zone span{font-size:11.5px;opacity:.9}
 
 .station{
   --w:128px;--h:96px;--d:16px;
-  position:relative;z-index:1;
-  display:flex;align-items:center;gap:14px;
-  margin:0 0 40px;
+  position:relative;z-index:1;display:flex;align-items:center;gap:14px;margin:0 0 40px;
 }
 .station.left{padding-left:3%}
 .station.right{flex-direction:row-reverse;padding-right:3%}
 .station.right .st-label{text-align:right}
 
-/* kit 3D */
 .kit{
-  position:relative;flex:none;
-  width:var(--w);height:calc(var(--h) + 26px);
-  background:none;border:0;padding:0;cursor:pointer;
-  perspective:760px;border-radius:14px;
-  -webkit-tap-highlight-color:transparent;
+  position:relative;flex:none;width:var(--w);height:calc(var(--h) + 26px);
+  background:none;border:0;padding:0;cursor:pointer;perspective:760px;border-radius:14px;
+  -webkit-tap-highlight-color:transparent;transition:opacity .6s ease;
 }
 .kit:focus-visible{outline:3px solid var(--c);outline-offset:8px}
 .lift{position:absolute;left:0;top:0;width:var(--w);height:var(--h);transition:transform .25s ease;transform-style:preserve-3d}
 .kit:hover .lift{transform:scale(1.07)}
 .float{position:absolute;inset:0;transform-style:preserve-3d;animation:float 4.6s ease-in-out infinite;animation-delay:var(--delay)}
-.box{
-  position:absolute;inset:0;transform-style:preserve-3d;
-  animation:spin 9s cubic-bezier(.65,0,.35,1) infinite;animation-delay:var(--delay);
-}
-@keyframes spin{
-  0%,48%{transform:rotateX(-7deg) rotateY(-20deg)}
-  100%{transform:rotateX(-7deg) rotateY(340deg)}
-}
-@keyframes float{
-  0%,100%{transform:translateY(0)}
-  50%{transform:translateY(-7px)}
-}
-@keyframes shade{
-  0%,100%{transform:translateX(-50%) scale(1);opacity:.9}
-  50%{transform:translateX(-50%) scale(.82);opacity:.55}
-}
+.box{position:absolute;inset:0;transform-style:preserve-3d;animation:spin 9s cubic-bezier(.65,0,.35,1) infinite;animation-delay:var(--delay)}
+@keyframes spin{0%,48%{transform:rotateX(-7deg) rotateY(-20deg)}100%{transform:rotateX(-7deg) rotateY(340deg)}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+@keyframes shade{0%,100%{transform:translateX(-50%) scale(1);opacity:.9}50%{transform:translateX(-50%) scale(.82);opacity:.55}}
 .face{position:absolute;left:0;top:0;backface-visibility:hidden;-webkit-backface-visibility:hidden}
 .front,.back{width:var(--w);height:var(--h);border-radius:4px;overflow:hidden}
-.front{transform:translateZ(calc(var(--d) / 2));background:var(--c)}
+.front{transform:translateZ(calc(var(--d) / 2));background:#fff}
 .front img{width:100%;height:100%;object-fit:cover;display:block}
-.front::after{
-  content:"";position:absolute;inset:0;
-  background:linear-gradient(125deg,rgba(255,255,255,.32),rgba(255,255,255,0) 42%);
-}
+.front::after{content:"";position:absolute;inset:0;background:linear-gradient(125deg,rgba(255,255,255,.3),rgba(255,255,255,0) 42%)}
 .back{
-  transform:rotateY(180deg) translateZ(calc(var(--d) / 2));
-  background:var(--c);color:#fff;
+  transform:rotateY(180deg) translateZ(calc(var(--d) / 2));background:var(--c);color:#fff;
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
 }
-.back b{font-family:'Fredoka',sans-serif;font-weight:600;font-size:38px;line-height:1}
-.back small{font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;opacity:.85}
+.back b{font-size:34px;font-weight:800;line-height:1}
+.back small{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;opacity:.85}
 .side{width:var(--d);height:var(--h);left:calc((var(--w) - var(--d)) / 2);background:color-mix(in srgb,var(--c) 70%,#000)}
 .side.r{transform:rotateY(90deg) translateZ(calc(var(--w) / 2))}
 .side.l{transform:rotateY(-90deg) translateZ(calc(var(--w) / 2))}
@@ -179,58 +252,51 @@ button{font:inherit;color:inherit}
 .cap.t{transform:rotateX(90deg) translateZ(calc(var(--h) / 2));background:color-mix(in srgb,var(--c) 60%,#fff)}
 .cap.b{transform:rotateX(-90deg) translateZ(calc(var(--h) / 2));background:color-mix(in srgb,var(--c) 55%,#000)}
 .shadow{
-  position:absolute;left:50%;bottom:2px;width:74%;height:14px;
-  transform:translateX(-50%);border-radius:50%;
+  position:absolute;left:50%;bottom:2px;width:74%;height:14px;transform:translateX(-50%);border-radius:50%;
   background:radial-gradient(ellipse at center,var(--shadow),transparent 70%);
   animation:shade 4.6s ease-in-out infinite;animation-delay:var(--delay);
 }
 .pin{
-  position:absolute;z-index:5;top:-10px;left:-10px;
-  min-width:30px;height:30px;padding:0 7px;border-radius:15px;white-space:nowrap;
-  background:var(--c);color:#fff;
-  display:flex;align-items:center;justify-content:center;
-  font-family:'Fredoka',sans-serif;font-weight:600;font-size:14px;
-  box-shadow:0 0 0 3px var(--ground),0 3px 8px var(--shadow);
+  position:absolute;z-index:5;top:-10px;left:-10px;min-width:30px;height:30px;padding:0 8px;border-radius:15px;
+  background:var(--c);color:#fff;display:flex;align-items:center;justify-content:center;white-space:nowrap;
+  font-size:13px;font-weight:800;box-shadow:0 0 0 3px var(--ground),0 3px 8px var(--shadow);
 }
 .station.right .pin{left:auto;right:-10px}
 .here-flag{
   display:none;position:absolute;z-index:6;left:50%;top:-40px;transform:translateX(-50%);
-  white-space:nowrap;background:var(--red);color:#fff;
-  font-size:11px;font-weight:600;padding:5px 10px;border-radius:999px;
+  white-space:nowrap;background:var(--red);color:#fff;font-size:11px;font-weight:700;padding:5px 10px;border-radius:999px;
   box-shadow:0 4px 12px var(--shadow);
 }
-.here-flag::after{
-  content:"";position:absolute;left:50%;bottom:-5px;margin-left:-5px;
-  border:5px solid transparent;border-bottom:0;border-top-color:var(--red);
-}
+.here-flag::after{content:"";position:absolute;left:50%;bottom:-5px;margin-left:-5px;border:5px solid transparent;border-bottom:0;border-top-color:var(--red)}
 .station.here .here-flag{display:block}
 .station.here .pin{box-shadow:0 0 0 3px var(--ground),0 0 0 6px var(--red)}
 .station.done .pin{background:#8b91a8}
-.station.done .st-label{opacity:.72}
+.station.done .st-label{opacity:.7}
 .station.active .kit{outline:3px solid var(--c);outline-offset:8px}
 .station.flash .kit{animation:flash 1.2s ease}
 @keyframes flash{0%,100%{transform:none}30%{transform:scale(1.12)}60%{transform:scale(.97)}}
+.station.alt .st-label{border-style:dashed}
 
-/* rótulo da parada */
 .st-label{
-  position:relative;z-index:2;
-  background:var(--paper);border:1px solid var(--line);border-radius:14px;
-  padding:9px 13px 10px;max-width:calc(100% - var(--w) - 14px);
-  box-shadow:0 4px 14px var(--shadow);cursor:pointer;
+  position:relative;z-index:2;background:var(--paper);border:1px solid var(--line);border-radius:14px;
+  padding:9px 13px 10px;max-width:calc(100% - var(--w) - 14px);box-shadow:0 4px 14px var(--shadow);cursor:pointer;
   transition:opacity .5s ease,transform .5s ease;
 }
-.st-label .course{display:block;font-size:10.5px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--c)}
-.st-label .name{display:block;font-family:'Fredoka',sans-serif;font-weight:600;font-size:20px;line-height:1.15}
-.st-label .meta{display:block;font-size:12px;color:var(--ink-soft);margin-top:1px}
-.st-label .go{display:inline-block;font-size:11.5px;color:var(--ink-soft);margin-top:5px;border-bottom:1px dashed var(--ink-soft)}
+.st-label .course{display:block;font-size:10.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--c)}
+.st-label .name{display:flex;align-items:center;gap:6px;font-size:19px;font-weight:800;line-height:1.2;letter-spacing:-.01em}
+.station.right .st-label .name{justify-content:flex-end}
+.cefr{
+  font-size:10.5px;font-weight:800;letter-spacing:.03em;padding:2px 7px;border-radius:6px;
+  background:color-mix(in srgb,var(--c) 14%,transparent);color:var(--c);white-space:nowrap;
+}
+.st-label .meta{display:block;font-size:12px;color:var(--ink-soft);margin-top:2px}
+.st-label .go{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;font-weight:700;color:var(--ink-soft);margin-top:6px}
 .station.pre .st-label{opacity:0;transform:translateY(14px)}
 .station.pre .kit{opacity:0}
-.station .kit{transition:opacity .6s ease}
-
 @media (max-width:400px){
   .station{--w:112px;--h:84px;--d:14px}
   .st-label{padding:8px 11px}
-  .st-label .name{font-size:18px}
+  .st-label .name{font-size:17px}
 }
 @media (min-width:700px){
   .station{--w:168px;--h:126px;--d:20px;margin-bottom:46px}
@@ -244,13 +310,10 @@ button{font:inherit;color:inherit}
 
 /* painel de resumo */
 .sheet-wrap{position:fixed;inset:0;z-index:100;display:flex;align-items:flex-end;justify-content:center}
-.sheet-wrap[hidden]{display:none}
 .sheet-backdrop{position:absolute;inset:0;background:rgba(8,12,28,.58);opacity:0;transition:opacity .28s ease}
 .sheet{
-  position:relative;width:100%;max-width:560px;max-height:92vh;overflow-y:auto;
-  background:var(--paper);border-radius:22px 22px 0 0;
-  transform:translateY(100%);transition:transform .34s cubic-bezier(.2,.8,.2,1);
-  font-family:'Sora',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  position:relative;width:100%;max-width:560px;max-height:92vh;overflow-y:auto;background:var(--paper);
+  border-radius:22px 22px 0 0;transform:translateY(100%);transition:transform .34s cubic-bezier(.2,.8,.2,1);
 }
 .sheet-wrap.open .sheet{transform:none}
 .sheet-wrap.open .sheet-backdrop{opacity:1}
@@ -260,144 +323,188 @@ button{font:inherit;color:inherit}
   .sheet-wrap.open .sheet{opacity:1;transform:none}
 }
 .sheet-photo{
-  position:relative;height:240px;padding:22px 22px 18px;
-  display:flex;align-items:center;justify-content:center;perspective:900px;
-  background:radial-gradient(circle at 50% 35%,color-mix(in srgb,var(--c) 45%,#fff),var(--c) 75%);
+  position:relative;height:250px;padding:24px 22px 18px;display:flex;align-items:center;justify-content:center;perspective:900px;
+  background:radial-gradient(circle at 50% 35%,color-mix(in srgb,var(--c) 40%,#fff),var(--c) 78%);
 }
-.sheet-photo img{
-  max-width:100%;max-height:100%;object-fit:contain;border-radius:8px;
-  box-shadow:0 22px 44px rgba(0,0,0,.38);
-  animation:sway 6s ease-in-out infinite alternate;
-}
+.sheet-photo img{max-width:100%;max-height:100%;object-fit:contain;border-radius:8px;box-shadow:0 22px 44px rgba(0,0,0,.38);animation:sway 6s ease-in-out infinite alternate}
 @keyframes sway{from{transform:rotateY(-14deg) rotateX(5deg)}to{transform:rotateY(14deg) rotateX(5deg)}}
 @media (prefers-reduced-motion: reduce){.sheet-photo img{animation:none}}
 .sheet-grab{position:absolute;top:8px;left:50%;width:40px;height:4px;margin-left:-20px;border-radius:2px;background:rgba(255,255,255,.7)}
 .sheet-close{
-  position:absolute;top:12px;right:12px;width:36px;height:36px;border-radius:50%;
-  border:0;background:rgba(0,0,0,.28);color:#fff;cursor:pointer;
+  position:absolute;top:12px;right:12px;width:36px;height:36px;border-radius:50%;border:0;background:rgba(0,0,0,.3);color:#fff;cursor:pointer;
   display:flex;align-items:center;justify-content:center;
 }
 .sheet-body{padding:18px 20px 8px}
-.sheet-kicker{display:flex;align-items:center;gap:8px;margin-bottom:4px}
-.sheet-kicker .lvl{
-  min-width:28px;height:28px;padding:0 7px;white-space:nowrap;border-radius:8px;background:var(--c);color:#fff;
-  display:flex;align-items:center;justify-content:center;
-  font-family:'Fredoka',sans-serif;font-weight:600;font-size:14px;
-}
-.sheet-kicker .crs{font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--c)}
-.sheet h2{font-family:'Fredoka',sans-serif;font-weight:600;font-size:26px;line-height:1.1;margin:2px 0 2px}
+.sheet-kicker{display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap}
+.sheet-kicker .lvl{min-width:28px;height:28px;padding:0 8px;border-radius:8px;background:var(--c);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;white-space:nowrap}
+.sheet-kicker .crs{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--c)}
+.sheet h2{font-size:25px;font-weight:800;line-height:1.12;letter-spacing:-.02em;margin:2px 0 2px}
 .sheet-meta{font-size:13px;color:var(--ink-soft);margin:0 0 14px}
 .stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:0 0 14px}
 .stat{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:9px 10px}
-.stat b{display:block;font-family:'Fredoka',sans-serif;font-weight:600;font-size:22px;color:var(--c);line-height:1.1}
+.stat b{display:block;font-size:21px;font-weight:800;color:var(--c);line-height:1.1}
 .stat span{font-size:11px;color:var(--ink-soft);line-height:1.3;display:block}
 .does{font-size:15px;line-height:1.55;margin:0 0 10px}
 .does b{color:var(--c)}
 .works{font-size:13px;line-height:1.6;color:var(--ink-soft);margin:0;padding-top:10px;border-top:1px dashed var(--line)}
 .does.soon{font-size:14px;color:var(--ink-soft)}
+.cert{
+  display:flex;gap:10px;align-items:flex-start;margin:14px 0 0;padding:11px 12px;border-radius:12px;
+  background:color-mix(in srgb,var(--c) 8%,var(--paper));border:1px solid color-mix(in srgb,var(--c) 25%,var(--line));
+  font-size:12.5px;line-height:1.45;color:var(--ink);
+}
+.cert svg{flex:none;color:var(--c);margin-top:1px}
 .sheet-nav{
   position:sticky;bottom:0;display:flex;align-items:center;justify-content:space-between;gap:8px;
-  padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));
-  background:var(--paper);border-top:1px solid var(--line);margin-top:14px;
+  padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));background:var(--paper);border-top:1px solid var(--line);margin-top:14px;
 }
-.nav-btn{
-  border:1px solid var(--line);background:var(--paper);border-radius:999px;
-  padding:9px 14px;font-size:12.5px;font-weight:600;cursor:pointer;
-}
+.nav-btn{border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:9px 14px;font-size:12.5px;font-weight:700;cursor:pointer}
 .nav-btn:disabled{opacity:.35;cursor:default}
 .nav-pos{font-size:12px;color:var(--ink-soft)}
 
-/* insights */
-.insight{margin-top:38px;padding-top:24px;border-top:1px solid var(--line)}
-.insight h2{font-family:'Fredoka',sans-serif;font-weight:600;font-size:21px;margin:0 0 4px}
-.insight-kicker{font-size:12px;color:var(--ink-soft);margin:0 0 14px}
+/* gráficos */
+.insight{margin-top:38px;padding-top:26px;border-top:1px solid var(--line)}
+.insight + .insight{margin-top:30px}
 .chart-legend{display:flex;gap:16px;margin-bottom:10px;flex-wrap:wrap}
 .chart-legend span{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-soft)}
 .chart-legend i{width:9px;height:9px;border-radius:2px;flex:none}
-.vocab-chart{display:flex;align-items:flex-end;gap:3px;height:120px;margin:0 0 6px;padding:0 2px}
-.vocab-bar{flex:1;border-radius:4px 4px 0 0;min-width:4px}
-.axis-base{border-top:1px solid var(--line);margin:0 2px 8px}
-.insight-cap{font-size:13px;line-height:1.55;color:var(--ink-soft);margin:0 0 22px}
-.insight-grid{display:grid;gap:14px}
-.insight-card{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
-.insight-card p{font-size:13px;line-height:1.55;color:var(--ink-soft);margin:0}
+.vchart{display:flex;align-items:flex-end;gap:4px;height:130px;margin:0;padding:0 2px}
+.vbar{flex:1;border-radius:4px 4px 0 0;min-width:4px;position:relative}
+.vbar .v{position:absolute;bottom:100%;left:50%;transform:translateX(-50%);font-size:10px;font-weight:700;color:var(--ink-soft);padding-bottom:3px;white-space:nowrap}
+.axis-base{border-top:1px solid var(--line);margin:0 2px}
+.xlabels{display:flex;gap:4px;padding:0 2px;margin:5px 0 0}
+.xlabels span{flex:1;text-align:center;font-size:10.5px;font-weight:700;color:var(--ink-soft)}
+.xlabels.cefr span{font-weight:600;color:var(--ink-mute);font-size:9.5px}
+.insight-cap{font-size:13px;line-height:1.6;color:var(--ink-soft);margin:14px 0 18px}
+.insight-cap b{color:var(--ink)}
+.insight-grid{display:grid;gap:12px}
+.insight-card{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.insight-card p{font-size:13px;line-height:1.6;color:var(--ink-soft);margin:0}
 .insight-card b{color:var(--ink)}
 
 /* rodapé */
-.foot{margin-top:34px;padding-top:20px;border-top:1px solid var(--line)}
-.foot-strip{display:flex;gap:14px;align-items:flex-start;margin-bottom:16px}
-.foot-strip .n{font-family:'Fredoka',sans-serif;font-weight:600;font-size:22px;color:var(--red);flex:none;width:44px}
-.foot-strip p{font-size:13px;line-height:1.5;color:var(--ink-soft);margin:0}
-.foot-note{font-size:12px;color:var(--ink-soft);text-align:center;margin-top:22px}
+.foot{margin-top:38px;padding-top:24px;border-top:1px solid var(--line)}
+.diff{display:grid;gap:10px;margin-bottom:22px}
+.diff-item{display:flex;gap:12px;align-items:flex-start;background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.diff-item .n{font-size:13px;font-weight:800;color:var(--red);flex:none;width:24px}
+.diff-item p{font-size:13px;line-height:1.55;color:var(--ink-soft);margin:0}
+.diff-item b{color:var(--ink)}
+.contact{
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  background:var(--navy);color:#fff;border-radius:18px;padding:16px 18px;
+}
+.contact .logo{width:44px;height:44px;border-radius:11px}
+.contact-txt{flex:1;min-width:160px}
+.contact-txt b{display:block;font-size:15px;font-weight:800}
+.contact-txt span{font-size:12.5px;opacity:.8}
+.contact .social{margin:0}
+.contact .soc{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.18);color:#fff}
+.foot-note{font-size:11.5px;color:var(--ink-mute);text-align:center;margin-top:18px;line-height:1.5}
+
+.toast{
+  position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);opacity:0;
+  background:var(--ink);color:var(--paper);font-size:13px;font-weight:600;padding:10px 16px;border-radius:999px;
+  transition:opacity .25s,transform .25s;z-index:120;pointer-events:none;
+}
+.toast.show{opacity:1;transform:translateX(-50%)}
 </style>
+</head>
+<body>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Sora:wght@400;500;600&display=swap">
-
-<div class="page">
-  <div class="brand">
-    <div class="brand-mark"></div>
-    <div class="brand-name">CCAA PELOTAS</div>
+<header class="topbar">
+  <div class="topbar-in">
+    <img class="logo" src="img/ccaa-logo.png" alt="CCAA">
+    <div class="brand-txt"><b>CCAA Pelotas</b><span>Inglês e Espanhol</span></div>
+    <a class="top-call" href="tel:+555330251919">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1z"/></svg>
+      (53) 3025-1919
+    </a>
   </div>
+</header>
 
-  <div class="hero">
-    <h1>A trilha do inglês do seu filho</h1>
-    <p>Cada parada é um material real que a criança recebe na sala. Toque no kit pra ver o resumo do que ela aprende ali.</p>
-    <p class="sub"><b>Baby Class → Kids' Course → Preteen Course → English Course</b></p>
-  </div>
-
-  <div class="jump">
-    <p class="jump-label">Onde seu filho está agora?</p>
-    <div class="jump-chips" id="jumpChips"></div>
-    <button class="jump-clear" id="jumpClear" type="button" hidden>limpar marcação</button>
-  </div>
-
-  <div class="trail" id="trail">
-    <svg class="trail-svg" id="trailSvg" aria-hidden="true">
-      <path class="road-edge"/><path class="road"/><path class="road-line"/><path class="road-progress"/>
-    </svg>
-    <div class="marker trail-start" id="trailStart">
-      <span class="marker-pill"><small>Largada</small><b>3 anos</b></span>
+<main class="page">
+  <section class="hero">
+    <p class="kicker">Jornada do aluno</p>
+    <h1>Do primeiro contato com o inglês ao <em>certificado final</em>, semestre a semestre</h1>
+    <div class="social" id="heroSocial"></div>
+    <p class="lede">Não existe começar atrasado. Cada curso recebe o aluno pela <b>idade</b>, sem exigir os níveis anteriores, e a partir dos 12 anos o <b>teste de nivelamento</b> encaixa quem já sabe inglês. Escolha o curso e veja o material real de cada semestre, o que se aprende nele e o que vem depois.</p>
+    <div class="facts">
+      <div class="fact"><b>4</b><span>cursos em sequência, dos 3 anos à vida adulta</span></div>
+      <div class="fact"><b>27</b><span>semestres do Baby Class 1 ao English 11</span></div>
+      <div class="fact"><b>A1 → C1</b><span>no Quadro Europeu (CEFR) ao fim do English</span></div>
+      <div class="fact"><b>TOEFL®</b><span>gratuito para quem conclui o curso completo</span></div>
     </div>
-    <div id="stations"></div>
-    <div class="marker trail-end" id="trailEnd">
-      <span class="marker-pill"><small>Chegada</small><b>Certificado e diploma</b></span>
-    </div>
-  </div>
+  </section>
 
-  <div class="insight">
-    <h2>O vocabulário não cresce em linha reta</h2>
-    <p class="insight-kicker">Palavras novas por nível, do Baby Class 1 ao Preteen Course 2</p>
-    <div class="chart-legend" id="chartLegend"></div>
-    <div class="vocab-chart" id="vocabChart"></div>
+  <section class="choose" id="choose">
+    <h2>Por onde você quer começar?</h2>
+    <p class="sub">A trilha abre a partir do curso escolhido. Dá pra trocar ou ver tudo a qualquer momento.</p>
+    <div class="course-grid" id="courseGrid"></div>
+  </section>
+
+  <section class="trail-head" id="trailHead" hidden>
+    <h2 class="sec-h" id="trailTitle">A trilha</h2>
+    <p class="sec-sub" id="trailSub"></p>
+    <div class="seg" id="seg" role="tablist" aria-label="Escolher curso"></div>
+    <div class="now">
+      <p class="now-label">Já é aluno? <span>Marque o nível atual pra ver o que já foi e o que vem.</span></p>
+      <div id="nowChips" style="display:contents"></div>
+      <button class="link-btn" id="clearHere" type="button" hidden>limpar</button>
+      <button class="link-btn" id="copyLink" type="button">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M10 14a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 10a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg>
+        copiar link desta trilha
+      </button>
+    </div>
+    <button class="prev-toggle" id="prevToggle" type="button" hidden></button>
+    <div class="trail" id="trail">
+      <svg class="trail-svg" id="trailSvg" aria-hidden="true"><path class="road-edge"/><path class="road"/><path class="road-line"/><path class="road-progress"/></svg>
+      <div class="marker trail-start" id="trailStart"><span class="marker-pill"><small>Largada</small><b id="startAge">3 anos</b></span></div>
+      <div id="stations"></div>
+      <div class="marker trail-end" id="trailEnd"><span class="marker-pill"><small>Chegada</small><b>Certificado de conclusão e TOEFL®</b></span></div>
+    </div>
+  </section>
+
+  <section class="insight" id="insKids" hidden>
+    <h2 class="sec-h">Na infância, o vocabulário acelera</h2>
+    <p class="sec-sub">Palavras novas por nível, do Baby Class 1 ao Preteen Course 2</p>
+    <div class="chart-legend" id="kidsLegend"></div>
+    <div class="vchart" id="kidsChart"></div>
     <div class="axis-base"></div>
-    <p class="insight-cap" id="vocabCap"></p>
+    <p class="insight-cap" id="kidsCap"></p>
     <div class="insight-grid">
-      <div class="insight-card">
-        <p>Os 8 níveis do Kids' Course são <b>independentes</b>. Uma criança que nunca estudou inglês entra direto no nível que acompanha a idade dela, sem passar pelos anteriores, porque cada material já foi pensado pra receber aluno novo. A vaga segue a idade e o ano escolar, não o quanto a criança já sabe de inglês.</p>
-      </div>
-      <div class="insight-card">
-        <p>O Baby Class nunca dobra aula no mesmo dia, mesmo quando isso encaixaria melhor na rotina dos pais. Com 3 a 5 anos, a criança não mantém atenção em duas aulas seguidas. A grade de 2x por semana existe por causa da criança, não por limite de horário da escola.</p>
-      </div>
+      <div class="insight-card" data-show="kids"><p>Os 8 níveis do Kids' Course são <b>independentes</b>. Uma criança que nunca estudou inglês entra direto no nível que acompanha a idade dela, sem passar pelos anteriores, porque cada material já foi pensado pra receber aluno novo.</p></div>
+      <div class="insight-card" data-show="baby"><p>O Baby Class nunca dobra aula no mesmo dia, mesmo quando isso encaixaria melhor na rotina dos pais. Com 3 a 5 anos, a criança não mantém atenção em duas aulas seguidas. As 2 aulas por semana existem por causa da criança, não por limite de horário.</p></div>
     </div>
-  </div>
+  </section>
 
-  <div class="foot">
-    <div class="foot-strip">
-      <div class="n">01</div>
-      <p><b>2x melhor em atendimento</b> na categoria Escola de Idiomas, eleito pelo Reclame Aqui em 2025.</p>
+  <section class="insight" id="insEnglish" hidden>
+    <h2 class="sec-h">No English, mais nível não significa mais palavras</h2>
+    <p class="sec-sub">Palavras novas por nível do English Course, com a referência CEFR de cada um</p>
+    <div class="vchart" id="engChart"></div>
+    <div class="axis-base"></div>
+    <div class="xlabels" id="engX"></div>
+    <div class="xlabels cefr" id="engCefr"></div>
+    <p class="insight-cap" id="engCap"></p>
+    <div class="insight-grid">
+      <div class="insight-card"><p>A referência CEFR vem da comparação oficial do CCAA: <b>A1</b> nos níveis 1 a 3, <b>A2</b> do 3 ao 5, <b>B1</b> do 6 ao 9, <b>B2</b> no 9 e 10, e <b>C1</b> no 10 e 11. Os níveis de fronteira aparecem com as duas faixas porque o próprio quadro do CCAA os coloca nas duas.</p></div>
     </div>
-    <div class="foot-strip">
-      <div class="n">02</div>
-      <p>Faltou aula? <b>Reforço e reposição são gratuitos</b>, a criança não fica atrás do resto da turma.</p>
+  </section>
+
+  <footer class="foot">
+    <div class="diff">
+      <div class="diff-item"><span class="n">01</span><p><b>Certificado a cada semestre</b>, sem custo: todo nível concluído rende certificado de promoção, e o último de cada curso rende também o de conclusão.</p></div>
+      <div class="diff-item"><span class="n">02</span><p>Faltou aula? <b>Reforço e reposição são gratuitos</b>, o aluno não fica atrás do resto da turma.</p></div>
+      <div class="diff-item"><span class="n">03</span><p>Modalidade <b>híbrida</b>: presencial ou online a cada aula, com o mesmo conteúdo e o mesmo material.</p></div>
+      <div class="diff-item"><span class="n">04</span><p><b>2x melhor em atendimento</b> na categoria Escola de Idiomas, eleito pelo Reclame Aqui em 2025.</p></div>
     </div>
-    <div class="foot-strip">
-      <div class="n">03</div>
-      <p>Modalidade <b>híbrida</b>: a criança escolhe presencial ou online a cada aula, sem perder o ritmo da turma.</p>
+    <div class="contact">
+      <img class="logo" src="img/ccaa-logo.png" alt="">
+      <div class="contact-txt"><b>Fale com a CCAA Pelotas</b><span>Aula experimental, matrícula e teste de nivelamento</span></div>
+      <div class="social" id="footSocial"></div>
     </div>
-  </div>
-  <p class="foot-note">CCAA Pelotas · Baby Class 1 ao 6 · Kids' Course 1 ao 8 · Preteen Course 1 e 2 · English Course 1 ao 11</p>
-</div>
+    <p class="foot-note">CCAA Pelotas · Baby Class 1 ao 6 · Kids' Course 1 ao 8 · Preteen Course 1 e 2 · English Course 1 ao 11<br>Idades consideradas completas até 31/03 do ano corrente.</p>
+  </footer>
+</main>
 
 <div class="sheet-wrap" id="sheetWrap" hidden>
   <div class="sheet-backdrop" data-close></div>
@@ -410,10 +517,11 @@ button{font:inherit;color:inherit}
       </button>
     </div>
     <div class="sheet-body">
-      <div class="sheet-kicker"><span class="lvl" id="sheetNum"></span><span class="crs" id="sheetCourse"></span></div>
+      <div class="sheet-kicker"><span class="lvl" id="sheetNum"></span><span class="crs" id="sheetCourse"></span><span class="cefr" id="sheetCefr" hidden></span></div>
       <h2 id="sheetTitle"></h2>
       <p class="sheet-meta" id="sheetMeta"></p>
       <div id="sheetDetail"></div>
+      <div class="cert" id="sheetCert"></div>
     </div>
     <div class="sheet-nav">
       <button class="nav-btn" id="sheetPrev" type="button">‹ Anterior</button>
@@ -422,6 +530,7 @@ button{font:inherit;color:inherit}
     </div>
   </div>
 </div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
 (function(){
@@ -500,13 +609,15 @@ button{font:inherit;color:inherit}
     },
     {
       course:'Kids’ Course', n:7, color:'#b23a1f', img:'img/kit7.jpg',
-      age:'9 anos', grade:'4º ano · 1º sem.', words:null,
-      note:'Enquanto o Amazing Adventures 7 não chega (previsto pra nov/2026), esse nível segue no Password: Communication for Bigger Kids 1. Não temos aqui o detalhamento de lição a lição desse material antigo.'
+      age:'9 anos', grade:'4º ano · 1º sem.', words:250,
+      does:'Já apresenta alguém, entende endereços, diz o que está errado, fala de lazer e oferece ajuda, sempre com expressões educadas.',
+      works:'Usa o Password: Communication for Bigger Kids 1, com 10 lições, até o Amazing Adventures 7 chegar (previsto pra nov/2026). A escrita ganha peso: o aluno já cria diálogos com palavras dadas e ordena frases pra formar uma história.'
     },
     {
       course:'Kids’ Course', n:8, color:'#1f5fa8', img:'img/kit8.jpg',
-      age:'9 anos', grade:'4º ano · 2º sem.', words:null,
-      note:'Mesma obra do nível anterior, agora no livro 2. O Amazing Adventures 8 está previsto pra jun/2027, e o detalhamento desse material antigo também não está disponível aqui.'
+      age:'9 anos', grade:'4º ano · 2º sem.', words:270,
+      does:'Já fala de roupas, profissões e esportes, descreve pessoas, dá direções, pergunta o preço e dá opinião.',
+      works:'Segue no Password: Communication for Bigger Kids 2 até o Amazing Adventures 8 chegar (previsto pra jun/2027). Fecha o Kids\' Course: a criança matriculada no nível certo chega ao Preteen com 10 anos e ao English com 11.'
     },
     {
       course:'Preteen Course', n:1, color:'#e07a1f', img:'img/preteen1.jpg',
@@ -522,13 +633,13 @@ button{font:inherit;color:inherit}
     },
     {
       course:'English Course', n:1, color:'#9e1b22', img:'img/eng1.jpg',
-      age:"a partir de 11 anos", grade:"To the Top 1 · elementar", words:464, classes:38,
+      age:"a partir de 11 anos", grade:"To the Top 1 · básico", words:464, classes:38,
       does:"Já se apresenta, fala de idade, família e profissão, pergunta as horas e o preço das coisas e faz compras em inglês.",
       works:"Cada lição é feita de diálogos situacionais da vida real. Nos três primeiros níveis adolescentes e adultos ficam em turmas separadas, pra o aluno se adaptar à metodologia com gente da mesma fase."
     },
     {
       course:'English Course', n:2, color:'#d8471f', img:'img/eng2.jpg',
-      age:"estágio elementar", grade:"To the Top 2", words:378, classes:38,
+      age:"estágio básico", grade:"To the Top 2", words:378, classes:38,
       does:"Já fala da rotina e do futuro, dá opiniões e orientações, deixa recado por telefone, pede comida no restaurante e diz datas.",
       works:"Segue nos diálogos do dia a dia, com a seção Fixed Expressions fixando as frases prontas que mais aparecem numa conversa real."
     },
@@ -540,9 +651,9 @@ button{font:inherit;color:inherit}
     },
     {
       course:'English Course', n:3, color:'#e9a21f', img:'img/eng3.jpg',
-      age:"estágio elementar", grade:"To the Top 3", words:321, classes:38,
+      age:"estágio básico", grade:"To the Top 3", words:321, classes:38,
       does:"Já fala do passado, de clima, saúde e endereços, pede e nega permissão, faz previsões e conta o que alguém disse.",
-      works:"Fecha o estágio elementar e é o último nível com turmas separadas por idade. Aqui termina a meta do inglês de dia a dia: cumprimentar, pedir, perguntar e se apresentar."
+      works:"Fecha o estágio básico e é o último nível com turmas separadas por idade. Aqui termina a meta do inglês de dia a dia: cumprimentar, pedir, perguntar e se apresentar."
     },
     {
       course:'English Course', n:4, color:'#2f7a3a', img:'img/eng4.jpg',
@@ -582,39 +693,42 @@ button{font:inherit;color:inherit}
     },
     {
       course:'English Course', n:10, color:'#4b2f86', img:'img/eng10.jpg',
-      age:"Mastering English", grade:"Mastering English for Success 1", words:1141, classes:38,
+      age:"estágio avançado-superior", grade:"Mastering English for Success 1", words:1141, classes:38,
       does:"Já entende palestras e vídeos no geral e no detalhe, e se comunica com fluência em situações sociais, acadêmicas e profissionais.",
       works:"Cada aula gira em torno de um material central: um vídeo, dois gêneros de texto, um case ou um artigo. São 1141 palavras novas, o maior volume de toda a trilha."
     },
     {
       course:'English Course', n:11, color:'#a3261f', img:'img/eng11.jpg',
-      age:"Mastering English", grade:"Mastering English for Success 2", words:990, classes:38,
+      age:"estágio avançado-superior", grade:"Mastering English for Success 2", words:990, classes:38,
       does:"Já produz textos claros, coesos e bem estruturados, apresenta ideias e participa de palestras com segurança.",
-      works:"Último nível. Quem conclui o curso completo faz a prova do TOEFL® gratuitamente, junto com o certificado e o diploma do CCAA."
+      works:"Cada aula parte de um vídeo, de textos de gêneros diferentes, de um case ou de um artigo. Na prova oral do 10 e do 11 não há texto pra ler: o professor avalia habilidade comunicativa, proficiência e pronúncia em 9 perguntas."
     }
   ]
 
-  // padroniza o apóstrofo (o dado usa ’ tipográfico) pra todas as comparações por curso
-  LEVELS.forEach(function(l){ l.course = l.course.replace(/\u2019/g, "'"); });
+  LEVELS.forEach(function(l){ l.course = l.course.replace(/’/g, "'"); });
 
-  var ZONES = {
-    'Baby Class':     { v:'--series-baby',    sub:'3 a 5 anos · Imagination Planet' },
-    "Kids' Course":   { v:'--series-kids',    sub:'6 a 9 anos · Amazing Adventures' },
-    'Preteen Course': { v:'--series-preteen', sub:'10 anos · Password Communication' },
-    'English Course': { v:'--series-english', sub:'11 anos em diante · To the Top e Mastering English' }
-  };
+  var CEFR = { '1':'A1', '2':'A1', 'C 1-2':'A1', '3':'A1/A2', '4':'A2', '5':'A2', '6':'B1', '7':'B1', '8':'B1', '9':'B1/B2', '10':'B2/C1', '11':'C1' };
+  var COURSES = [
+    { key:'baby',    name:'Baby Class',     v:'--series-baby',    age:'3 a 5 anos',            sem:'6 semestres',  start:'3 anos',  sub:'3 a 5 anos · Imagination Planet', thumb:'img/baby3.jpg' },
+    { key:'kids',    name:"Kids' Course",   v:'--series-kids',    age:'6 a 9 anos',            sem:'8 semestres',  start:'6 anos',  sub:'6 a 9 anos · Amazing Adventures', thumb:'img/kit2.jpg' },
+    { key:'preteen', name:'Preteen Course', v:'--series-preteen', age:'10 e 11 anos',          sem:'2 semestres',  start:'10 anos', sub:'10 e 11 anos · Password Communication', thumb:'img/preteen1.jpg' },
+    { key:'english', name:'English Course', v:'--series-english', age:'11 anos em diante e adultos', sem:'11 semestres', start:'11 anos ou mais', sub:'11 anos em diante · To the Top e Mastering English', thumb:'img/eng1.jpg' }
+  ];
+  var byName = {}; COURSES.forEach(function(c, i){ c.idx = i; byName[c.name] = c; });
+  LEVELS.forEach(function(l, i){
+    l.i = i;
+    l.c = byName[l.course];
+    if(l.course === 'English Course') l.cefr = CEFR[String(l.n)];
+    l.slug = l.c.key + '-' + String(l.n).toLowerCase().replace(/[^a-z0-9]/g, '');
+  });
+  var lastOfCourse = {}; LEVELS.forEach(function(l){ lastOfCourse[l.course] = l.i; });
 
   function shortName(l){
-    var tag = l.course === 'Baby Class' ? 'Baby' : l.course === 'Preteen Course' ? 'Preteen' : l.course === 'English Course' ? 'English' : 'Kids';
+    var tag = { baby:'Baby', kids:'Kids', preteen:'Preteen', english:'English' }[l.c.key];
     return tag + ' ' + l.n;
   }
   function fullName(l){ return l.course + ' ' + l.n; }
-  function classDur(l){
-    if(l.course === 'Baby Class') return '45min';
-    if(l.course === 'Preteen Course') return '1h10';
-    if(l.course === 'English Course') return '1h15';
-    return '1h';
-  }
+  function classDur(l){ return { baby:'45min', kids:'1h', preteen:'1h10', english:'1h15' }[l.c.key]; }
   function detailBody(l){
     if(!l.words) return '<p class="does soon">' + l.note + '</p>';
     return '<div class="stat-row">' +
@@ -625,33 +739,77 @@ button{font:inherit;color:inherit}
       '<p class="does">' + l.does + '</p>' +
       '<p class="works">' + l.works + '</p>';
   }
+  var CERT_ICON = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="9" r="6"/><path d="M8.5 13.8 7 22l5-3 5 3-1.5-8.2"/></svg>';
+  function certText(l){
+    var t = 'Ao fim do semestre o aluno recebe o <b>certificado de promoção de nível</b>, sem custo.';
+    if(lastOfCourse[l.course] === l.i){
+      t = 'Último nível do ' + l.course + ': além do certificado de promoção, o aluno recebe o <b>certificado de conclusão do curso</b>.';
+      if(l.c.key === 'english') t += ' Quem conclui o curso completo faz a prova do <b>TOEFL®</b> gratuitamente.';
+    }
+    return CERT_ICON + '<span>' + t + '</span>';
+  }
+
+  /* ---------- contato ---------- */
+  var SOCIAL =
+    '<a class="soc" href="https://www.instagram.com/ccaa.pelotas/" target="_blank" rel="noopener">' +
+      '<span class="ic ic-ig"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5.2"/><circle cx="12" cy="12" r="4.1"/><circle cx="17.4" cy="6.6" r="1.1" fill="#fff" stroke="none"/></svg></span>@ccaa.pelotas</a>' +
+    '<a class="soc" href="https://www.facebook.com/ccaa.pelotas/" target="_blank" rel="noopener">' +
+      '<span class="ic ic-fb"><svg width="15" height="15" viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M9.101 23.691v-7.98H6.627v-3.667h2.474v-1.58c0-4.085 1.848-5.978 5.858-5.978.401 0 .955.042 1.468.103a8.68 8.68 0 0 1 1.141.195v3.325a8.623 8.623 0 0 0-.653-.036 26.805 26.805 0 0 0-.733-.009c-.707 0-1.259.096-1.675.309a1.686 1.686 0 0 0-.679.622c-.258.42-.374.995-.374 1.752v1.297h3.919l-.386 2.103-.287 1.564h-3.246v8.245C19.396 23.238 24 18.179 24 12.044c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.628 3.874 10.35 9.101 11.647Z"/></svg></span>CCAA Pelotas</a>' +
+    '<a class="soc" href="tel:+555330251919">' +
+      '<span class="ic ic-ph"><svg width="14" height="14" viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1z"/></svg></span>(53) 3025-1919</a>';
+  document.getElementById('heroSocial').innerHTML = SOCIAL;
+  document.getElementById('footSocial').innerHTML = SOCIAL;
+
+  /* ---------- escolha do curso ---------- */
+  var grid = document.getElementById('courseGrid');
+  COURSES.forEach(function(c){
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'course-card';
+    b.style.setProperty('--cc', 'var(' + c.v + ')');
+    b.innerHTML = '<span class="cc-img"><img src="' + c.thumb + '" alt="" loading="lazy"></span>' +
+      '<span class="cc-body"><b>' + c.name + '</b><span>' + c.age + '</span><small>' + c.sem + ' →</small></span>';
+    b.addEventListener('click', function(){ choose(c.key, true); });
+    grid.appendChild(b);
+  });
+  var full = document.createElement('button');
+  full.type = 'button';
+  full.className = 'course-card full';
+  full.style.setProperty('--cc', 'var(--red)');
+  full.innerHTML = '<span class="cc-img">' + COURSES.map(function(c){ return '<img src="' + c.thumb + '" alt="" loading="lazy">'; }).join('') + '</span>' +
+    '<span class="cc-body"><b>Trilha completa</b><span>Do Baby Class 1 ao English 11, os 4 cursos em sequência</span><small>27 semestres →</small></span>';
+  full.addEventListener('click', function(){ choose('all', true); });
+  grid.appendChild(full);
 
   /* ---------- trilha ---------- */
   var trail = document.getElementById('trail');
   var stationsEl = document.getElementById('stations');
-  var stationEls = [];
+  var stationEls = [], zoneEls = {};
   var lastCourse = null;
-
   LEVELS.forEach(function(l, i){
     if(l.course !== lastCourse){
       var z = document.createElement('div');
       z.className = 'zone';
-      z.style.setProperty('--zc', 'var(' + ZONES[l.course].v + ')');
-      z.innerHTML = '<b>' + l.course + '</b><span>' + ZONES[l.course].sub + '</span>';
+      z.dataset.course = l.c.key;
+      z.style.setProperty('--zc', 'var(' + l.c.v + ')');
+      z.innerHTML = '<b>' + l.course + '</b><span>' + l.c.sub + '</span>';
       stationsEl.appendChild(z);
+      zoneEls[l.c.key] = z;
       lastCourse = l.course;
     }
     var st = document.createElement('div');
-    st.className = 'station pre ' + (i % 2 === 0 ? 'left' : 'right');
+    st.className = 'station pre' + (l.age && /alternativa/.test(l.age) ? ' alt' : '');
+    st.dataset.course = l.c.key;
     st.style.setProperty('--c', l.color);
     st.style.setProperty('--delay', (-(i * 1.13) % 9).toFixed(2) + 's');
+    var big = String(l.n).length > 2;
     st.innerHTML =
       '<button class="kit" type="button" aria-label="Ver resumo do ' + fullName(l) + '">' +
         '<span class="pin">' + l.n + '</span>' +
-        '<span class="here-flag">Seu filho está aqui</span>' +
+        '<span class="here-flag">Nível atual</span>' +
         '<span class="lift"><span class="float"><span class="box">' +
           '<span class="face front"><img src="' + l.img + '" alt="" loading="lazy" decoding="async"></span>' +
-          '<span class="face back"><b' + (String(l.n).length > 2 ? ' style="font-size:24px"' : '') + '>' + l.n + '</b><small>' + l.course + '</small></span>' +
+          '<span class="face back"><b' + (big ? ' style="font-size:22px"' : '') + '>' + l.n + '</b><small>' + l.course + '</small></span>' +
           '<span class="face side r"></span><span class="face side l"></span>' +
           '<span class="face cap t"></span><span class="face cap b"></span>' +
         '</span></span></span>' +
@@ -659,9 +817,9 @@ button{font:inherit;color:inherit}
       '</button>' +
       '<div class="st-label">' +
         '<span class="course">' + l.course + '</span>' +
-        '<span class="name">Nível ' + l.n + '</span>' +
+        '<span class="name">Nível ' + l.n + (l.cefr ? '<span class="cefr">' + l.cefr + '</span>' : '') + '</span>' +
         '<span class="meta">' + l.age + ' · ' + l.grade + '</span>' +
-        '<span class="go">ver resumo</span>' +
+        '<span class="go">ver resumo <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></span>' +
       '</div>';
     st.querySelector('.kit').addEventListener('click', function(){ openSheet(i); });
     st.querySelector('.st-label').addEventListener('click', function(){ openSheet(i); });
@@ -669,41 +827,32 @@ button{font:inherit;color:inherit}
     stationEls.push(st);
   });
 
-  // revelar ao rolar (só opacidade, não mexe na geometria da estrada)
-  if('IntersectionObserver' in window){
-    var io = new IntersectionObserver(function(entries){
-      entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.remove('pre'); io.unobserve(e.target); } });
-    }, { rootMargin:'0px 0px -8% 0px' });
-    stationEls.forEach(function(s){ io.observe(s); });
-  } else {
-    stationEls.forEach(function(s){ s.classList.remove('pre'); });
-  }
+  var io = 'IntersectionObserver' in window ? new IntersectionObserver(function(entries){
+    entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.remove('pre'); io.unobserve(e.target); } });
+  }, { rootMargin:'0px 0px -8% 0px' }) : null;
+  stationEls.forEach(function(s){ io ? io.observe(s) : s.classList.remove('pre'); });
 
-  /* ---------- estrada SVG ---------- */
+  /* ---------- estrada ---------- */
   var svg = document.getElementById('trailSvg');
   var paths = svg.querySelectorAll('path');
   var progress = svg.querySelector('.road-progress');
   var progLen = 0;
-
   function center(el, boxOnly){
     var r = el.getBoundingClientRect(), t = trail.getBoundingClientRect();
     var h = boxOnly ? (r.height - 26) : r.height;
     return { x: r.left - t.left + r.width / 2, y: r.top - t.top + h / 2 };
   }
   function drawTrail(){
+    if(trail.offsetParent === null) return;
     var w = trail.clientWidth, h = trail.clientHeight;
-    svg.setAttribute('width', w);
-    svg.setAttribute('height', h);
-    svg.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
+    svg.setAttribute('width', w); svg.setAttribute('height', h); svg.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
     var pts = [center(document.querySelector('#trailStart .marker-pill'))];
-    stationEls.forEach(function(s){ pts.push(center(s.querySelector('.kit'), true)); });
+    stationEls.forEach(function(s){ if(!s.hidden) pts.push(center(s.querySelector('.kit'), true)); });
     pts.push(center(document.querySelector('#trailEnd .marker-pill')));
     var d = 'M ' + pts[0].x.toFixed(1) + ' ' + pts[0].y.toFixed(1);
     for(var i = 1; i < pts.length; i++){
       var a = pts[i-1], b = pts[i], k = (b.y - a.y) * 0.55;
-      d += ' C ' + a.x.toFixed(1) + ' ' + (a.y + k).toFixed(1) + ', ' +
-                   b.x.toFixed(1) + ' ' + (b.y - k).toFixed(1) + ', ' +
-                   b.x.toFixed(1) + ' ' + b.y.toFixed(1);
+      d += ' C ' + a.x.toFixed(1) + ' ' + (a.y + k).toFixed(1) + ', ' + b.x.toFixed(1) + ' ' + (b.y - k).toFixed(1) + ', ' + b.x.toFixed(1) + ' ' + b.y.toFixed(1);
     }
     paths.forEach(function(p){ p.setAttribute('d', d); });
     progLen = progress.getTotalLength();
@@ -713,80 +862,168 @@ button{font:inherit;color:inherit}
   function updateProgress(){
     if(!progLen) return;
     var t = trail.getBoundingClientRect();
-    var p = (window.innerHeight * 0.62 - t.top) / t.height;
-    p = Math.max(0, Math.min(1, p));
+    var p = Math.max(0, Math.min(1, (window.innerHeight * 0.62 - t.top) / t.height));
     progress.style.strokeDashoffset = (progLen * (1 - p)).toFixed(1);
   }
   var ticking = false;
   window.addEventListener('scroll', function(){
-    if(ticking) return;
-    ticking = true;
+    if(ticking) return; ticking = true;
     requestAnimationFrame(function(){ updateProgress(); ticking = false; });
   }, { passive:true });
   window.addEventListener('resize', drawTrail);
   window.addEventListener('load', drawTrail);
   if(document.fonts && document.fonts.ready) document.fonts.ready.then(drawTrail);
-  drawTrail();
 
-  /* ---------- onde seu filho está ---------- */
-  var chipsEl = document.getElementById('jumpChips');
-  var clearBtn = document.getElementById('jumpClear');
-  var chips = [];
-  LEVELS.forEach(function(l, i){
+  /* ---------- filtro por curso ---------- */
+  var trailHead = document.getElementById('trailHead');
+  var seg = document.getElementById('seg');
+  var prevToggle = document.getElementById('prevToggle');
+  var chipsWrap = document.getElementById('nowChips');
+  var clearBtn = document.getElementById('clearHere');
+  var state = { course:null, showPrev:false, here:-1 };
+  var SEGS = COURSES.map(function(c){ return { key:c.key, label:c.name }; }).concat([{ key:'all', label:'Trilha completa' }]);
+  SEGS.forEach(function(s){
+    var b = document.createElement('button');
+    b.type = 'button'; b.dataset.key = s.key; b.textContent = s.label; b.setAttribute('role', 'tab');
+    b.addEventListener('click', function(){ choose(s.key, false); });
+    seg.appendChild(b);
+  });
+  var chips = LEVELS.map(function(l, i){
     var c = document.createElement('button');
-    c.type = 'button';
-    c.className = 'chip';
+    c.type = 'button'; c.className = 'chip';
     c.style.setProperty('--c', l.color);
     c.innerHTML = '<i></i>' + shortName(l);
-    c.addEventListener('click', function(){ setHere(i); });
-    chipsEl.appendChild(c);
-    chips.push(c);
+    c.addEventListener('click', function(){ setHere(state.here === i ? -1 : i, true); });
+    chipsWrap.appendChild(c);
+    return c;
   });
-  function setHere(i){
+
+  function startIdx(){ return state.course === 'all' ? 0 : COURSES.filter(function(c){ return c.key === state.course; })[0].idx; }
+  function render(){
+    var from = startIdx();
+    var firstVisible = state.showPrev ? 0 : from;
+    LEVELS.forEach(function(l, i){
+      var vis = l.c.idx >= firstVisible;
+      stationEls[i].hidden = !vis;
+      chips[i].hidden = !vis;
+    });
+    var side = 0;
+    stationEls.forEach(function(s){ if(s.hidden) return; s.classList.toggle('left', side % 2 === 0); s.classList.toggle('right', side % 2 === 1); side++; });
+    Object.keys(zoneEls).forEach(function(k){
+      var c = COURSES.filter(function(x){ return x.key === k; })[0];
+      zoneEls[k].hidden = c.idx < firstVisible;
+    });
+    seg.querySelectorAll('button').forEach(function(b){
+      var on = b.dataset.key === state.course;
+      b.classList.toggle('on', on); b.setAttribute('aria-selected', on);
+      if(on) seg.scrollLeft = Math.max(0, b.offsetLeft - 12);
+    });
+    var c = state.course === 'all' ? null : COURSES[from];
+    document.getElementById('startAge').textContent = state.showPrev || !c ? '3 anos' : c.start;
+    var count = LEVELS.filter(function(l){ return l.c.idx >= firstVisible && !/alternativa/.test(l.age); }).length;
+    document.getElementById('trailTitle').textContent = c ? 'A trilha a partir do ' + c.name : 'A trilha completa';
+    document.getElementById('trailSub').textContent = count + ' semestres até o certificado final. Toque em qualquer kit pra ver o resumo do nível.';
+    if(from > 0 && state.course !== 'all'){
+      prevToggle.hidden = false;
+      prevToggle.textContent = state.showPrev ? 'Ocultar as etapas anteriores' : 'Mostrar as etapas anteriores (' + COURSES.slice(0, from).map(function(x){ return x.name; }).join(', ') + ')';
+    } else prevToggle.hidden = true;
+    var kidsRange = LEVELS.some(function(l){ return l.c.idx >= firstVisible && l.c.key !== 'english'; });
+    document.getElementById('insKids').hidden = !kidsRange;
+    document.querySelectorAll('#insKids [data-show]').forEach(function(el){
+      var k = COURSES.filter(function(x){ return x.key === el.dataset.show; })[0];
+      el.hidden = k.idx < firstVisible;
+    });
+    document.getElementById('insEnglish').hidden = false;
+    applyHere(false);
+    requestAnimationFrame(drawTrail);
+  }
+  function choose(key, scroll){
+    state.course = key;
+    state.showPrev = false;
+    if(state.here >= 0 && LEVELS[state.here].c.idx < startIdx()) state.here = -1;
+    trailHead.hidden = false;
+    render();
+    writeHash();
+    if(scroll) trailHead.scrollIntoView({ behavior:'smooth', block:'start' });
+  }
+  prevToggle.addEventListener('click', function(){ state.showPrev = !state.showPrev; render(); });
+
+  function applyHere(scroll){
+    var i = state.here;
     stationEls.forEach(function(s, idx){
       s.classList.toggle('done', i >= 0 && idx < i);
       s.classList.toggle('here', idx === i);
     });
     chips.forEach(function(c, idx){ c.classList.toggle('on', idx === i); });
     clearBtn.hidden = i < 0;
-    if(i < 0) return;
+    if(i < 0 || !scroll) return;
     var s = stationEls[i];
     s.classList.remove('pre');
     s.scrollIntoView({ behavior:'smooth', block:'center' });
-    s.classList.remove('flash');
-    void s.offsetWidth;
-    s.classList.add('flash');
+    s.classList.remove('flash'); void s.offsetWidth; s.classList.add('flash');
   }
-  clearBtn.addEventListener('click', function(){ setHere(-1); });
+  function setHere(i, scroll){ state.here = i; applyHere(scroll); writeHash(); }
+  clearBtn.addEventListener('click', function(){ setHere(-1, false); });
+
+  /* ---------- link compartilhável: #kids, #english/english-7 ---------- */
+  function writeHash(){
+    var h = '#' + state.course + (state.here >= 0 ? '/' + LEVELS[state.here].slug : '');
+    if(history.replaceState) history.replaceState(null, '', h); else location.hash = h;
+  }
+  function readHash(){
+    var m = (location.hash || '').replace('#', '').split('/');
+    var key = m[0];
+    if(!SEGS.some(function(s){ return s.key === key; })) return false;
+    state.course = key;
+    var hi = -1;
+    if(m[1]) LEVELS.forEach(function(l){ if(l.slug === m[1]) hi = l.i; });
+    state.here = (hi >= 0 && LEVELS[hi].c.idx >= startIdx()) ? hi : -1;
+    trailHead.hidden = false;
+    render();
+    if(state.here >= 0) setTimeout(function(){ applyHere(true); }, 350);
+    else setTimeout(function(){ trailHead.scrollIntoView({ block:'start' }); }, 60);
+    return true;
+  }
+  var toast = document.getElementById('toast'), toastT;
+  function showToast(msg){ toast.textContent = msg; toast.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(function(){ toast.classList.remove('show'); }, 2200); }
+  document.getElementById('copyLink').addEventListener('click', function(){
+    var url = location.href;
+    var done = function(){ showToast('Link copiado. Envie no WhatsApp e a trilha abre já nesse ponto.'); };
+    if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(done, function(){ prompt('Copie o link:', url); });
+    else prompt('Copie o link:', url);
+  });
 
   /* ---------- painel de resumo ---------- */
   var wrap = document.getElementById('sheetWrap');
   var sheet = document.getElementById('sheet');
   var current = -1, openedAt = -1, lastFocus = null;
-
+  function visibleIdx(){ return LEVELS.filter(function(l, i){ return !stationEls[i].hidden; }).map(function(l){ return l.i; }); }
   function fill(i){
     var l = LEVELS[i];
     current = i;
     sheet.style.setProperty('--c', l.color);
     var img = document.getElementById('sheetImg');
-    img.src = l.img;
-    img.alt = 'Kit do ' + fullName(l);
+    img.src = l.img; img.alt = 'Material do ' + fullName(l);
     document.getElementById('sheetNum').textContent = l.n;
     document.getElementById('sheetCourse').textContent = l.course;
+    var ce = document.getElementById('sheetCefr');
+    ce.hidden = !l.cefr; ce.textContent = l.cefr ? 'CEFR ' + l.cefr : '';
     document.getElementById('sheetTitle').textContent = fullName(l);
     document.getElementById('sheetMeta').textContent = l.age + ' · ' + l.grade;
     document.getElementById('sheetDetail').innerHTML = detailBody(l);
-    document.getElementById('sheetPos').textContent = 'parada ' + (i + 1) + ' de ' + LEVELS.length;
-    document.getElementById('sheetPrev').disabled = i === 0;
-    document.getElementById('sheetNext').disabled = i === LEVELS.length - 1;
+    document.getElementById('sheetCert').innerHTML = certText(l);
+    var vis = visibleIdx(), pos = vis.indexOf(i);
+    document.getElementById('sheetPos').textContent = 'parada ' + (pos + 1) + ' de ' + vis.length;
+    document.getElementById('sheetPrev').disabled = pos <= 0;
+    document.getElementById('sheetNext').disabled = pos >= vis.length - 1;
     stationEls.forEach(function(s, idx){ s.classList.toggle('active', idx === i); });
     sheet.scrollTop = 0;
   }
+  function step(dir){ var vis = visibleIdx(), pos = vis.indexOf(current) + dir; if(pos >= 0 && pos < vis.length) fill(vis[pos]); }
   function openSheet(i){
     fill(i);
     if(!wrap.hidden) return;
-    openedAt = i;
-    lastFocus = document.activeElement;
+    openedAt = i; lastFocus = document.activeElement;
     wrap.hidden = false;
     document.body.style.overflow = 'hidden';
     requestAnimationFrame(function(){ requestAnimationFrame(function(){ wrap.classList.add('open'); }); });
@@ -802,63 +1039,65 @@ button{font:inherit;color:inherit}
       wrap.hidden = true;
       if(moved && target) target.scrollIntoView({ behavior:'smooth', block:'center' });
       var k = target && target.querySelector('.kit');
-      if(k) k.focus({ preventScroll:true });
-      else if(lastFocus) lastFocus.focus({ preventScroll:true });
+      if(k) k.focus({ preventScroll:true }); else if(lastFocus) lastFocus.focus({ preventScroll:true });
     }, 300);
   }
-  wrap.addEventListener('click', function(e){
-    if(e.target.closest('[data-close]')) closeSheet();
-  });
-  document.getElementById('sheetPrev').addEventListener('click', function(){ if(current > 0) fill(current - 1); });
-  document.getElementById('sheetNext').addEventListener('click', function(){ if(current < LEVELS.length - 1) fill(current + 1); });
+  wrap.addEventListener('click', function(e){ if(e.target.closest('[data-close]')) closeSheet(); });
+  document.getElementById('sheetPrev').addEventListener('click', function(){ step(-1); });
+  document.getElementById('sheetNext').addEventListener('click', function(){ step(1); });
   document.addEventListener('keydown', function(e){
     if(wrap.hidden) return;
     if(e.key === 'Escape') closeSheet();
-    if(e.key === 'ArrowRight' && current < LEVELS.length - 1) fill(current + 1);
-    if(e.key === 'ArrowLeft' && current > 0) fill(current - 1);
+    if(e.key === 'ArrowRight') step(1);
+    if(e.key === 'ArrowLeft') step(-1);
   });
-  // gestos no topo do painel: puxar pra baixo fecha, deslizar troca de nível
   var tx = null, ty = null, photo = document.getElementById('sheetPhoto');
   photo.addEventListener('touchstart', function(e){ tx = e.touches[0].clientX; ty = e.touches[0].clientY; }, { passive:true });
   photo.addEventListener('touchend', function(e){
     if(tx === null) return;
     var dx = e.changedTouches[0].clientX - tx, dy = e.changedTouches[0].clientY - ty;
     if(dy > 70 && Math.abs(dy) > Math.abs(dx)) closeSheet();
-    else if(Math.abs(dx) > 50){
-      if(dx < 0 && current < LEVELS.length - 1) fill(current + 1);
-      if(dx > 0 && current > 0) fill(current - 1);
-    }
+    else if(Math.abs(dx) > 50) step(dx < 0 ? 1 : -1);
     tx = ty = null;
   }, { passive:true });
 
-  /* ---------- gráfico de vocabulário ---------- */
-  (function(){
-    var seriesVar = { 'Baby Class':'--series-baby', "Kids' Course":'--series-kids', 'Preteen Course':'--series-preteen' };
-    var withWords = LEVELS.filter(function(l){ return l.words && l.course !== 'English Course'; });
-    var max = Math.max.apply(null, withWords.map(function(l){ return l.words; }));
-    var chart = document.getElementById('vocabChart');
-    withWords.forEach(function(l){
-      var bar = document.createElement('div');
-      bar.className = 'vocab-bar';
-      bar.style.height = Math.max(6, Math.round((l.words / max) * 100)) + '%';
-      bar.style.background = 'var(' + seriesVar[l.course] + ')';
-      bar.title = shortName(l) + ' · ' + l.words + ' palavras novas';
-      chart.appendChild(bar);
+  /* ---------- gráficos ---------- */
+  function bars(el, list, colorOf, showVal){
+    list.forEach(function(l){
+      var max = Math.max.apply(null, list.map(function(x){ return x.words; }));
+      var b = document.createElement('div');
+      b.className = 'vbar';
+      b.style.height = Math.max(6, Math.round(l.words / max * 100)) + '%';
+      b.style.background = colorOf(l);
+      b.title = shortName(l) + ' · ' + l.words + ' palavras novas';
+      if(showVal) b.innerHTML = '<span class="v">' + l.words + '</span>';
+      el.appendChild(b);
     });
-    var legend = document.getElementById('chartLegend');
-    ['Baby Class', "Kids' Course", 'Preteen Course'].forEach(function(c){
-      var item = document.createElement('span');
-      item.innerHTML = '<i style="background:var(' + seriesVar[c] + ')"></i>' + c;
-      legend.appendChild(item);
-    });
-    function byCourse(course){ return withWords.filter(function(l){ return l.course === course; }); }
-    var baby = byCourse('Baby Class'), kids = byCourse("Kids' Course");
-    var preteen = byCourse('Preteen Course');
-    var babyGrowth = Math.round((baby[baby.length-1].words / baby[0].words - 1) * 100);
-    var kidsGrowth = Math.round((kids[kids.length-1].words / kids[0].words - 1) * 100);
-    document.getElementById('vocabCap').innerHTML =
-      'Do Baby Class 1 ao 6, o ganho é de <b>' + babyGrowth + '%</b>. Do Kids\' Course 1 ao 6, o ganho já é de <b>' + kidsGrowth + '%</b>, mais que o dobro. ' +
-      'O Preteen Course 1 começa em <b>' + preteen[0].words + ' palavras</b>, acima de todo o Kids\' Course. Entrar mais tarde não é entrar na parte mais leve, é entrar direto na parte que acelera.';
-  })();
+  }
+  // infância
+  var kids = LEVELS.filter(function(l){ return l.words && l.c.key !== 'english'; });
+  bars(document.getElementById('kidsChart'), kids, function(l){ return 'var(' + l.c.v + ')'; }, false);
+  document.getElementById('kidsLegend').innerHTML = COURSES.slice(0, 3).map(function(c){ return '<span><i style="background:var(' + c.v + ')"></i>' + c.name + '</span>'; }).join('');
+  function of(key){ return kids.filter(function(l){ return l.c.key === key; }); }
+  var bb = of('baby'), kk = of('kids'), pp = of('preteen');
+  document.getElementById('kidsCap').innerHTML =
+    'Do Baby Class 1 ao 6, o ganho é de <b>' + Math.round((bb[bb.length-1].words / bb[0].words - 1) * 100) + '%</b>. Do Kids\' Course 1 ao 8, já é de <b>' +
+    Math.round((kk[kk.length-1].words / kk[0].words - 1) * 100) + '%</b>, mais que o dobro. O Preteen Course 1 começa em <b>' + pp[0].words +
+    ' palavras</b>, acima de todo o Kids\' Course. Esperar a criança crescer não poupa esforço: ela só entra direto na parte que acelera.';
+  // English
+  var eng = LEVELS.filter(function(l){ return l.c.key === 'english' && !/alternativa/.test(l.age); });
+  bars(document.getElementById('engChart'), eng, function(){ return 'var(--series-english)'; }, true);
+  document.getElementById('engX').innerHTML = eng.map(function(l){ return '<span>' + l.n + '</span>'; }).join('');
+  document.getElementById('engCefr').innerHTML = eng.map(function(l){ return '<span>' + l.cefr + '</span>'; }).join('');
+  function w(n){ return eng.filter(function(l){ return String(l.n) === String(n); })[0].words; }
+  document.getElementById('engCap').innerHTML =
+    'O English 1 traz <b>' + w(1) + '</b> palavras novas, o 6 traz <b>' + w(6) + '</b>, e o 10 dispara para <b>' + w(10) + '</b>. ' +
+    'A queda no meio do curso coincide com a entrada das mini-sitcoms e dos exercícios no formato TOEFL®: o foco sai de palavra nova e vai pra uso, opinião e fluência. ' +
+    'Os saltos do 8 e do Mastering acompanham a chegada de artigos, vídeos e cases nas lições. Quem acha que "parou de aprender" no meio do English está, na prática, consolidando.';
+
+  if(!readHash()) { /* sem link: começa na escolha do curso */ }
+  window.addEventListener('hashchange', readHash);
 })();
 </script>
+</body>
+</html>
