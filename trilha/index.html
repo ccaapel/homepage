@@ -1,6 +1,7 @@
-<title>Trilha Baby &amp; Kids</title>
+<title>Trilha do Inglês</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <style>
-/* layout: trilha vertical em zigue-zague, curva SVG conectando 6 paradas, cada parada é o kit real com leve inclinação 3D; toque expande os dados do nível */
+/* layout: estrada SVG sinuosa ligando 16 paradas; cada parada é o kit real como caixa 3D girando; toque abre painel de resumo */
 :root{
   --bg:#fdfaf3;
   --paper:#ffffff;
@@ -9,584 +10,330 @@
   --line:#e4ddc9;
   --navy:#0e1a3d;
   --red:#e3182c;
-  --accent:#e3182c;
+  --ground:#f7f0de;
+  --dots:rgba(27,35,64,.07);
+  --road:#ecdfbf;
+  --road-edge:#dccb9f;
+  --road-line:#ffffff;
+  --shadow:rgba(27,35,64,.22);
+  --series-baby:#2a78d6;
+  --series-kids:#eb6834;
+  --series-preteen:#1baf7a;
   color-scheme:light;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
-    --bg:#0c1226;
-    --paper:#141b34;
-    --ink:#eef0fb;
-    --ink-soft:#a9aec8;
-    --line:#232c4d;
-    --navy:#0a1330;
-    --red:#ff5468;
-    --accent:#ff5468;
+    --bg:#0c1226; --paper:#141b34; --ink:#eef0fb; --ink-soft:#a9aec8; --line:#232c4d;
+    --navy:#2a3a78; --red:#ff5468; --ground:#10172f; --dots:rgba(255,255,255,.05);
+    --road:#1f2848; --road-edge:#2b3763; --road-line:rgba(255,255,255,.45); --shadow:rgba(0,0,0,.55);
+    --series-baby:#3987e5; --series-kids:#d95926; --series-preteen:#199e70;
     color-scheme:dark;
   }
 }
 :root[data-theme="dark"]{
-  --bg:#0c1226;
-  --paper:#141b34;
-  --ink:#eef0fb;
-  --ink-soft:#a9aec8;
-  --line:#232c4d;
-  --navy:#0a1330;
-  --red:#ff5468;
-  --accent:#ff5468;
+  --bg:#0c1226; --paper:#141b34; --ink:#eef0fb; --ink-soft:#a9aec8; --line:#232c4d;
+  --navy:#2a3a78; --red:#ff5468; --ground:#10172f; --dots:rgba(255,255,255,.05);
+  --road:#1f2848; --road-edge:#2b3763; --road-line:rgba(255,255,255,.45); --shadow:rgba(0,0,0,.55);
+  --series-baby:#3987e5; --series-kids:#d95926; --series-preteen:#199e70;
   color-scheme:dark;
 }
 
 *{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
 body{background:var(--bg);color:var(--ink);margin:0}
 .page{
-  max-width:640px;
+  max-width:680px;
   margin:0 auto;
-  padding:28px 16px 48px;
+  padding:28px 16px 56px;
   font-family:'Sora',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
 }
+button{font:inherit;color:inherit}
 
 /* topo */
 .brand{display:flex;align-items:center;gap:10px;margin-bottom:22px}
 .brand-mark{
-  width:34px;height:34px;border-radius:9px;
-  background:conic-gradient(from 210deg,var(--red),#c41022 40%,var(--navy) 65%,var(--red));
-  flex:none;
+  width:34px;height:34px;border-radius:9px;flex:none;
+  background:conic-gradient(from 210deg,var(--red),#c41022 40%,#0e1a3d 65%,var(--red));
 }
 .brand-name{font-family:'Fredoka',sans-serif;font-weight:600;font-size:15px;letter-spacing:.02em;color:var(--ink-soft)}
-
 .hero h1{
-  font-family:'Fredoka',sans-serif;
-  font-weight:600;
-  font-size:clamp(28px,7vw,38px);
-  line-height:1.08;
-  margin:0 0 10px;
-  text-wrap:balance;
+  font-family:'Fredoka',sans-serif;font-weight:600;
+  font-size:clamp(30px,7.4vw,42px);line-height:1.05;margin:0 0 10px;text-wrap:balance;
 }
-.hero p{
-  font-size:15.5px;
-  line-height:1.55;
-  color:var(--ink-soft);
-  margin:0 0 6px;
-  max-width:34em;
-}
-.hero .sub{font-size:13.5px;color:var(--ink-soft);margin-top:14px}
+.hero p{font-size:15.5px;line-height:1.55;color:var(--ink-soft);margin:0 0 6px;max-width:520px}
+.hero .sub{font-size:13px;margin-top:10px}
+.hero .sub b{color:var(--ink);font-weight:600}
 
-/* faixa etária */
-.age-strip{
-  display:flex;
-  gap:6px;
-  margin:22px 0 6px;
-  overflow-x:auto;
-  padding-bottom:4px;
+/* atalho: onde seu filho está */
+.jump{margin:22px 0 18px}
+.jump-label{font-size:12.5px;font-weight:600;color:var(--ink);margin:0 0 8px}
+.jump-chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{
+  border:1px solid var(--line);background:var(--paper);border-radius:999px;
+  padding:6px 11px;font-size:12px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;
+  transition:border-color .2s,background .2s;
 }
-.age-chip{
-  flex:none;
-  font-size:12px;
-  font-weight:600;
-  padding:6px 10px;
-  border-radius:999px;
-  background:var(--paper);
-  border:1px solid var(--line);
-  color:var(--ink-soft);
-  white-space:nowrap;
-}
+.chip i{width:8px;height:8px;border-radius:50%;background:var(--c);flex:none}
+.chip:hover{border-color:var(--c)}
+.chip.on{background:var(--c);border-color:var(--c);color:#fff}
+.chip.on i{background:#fff}
+.jump-clear{font-size:12px;color:var(--ink-soft);background:none;border:0;text-decoration:underline;cursor:pointer;padding:6px 4px}
+.jump-clear[hidden]{display:none}
 
 /* trilha */
-.trail{position:relative;margin-top:28px}
-.trail-svg{position:absolute;left:0;top:0;width:100%;height:100%;z-index:0}
-.trail-svg path{
-  fill:none;
-  stroke:var(--line);
-  stroke-width:3;
-  stroke-dasharray:2 10;
-  stroke-linecap:round;
-}
-
-.stop{
+.trail{
   position:relative;
-  z-index:1;
-  display:flex;
-  margin-bottom:6px;
-  padding:26px 0;
+  background-color:var(--ground);
+  background-image:radial-gradient(var(--dots) 1.2px, transparent 1.4px);
+  background-size:22px 22px;
+  border-radius:28px;
+  padding:26px 10px 30px;
+  overflow:hidden;
 }
-.stop.right{justify-content:flex-end}
-.stop.left{justify-content:flex-start}
+.trail-svg{position:absolute;left:0;top:0;pointer-events:none;z-index:0;overflow:visible}
+.trail-svg path{fill:none;stroke-linecap:round;stroke-linejoin:round}
+.road-edge{stroke:var(--road-edge);stroke-width:40}
+.road{stroke:var(--road);stroke-width:32}
+.road-line{stroke:var(--road-line);stroke-width:2.5;stroke-dasharray:10 12}
+.road-progress{stroke:var(--red);stroke-width:5;opacity:.85}
 
-.card{
-  width:78%;
-  max-width:360px;
-  background:var(--paper);
-  border:1px solid var(--line);
-  border-radius:20px;
-  padding:14px 14px 16px;
-  cursor:pointer;
-  transform:perspective(900px) rotateY(var(--ry,-6deg)) rotateX(2deg);
-  transition:transform .35s cubic-bezier(.2,.8,.2,1), box-shadow .35s;
-  box-shadow:0 14px 30px -18px rgba(10,15,35,.35);
+.marker{position:relative;z-index:2;display:flex;justify-content:center}
+.marker-pill{
+  display:inline-flex;flex-direction:column;align-items:center;
+  background:var(--navy);color:#fff;border-radius:18px;padding:9px 18px;
+  box-shadow:0 0 0 5px var(--ground),0 8px 20px var(--shadow);
+}
+.marker-pill small{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;opacity:.75}
+.marker-pill b{font-family:'Fredoka',sans-serif;font-weight:600;font-size:16px}
+.trail-start{margin-bottom:30px}
+.trail-end{margin-top:6px}
+
+.zone{
+  position:relative;z-index:2;
+  margin:4px auto 34px;width:max-content;max-width:92%;
+  text-align:center;background:var(--paper);
+  border:2px solid var(--zc);border-radius:16px;padding:8px 18px;
+  box-shadow:0 0 0 5px var(--ground),0 6px 16px var(--shadow);
+}
+.zone b{display:block;font-family:'Fredoka',sans-serif;font-weight:600;font-size:17px;color:var(--zc)}
+.zone span{font-size:11.5px;color:var(--ink-soft)}
+
+.station{
+  --w:128px;--h:96px;--d:16px;
+  position:relative;z-index:1;
+  display:flex;align-items:center;gap:14px;
+  margin:0 0 40px;
+}
+.station.left{padding-left:3%}
+.station.right{flex-direction:row-reverse;padding-right:3%}
+.station.right .st-label{text-align:right}
+
+/* kit 3D */
+.kit{
+  position:relative;flex:none;
+  width:var(--w);height:calc(var(--h) + 26px);
+  background:none;border:0;padding:0;cursor:pointer;
+  perspective:760px;border-radius:14px;
   -webkit-tap-highlight-color:transparent;
 }
-.stop.right .card{--ry:6deg}
-.card:hover, .card:focus-visible{
-  transform:perspective(900px) rotateY(0deg) rotateX(0deg) translateY(-2px);
-  box-shadow:0 18px 34px -16px rgba(10,15,35,.4);
+.kit:focus-visible{outline:3px solid var(--c);outline-offset:8px}
+.lift{position:absolute;left:0;top:0;width:var(--w);height:var(--h);transition:transform .25s ease;transform-style:preserve-3d}
+.kit:hover .lift{transform:scale(1.07)}
+.float{position:absolute;inset:0;transform-style:preserve-3d;animation:float 4.6s ease-in-out infinite;animation-delay:var(--delay)}
+.box{
+  position:absolute;inset:0;transform-style:preserve-3d;
+  animation:spin 9s cubic-bezier(.65,0,.35,1) infinite;animation-delay:var(--delay);
 }
-.card.open{
-  transform:perspective(900px) rotateY(0deg) rotateX(0deg);
-  box-shadow:0 20px 40px -18px rgba(10,15,35,.45);
+@keyframes spin{
+  0%,48%{transform:rotateX(-7deg) rotateY(-20deg)}
+  100%{transform:rotateX(-7deg) rotateY(340deg)}
 }
-
-.card-top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-.level-badge{
-  flex:none;
-  width:34px;height:34px;
-  border-radius:10px;
+@keyframes float{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-7px)}
+}
+@keyframes shade{
+  0%,100%{transform:translateX(-50%) scale(1);opacity:.9}
+  50%{transform:translateX(-50%) scale(.82);opacity:.55}
+}
+.face{position:absolute;left:0;top:0;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.front,.back{width:var(--w);height:var(--h);border-radius:4px;overflow:hidden}
+.front{transform:translateZ(calc(var(--d) / 2));background:var(--c)}
+.front img{width:100%;height:100%;object-fit:cover;display:block}
+.front::after{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(125deg,rgba(255,255,255,.32),rgba(255,255,255,0) 42%);
+}
+.back{
+  transform:rotateY(180deg) translateZ(calc(var(--d) / 2));
+  background:var(--c);color:#fff;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+}
+.back b{font-family:'Fredoka',sans-serif;font-weight:600;font-size:38px;line-height:1}
+.back small{font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;opacity:.85}
+.side{width:var(--d);height:var(--h);left:calc((var(--w) - var(--d)) / 2);background:color-mix(in srgb,var(--c) 70%,#000)}
+.side.r{transform:rotateY(90deg) translateZ(calc(var(--w) / 2))}
+.side.l{transform:rotateY(-90deg) translateZ(calc(var(--w) / 2))}
+.cap{width:var(--w);height:var(--d);top:calc((var(--h) - var(--d)) / 2)}
+.cap.t{transform:rotateX(90deg) translateZ(calc(var(--h) / 2));background:color-mix(in srgb,var(--c) 60%,#fff)}
+.cap.b{transform:rotateX(-90deg) translateZ(calc(var(--h) / 2));background:color-mix(in srgb,var(--c) 55%,#000)}
+.shadow{
+  position:absolute;left:50%;bottom:2px;width:74%;height:14px;
+  transform:translateX(-50%);border-radius:50%;
+  background:radial-gradient(ellipse at center,var(--shadow),transparent 70%);
+  animation:shade 4.6s ease-in-out infinite;animation-delay:var(--delay);
+}
+.pin{
+  position:absolute;z-index:5;top:-10px;left:-10px;
+  width:30px;height:30px;border-radius:50%;
+  background:var(--c);color:#fff;
   display:flex;align-items:center;justify-content:center;
-  font-family:'Fredoka',sans-serif;
-  font-weight:600;
-  font-size:16px;
-  color:#fff;
-  background:var(--kit-color);
+  font-family:'Fredoka',sans-serif;font-weight:600;font-size:14px;
+  box-shadow:0 0 0 3px var(--ground),0 3px 8px var(--shadow);
 }
-.card-title{flex:1;min-width:0}
-.card-title .name{font-family:'Fredoka',sans-serif;font-weight:600;font-size:15.5px}
-.card-title .meta{font-size:12px;color:var(--ink-soft);margin-top:1px}
-.chevron{
-  flex:none;
-  width:18px;height:18px;
-  color:var(--ink-soft);
-  transition:transform .3s;
+.station.right .pin{left:auto;right:-10px}
+.here-flag{
+  display:none;position:absolute;z-index:6;left:50%;top:-40px;transform:translateX(-50%);
+  white-space:nowrap;background:var(--red);color:#fff;
+  font-size:11px;font-weight:600;padding:5px 10px;border-radius:999px;
+  box-shadow:0 4px 12px var(--shadow);
 }
-.card.open .chevron{transform:rotate(180deg)}
+.here-flag::after{
+  content:"";position:absolute;left:50%;bottom:-5px;margin-left:-5px;
+  border:5px solid transparent;border-bottom:0;border-top-color:var(--red);
+}
+.station.here .here-flag{display:block}
+.station.here .pin{box-shadow:0 0 0 3px var(--ground),0 0 0 6px var(--red)}
+.station.done .pin{background:#8b91a8}
+.station.done .st-label{opacity:.72}
+.station.active .kit{outline:3px solid var(--c);outline-offset:8px}
+.station.flash .kit{animation:flash 1.2s ease}
+@keyframes flash{0%,100%{transform:none}30%{transform:scale(1.12)}60%{transform:scale(.97)}}
 
-.card-photo{
-  width:100%;
-  border-radius:14px;
-  overflow:hidden;
-  background:var(--kit-color);
-  aspect-ratio:4/3;
-  position:relative;
+/* rótulo da parada */
+.st-label{
+  position:relative;z-index:2;
+  background:var(--paper);border:1px solid var(--line);border-radius:14px;
+  padding:9px 13px 10px;max-width:calc(100% - var(--w) - 14px);
+  box-shadow:0 4px 14px var(--shadow);cursor:pointer;
+  transition:opacity .5s ease,transform .5s ease;
 }
-.card-photo img{width:100%;height:100%;object-fit:cover;display:block}
-.card-photo .zoom-hint{
-  cursor:zoom-in;
-  position:absolute;
-  right:8px;
-  bottom:8px;
-  width:30px;
-  height:30px;
-  border-radius:50%;
-  background:rgba(0,0,0,.5);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  color:#fff;
-  z-index:2;
-}
+.st-label .course{display:block;font-size:10.5px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--c)}
+.st-label .name{display:block;font-family:'Fredoka',sans-serif;font-weight:600;font-size:20px;line-height:1.15}
+.st-label .meta{display:block;font-size:12px;color:var(--ink-soft);margin-top:1px}
+.st-label .go{display:inline-block;font-size:11.5px;color:var(--ink-soft);margin-top:5px;border-bottom:1px dashed var(--ink-soft)}
+.station.pre .st-label{opacity:0;transform:translateY(14px)}
+.station.pre .kit{opacity:0}
+.station .kit{transition:opacity .6s ease}
 
-/* lightbox: zoom do material/kit real */
-.photo-zoom{
-  position:fixed;
-  inset:0;
-  z-index:200;
-  background:rgba(8,10,20,.88);
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  padding:24px 16px;
-  cursor:zoom-out;
+@media (max-width:400px){
+  .station{--w:112px;--h:84px;--d:14px}
+  .st-label{padding:8px 11px}
+  .st-label .name{font-size:18px}
 }
-.photo-zoom[hidden]{display:none}
-.photo-zoom img{
-  max-width:min(520px,92vw);
-  max-height:72vh;
-  border-radius:16px;
-  box-shadow:0 20px 60px rgba(0,0,0,.45);
-  object-fit:contain;
-  cursor:default;
+@media (min-width:700px){
+  .station{--w:168px;--h:126px;--d:20px;margin-bottom:46px}
+  .station.left{padding-left:6%}
+  .station.right{padding-right:6%}
 }
-.photo-zoom .zoom-cap{
-  margin-top:16px;
-  color:#fff;
-  font-size:14px;
-  font-weight:600;
-  text-align:center;
-}
-.photo-zoom .zoom-close{
-  position:absolute;
-  top:18px;
-  right:18px;
-  width:36px;
-  height:36px;
-  border-radius:50%;
-  border:none;
-  background:rgba(255,255,255,.12);
-  color:#fff;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  cursor:pointer;
+@media (prefers-reduced-motion: reduce){
+  .box,.float,.shadow{animation:none}
+  .box{transform:rotateX(-7deg) rotateY(-20deg)}
 }
 
-.card-detail{
-  display:grid;
-  grid-template-rows:0fr;
-  overflow:hidden;
-  transition:grid-template-rows .35s ease;
+/* painel de resumo */
+.sheet-wrap{position:fixed;inset:0;z-index:100;display:flex;align-items:flex-end;justify-content:center}
+.sheet-wrap[hidden]{display:none}
+.sheet-backdrop{position:absolute;inset:0;background:rgba(8,12,28,.58);opacity:0;transition:opacity .28s ease}
+.sheet{
+  position:relative;width:100%;max-width:560px;max-height:92vh;overflow-y:auto;
+  background:var(--paper);border-radius:22px 22px 0 0;
+  transform:translateY(100%);transition:transform .34s cubic-bezier(.2,.8,.2,1);
+  font-family:'Sora',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
 }
-.card.open .card-detail{grid-template-rows:1fr}
-.card-detail-inner{min-height:0;overflow:hidden}
+.sheet-wrap.open .sheet{transform:none}
+.sheet-wrap.open .sheet-backdrop{opacity:1}
+@media (min-width:700px){
+  .sheet-wrap{align-items:center;padding:24px}
+  .sheet{border-radius:22px;transform:translateY(20px) scale(.97);opacity:0;transition:transform .3s ease,opacity .3s ease}
+  .sheet-wrap.open .sheet{opacity:1;transform:none}
+}
+.sheet-photo{
+  position:relative;height:240px;padding:22px 22px 18px;
+  display:flex;align-items:center;justify-content:center;perspective:900px;
+  background:radial-gradient(circle at 50% 35%,color-mix(in srgb,var(--c) 45%,#fff),var(--c) 75%);
+}
+.sheet-photo img{
+  max-width:100%;max-height:100%;object-fit:contain;border-radius:8px;
+  box-shadow:0 22px 44px rgba(0,0,0,.38);
+  animation:sway 6s ease-in-out infinite alternate;
+}
+@keyframes sway{from{transform:rotateY(-14deg) rotateX(5deg)}to{transform:rotateY(14deg) rotateX(5deg)}}
+@media (prefers-reduced-motion: reduce){.sheet-photo img{animation:none}}
+.sheet-grab{position:absolute;top:8px;left:50%;width:40px;height:4px;margin-left:-20px;border-radius:2px;background:rgba(255,255,255,.7)}
+.sheet-close{
+  position:absolute;top:12px;right:12px;width:36px;height:36px;border-radius:50%;
+  border:0;background:rgba(0,0,0,.28);color:#fff;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+}
+.sheet-body{padding:18px 20px 8px}
+.sheet-kicker{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.sheet-kicker .lvl{
+  width:28px;height:28px;border-radius:8px;background:var(--c);color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Fredoka',sans-serif;font-weight:600;font-size:14px;
+}
+.sheet-kicker .crs{font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--c)}
+.sheet h2{font-family:'Fredoka',sans-serif;font-weight:600;font-size:26px;line-height:1.1;margin:2px 0 2px}
+.sheet-meta{font-size:13px;color:var(--ink-soft);margin:0 0 14px}
+.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:0 0 14px}
+.stat{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:9px 10px}
+.stat b{display:block;font-family:'Fredoka',sans-serif;font-weight:600;font-size:22px;color:var(--c);line-height:1.1}
+.stat span{font-size:11px;color:var(--ink-soft);line-height:1.3;display:block}
+.does{font-size:15px;line-height:1.55;margin:0 0 10px}
+.does b{color:var(--c)}
+.works{font-size:13px;line-height:1.6;color:var(--ink-soft);margin:0;padding-top:10px;border-top:1px dashed var(--line)}
+.does.soon{font-size:14px;color:var(--ink-soft)}
+.sheet-nav{
+  position:sticky;bottom:0;display:flex;align-items:center;justify-content:space-between;gap:8px;
+  padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));
+  background:var(--paper);border-top:1px solid var(--line);margin-top:14px;
+}
+.nav-btn{
+  border:1px solid var(--line);background:var(--paper);border-radius:999px;
+  padding:9px 14px;font-size:12.5px;font-weight:600;cursor:pointer;
+}
+.nav-btn:disabled{opacity:.35;cursor:default}
+.nav-pos{font-size:12px;color:var(--ink-soft)}
 
-.stat-row{
-  display:flex;
-  gap:8px;
-  margin:14px 0 10px;
-}
-.stat{
-  flex:1;
-  min-width:0;
-  background:var(--bg);
-  border:1px solid var(--line);
-  border-radius:12px;
-  padding:8px 10px;
-  text-align:center;
-}
-.stat b{
-  display:block;
-  font-family:'Fredoka',sans-serif;
-  font-size:16px;
-  font-variant-numeric:tabular-nums;
-  color:var(--kit-color);
-}
-.stat span{font-size:10.5px;color:var(--ink-soft);line-height:1.3}
-
-.does{
-  font-size:13.5px;
-  line-height:1.5;
-  color:var(--ink);
-  margin:0;
-}
-.does b{font-weight:600}
-.does.soon{color:var(--ink-soft);font-style:italic}
-.works{
-  font-size:12.5px;
-  line-height:1.5;
-  color:var(--ink-soft);
-  margin:10px 0 0;
-  padding-top:10px;
-  border-top:1px dashed var(--line);
-}
-
-/* rodapé */
-.foot{
-  margin-top:34px;
-  padding-top:20px;
-  border-top:1px solid var(--line);
-}
-.foot-strip{
-  display:flex;
-  gap:14px;
-  align-items:flex-start;
-  margin-bottom:16px;
-}
-.foot-strip .n{
-  font-family:'Fredoka',sans-serif;
-  font-weight:600;
-  font-size:22px;
-  color:var(--red);
-  flex:none;
-  width:44px;
-}
-.foot-strip p{font-size:13px;line-height:1.5;color:var(--ink-soft);margin:0}
-.foot-note{font-size:12px;color:var(--ink-soft);text-align:center;margin-top:22px}
-
-/* insights: pontos contraintuitivos */
-.insight{
-  margin-top:36px;
-  padding-top:24px;
-  border-top:1px solid var(--line);
-  --series-baby:#2a78d6;
-  --series-kids:#eb6834;
-  --series-preteen:#1baf7a;
-}
-@media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]) .insight{
-    --series-baby:#3987e5;
-    --series-kids:#d95926;
-    --series-preteen:#199e70;
-  }
-}
-:root[data-theme="dark"] .insight{
-  --series-baby:#3987e5;
-  --series-kids:#d95926;
-  --series-preteen:#199e70;
-}
-.insight h2{
-  font-family:'Fredoka',sans-serif;
-  font-weight:600;
-  font-size:20px;
-  margin:0 0 4px;
-}
+/* insights */
+.insight{margin-top:38px;padding-top:24px;border-top:1px solid var(--line)}
+.insight h2{font-family:'Fredoka',sans-serif;font-weight:600;font-size:21px;margin:0 0 4px}
 .insight-kicker{font-size:12px;color:var(--ink-soft);margin:0 0 14px}
 .chart-legend{display:flex;gap:16px;margin-bottom:10px;flex-wrap:wrap}
 .chart-legend span{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-soft)}
 .chart-legend i{width:9px;height:9px;border-radius:2px;flex:none}
 .vocab-chart{display:flex;align-items:flex-end;gap:3px;height:120px;margin:0 0 6px;padding:0 2px}
-.vocab-bar{flex:1;border-radius:4px 4px 0 0;min-width:4px;position:relative}
-.vocab-chart .axis-base{border-top:1px solid var(--line);margin:0 2px 8px}
+.vocab-bar{flex:1;border-radius:4px 4px 0 0;min-width:4px}
+.axis-base{border-top:1px solid var(--line);margin:0 2px 8px}
 .insight-cap{font-size:13px;line-height:1.55;color:var(--ink-soft);margin:0 0 22px}
 .insight-grid{display:grid;gap:14px}
-.insight-card{
-  background:var(--paper);
-  border:1px solid var(--line);
-  border-radius:12px;
-  padding:14px 16px;
-}
+.insight-card{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
 .insight-card p{font-size:13px;line-height:1.55;color:var(--ink-soft);margin:0}
 .insight-card b{color:var(--ink)}
 
-@media (max-width:380px){
-  .card{width:84%}
-}
-
-/* CTA da demonstração */
-.demo-cta{
-  display:inline-flex;
-  align-items:center;
-  gap:8px;
-  margin-top:16px;
-  padding:11px 18px;
-  border:none;
-  border-radius:999px;
-  background:var(--navy);
-  color:#fff;
-  font-family:'Fredoka',sans-serif;
-  font-weight:600;
-  font-size:14px;
-  cursor:pointer;
-  -webkit-tap-highlight-color:transparent;
-}
-.demo-cta svg{flex:none}
-
-/* overlay de demonstração */
-.demo-overlay{
-  position:fixed;
-  inset:0;
-  z-index:50;
-  background:var(--bg);
-  display:flex;
-  flex-direction:column;
-}
-.demo-overlay[hidden]{display:none}
-
-.demo-head{
-  flex:none;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding:calc(14px + env(safe-area-inset-top,0px)) 16px 12px;
-}
-.demo-head .label{font-family:'Fredoka',sans-serif;font-weight:600;font-size:14px;color:var(--ink-soft)}
-.demo-close{
-  flex:none;
-  width:34px;height:34px;
-  border-radius:50%;
-  border:1px solid var(--line);
-  background:var(--paper);
-  color:var(--ink-soft);
-  display:flex;align-items:center;justify-content:center;
-  cursor:pointer;
-}
-
-/* tela de escolha do nível */
-.demo-picker{
-  flex:1;
-  overflow-y:auto;
-  padding:4px 20px calc(24px + env(safe-area-inset-bottom,0px));
-  display:flex;
-  flex-direction:column;
-}
-.demo-picker h2{
-  font-family:'Fredoka',sans-serif;
-  font-weight:600;
-  font-size:22px;
-  line-height:1.2;
-  margin:8px 0 4px;
-  text-wrap:balance;
-}
-.demo-picker .hint{font-size:13.5px;color:var(--ink-soft);margin:0 0 18px}
-.pick-grid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:10px;
-}
-.pick-course{
-  grid-column:1 / -1;
-  font-family:'Fredoka',sans-serif;
-  font-weight:600;
-  font-size:12px;
-  letter-spacing:.03em;
-  text-transform:uppercase;
-  color:var(--ink-soft);
-  margin:14px 0 -2px;
-}
-.pick-course:first-child{margin-top:2px}
-.pick-item{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  padding:10px;
-  border-radius:16px;
-  border:1px solid var(--line);
-  background:var(--paper);
-  cursor:pointer;
-  text-align:left;
-  -webkit-tap-highlight-color:transparent;
-}
-.pick-item .num{
-  flex:none;
-  width:36px;height:36px;
-  border-radius:10px;
-  display:flex;align-items:center;justify-content:center;
-  font-family:'Fredoka',sans-serif;
-  font-weight:600;
-  font-size:15px;
-  color:#fff;
-  background:var(--pick-color);
-}
-.pick-item .txt .t{font-size:13.5px;font-weight:600}
-.pick-item .txt .a{font-size:11.5px;color:var(--ink-soft)}
-
-/* tela de apresentação (story) */
-.demo-story{
-  flex:1;
-  display:flex;
-  flex-direction:column;
-  min-height:0;
-}
-.demo-story[hidden]{display:none}
-.story-hint{
-  flex:none;
-  font-size:12.5px;
-  color:var(--ink-soft);
-  text-align:center;
-  padding:0 20px 10px;
-}
-.story-hint b{color:var(--ink)}
-
-.slide-frame{
-  flex:1;
-  min-height:0;
-  overflow-y:auto;
-  padding:0 20px calc(20px + env(safe-area-inset-bottom,0px));
-}
-.slide{
-  display:flex;
-  flex-direction:column;
-  padding:18px 18px 4px;
-  margin-bottom:14px;
-  border-radius:16px;
-  border:1px solid var(--line);
-  background:var(--paper);
-  overflow:hidden;
-  scroll-margin-top:10px;
-}
-.slide.current{
-  border-color:var(--slide-color);
-  box-shadow:0 0 0 2px var(--slide-color);
-}
-.slide.current .slide-pin{
-  display:inline-flex;
-}
-.slide-pin{
-  display:none;
-  align-items:center;
-  gap:5px;
-  font-size:11px;
-  font-weight:600;
-  color:var(--slide-color);
-  background:color-mix(in srgb, var(--slide-color) 14%, transparent);
-  border-radius:99px;
-  padding:3px 10px;
-  margin-bottom:10px;
-  align-self:flex-start;
-}
-.slide-photo{
-  flex:none;
-  margin:0 -18px 16px;
-  aspect-ratio:16/11;
-  background:var(--slide-color);
-  overflow:hidden;
-  position:relative;
-  cursor:zoom-in;
-}
-.slide-photo img{width:100%;height:100%;object-fit:cover;display:block}
-.slide-photo .zoom-hint{
-  position:absolute;
-  right:10px;
-  bottom:10px;
-  width:26px;
-  height:26px;
-  border-radius:50%;
-  background:rgba(0,0,0,.45);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  color:#fff;
-  pointer-events:none;
-}
-.slide-kicker{
-  display:flex;
-  align-items:center;
-  gap:8px;
-  margin-bottom:6px;
-}
-.slide-kicker .num{
-  flex:none;
-  width:28px;height:28px;
-  border-radius:8px;
-  display:flex;align-items:center;justify-content:center;
-  font-family:'Fredoka',sans-serif;
-  font-weight:600;
-  font-size:13px;
-  color:#fff;
-  background:var(--slide-color);
-}
-.slide-kicker .meta{font-size:12.5px;color:var(--ink-soft)}
-.slide h3{
-  font-family:'Fredoka',sans-serif;
-  font-weight:600;
-  font-size:22px;
-  margin:0 0 12px;
-}
-.slide .stat-row{margin:2px 0 14px}
-.slide .does{font-size:14.5px}
-.slide .works{font-size:12.5px}
-
-.demo-nav{
-  flex:none;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));
-}
-.nav-restart{
-  font-size:12px;
-  color:var(--ink-soft);
-  background:none;
-  border:none;
-  text-decoration:underline;
-  cursor:pointer;
-  padding:0;
-}
+/* rodapé */
+.foot{margin-top:34px;padding-top:20px;border-top:1px solid var(--line)}
+.foot-strip{display:flex;gap:14px;align-items:flex-start;margin-bottom:16px}
+.foot-strip .n{font-family:'Fredoka',sans-serif;font-weight:600;font-size:22px;color:var(--red);flex:none;width:44px}
+.foot-strip p{font-size:13px;line-height:1.5;color:var(--ink-soft);margin:0}
+.foot-note{font-size:12px;color:var(--ink-soft);text-align:center;margin-top:22px}
 </style>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Sora:wght@400;500;600&display=swap">
 
 <div class="page">
-
   <div class="brand">
     <div class="brand-mark"></div>
     <div class="brand-name">CCAA PELOTAS</div>
@@ -594,29 +341,36 @@ body{background:var(--bg);color:var(--ink);margin:0}
 
   <div class="hero">
     <h1>A trilha do inglês do seu filho</h1>
-    <p>Toque em cada parada da trilha e veja o que ela já vai saber dizer.</p>
+    <p>Cada parada é um material real que a criança recebe na sala. Toque no kit pra ver o resumo do que ela aprende ali.</p>
     <p class="sub"><b>Baby Class → Kids' Course → Preteen Course</b> → English Course</p>
-    <button class="demo-cta" id="openDemo" type="button">
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 1.5l9 5.5-9 5.5v-11z" fill="currentColor"/></svg>
-      Ver demonstração pro nível do seu filho
-    </button>
   </div>
 
-  <div class="age-strip" id="ageStrip"></div>
+  <div class="jump">
+    <p class="jump-label">Onde seu filho está agora?</p>
+    <div class="jump-chips" id="jumpChips"></div>
+    <button class="jump-clear" id="jumpClear" type="button" hidden>limpar marcação</button>
+  </div>
 
   <div class="trail" id="trail">
-    <svg class="trail-svg" id="trailSvg" preserveAspectRatio="none"></svg>
-    <!-- stops inserted by script -->
+    <svg class="trail-svg" id="trailSvg" aria-hidden="true">
+      <path class="road-edge"/><path class="road"/><path class="road-line"/><path class="road-progress"/>
+    </svg>
+    <div class="marker trail-start" id="trailStart">
+      <span class="marker-pill"><small>Largada</small><b>3 anos</b></span>
+    </div>
+    <div id="stations"></div>
+    <div class="marker trail-end" id="trailEnd">
+      <span class="marker-pill"><small>Próxima parada</small><b>English Course</b></span>
+    </div>
   </div>
 
-  <div class="insight" id="insightSection">
+  <div class="insight">
     <h2>O vocabulário não cresce em linha reta</h2>
     <p class="insight-kicker">Palavras novas por nível, do Baby Class 1 ao Preteen Course 2</p>
     <div class="chart-legend" id="chartLegend"></div>
     <div class="vocab-chart" id="vocabChart"></div>
     <div class="axis-base"></div>
     <p class="insight-cap" id="vocabCap"></p>
-
     <div class="insight-grid">
       <div class="insight-card">
         <p>Os 8 níveis do Kids' Course são <b>independentes</b>. Uma criança que nunca estudou inglês entra direto no nível que acompanha a idade dela, sem passar pelos anteriores, porque cada material já foi pensado pra receber aluno novo. A vaga segue a idade e o ano escolar, não o quanto a criança já sabe de inglês.</p>
@@ -641,37 +395,29 @@ body{background:var(--bg);color:var(--ink);margin:0}
       <p>Modalidade <b>híbrida</b>: a criança escolhe presencial ou online a cada aula, sem perder o ritmo da turma.</p>
     </div>
   </div>
-
   <p class="foot-note">CCAA Pelotas · Baby Class 1 ao 6 · Kids' Course 1 ao 8 · Preteen Course 1 e 2</p>
 </div>
 
-<div class="photo-zoom" id="photoZoom" hidden>
-  <button class="zoom-close" id="closeZoom" type="button" aria-label="Fechar">
-    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 1l12 12M13 1L1 13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-  </button>
-  <img id="zoomImg" src="" alt="">
-  <p class="zoom-cap" id="zoomCap"></p>
-</div>
-
-<div class="demo-overlay" id="demoOverlay" hidden>
-  <div class="demo-head">
-    <span class="label" id="demoLabel">Onde seu filho está</span>
-    <button class="demo-close" id="closeDemo" type="button" aria-label="Fechar demonstração">
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 1l12 12M13 1L1 13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-    </button>
-  </div>
-
-  <div class="demo-picker" id="demoPicker">
-    <h2>De qual nível seu filho vai partir?</h2>
-    <p class="hint">Escolha o Baby Class ou Kids' Course em que ele está agora e a apresentação segue a trilha a partir dali.</p>
-    <div class="pick-grid" id="pickGrid"></div>
-  </div>
-
-  <div class="demo-story" id="demoStory" hidden>
-    <p class="story-hint" id="storyHint"></p>
-    <div class="slide-frame" id="slideFrame"></div>
-    <div class="demo-nav">
-      <button class="nav-restart" id="restartDemo" type="button">escolher outro nível</button>
+<div class="sheet-wrap" id="sheetWrap" hidden>
+  <div class="sheet-backdrop" data-close></div>
+  <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+    <div class="sheet-photo" id="sheetPhoto">
+      <span class="sheet-grab"></span>
+      <img id="sheetImg" src="" alt="">
+      <button class="sheet-close" id="sheetClose" type="button" aria-label="Fechar resumo" data-close>
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 1l12 12M13 1L1 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <div class="sheet-body">
+      <div class="sheet-kicker"><span class="lvl" id="sheetNum"></span><span class="crs" id="sheetCourse"></span></div>
+      <h2 id="sheetTitle"></h2>
+      <p class="sheet-meta" id="sheetMeta"></p>
+      <div id="sheetDetail"></div>
+    </div>
+    <div class="sheet-nav">
+      <button class="nav-btn" id="sheetPrev" type="button">‹ Anterior</button>
+      <span class="nav-pos" id="sheetPos"></span>
+      <button class="nav-btn" id="sheetNext" type="button">Próximo ›</button>
     </div>
   </div>
 </div>
@@ -773,23 +519,16 @@ body{background:var(--bg);color:var(--ink);margin:0}
       does:'Já compra ingresso pela internet, entende endereços e fala sobre opiniões e planos próprios, apresentando outra pessoa em inglês.',
       works:'Fecha o Preteen Course com prova parcial escrita, prova final escrita e prova final oral no meio e no fim do semestre, a primeira vez que o aluno passa por avaliação formal desde que começou no CCAA.'
     }
-  ];
+  ]
 
-  var ZOOM_ICON = '<svg width="13" height="13" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5.2" stroke="currentColor" stroke-width="1.5"/><path d="M11 11l3.5 3.5M7 4.5v5M4.5 7h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>';
+  // padroniza o apóstrofo (o dado usa ’ tipográfico) pra todas as comparações por curso
+  LEVELS.forEach(function(l){ l.course = l.course.replace(/\u2019/g, "'"); });
 
-  var zoomOverlay = document.getElementById('photoZoom');
-  var zoomImg = document.getElementById('zoomImg');
-  var zoomCap = document.getElementById('zoomCap');
-  function openZoom(l){
-    zoomImg.src = l.img;
-    zoomImg.alt = 'Kit do ' + fullName(l);
-    zoomCap.textContent = fullName(l) + ' · material real da sala';
-    zoomOverlay.hidden = false;
-  }
-  function closeZoom(){ zoomOverlay.hidden = true; }
-  document.getElementById('closeZoom').addEventListener('click', function(e){ e.stopPropagation(); closeZoom(); });
-  zoomOverlay.addEventListener('click', function(e){ if(e.target === zoomOverlay) closeZoom(); });
-  document.addEventListener('keydown', function(e){ if(e.key === 'Escape' && !zoomOverlay.hidden) closeZoom(); });
+  var ZONES = {
+    'Baby Class':     { v:'--series-baby',    sub:'3 a 5 anos · Imagination Planet' },
+    "Kids' Course":   { v:'--series-kids',    sub:'6 a 9 anos · Amazing Adventures' },
+    'Preteen Course': { v:'--series-preteen', sub:'10 anos · Password Communication' }
+  };
 
   function shortName(l){
     var tag = l.course === 'Baby Class' ? 'Baby' : (l.course === 'Preteen Course' ? 'Preteen' : 'Kids');
@@ -801,22 +540,227 @@ body{background:var(--bg);color:var(--ink);margin:0}
     if(l.course === 'Preteen Course') return '1h10';
     return '1h';
   }
+  function detailBody(l){
+    if(!l.words) return '<p class="does soon">' + l.note + '</p>';
+    return '<div class="stat-row">' +
+        '<div class="stat"><b>' + l.words + '</b><span>palavras novas</span></div>' +
+        '<div class="stat"><b>38</b><span>aulas no semestre</span></div>' +
+        '<div class="stat"><b>2x</b><span>por semana, ' + classDur(l) + '</span></div>' +
+      '</div>' +
+      '<p class="does">' + l.does + '</p>' +
+      '<p class="works">' + l.works + '</p>';
+  }
 
-  var ageStrip = document.getElementById('ageStrip');
-  LEVELS.forEach(function(l){
-    var chip = document.createElement('div');
-    chip.className = 'age-chip';
-    chip.textContent = shortName(l) + ' · ' + l.age;
-    ageStrip.appendChild(chip);
+  /* ---------- trilha ---------- */
+  var trail = document.getElementById('trail');
+  var stationsEl = document.getElementById('stations');
+  var stationEls = [];
+  var lastCourse = null;
+
+  LEVELS.forEach(function(l, i){
+    if(l.course !== lastCourse){
+      var z = document.createElement('div');
+      z.className = 'zone';
+      z.style.setProperty('--zc', 'var(' + ZONES[l.course].v + ')');
+      z.innerHTML = '<b>' + l.course + '</b><span>' + ZONES[l.course].sub + '</span>';
+      stationsEl.appendChild(z);
+      lastCourse = l.course;
+    }
+    var st = document.createElement('div');
+    st.className = 'station pre ' + (i % 2 === 0 ? 'left' : 'right');
+    st.style.setProperty('--c', l.color);
+    st.style.setProperty('--delay', (-(i * 1.13) % 9).toFixed(2) + 's');
+    st.innerHTML =
+      '<button class="kit" type="button" aria-label="Ver resumo do ' + fullName(l) + '">' +
+        '<span class="pin">' + l.n + '</span>' +
+        '<span class="here-flag">Seu filho está aqui</span>' +
+        '<span class="lift"><span class="float"><span class="box">' +
+          '<span class="face front"><img src="' + l.img + '" alt="" loading="lazy" decoding="async"></span>' +
+          '<span class="face back"><b>' + l.n + '</b><small>' + l.course + '</small></span>' +
+          '<span class="face side r"></span><span class="face side l"></span>' +
+          '<span class="face cap t"></span><span class="face cap b"></span>' +
+        '</span></span></span>' +
+        '<span class="shadow"></span>' +
+      '</button>' +
+      '<div class="st-label">' +
+        '<span class="course">' + l.course + '</span>' +
+        '<span class="name">Nível ' + l.n + '</span>' +
+        '<span class="meta">' + l.age + ' · ' + l.grade + '</span>' +
+        '<span class="go">ver resumo</span>' +
+      '</div>';
+    st.querySelector('.kit').addEventListener('click', function(){ openSheet(i); });
+    st.querySelector('.st-label').addEventListener('click', function(){ openSheet(i); });
+    stationsEl.appendChild(st);
+    stationEls.push(st);
   });
 
-  // gráfico de vocabulário: cor por curso (categórica, slots fixos), magnitude por altura
+  // revelar ao rolar (só opacidade, não mexe na geometria da estrada)
+  if('IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.remove('pre'); io.unobserve(e.target); } });
+    }, { rootMargin:'0px 0px -8% 0px' });
+    stationEls.forEach(function(s){ io.observe(s); });
+  } else {
+    stationEls.forEach(function(s){ s.classList.remove('pre'); });
+  }
+
+  /* ---------- estrada SVG ---------- */
+  var svg = document.getElementById('trailSvg');
+  var paths = svg.querySelectorAll('path');
+  var progress = svg.querySelector('.road-progress');
+  var progLen = 0;
+
+  function center(el, boxOnly){
+    var r = el.getBoundingClientRect(), t = trail.getBoundingClientRect();
+    var h = boxOnly ? (r.height - 26) : r.height;
+    return { x: r.left - t.left + r.width / 2, y: r.top - t.top + h / 2 };
+  }
+  function drawTrail(){
+    var w = trail.clientWidth, h = trail.clientHeight;
+    svg.setAttribute('width', w);
+    svg.setAttribute('height', h);
+    svg.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
+    var pts = [center(document.querySelector('#trailStart .marker-pill'))];
+    stationEls.forEach(function(s){ pts.push(center(s.querySelector('.kit'), true)); });
+    pts.push(center(document.querySelector('#trailEnd .marker-pill')));
+    var d = 'M ' + pts[0].x.toFixed(1) + ' ' + pts[0].y.toFixed(1);
+    for(var i = 1; i < pts.length; i++){
+      var a = pts[i-1], b = pts[i], k = (b.y - a.y) * 0.55;
+      d += ' C ' + a.x.toFixed(1) + ' ' + (a.y + k).toFixed(1) + ', ' +
+                   b.x.toFixed(1) + ' ' + (b.y - k).toFixed(1) + ', ' +
+                   b.x.toFixed(1) + ' ' + b.y.toFixed(1);
+    }
+    paths.forEach(function(p){ p.setAttribute('d', d); });
+    progLen = progress.getTotalLength();
+    progress.style.strokeDasharray = progLen;
+    updateProgress();
+  }
+  function updateProgress(){
+    if(!progLen) return;
+    var t = trail.getBoundingClientRect();
+    var p = (window.innerHeight * 0.62 - t.top) / t.height;
+    p = Math.max(0, Math.min(1, p));
+    progress.style.strokeDashoffset = (progLen * (1 - p)).toFixed(1);
+  }
+  var ticking = false;
+  window.addEventListener('scroll', function(){
+    if(ticking) return;
+    ticking = true;
+    requestAnimationFrame(function(){ updateProgress(); ticking = false; });
+  }, { passive:true });
+  window.addEventListener('resize', drawTrail);
+  window.addEventListener('load', drawTrail);
+  if(document.fonts && document.fonts.ready) document.fonts.ready.then(drawTrail);
+  drawTrail();
+
+  /* ---------- onde seu filho está ---------- */
+  var chipsEl = document.getElementById('jumpChips');
+  var clearBtn = document.getElementById('jumpClear');
+  var chips = [];
+  LEVELS.forEach(function(l, i){
+    var c = document.createElement('button');
+    c.type = 'button';
+    c.className = 'chip';
+    c.style.setProperty('--c', l.color);
+    c.innerHTML = '<i></i>' + shortName(l);
+    c.addEventListener('click', function(){ setHere(i); });
+    chipsEl.appendChild(c);
+    chips.push(c);
+  });
+  function setHere(i){
+    stationEls.forEach(function(s, idx){
+      s.classList.toggle('done', i >= 0 && idx < i);
+      s.classList.toggle('here', idx === i);
+    });
+    chips.forEach(function(c, idx){ c.classList.toggle('on', idx === i); });
+    clearBtn.hidden = i < 0;
+    if(i < 0) return;
+    var s = stationEls[i];
+    s.classList.remove('pre');
+    s.scrollIntoView({ behavior:'smooth', block:'center' });
+    s.classList.remove('flash');
+    void s.offsetWidth;
+    s.classList.add('flash');
+  }
+  clearBtn.addEventListener('click', function(){ setHere(-1); });
+
+  /* ---------- painel de resumo ---------- */
+  var wrap = document.getElementById('sheetWrap');
+  var sheet = document.getElementById('sheet');
+  var current = -1, openedAt = -1, lastFocus = null;
+
+  function fill(i){
+    var l = LEVELS[i];
+    current = i;
+    sheet.style.setProperty('--c', l.color);
+    var img = document.getElementById('sheetImg');
+    img.src = l.img;
+    img.alt = 'Kit do ' + fullName(l);
+    document.getElementById('sheetNum').textContent = l.n;
+    document.getElementById('sheetCourse').textContent = l.course;
+    document.getElementById('sheetTitle').textContent = fullName(l);
+    document.getElementById('sheetMeta').textContent = l.age + ' · ' + l.grade;
+    document.getElementById('sheetDetail').innerHTML = detailBody(l);
+    document.getElementById('sheetPos').textContent = 'parada ' + (i + 1) + ' de ' + LEVELS.length;
+    document.getElementById('sheetPrev').disabled = i === 0;
+    document.getElementById('sheetNext').disabled = i === LEVELS.length - 1;
+    stationEls.forEach(function(s, idx){ s.classList.toggle('active', idx === i); });
+    sheet.scrollTop = 0;
+  }
+  function openSheet(i){
+    fill(i);
+    if(!wrap.hidden) return;
+    openedAt = i;
+    lastFocus = document.activeElement;
+    wrap.hidden = false;
+    document.body.style.overflow = 'hidden';
+    requestAnimationFrame(function(){ requestAnimationFrame(function(){ wrap.classList.add('open'); }); });
+    setTimeout(function(){ document.getElementById('sheetClose').focus({ preventScroll:true }); }, 60);
+  }
+  function closeSheet(){
+    if(wrap.hidden) return;
+    wrap.classList.remove('open');
+    document.body.style.overflow = '';
+    stationEls.forEach(function(s){ s.classList.remove('active'); });
+    var moved = current !== openedAt, target = stationEls[current];
+    setTimeout(function(){
+      wrap.hidden = true;
+      if(moved && target) target.scrollIntoView({ behavior:'smooth', block:'center' });
+      var k = target && target.querySelector('.kit');
+      if(k) k.focus({ preventScroll:true });
+      else if(lastFocus) lastFocus.focus({ preventScroll:true });
+    }, 300);
+  }
+  wrap.addEventListener('click', function(e){
+    if(e.target.closest('[data-close]')) closeSheet();
+  });
+  document.getElementById('sheetPrev').addEventListener('click', function(){ if(current > 0) fill(current - 1); });
+  document.getElementById('sheetNext').addEventListener('click', function(){ if(current < LEVELS.length - 1) fill(current + 1); });
+  document.addEventListener('keydown', function(e){
+    if(wrap.hidden) return;
+    if(e.key === 'Escape') closeSheet();
+    if(e.key === 'ArrowRight' && current < LEVELS.length - 1) fill(current + 1);
+    if(e.key === 'ArrowLeft' && current > 0) fill(current - 1);
+  });
+  // gestos no topo do painel: puxar pra baixo fecha, deslizar troca de nível
+  var tx = null, ty = null, photo = document.getElementById('sheetPhoto');
+  photo.addEventListener('touchstart', function(e){ tx = e.touches[0].clientX; ty = e.touches[0].clientY; }, { passive:true });
+  photo.addEventListener('touchend', function(e){
+    if(tx === null) return;
+    var dx = e.changedTouches[0].clientX - tx, dy = e.changedTouches[0].clientY - ty;
+    if(dy > 70 && Math.abs(dy) > Math.abs(dx)) closeSheet();
+    else if(Math.abs(dx) > 50){
+      if(dx < 0 && current < LEVELS.length - 1) fill(current + 1);
+      if(dx > 0 && current > 0) fill(current - 1);
+    }
+    tx = ty = null;
+  }, { passive:true });
+
+  /* ---------- gráfico de vocabulário ---------- */
   (function(){
     var seriesVar = { 'Baby Class':'--series-baby', "Kids' Course":'--series-kids', 'Preteen Course':'--series-preteen' };
-    var labelByCourse = { 'Baby Class':'Baby Class', "Kids' Course":"Kids' Course", 'Preteen Course':'Preteen Course' };
     var withWords = LEVELS.filter(function(l){ return l.words; });
     var max = Math.max.apply(null, withWords.map(function(l){ return l.words; }));
-
     var chart = document.getElementById('vocabChart');
     withWords.forEach(function(l){
       var bar = document.createElement('div');
@@ -826,202 +770,20 @@ body{background:var(--bg);color:var(--ink);margin:0}
       bar.title = shortName(l) + ' · ' + l.words + ' palavras novas';
       chart.appendChild(bar);
     });
-
     var legend = document.getElementById('chartLegend');
     ['Baby Class', "Kids' Course", 'Preteen Course'].forEach(function(c){
       var item = document.createElement('span');
-      item.innerHTML = '<i style="background:var(' + seriesVar[c] + ')"></i>' + labelByCourse[c];
+      item.innerHTML = '<i style="background:var(' + seriesVar[c] + ')"></i>' + c;
       legend.appendChild(item);
     });
-
     function byCourse(course){ return withWords.filter(function(l){ return l.course === course; }); }
     var baby = byCourse('Baby Class'), kids = byCourse("Kids' Course");
+    var preteen = byCourse('Preteen Course');
     var babyGrowth = Math.round((baby[baby.length-1].words / baby[0].words - 1) * 100);
-    var kidsGrowth = Math.round((kids[5].words / kids[0].words - 1) * 100); // Kids 1 -> Kids 6, últimos dois níveis publicados faltam dado
+    var kidsGrowth = Math.round((kids[kids.length-1].words / kids[0].words - 1) * 100);
     document.getElementById('vocabCap').innerHTML =
       'Do Baby Class 1 ao 6, o ganho é de <b>' + babyGrowth + '%</b>. Do Kids\' Course 1 ao 6, o ganho já é de <b>' + kidsGrowth + '%</b>, mais que o dobro. ' +
-      'O Preteen Course 1 começa em <b>' + withWords[withWords.length-2].words + ' palavras</b>, acima de todo o Kids\' Course. Entrar mais tarde não é entrar na parte mais leve, é entrar direto na parte que acelera.';
+      'O Preteen Course 1 começa em <b>' + preteen[0].words + ' palavras</b>, acima de todo o Kids\' Course. Entrar mais tarde não é entrar na parte mais leve, é entrar direto na parte que acelera.';
   })();
-
-  var trail = document.getElementById('trail');
-  LEVELS.forEach(function(l, i){
-    var stop = document.createElement('div');
-    stop.className = 'stop ' + (i % 2 === 0 ? 'left' : 'right');
-
-    var card = document.createElement('div');
-    card.className = 'card';
-    card.style.setProperty('--kit-color', l.color);
-    card.tabIndex = 0;
-    card.setAttribute('role','button');
-    card.setAttribute('aria-expanded','false');
-
-    card.innerHTML =
-      '<div class="card-top">' +
-        '<div class="level-badge">' + l.n + '</div>' +
-        '<div class="card-title">' +
-          '<div class="name">' + fullName(l) + '</div>' +
-          '<div class="meta">' + l.age + ' · ' + l.grade + '</div>' +
-        '</div>' +
-        '<svg class="chevron" viewBox="0 0 20 20" fill="none"><path d="M5 8l5 5 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
-      '</div>' +
-      '<div class="card-photo">' +
-        '<img src="' + l.img + '" alt="Kit do ' + fullName(l) + '" loading="lazy">' +
-        '<span class="zoom-hint">' + ZOOM_ICON + '</span>' +
-      '</div>' +
-      '<div class="card-detail">' +
-        '<div class="card-detail-inner">' +
-          (l.words ?
-            '<div class="stat-row">' +
-              '<div class="stat"><b>' + l.words + '</b><span>palavras novas</span></div>' +
-              '<div class="stat"><b>38</b><span>aulas no semestre</span></div>' +
-              '<div class="stat"><b>2x</b><span>por semana, ' + classDur(l) + '</span></div>' +
-            '</div>' +
-            '<p class="does">' + l.does + '</p>' +
-            '<p class="works">' + l.works + '</p>'
-          :
-            '<p class="does soon">' + l.note + '</p>'
-          ) +
-        '</div>' +
-      '</div>';
-
-    card.addEventListener('click', function(){
-      var isOpen = card.classList.contains('open');
-      card.classList.toggle('open', !isOpen);
-      card.setAttribute('aria-expanded', String(!isOpen));
-    });
-    card.addEventListener('keydown', function(e){
-      if(e.key === 'Enter' || e.key === ' '){
-        e.preventDefault();
-        card.click();
-      }
-    });
-    card.querySelector('.zoom-hint').addEventListener('click', function(e){
-      e.stopPropagation();
-      openZoom(l);
-    });
-
-    stop.appendChild(card);
-    trail.appendChild(stop);
-  });
-
-  function drawTrail(){
-    var svg = document.getElementById('trailSvg');
-    var w = trail.clientWidth;
-    var h = trail.clientHeight;
-    svg.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
-    var cards = trail.querySelectorAll('.card');
-    var pts = [];
-    cards.forEach(function(c){
-      var r = c.getBoundingClientRect();
-      var tr = trail.getBoundingClientRect();
-      pts.push({ x: r.left - tr.left + r.width/2, y: r.top - tr.top + r.height/2 });
-    });
-    if(pts.length < 2){ svg.innerHTML=''; return; }
-    var d = 'M ' + pts[0].x + ' ' + pts[0].y;
-    for(var i=1;i<pts.length;i++){
-      var p0 = pts[i-1], p1 = pts[i];
-      var midY = (p0.y + p1.y) / 2;
-      d += ' C ' + p0.x + ' ' + midY + ', ' + p1.x + ' ' + midY + ', ' + p1.x + ' ' + p1.y;
-    }
-    svg.innerHTML = '<path d="' + d + '"/>';
-  }
-
-  window.addEventListener('load', drawTrail);
-  window.addEventListener('resize', drawTrail);
-  document.addEventListener('click', function(){ setTimeout(drawTrail, 380); });
-  setTimeout(drawTrail, 60);
-
-  /* ---------- demonstração (modo apresentação) ---------- */
-  function detailBody(l){
-    if(l.words){
-      return '<div class="stat-row">' +
-          '<div class="stat"><b>' + l.words + '</b><span>palavras novas</span></div>' +
-          '<div class="stat"><b>38</b><span>aulas no semestre</span></div>' +
-          '<div class="stat"><b>2x</b><span>por semana, ' + classDur(l) + '</span></div>' +
-        '</div>' +
-        '<p class="does">' + l.does + '</p>' +
-        '<p class="works">' + l.works + '</p>';
-    }
-    return '<p class="does soon">' + l.note + '</p>';
-  }
-
-  var overlay = document.getElementById('demoOverlay');
-  var picker = document.getElementById('demoPicker');
-  var storyEl = document.getElementById('demoStory');
-  var pickGrid = document.getElementById('pickGrid');
-  var slideFrame = document.getElementById('slideFrame');
-  var storyHint = document.getElementById('storyHint');
-  var demoLabel = document.getElementById('demoLabel');
-
-  var lastCourse = null;
-  LEVELS.forEach(function(l, i){
-    if(l.course !== lastCourse){
-      var head = document.createElement('div');
-      head.className = 'pick-course';
-      head.textContent = l.course;
-      pickGrid.appendChild(head);
-      lastCourse = l.course;
-    }
-    var item = document.createElement('button');
-    item.type = 'button';
-    item.className = 'pick-item';
-    item.style.setProperty('--pick-color', l.color);
-    item.innerHTML =
-      '<span class="num">' + l.n + '</span>' +
-      '<span class="txt"><span class="t">' + shortName(l) + '</span><br><span class="a">' + l.age + '</span></span>';
-    item.addEventListener('click', function(){ startStory(i); });
-    pickGrid.appendChild(item);
-  });
-
-  LEVELS.forEach(function(l){
-    var slide = document.createElement('div');
-    slide.className = 'slide';
-    slide.innerHTML =
-      '<span class="slide-pin">é aqui que ele começa</span>' +
-      '<div class="slide-photo" style="--slide-color:' + l.color + '">' +
-        '<img src="' + l.img + '" alt="Kit do ' + fullName(l) + '">' +
-        '<span class="zoom-hint">' + ZOOM_ICON + '</span>' +
-      '</div>' +
-      '<div class="slide-kicker"><span class="num" style="background:' + l.color + '">' + l.n + '</span><span class="meta">' + l.age + ' · ' + l.grade + '</span></div>' +
-      '<h3>' + fullName(l) + '</h3>' +
-      detailBody(l);
-    slide.querySelector('.slide-photo').addEventListener('click', function(e){
-      e.stopPropagation();
-      openZoom(l);
-    });
-    slideFrame.appendChild(slide);
-  });
-  var slides = slideFrame.querySelectorAll('.slide');
-
-  // mostra a trilha completa (todos os cursos, todos os materiais), com o
-  // nível escolhido marcado e centralizado, não restrita a um nível por vez
-  function startStory(i){
-    picker.hidden = true;
-    storyEl.hidden = false;
-    slides.forEach(function(s, idx){ s.classList.toggle('current', idx === i); });
-    demoLabel.textContent = 'Trilha completa';
-    storyHint.innerHTML = 'A partir de <b>' + fullName(LEVELS[i]) + '</b>. Role pra ver os outros cursos e níveis, antes e depois.';
-    requestAnimationFrame(function(){ slides[i].scrollIntoView({ block: 'start' }); });
-  }
-
-  function backToPicker(){
-    storyEl.hidden = true;
-    picker.hidden = false;
-    demoLabel.textContent = 'Onde seu filho está';
-  }
-
-  document.getElementById('openDemo').addEventListener('click', function(){
-    overlay.hidden = false;
-    picker.hidden = false;
-    storyEl.hidden = true;
-    demoLabel.textContent = 'Onde seu filho está';
-  });
-  document.getElementById('closeDemo').addEventListener('click', function(){ overlay.hidden = true; });
-  document.getElementById('restartDemo').addEventListener('click', backToPicker);
-
-  document.addEventListener('keydown', function(e){
-    if(overlay.hidden) return;
-    if(e.key === 'Escape'){ overlay.hidden = true; }
-  });
 })();
 </script>
