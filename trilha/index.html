@@ -442,6 +442,21 @@ details.deep .insight:first-of-type{margin-top:0;border-top:0;padding-top:0}
 .events{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
 .events span{font-size:11.5px;font-weight:700;padding:4px 9px;border-radius:999px;background:var(--bg);border:1px solid var(--line)}
 @media (max-width:520px){.how{grid-template-columns:1fr}.how div{display:grid;grid-template-columns:22px 1fr;column-gap:10px;align-items:center}.how div::before{margin:0;grid-row:1 / span 2}.how b,.how span{grid-column:2}}
+.hero-photo{margin:0 0 10px;border-radius:18px;overflow:hidden;position:relative;cursor:zoom-in;background:#ddd}
+.hero-photo img{display:block;width:100%;height:auto;aspect-ratio:829/624;object-fit:cover}
+.hero-photo figcaption,.gallery figcaption{position:absolute;left:0;right:0;bottom:0;padding:22px 12px 9px;font-size:12px;font-weight:600;color:#fff;background:linear-gradient(transparent,rgba(0,0,0,.65))}
+.gallery{display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:4px;scrollbar-width:none}
+.gallery::-webkit-scrollbar{display:none}
+.gallery figure{flex:0 0 46%;margin:0;scroll-snap-align:start;position:relative;border-radius:14px;overflow:hidden;cursor:zoom-in;background:#ddd}
+.gallery img{display:block;width:100%;aspect-ratio:3/4;object-fit:cover}
+@media (min-width:640px){.gallery figure{flex-basis:31%}}
+.gal-hint{font-size:11.5px;color:var(--ink-mute);margin:6px 0 16px;text-align:center}
+.lightbox{position:fixed;inset:0;z-index:130;background:rgba(5,8,18,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px}
+.lightbox img{max-width:100%;max-height:78vh;border-radius:12px;object-fit:contain}
+.lightbox p{color:#fff;font-size:13.5px;font-weight:600;margin:14px 0 0;text-align:center}
+.lightbox .lb-close{position:absolute;top:16px;right:16px;width:40px;height:40px;border-radius:50%;border:0;background:rgba(255,255,255,.15);color:#fff;font-size:20px;cursor:pointer}
+.lightbox .lb-nav{position:absolute;top:50%;transform:translateY(-50%);width:42px;height:42px;border-radius:50%;border:0;background:rgba(255,255,255,.15);color:#fff;font-size:22px;cursor:pointer}
+.lb-prev{left:10px}.lb-next{right:10px}
 .toast{
   position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);opacity:0;
   background:var(--ink);color:var(--paper);font-size:13px;font-weight:600;padding:10px 16px;border-radius:999px;
@@ -543,7 +558,20 @@ details.deep .insight:first-of-type{margin-top:0;border-top:0;padding-top:0}
 
   <section class="school" id="escola">
     <h2 class="sec-h">Conheça o CCAA Pelotas</h2>
-    <p class="sec-sub">Inglês e espanhol no Centro de Pelotas, com aula presencial ou online e atividades que vão além do livro.</p>
+    <p class="sec-sub">Inglês e espanhol num prédio histórico restaurado no Centro de Pelotas, com 15 salas de aula, espaço de convivência e atividades que vão além do livro.</p>
+    <figure class="hero-photo" data-i="0"><img src="img/escola-fachada.jpg" alt="Fachada do CCAA Pelotas" loading="lazy"><figcaption>Prédio histórico restaurado na Rua Gonçalves Chaves</figcaption></figure>
+    <div class="gallery" id="gallery">
+      <figure data-i="1"><img src="img/escola-recepcao.jpg" alt="Recepção com rampa de acesso" loading="lazy"><figcaption>Recepção com rampa de acesso</figcaption></figure>
+      <figure data-i="2"><img src="img/escola-entrada.jpg" alt="Entrada com o piso de ladrilho original" loading="lazy"><figcaption>Entrada com o piso de ladrilho original</figcaption></figure>
+      <figure data-i="3"><img src="img/escola-convivencia.jpg" alt="Espaço de convivência com mesa coletiva, pebolim e fliperama" loading="lazy"><figcaption>Espaço de convivência com mesa coletiva, pebolim e fliperama</figcaption></figure>
+      <figure data-i="4"><img src="img/escola-lounge.jpg" alt="Lounge com cozinha equipada" loading="lazy"><figcaption>Lounge com cozinha equipada</figcaption></figure>
+      <figure data-i="5"><img src="img/escola-sala.jpg" alt="Sala de aula climatizada" loading="lazy"><figcaption>Sala de aula climatizada</figcaption></figure>
+      <figure data-i="6"><img src="img/escola-corredor.jpg" alt="Corredor das salas" loading="lazy"><figcaption>Corredor das salas</figcaption></figure>
+      <figure data-i="7"><img src="img/escola-sinalizacao.jpg" alt="Sinalização em inglês, espanhol e português" loading="lazy"><figcaption>Sinalização em inglês, espanhol e português</figcaption></figure>
+      <figure data-i="8"><img src="img/escola-escada.jpg" alt="Acesso às salas do andar superior" loading="lazy"><figcaption>Acesso às salas do andar superior</figcaption></figure>
+      <figure data-i="9"><img src="img/escola-acervo.jpg" alt="Sala com acervo histórico do prédio" loading="lazy"><figcaption>Sala com acervo histórico do prédio</figcaption></figure>
+    </div>
+    <p class="gal-hint">Deslize pro lado pra ver mais fotos · toque pra ampliar</p>
     <div class="map">
       <iframe title="Mapa do CCAA Pelotas" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps?q=CCAA%20Pelotas%2C%20R.%20Gon%C3%A7alves%20Chaves%2C%20551%2C%20Centro%2C%20Pelotas%20-%20RS&output=embed"></iframe>
       <div class="map-bar">
@@ -558,6 +586,8 @@ details.deep .insight:first-of-type{margin-top:0;border-top:0;padding-top:0}
       <div class="feat-item" style="--fc:#4a3aa7"><div class="fi">↺</div><b>Reforço e reposição gratuitos</b><p>Faltou aula? O aluno repõe sem custo e não fica atrás da turma.</p></div>
       <div class="feat-item" style="--fc:#d7191f"><div class="fi">✦</div><b>Peter, a IA do CCAA</b><p>Tira dúvidas e conversa em inglês com o aluno fora do horário de aula.</p></div>
       <div class="feat-item" style="--fc:#e9a21f"><div class="fi">★</div><b>Certificado a cada semestre</b><p>Todo nível concluído rende certificado de promoção, sem custo.</p></div>
+      <div class="feat-item" style="--fc:#2a78d6"><div class="fi">◎</div><b>Escola gamificada</b><p>O aluno ganha moedas e cumpre missões ao longo do semestre.</p></div>
+      <div class="feat-item" style="--fc:#57607a"><div class="fi">▦</div><b>15 salas de aula</b><p>Climatizadas, com sinalização em três idiomas.</p></div>
       <div class="feat-item wide" style="--fc:#13235b"><div class="fi">✓</div><b>2x melhor em atendimento no Reclame Aqui</b><p>Eleito na categoria Escola de Idiomas em 2025.</p></div>
     </div>
   </section>
@@ -597,6 +627,7 @@ details.deep .insight:first-of-type{margin-top:0;border-top:0;padding-top:0}
   </div>
 </div>
 <a class="wa-float wa-link" href="https://wa.me/555330251919" target="_blank" rel="noopener" aria-label="Falar no WhatsApp"><svg width="28" height="28" viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg></a>
+<div class="lightbox" id="lightbox" hidden><button class="lb-close" type="button" aria-label="Fechar">×</button><button class="lb-nav lb-prev" type="button" aria-label="Anterior">‹</button><img id="lbImg" src="" alt=""><p id="lbCap"></p><button class="lb-nav lb-next" type="button" aria-label="Próxima">›</button></div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
@@ -1172,6 +1203,30 @@ details.deep .insight:first-of-type{margin-top:0;border-top:0;padding-top:0}
     'O English 1 traz <b>' + w(1) + '</b> palavras novas, o 6 traz <b>' + w(6) + '</b>, e o 10 dispara para <b>' + w(10) + '</b>. ' +
     'A queda no meio do curso coincide com a entrada das mini-sitcoms e dos exercícios no formato TOEFL®: o foco sai de palavra nova e vai pra uso, opinião e fluência. ' +
     'Os saltos do 8 e do Mastering acompanham a chegada de artigos, vídeos e cases nas lições. Quem acha que "parou de aprender" no meio do English está, na prática, consolidando.';
+
+  /* ---------- galeria da escola ---------- */
+  var figs = [].slice.call(document.querySelectorAll('#escola figure'));
+  var lb = document.getElementById('lightbox'), lbI = 0;
+  function lbShow(i){
+    lbI = (i + figs.length) % figs.length;
+    var f = figs[lbI];
+    document.getElementById('lbImg').src = f.querySelector('img').src;
+    document.getElementById('lbImg').alt = f.querySelector('img').alt;
+    document.getElementById('lbCap').textContent = f.querySelector('figcaption').textContent;
+    lb.hidden = false; document.body.classList.add('sheet-open');
+  }
+  function lbClose(){ lb.hidden = true; document.body.classList.remove('sheet-open'); }
+  figs.forEach(function(f, i){ f.addEventListener('click', function(){ lbShow(i); }); });
+  lb.querySelector('.lb-close').addEventListener('click', lbClose);
+  lb.querySelector('.lb-prev').addEventListener('click', function(e){ e.stopPropagation(); lbShow(lbI - 1); });
+  lb.querySelector('.lb-next').addEventListener('click', function(e){ e.stopPropagation(); lbShow(lbI + 1); });
+  lb.addEventListener('click', function(e){ if(e.target === lb) lbClose(); });
+  document.addEventListener('keydown', function(e){
+    if(lb.hidden) return;
+    if(e.key === 'Escape') lbClose();
+    if(e.key === 'ArrowRight') lbShow(lbI + 1);
+    if(e.key === 'ArrowLeft') lbShow(lbI - 1);
+  });
 
   if(!readHash()) syncWa();
   if(state.here >= 0) document.getElementById('nowFold').open = true;
