@@ -90,7 +90,7 @@ a{color:inherit}
 }
 .top-call svg{flex:none}
 
-.page{max-width:760px;margin:0 auto;padding:26px 16px 96px}
+.page{max-width:760px;margin:0 auto;padding:30px 16px 96px}
 
 /* hero */
 .kicker{
@@ -446,6 +446,29 @@ details.deep .insight:first-of-type{margin-top:0;border-top:0;padding-top:0}
 .events{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
 .events span{font-size:11.5px;font-weight:700;padding:4px 9px;border-radius:999px;background:var(--bg);border:1px solid var(--line)}
 @media (max-width:520px){.how{grid-template-columns:1fr}.how div{display:grid;grid-template-columns:22px 1fr;column-gap:10px;align-items:center}.how div::before{margin:0;grid-row:1 / span 2}.how b,.how span{grid-column:2}}
+.cover{position:relative;margin-top:-58px;padding-top:58px;min-height:min(88vh,660px);display:flex;align-items:flex-end;overflow:hidden;color:#fff;background:#0b1020}
+.cover-bg{position:absolute;inset:0;background:url(img/escola-fachada.jpg) center 40%/cover no-repeat;animation:kenburns 22s ease-in-out infinite alternate;transform-origin:60% 50%}
+.cover::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,12,28,.25) 0%,rgba(8,12,28,.15) 35%,rgba(8,12,28,.82) 78%,rgba(8,12,28,.95) 100%)}
+@keyframes kenburns{from{transform:scale(1.02)}to{transform:scale(1.12)}}
+@media (prefers-reduced-motion: reduce){.cover-bg{animation:none}}
+.cover-in{position:relative;z-index:1;width:100%;max-width:760px;margin:0 auto;padding:0 16px 34px}
+.cover-tag{display:inline-block;font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:6px 11px;border-radius:999px;background:rgba(255,255,255,.14);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);margin:0 0 14px}
+.cover h1{font-size:clamp(40px,11vw,72px);line-height:.98;font-weight:800;letter-spacing:-.035em;margin:0 0 12px}
+.cover-sub{font-size:15.5px;line-height:1.55;max-width:540px;margin:0 0 18px;color:rgba(255,255,255,.88)}
+.cover .social{margin:0 0 20px}
+.cover .soc{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.22);color:#fff;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.cover-scroll{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:#fff;text-decoration:none;opacity:.9}
+.cover-scroll span{display:inline-block;animation:nudge 1.8s ease-in-out infinite}
+@keyframes nudge{0%,100%{transform:translateY(0)}50%{transform:translateY(4px)}}
+.tour{padding-top:4px;scroll-margin-top:70px}
+.tour .gallery figure{flex-basis:62%}
+@media (min-width:640px){.tour .gallery figure{flex-basis:38%}}
+.tour .gallery img{aspect-ratio:4/5}
+.hero{margin-top:38px}
+.hero .lede{margin-top:6px}
+.topbar.on-cover{background:transparent;border-color:transparent;backdrop-filter:none;-webkit-backdrop-filter:none}
+.topbar.on-cover .brand-txt b,.topbar.on-cover .brand-txt span{color:#fff}
+.topbar{transition:background .25s,border-color .25s}
 .hero-photo{margin:0 0 10px;border-radius:18px;overflow:hidden;position:relative;cursor:zoom-in;background:#ddd}
 .hero-photo img{display:block;width:100%;height:auto;aspect-ratio:829/624;object-fit:cover}
 .hero-photo figcaption,.gallery figcaption{position:absolute;left:0;right:0;bottom:0;padding:22px 12px 9px;font-size:12px;font-weight:600;color:#fff;background:linear-gradient(transparent,rgba(0,0,0,.65))}
@@ -489,11 +512,40 @@ details.deep .insight:first-of-type{margin-top:0;border-top:0;padding-top:0}
   </div>
 </header>
 
-<main class="page">
-  <section class="hero">
-    <p class="kicker">Jornada do aluno</p>
-    <h1>Do primeiro <em>hello</em> à formação de professor, no coração de Pelotas</h1>
+<section class="cover">
+  <div class="cover-bg" role="img" aria-label="Fachada do CCAA Pelotas, prédio histórico restaurado na Rua Gonçalves Chaves"></div>
+  <div class="cover-in">
+    <p class="cover-tag">Inglês e Espanhol</p>
+    <h1>CCAA Pelotas</h1>
+    <p class="cover-sub">Um prédio histórico restaurado no Centro, com 15 salas de aula e um espaço de convivência pensado pra quem gosta de estar aqui.</p>
     <div class="social" id="heroSocial"></div>
+    <a class="cover-scroll" href="#tour">Conheça a escola <span aria-hidden="true">↓</span></a>
+  </div>
+</section>
+
+<main class="page">
+  <section class="tour" id="tour">
+    <h2 class="sec-h">Conheça o CCAA Pelotas</h2>
+    <p class="sec-sub">R. Gonçalves Chaves, 551 · Centro. Toque numa foto pra ampliar.</p>
+    <div class="gal-wrap">
+    <button class="gal-arrow gal-prev" type="button" aria-label="Fotos anteriores" hidden>‹</button>
+    <button class="gal-arrow gal-next" type="button" aria-label="Próximas fotos">›</button>
+    <div class="gallery" id="gallery">
+      <figure data-i="1"><img src="img/escola-recepcao.jpg" alt="Recepção com rampa de acesso" loading="lazy"><figcaption>Recepção com rampa de acesso</figcaption></figure>
+      <figure data-i="2"><img src="img/escola-entrada.jpg" alt="Entrada com o piso de ladrilho original" loading="lazy"><figcaption>Entrada com o piso de ladrilho original</figcaption></figure>
+      <figure data-i="3"><img src="img/escola-convivencia.jpg" alt="Espaço de convivência com mesa coletiva, pebolim e fliperama" loading="lazy"><figcaption>Espaço de convivência com mesa coletiva, pebolim e fliperama</figcaption></figure>
+      <figure data-i="4"><img src="img/escola-lounge.jpg" alt="Lounge com cozinha equipada" loading="lazy"><figcaption>Lounge com cozinha equipada</figcaption></figure>
+      <figure data-i="5"><img src="img/escola-sala.jpg" alt="Sala de aula climatizada" loading="lazy"><figcaption>Sala de aula climatizada</figcaption></figure>
+      <figure data-i="6"><img src="img/escola-corredor.jpg" alt="Corredor das salas" loading="lazy"><figcaption>Corredor das salas</figcaption></figure>
+      <figure data-i="7"><img src="img/escola-sinalizacao.jpg" alt="Sinalização em inglês, espanhol e português" loading="lazy"><figcaption>Sinalização em inglês, espanhol e português</figcaption></figure>
+      <figure data-i="8"><img src="img/escola-escada.jpg" alt="Acesso às salas do andar superior" loading="lazy"><figcaption>Acesso às salas do andar superior</figcaption></figure>
+      <figure data-i="9"><img src="img/escola-acervo.jpg" alt="Sala com acervo histórico do prédio" loading="lazy"><figcaption>Sala com acervo histórico do prédio</figcaption></figure>
+    </div>
+    </div>
+  </section>
+
+  <section class="hero">
+    <h2 class="sec-h">Os cursos</h2>
     <p class="lede">Cada curso recebe o aluno pela <b>idade</b>, sem exigir os níveis anteriores, e a partir dos 12 anos o <b>teste de nivelamento</b> encaixa quem já possui conhecimento. Escolha o curso e veja o material real de cada semestre, o que se aprende e o que vem depois!</p>
     <div class="facts">
       <div class="fact"><b>3 anos</b><span>a idade em que a jornada pode começar, no Baby Class</span></div>
@@ -566,25 +618,8 @@ details.deep .insight:first-of-type{margin-top:0;border-top:0;padding-top:0}
   </details>
 
   <section class="school" id="escola">
-    <h2 class="sec-h">Conheça o CCAA Pelotas</h2>
-    <p class="sec-sub">Inglês e espanhol num prédio histórico restaurado no Centro de Pelotas, com 15 salas de aula, espaço de convivência e atividades que vão além do livro.</p>
-    <figure class="hero-photo" data-i="0"><img src="img/escola-fachada.jpg" alt="Fachada do CCAA Pelotas" loading="lazy"><figcaption>Prédio histórico restaurado na Rua Gonçalves Chaves</figcaption></figure>
-    <div class="gal-wrap">
-    <button class="gal-arrow gal-prev" type="button" aria-label="Fotos anteriores" hidden>‹</button>
-    <button class="gal-arrow gal-next" type="button" aria-label="Próximas fotos">›</button>
-    <div class="gallery" id="gallery">
-      <figure data-i="1"><img src="img/escola-recepcao.jpg" alt="Recepção com rampa de acesso" loading="lazy"><figcaption>Recepção com rampa de acesso</figcaption></figure>
-      <figure data-i="2"><img src="img/escola-entrada.jpg" alt="Entrada com o piso de ladrilho original" loading="lazy"><figcaption>Entrada com o piso de ladrilho original</figcaption></figure>
-      <figure data-i="3"><img src="img/escola-convivencia.jpg" alt="Espaço de convivência com mesa coletiva, pebolim e fliperama" loading="lazy"><figcaption>Espaço de convivência com mesa coletiva, pebolim e fliperama</figcaption></figure>
-      <figure data-i="4"><img src="img/escola-lounge.jpg" alt="Lounge com cozinha equipada" loading="lazy"><figcaption>Lounge com cozinha equipada</figcaption></figure>
-      <figure data-i="5"><img src="img/escola-sala.jpg" alt="Sala de aula climatizada" loading="lazy"><figcaption>Sala de aula climatizada</figcaption></figure>
-      <figure data-i="6"><img src="img/escola-corredor.jpg" alt="Corredor das salas" loading="lazy"><figcaption>Corredor das salas</figcaption></figure>
-      <figure data-i="7"><img src="img/escola-sinalizacao.jpg" alt="Sinalização em inglês, espanhol e português" loading="lazy"><figcaption>Sinalização em inglês, espanhol e português</figcaption></figure>
-      <figure data-i="8"><img src="img/escola-escada.jpg" alt="Acesso às salas do andar superior" loading="lazy"><figcaption>Acesso às salas do andar superior</figcaption></figure>
-      <figure data-i="9"><img src="img/escola-acervo.jpg" alt="Sala com acervo histórico do prédio" loading="lazy"><figcaption>Sala com acervo histórico do prédio</figcaption></figure>
-    </div>
-    </div>
-    <p class="gal-hint">Toque numa foto pra ampliar</p>
+    <h2 class="sec-h">Por dentro da escola</h2>
+    <p class="sec-sub">O que acontece aqui além da sala de aula.</p>
     <div class="map">
       <iframe title="Mapa do CCAA Pelotas" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps?q=CCAA%20Pelotas%2C%20R.%20Gon%C3%A7alves%20Chaves%2C%20551%2C%20Centro%2C%20Pelotas%20-%20RS&output=embed"></iframe>
       <div class="map-bar">
@@ -1272,6 +1307,11 @@ details.deep .insight:first-of-type{margin-top:0;border-top:0;padding-top:0}
     'A queda no meio do curso coincide com a entrada das mini-sitcoms e dos exercícios no formato TOEFL®: o foco sai de palavra nova e vai pra uso, opinião e fluência. ' +
     'Os saltos do 8 e do Mastering acompanham a chegada de artigos, vídeos e cases nas lições. Quem acha que "parou de aprender" no meio do English está, na prática, consolidando.';
 
+  /* ---------- cabeçalho transparente sobre a capa ---------- */
+  var topbar = document.querySelector('.topbar'), cover = document.querySelector('.cover');
+  function topState(){ topbar.classList.toggle('on-cover', cover.getBoundingClientRect().bottom > 70); }
+  window.addEventListener('scroll', topState, { passive:true }); topState();
+
   /* ---------- galeria da escola ---------- */
   var gal = document.getElementById('gallery');
   var gPrev = document.querySelector('.gal-prev'), gNext = document.querySelector('.gal-next');
@@ -1281,7 +1321,7 @@ details.deep .insight:first-of-type{margin-top:0;border-top:0;padding-top:0}
   gNext.addEventListener('click', function(){ galStep(1); });
   gal.addEventListener('scroll', galArrows, { passive:true });
   galArrows();
-  var figs = [].slice.call(document.querySelectorAll('#escola figure'));
+  var figs = [].slice.call(document.querySelectorAll('#gallery figure'));
   var lb = document.getElementById('lightbox'), lbI = 0;
   function lbShow(i){
     lbI = (i + figs.length) % figs.length;
