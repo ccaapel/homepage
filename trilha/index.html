@@ -430,6 +430,19 @@ details.deep > summary::-webkit-details-marker{display:none}
 details.deep > summary::after{content:"Ver";margin-left:auto;font-size:12px;font-weight:700;color:var(--brand-ink)}
 details.deep[open] > summary::after{content:"Fechar"}
 details.deep .insight:first-of-type{margin-top:0;border-top:0;padding-top:0}
+.age-pick{display:flex;align-items:center;gap:10px;margin:0 0 14px;padding:10px 12px;border-radius:14px;background:var(--paper);border:1px solid var(--line)}
+.age-l{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-mute);flex:none}
+.age-row{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding:2px}
+.age-row::-webkit-scrollbar{display:none}
+.age-row button{flex:none;min-width:40px;height:36px;padding:0 10px;border-radius:999px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit;font-size:14px;font-weight:800;cursor:pointer;transition:background .15s,color .15s,border-color .15s}
+.age-row button:hover{border-color:var(--brand)}
+.age-row button.on{background:var(--brand);border-color:var(--brand);color:#fff}
+.qa-pills{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.qa-pills span{font-size:11.5px;color:var(--ink-soft);padding:4px 9px;border-radius:999px;background:var(--bg);border:1px solid var(--line)}
+.qa-a .qa-pills b{display:inline;font-size:11.5px;color:var(--ink);font-weight:800;margin-left:3px}
+@media (max-width:560px){.age-pick{flex-direction:column;align-items:stretch;gap:8px}.age-row{display:grid;grid-template-columns:repeat(5,1fr);overflow:visible}.age-row button{min-width:0;padding:0}}
+.sheet-wa{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:12px;padding:12px 14px;border-radius:12px;background:#1fa855;color:#fff;font-size:14px;font-weight:800;text-decoration:none}
+.sheet-wa:hover{background:#178f47}
 .why{margin-top:40px;padding-top:26px;border-top:1px solid var(--line)}
 .rep{display:grid;grid-template-columns:auto 1fr;gap:12px 20px;align-items:center;margin-top:12px;padding:16px 18px;border-radius:16px;background:var(--paper);border:1px solid var(--line)}
 .rep-score{text-align:center;padding-right:18px;border-right:1px solid var(--line)}
@@ -552,7 +565,7 @@ details.deep .insight:first-of-type{margin-top:0;border-top:0;padding-top:0}
   <div class="cover-in">
     <p class="cover-tag">Inglês e Espanhol</p>
     <h1>CCAA Pelotas</h1>
-    <p class="cover-sub">Um prédio histórico restaurado no Centro, com 15 salas de aula e um espaço de convivência pensado pra quem gosta de estar aqui.</p>
+    <p class="cover-sub">Um prédio histórico restaurado no coração de Pelotas, onde aprender um idioma acontece com calma, conforto e vontade de voltar.</p>
     <div class="social" id="heroSocial"></div>
     <a class="cover-scroll" href="#tour">Conheça a escola <span aria-hidden="true">↓</span></a>
   </div>
@@ -592,7 +605,8 @@ details.deep .insight:first-of-type{margin-top:0;border-top:0;padding-top:0}
 
   <section class="choose" id="choose">
     <h2>Por onde você quer começar?</h2>
-    <p class="sub">Toque no curso e a trilha abre a partir dele.</p>
+    <p class="sub">Toque na idade do aluno e a trilha abre no nível certo, ou escolha o curso direto.</p>
+    <div class="age-pick" role="group" aria-label="Idade do aluno"><span class="age-l">Idade</span><div class="age-row" id="ageRow"></div></div>
     <div class="course-grid" id="courseGrid"></div>
   </section>
 
@@ -665,13 +679,13 @@ details.deep .insight:first-of-type{margin-top:0;border-top:0;padding-top:0}
       <p class="rep-note"><b>2x melhor em atendimento no Reclame Aqui</b>, categoria Escola de Idiomas, em 2025.</p>
     </div>
     <div class="qa">
-      <div class="qa-row"><p class="qa-q">Quanto tempo de aula o aluno tem, de fato?</p><div class="qa-a"><b>48 horas por semestre</b><p>No English Course são 2 aulas por semana, de 1h15 cada. Carga horária é o número que vale comparar antes do preço.</p></div></div>
+      <div class="qa-row"><p class="qa-q">Quanto tempo de aula o aluno tem, de fato?</p><div class="qa-a"><b>2 aulas por semana, no ritmo de cada idade</b><p>A duração da aula cresce junto com o aluno. Carga horária é o número que vale comparar antes do preço.</p><div class="qa-pills"><span>Baby Class <b>45min</b></span><span>Kids' Course <b>1h</b></span><span>Preteen <b>1h10</b></span><span>English <b>1h15</b></span><span>Español <b>1h</b></span></div></div></div>
       <div class="qa-row"><p class="qa-q">A aula é dada em português?</p><div class="qa-a"><b>Imersão real desde a primeira aula</b><p>O aluno aprende usando o idioma, não traduzindo. Por isso a fala chega com segurança, inclusive pra quem travou em curso tradicional.</p></div></div>
       <div class="qa-row"><p class="qa-q">O material é da própria escola?</p><div class="qa-a"><b>Editora própria, a Waldyr Lima</b><p>Todo semestre o aluno recebe textbook, workbook e CCAA Digital, feitos pela editora do próprio CCAA. Físico ou digital, à escolha.</p></div></div>
       <div class="qa-row"><p class="qa-q">E se faltar aula ou surgir dificuldade?</p><div class="qa-a"><b>Reposição e reforço gratuitos</b><p>O aluno repõe o conteúdo e tem aula de apoio sem custo, sem ficar pra trás da turma.</p></div></div>
       <div class="qa-row"><p class="qa-q">Num dia corrido, dá pra assistir de casa?</p><div class="qa-a"><b>Sistema híbrido, aula por aula</b><p>Presencial ou online ao vivo: a escolha é feita a cada aula, com o mesmo conteúdo e o mesmo material.</p></div></div>
-      <div class="qa-row"><p class="qa-q">Como acompanhar a evolução?</p><div class="qa-a"><b>Certificado a cada semestre</b><p>Cada nível concluído rende certificado, e cada nível tem equivalência no Quadro Europeu, do A1 ao C1 no inglês.</p></div></div>
-      <div class="qa-row"><p class="qa-q">O curso leva a uma certificação internacional?</p><div class="qa-a"><b>TOEFL® gratuito ao concluir</b><p>Quem conclui o curso completo de inglês faz a prova sem custo, junto com certificado e diploma. Em 2024, o CCAA Pelotas teve a maior média no TOEFL.</p></div></div>
+      <div class="qa-row"><p class="qa-q">Como acompanhar a evolução?</p><div class="qa-a"><b>Certificado a cada semestre</b><p>Cada nível concluído rende certificado, e os níveis têm equivalência no Quadro Europeu: do A1 ao C1 no inglês, do A1 ao B2 no espanhol.</p></div></div>
+      <div class="qa-row"><p class="qa-q">O curso leva a uma certificação internacional?</p><div class="qa-a"><b>TOEFL® gratuito ao concluir o inglês</b><p>Quem conclui o curso completo de inglês faz a prova sem custo, junto com certificado e diploma. Em 2024, o CCAA Pelotas teve a maior média no TOEFL. No espanhol, o curso prepara para o DELE e o SIELE.</p></div></div>
       <div class="qa-row"><p class="qa-q">Quem forma os professores?</p><div class="qa-a"><b>O próprio CCAA, no Teachers' Course</b><p>A formação tem livro, metodologia e aulas modelo próprios, os mesmos que aparecem no fim da trilha.</p></div></div>
     </div>
   </section>
@@ -722,6 +736,7 @@ details.deep .insight:first-of-type{margin-top:0;border-top:0;padding-top:0}
       <p class="sheet-meta" id="sheetMeta"></p>
       <div id="sheetDetail"></div>
       <div class="cert" id="sheetCert"></div>
+      <a class="sheet-wa" id="sheetWa" href="https://wa.me/555330251919" target="_blank" rel="noopener"><svg width="16" height="16" viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.21c5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2Zm5.8 14.03c-.25.69-1.44 1.32-1.98 1.37-.51.05-.99.24-3.33-.69-2.82-1.11-4.6-3.99-4.74-4.18-.14-.18-1.13-1.5-1.13-2.87s.71-2.04.97-2.32c.25-.28.55-.35.74-.35l.53.01c.17.01.4-.06.62.48.25.6.84 2.06.92 2.21.07.15.12.32.02.51-.1.2-.15.32-.29.49l-.44.52c-.15.15-.3.31-.13.6.17.3.76 1.25 1.63 2.03 1.12 1 2.07 1.31 2.36 1.45.3.15.47.12.64-.07.17-.2.74-.86.94-1.16.2-.3.39-.25.66-.15.27.1 1.73.82 2.03.97.3.15.49.22.57.34.07.12.07.71-.18 1.4Z"/></svg><span id="sheetWaTxt">Conversar sobre este nível</span></a>
     </div>
     <div class="sheet-nav">
       <button class="nav-btn" id="sheetPrev" type="button">‹ Anterior</button>
@@ -1215,6 +1230,42 @@ details.deep .insight:first-of-type{margin-top:0;border-top:0;padding-top:0}
   }
   prevToggle.addEventListener('click', function(){ state.showPrev = !state.showPrev; render(); });
 
+  /* ---------- localizador por idade ---------- */
+  var AGES = [
+    ['3', 'baby', 'baby-1', 'Com 3 anos, a trilha começa no Baby Class 1.'],
+    ['4', 'baby', 'baby-3', 'Com 4 anos, a trilha começa no Baby Class 3.'],
+    ['5', 'baby', 'baby-5', 'Com 5 anos, a trilha começa no Baby Class 5.'],
+    ['6', 'kids', 'kids-1', "Com 6 anos, a trilha começa no Kids' Course 1."],
+    ['7', 'kids', 'kids-3', "Com 7 anos, a trilha começa no Kids' Course 3."],
+    ['8', 'kids', 'kids-5', "Com 8 anos, a trilha começa no Kids' Course 5."],
+    ['9', 'kids', 'kids-7', "Com 9 anos, a trilha começa no Kids' Course 7."],
+    ['10', 'preteen', 'preteen-1', 'Com 10 anos, a trilha começa no Preteen Course 1.'],
+    ['11', 'preteen', null, 'Com 11 anos, o caminho é o Preteen Course. A escola confirma o nível com você.'],
+    ['12+', 'english', 'english-1', 'A partir de 12 anos: English Course ou Español. Quem já sabe um pouco faz o teste de nivelamento.']
+  ];
+  var ageRow = document.getElementById('ageRow');
+  var ageBtns = AGES.map(function(a){
+    var b = document.createElement('button');
+    b.type = 'button'; b.textContent = a[0];
+    b.setAttribute('aria-label', a[0] === '12+' ? '12 anos ou mais' : a[0] + ' anos');
+    b.addEventListener('click', function(){
+      ageBtns.forEach(function(x){ x.classList.toggle('on', x === b); });
+      choose(a[1], !a[2]);
+      showToast(a[3]);
+      if(!a[2]) return;
+      var t = LEVELS.filter(function(l){ return l.slug === a[2]; })[0];
+      if(!t) return;
+      var s = stationEls[t.i];
+      s.classList.remove('pre');
+      setTimeout(function(){
+        s.scrollIntoView({ behavior:'smooth', block:'center' });
+        s.classList.remove('flash'); void s.offsetWidth; s.classList.add('flash');
+      }, 80);
+    });
+    ageRow.appendChild(b);
+    return b;
+  });
+
   function applyHere(scroll){
     var i = state.here;
     stationEls.forEach(function(s, idx){
@@ -1263,7 +1314,7 @@ details.deep .insight:first-of-type{margin-top:0;border-top:0;padding-top:0}
     return true;
   }
   var toast = document.getElementById('toast'), toastT;
-  function showToast(msg){ toast.textContent = msg; toast.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(function(){ toast.classList.remove('show'); }, 2200); }
+  function showToast(msg){ toast.textContent = msg; toast.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(function(){ toast.classList.remove('show'); }, msg.length > 60 ? 4200 : 2600); }
   document.getElementById('copyLink').addEventListener('click', function(){
     var url = location.href;
     var done = function(){ showToast('Link copiado. Envie no WhatsApp e a trilha abre já nesse ponto.'); };
@@ -1293,6 +1344,10 @@ details.deep .insight:first-of-type{margin-top:0;border-top:0;padding-top:0}
     document.getElementById('sheetMeta').textContent = l.age + ' · ' + l.grade;
     document.getElementById('sheetDetail').innerHTML = detailBody(l);
     document.getElementById('sheetCert').innerHTML = certText(l);
+    var waMsg = l.soon ? 'Olá! Vi no site do CCAA Pelotas que o ' + fullName(l) + ' tem lançamento previsto e quero ser avisado(a).'
+                       : 'Olá! Vi o ' + fullName(l) + ' no site do CCAA Pelotas e quero saber mais sobre turmas e horários.';
+    document.getElementById('sheetWa').href = 'https://wa.me/555330251919?text=' + encodeURIComponent(waMsg);
+    document.getElementById('sheetWaTxt').textContent = l.soon ? 'Quero ser avisado(a) do lançamento' : 'Ver turmas do ' + shortName(l) + ' no WhatsApp';
     var vis = visibleIdx(), pos = vis.indexOf(i);
     document.getElementById('sheetPos').textContent = 'parada ' + (pos + 1) + ' de ' + vis.length;
     document.getElementById('sheetPrev').disabled = pos <= 0;
@@ -1302,6 +1357,7 @@ details.deep .insight:first-of-type{margin-top:0;border-top:0;padding-top:0}
   }
   function step(dir){ var vis = visibleIdx(), pos = vis.indexOf(current) + dir; if(pos >= 0 && pos < vis.length) fill(vis[pos]); }
   function openSheet(i){
+    toast.classList.remove('show');
     fill(i);
     if(!wrap.hidden) return;
     openedAt = i; lastFocus = document.activeElement;
