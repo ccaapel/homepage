@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Jornada do Inglês · CCAA Pelotas</title>
-<meta name="description" content="Do Baby Class ao English 11: todos os materiais, níveis e certificados do CCAA Pelotas, semestre a semestre.">
+<title>Jornada do Aluno · CCAA Pelotas</title>
+<meta name="description" content="Do Baby Class ao English 11 e o Español: todos os materiais, níveis e certificados do CCAA Pelotas, semestre a semestre.">
 <meta name="theme-color" content="#1aa0dc">
 <link rel="icon" type="image/png" href="img/favicon.png">
 <link rel="apple-touch-icon" href="img/ccaa-logo.png">
-<meta property="og:title" content="Jornada do Inglês · CCAA Pelotas">
+<meta property="og:title" content="Jornada do Aluno · CCAA Pelotas">
 <meta property="og:description" content="Veja todos os níveis e materiais, do Baby Class ao English 11.">
 <meta property="og:image" content="img/ccaa-logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -37,6 +37,7 @@
   --series-kids:#eb6834;
   --series-preteen:#1baf7a;
   --series-english:#4a3aa7;
+  --series-espanol:#c8102e;
   color-scheme:light;
 }
 @media (prefers-color-scheme: dark){
@@ -45,7 +46,7 @@
     --brand:#38b3ea; --brand-ink:#7fd0f5; --red:#ff4d55; --navy:#2a3c86;
     --ground:#0f1528; --dots:rgba(255,255,255,.05);
     --road:#2c3346; --road-edge:#3a4258; --road-line:rgba(255,255,255,.55); --shadow:rgba(0,0,0,.5);
-    --series-baby:#3987e5; --series-kids:#d95926; --series-preteen:#199e70; --series-english:#9085e9;
+    --series-baby:#3987e5; --series-kids:#d95926; --series-preteen:#199e70; --series-english:#9085e9; --series-espanol:#e66767;
     color-scheme:dark;
   }
 }
@@ -54,7 +55,7 @@
   --brand:#38b3ea; --brand-ink:#7fd0f5; --red:#ff4d55; --navy:#2a3c86;
   --ground:#0f1528; --dots:rgba(255,255,255,.05);
   --road:#2c3346; --road-edge:#3a4258; --road-line:rgba(255,255,255,.55); --shadow:rgba(0,0,0,.5);
-  --series-baby:#3987e5; --series-kids:#d95926; --series-preteen:#199e70; --series-english:#9085e9;
+  --series-baby:#3987e5; --series-kids:#d95926; --series-preteen:#199e70; --series-english:#9085e9; --series-espanol:#e66767;
   color-scheme:dark;
 }
 *{box-sizing:border-box}
@@ -140,7 +141,9 @@ a{color:inherit}
 .cc-body b{display:block;font-size:15px;font-weight:800}
 .cc-body span{display:block;font-size:12px;color:var(--ink-soft);margin-top:2px}
 .cc-body small{display:inline-block;margin-top:8px;font-size:11px;font-weight:700;color:var(--cc);letter-spacing:.02em}
-.course-card.full{grid-column:1 / -1;flex-direction:row;align-items:stretch}
+.course-card.full,.course-card.wide{grid-column:1 / -1;flex-direction:row;align-items:stretch}
+.course-card.wide .cc-img{width:42%;height:auto;min-height:104px;border-bottom:0;border-right:1px solid var(--line)}
+.course-card.wide .cc-body{border-top:0;border-left:3px solid var(--cc);display:flex;flex-direction:column;justify-content:center}
 .course-card.full .cc-img{width:42%;height:auto;min-height:104px;border-bottom:0;border-right:1px solid var(--line);gap:0;padding:8px}
 .course-card.full .cc-img img{width:25%;height:auto;padding:2px}
 .course-card.full .cc-body{border-top:0;border-left:3px solid var(--cc);display:flex;flex-direction:column;justify-content:center}
@@ -478,7 +481,7 @@ details.deep .insight:first-of-type{margin-top:0;border-top:0;padding-top:0}
 <main class="page">
   <section class="hero">
     <p class="kicker">Jornada do aluno</p>
-    <h1>Do primeiro contato com o inglês ao <em>certificado final</em>, semestre a semestre</h1>
+    <h1>Do primeiro contato com o idioma ao <em>certificado final</em>, semestre a semestre</h1>
     <div class="social" id="heroSocial"></div>
     <p class="lede">Cada curso recebe o aluno pela <b>idade</b>, sem exigir os níveis anteriores, e a partir dos 12 anos o <b>teste de nivelamento</b> encaixa quem já possui conhecimento. Escolha o curso e veja o material real de cada semestre, o que se aprende e o que vem depois!</p>
     <div class="how">
@@ -487,7 +490,7 @@ details.deep .insight:first-of-type{margin-top:0;border-top:0;padding-top:0}
       <div><b>Fale com a gente</b><span>pelo WhatsApp e agende a aula experimental</span></div>
     </div>
     <div class="facts">
-      <div class="fact"><b>4</b><span>cursos em sequência, dos 3 anos à vida adulta</span></div>
+      <div class="fact"><b>Inglês e Espanhol</b><span>4 cursos de inglês em sequência, Español a partir dos 12</span></div>
       <div class="fact"><b>27</b><span>semestres do Baby Class 1 ao English 11</span></div>
       <div class="fact"><b>A1 → C1</b><span>no Quadro Europeu (CEFR) ao fim do English</span></div>
       <div class="fact"><b>TOEFL®</b><span>gratuito para quem conclui o curso completo</span></div>
@@ -598,7 +601,7 @@ details.deep .insight:first-of-type{margin-top:0;border-top:0;padding-top:0}
       <div class="contact-txt"><b>Fale com o CCAA Pelotas</b><span>Aula experimental, matrícula e teste de nivelamento</span></div>
       <div class="social" id="footSocial"></div>
     </div>
-    <p class="foot-note">CCAA Pelotas · Baby Class 1 ao 6 · Kids' Course 1 ao 8 · Preteen Course 1 e 2 · English Course 1 ao 11<br>Idades consideradas completas até 31/03 do ano corrente.</p>
+    <p class="foot-note">CCAA Pelotas · Baby Class 1 ao 6 · Kids' Course 1 ao 8 · Preteen Course 1 e 2 · English Course 1 ao 11 · Español 1 ao 6<br>Idades consideradas completas até 31/03 do ano corrente.</p>
   </footer>
 </main>
 
@@ -800,6 +803,38 @@ details.deep .insight:first-of-type{margin-top:0;border-top:0;padding-top:0}
       age:"estágio avançado-superior", grade:"Mastering English for Success 2", words:990, classes:38,
       does:"Já produz textos claros, coesos e bem estruturados, apresenta ideias e participa de palestras com segurança.",
       works:"Cada aula parte de um vídeo, de textos de gêneros diferentes, de um case ou de um artigo. Na prova oral do 10 e do 11 não há texto pra ler: o professor avalia habilidade comunicativa, proficiência e pronúncia em 9 perguntas."
+    },
+    {
+      course:'Español', n:1, color:'#c8102e', img:'img/esp1.jpg', cefr:'A1/A2',
+      age:"a partir de 12 anos", grade:'Español Internacional 1', words:790, classes:38,
+      does:"Já se apresenta, fala de uma receita, organiza um evento, convida e diz as horas, compra roupa e pela internet e faz check-in num hotel.",
+      works:"As lições seguem personagens de vários países hispânicos no estilo de uma série, com leitura em formato de conversa de WhatsApp e sotaques da Colômbia, Peru, Venezuela, Argentina e Espanha."
+    },
+    {
+      course:'Español', n:2, color:'#e85d04', img:'img/esp2.jpg', cefr:'A1/A2',
+      age:"nível básico", grade:'Español Internacional 2', words:670, classes:38,
+      does:"Já indica direções, faz comparações, conta fatos do passado, fala de lazer, clima e rotina, reclama de uma dor e reporta o que alguém disse.",
+      works:"Entram os tempos do passado e a escrita ganha seções próprias, como ¡A escribir! e Humor a la vista, ao lado do Libro de ejercicios."
+    },
+    {
+      course:'Español', n:3, color:'#f4a100', img:'img/esp3.jpg', cefr:'B1',
+      age:"nível intermediário", grade:'Español Internacional 3', words:null,
+      note:"Lançamento previsto para novembro de 2026. Nos níveis 3 e 4, que equivalem ao B1 do QECR, a comunicação fica mais ampla: o aluno compreende e produz textos orais e escritos em diferentes contextos."
+    },
+    {
+      course:'Español', n:4, color:'#2a9d8f', img:'img/esp4.jpg', cefr:'B1',
+      age:"nível intermediário", grade:'Español Internacional 4', words:null,
+      note:"Lançamento previsto para maio de 2027. Fecha a etapa B1 do QECR, com materiais informativos e narrativos que puxam a fluência."
+    },
+    {
+      course:'Español', n:5, color:'#3a5ba0', img:'img/esp5.jpg', cefr:'B2',
+      age:"nível avançado", grade:'Español Internacional 5', words:null,
+      note:"Lançamento previsto para novembro de 2027. Nos níveis 5 e 6, que equivalem ao B2 do QECR, o aluno lê textos complexos, argumenta e expressa opinião com clareza."
+    },
+    {
+      course:'Español', n:6, color:'#6a3d9a', img:'img/esp6.jpg', cefr:'B2',
+      age:"nível avançado", grade:'Español Internacional 6', words:null,
+      note:"Lançamento previsto para maio de 2028. Último nível: a autonomia se consolida e o aluno se prepara para exames oficiais como DELE e SIELE."
     }
   ]
 
@@ -810,8 +845,10 @@ details.deep .insight:first-of-type{margin-top:0;border-top:0;padding-top:0}
     { key:'baby',    name:'Baby Class',     v:'--series-baby',    age:'3 a 5 anos',            sem:'6 semestres',  start:'3 anos',  sub:'3 a 5 anos · Imagination Planet', thumb:'img/baby3.jpg' },
     { key:'kids',    name:"Kids' Course",   v:'--series-kids',    age:'6 a 9 anos',            sem:'8 semestres',  start:'6 anos',  sub:'6 a 9 anos · Amazing Adventures', thumb:'img/kit2.jpg' },
     { key:'preteen', name:'Preteen Course', v:'--series-preteen', age:'10 e 11 anos',          sem:'2 semestres',  start:'10 anos', sub:'10 e 11 anos · Password Communication', thumb:'img/preteen1.jpg' },
+    { key:'espanol', name:'Español', v:'--series-espanol', age:'12 anos em diante e adultos', sem:'6 semestres', start:'12 anos ou mais', sub:'12 anos em diante · Español Internacional', thumb:'img/esp1.jpg', separate:true },
     { key:'english', name:'English Course', v:'--series-english', age:'12 anos em diante e adultos', sem:'11 semestres', start:'12 anos ou mais', sub:'12 anos em diante · To the Top e Mastering English', thumb:'img/eng1.jpg' }
   ];
+  COURSES.push(COURSES.splice(3, 1)[0]); // Español vai pro fim: trilha paralela, não continuação do English
   var byName = {}; COURSES.forEach(function(c, i){ c.idx = i; byName[c.name] = c; });
   LEVELS.forEach(function(l, i){
     l.i = i;
@@ -822,11 +859,11 @@ details.deep .insight:first-of-type{margin-top:0;border-top:0;padding-top:0}
   var lastOfCourse = {}; LEVELS.forEach(function(l){ lastOfCourse[l.course] = l.i; });
 
   function shortName(l){
-    var tag = { baby:'Baby', kids:'Kids', preteen:'Preteen', english:'English' }[l.c.key];
+    var tag = { baby:'Baby', kids:'Kids', preteen:'Preteen', english:'English', espanol:'Español' }[l.c.key];
     return tag + ' ' + l.n;
   }
   function fullName(l){ return l.course + ' ' + l.n; }
-  function classDur(l){ return { baby:'45min', kids:'1h', preteen:'1h10', english:'1h15' }[l.c.key]; }
+  function classDur(l){ return { baby:'45min', kids:'1h', preteen:'1h10', english:'1h15', espanol:'1h' }[l.c.key]; }
   function detailBody(l){
     if(!l.words) return '<p class="does soon">' + l.note + '</p>';
     return '<div class="stat-row">' +
@@ -843,6 +880,7 @@ details.deep .insight:first-of-type{margin-top:0;border-top:0;padding-top:0}
     if(lastOfCourse[l.course] === l.i){
       t = 'Último nível do ' + l.course + ': além do certificado de promoção, o aluno recebe o <b>certificado de conclusão do curso</b>.';
       if(l.c.key === 'english') t += ' Quem conclui o curso completo faz a prova do <b>TOEFL®</b> gratuitamente.';
+      if(l.c.key === 'espanol') t += ' O curso prepara para os exames internacionais <b>DELE</b> e <b>SIELE</b>.';
     }
     return CERT_ICON + '<span>' + t + '</span>';
   }
@@ -863,10 +901,10 @@ details.deep .insight:first-of-type{margin-top:0;border-top:0;padding-top:0}
   COURSES.forEach(function(c){
     var b = document.createElement('button');
     b.type = 'button';
-    b.className = 'course-card';
+    b.className = 'course-card' + (c.separate ? ' wide' : '');
     b.style.setProperty('--cc', 'var(' + c.v + ')');
     b.innerHTML = '<span class="cc-img"><img src="' + c.thumb + '" alt="" loading="lazy"></span>' +
-      '<span class="cc-body"><b>' + c.name + '</b><span>' + c.age + '</span><small>' + c.sem + ' →</small></span>';
+      '<span class="cc-body"><b>' + c.name + '</b><span>' + c.age + (c.separate ? ' · curso de espanhol, independente do inglês' : '') + '</span><small>' + c.sem + ' →</small></span>';
     b.addEventListener('click', function(){ choose(c.key, true); });
     grid.appendChild(b);
   });
@@ -874,10 +912,11 @@ details.deep .insight:first-of-type{margin-top:0;border-top:0;padding-top:0}
   full.type = 'button';
   full.className = 'course-card full';
   full.style.setProperty('--cc', 'var(--red)');
-  full.innerHTML = '<span class="cc-img">' + COURSES.map(function(c){ return '<img src="' + c.thumb + '" alt="" loading="lazy">'; }).join('') + '</span>' +
-    '<span class="cc-body"><b>Trilha completa</b><span>Do Baby Class 1 ao English 11, os 4 cursos em sequência</span><small>27 semestres →</small></span>';
+  full.innerHTML = '<span class="cc-img">' + COURSES.filter(function(c){ return !c.separate; }).map(function(c){ return '<img src="' + c.thumb + '" alt="" loading="lazy">'; }).join('') + '</span>' +
+    '<span class="cc-body"><b>Trilha completa do inglês</b><span>Do Baby Class 1 ao English 11, os 4 cursos em sequência</span><small>27 semestres →</small></span>';
   full.addEventListener('click', function(){ choose('all', true); });
   grid.appendChild(full);
+  grid.appendChild(grid.querySelector('.course-card.wide'));
 
   /* ---------- trilha ---------- */
   var trail = document.getElementById('trail');
@@ -979,7 +1018,7 @@ details.deep .insight:first-of-type{margin-top:0;border-top:0;padding-top:0}
   var chipsWrap = document.getElementById('nowChips');
   var clearBtn = document.getElementById('clearHere');
   var state = { course:null, showPrev:false, here:-1 };
-  var SEGS = COURSES.map(function(c){ return { key:c.key, label:c.name }; }).concat([{ key:'all', label:'Trilha completa' }]);
+  var SEGS = COURSES.filter(function(c){ return !c.separate; }).map(function(c){ return { key:c.key, label:c.name }; }).concat([{ key:'all', label:'Trilha completa' }, { key:'espanol', label:'Español' }]);
   SEGS.forEach(function(s){
     var b = document.createElement('button');
     b.type = 'button'; b.dataset.key = s.key; b.textContent = s.label; b.setAttribute('role', 'tab');
@@ -999,9 +1038,11 @@ details.deep .insight:first-of-type{margin-top:0;border-top:0;padding-top:0}
   function startIdx(){ return state.course === 'all' ? 0 : COURSES.filter(function(c){ return c.key === state.course; })[0].idx; }
   function render(){
     var from = startIdx();
-    var firstVisible = state.showPrev ? 0 : from;
+    var esp = state.course === 'espanol';
+    var firstVisible = esp ? from : (state.showPrev ? 0 : from);
+    function shown(c){ return esp ? c.separate : (!c.separate && c.idx >= firstVisible); }
     LEVELS.forEach(function(l, i){
-      var vis = l.c.idx >= firstVisible;
+      var vis = shown(l.c);
       stationEls[i].hidden = !vis;
       chips[i].hidden = !vis;
     });
@@ -1009,7 +1050,7 @@ details.deep .insight:first-of-type{margin-top:0;border-top:0;padding-top:0}
     stationEls.forEach(function(s){ if(s.hidden) return; s.classList.toggle('left', side % 2 === 0); s.classList.toggle('right', side % 2 === 1); side++; });
     Object.keys(zoneEls).forEach(function(k){
       var c = COURSES.filter(function(x){ return x.key === k; })[0];
-      zoneEls[k].hidden = c.idx < firstVisible;
+      zoneEls[k].hidden = !shown(c);
     });
     seg.querySelectorAll('button').forEach(function(b){
       var on = b.dataset.key === state.course;
@@ -1018,27 +1059,30 @@ details.deep .insight:first-of-type{margin-top:0;border-top:0;padding-top:0}
     });
     var c = state.course === 'all' ? null : COURSES[from];
     document.getElementById('startAge').textContent = state.showPrev || !c ? '3 anos' : c.start;
-    var count = LEVELS.filter(function(l){ return l.c.idx >= firstVisible && !/alternativa/.test(l.age); }).length;
-    document.getElementById('trailTitle').textContent = c ? 'A trilha a partir do ' + c.name : 'A trilha completa';
+    var count = LEVELS.filter(function(l){ return shown(l.c) && !/alternativa/.test(l.age); }).length;
+    document.querySelector('#trailEnd b').textContent = esp ? 'Certificado de conclusão · DELE e SIELE' : 'Certificado de conclusão e TOEFL®';
+    document.getElementById('trailTitle').textContent = esp ? 'A trilha do Español' : (c ? 'A trilha a partir do ' + c.name : 'A trilha completa do inglês');
     document.getElementById('trailSub').textContent = count + ' semestres até o certificado final. Toque em qualquer kit pra ver o resumo do nível.';
-    if(from > 0 && state.course !== 'all'){
+    if(from > 0 && state.course !== 'all' && !esp){
       prevToggle.hidden = false;
       prevToggle.textContent = state.showPrev ? 'Ocultar as etapas anteriores' : 'Mostrar as etapas anteriores (' + COURSES.slice(0, from).map(function(x){ return x.name; }).join(', ') + ')';
     } else prevToggle.hidden = true;
-    var kidsRange = LEVELS.some(function(l){ return l.c.idx >= firstVisible && l.c.key !== 'english'; });
+    var kidsRange = !esp && LEVELS.some(function(l){ return l.c.idx >= firstVisible && l.c.idx < 3; });
     document.getElementById('insKids').hidden = !kidsRange;
     document.querySelectorAll('#insKids [data-show]').forEach(function(el){
       var k = COURSES.filter(function(x){ return x.key === el.dataset.show; })[0];
       el.hidden = k.idx < firstVisible;
     });
-    document.getElementById('insEnglish').hidden = false;
+    document.getElementById('insEnglish').hidden = esp;
+    document.getElementById('deep').hidden = esp;
     applyHere(false);
     requestAnimationFrame(drawTrail);
   }
   function choose(key, scroll){
     state.course = key;
     state.showPrev = false;
-    if(state.here >= 0 && LEVELS[state.here].c.idx < startIdx()) state.here = -1;
+    if(state.here >= 0 && (key === 'espanol') !== !!LEVELS[state.here].c.separate) state.here = -1;
+    else if(state.here >= 0 && key !== 'espanol' && LEVELS[state.here].c.idx < startIdx()) state.here = -1;
     trailHead.hidden = false;
     render();
     writeHash();
@@ -1065,7 +1109,7 @@ details.deep .insight:first-of-type{margin-top:0;border-top:0;padding-top:0}
 
   /* ---------- link compartilhável: #kids, #english/english-7 ---------- */
   function waText(){
-    var msg = 'Olá! Vi a trilha do inglês no site do CCAA Pelotas';
+    var msg = 'Olá! Vi a trilha no site do CCAA Pelotas';
     if(state.here >= 0) msg += ' e queria saber o próximo passo depois do ' + fullName(LEVELS[state.here]);
     else if(state.course && state.course !== 'all') msg += ' e quero saber mais sobre o ' + COURSES.filter(function(c){ return c.key === state.course; })[0].name;
     return msg + '.';
@@ -1086,7 +1130,7 @@ details.deep .insight:first-of-type{margin-top:0;border-top:0;padding-top:0}
     state.course = key;
     var hi = -1;
     if(m[1]) LEVELS.forEach(function(l){ if(l.slug === m[1]) hi = l.i; });
-    state.here = (hi >= 0 && LEVELS[hi].c.idx >= startIdx()) ? hi : -1;
+    state.here = (hi >= 0 && (key === 'espanol' ? LEVELS[hi].c.separate : (!LEVELS[hi].c.separate && LEVELS[hi].c.idx >= startIdx()))) ? hi : -1;
     trailHead.hidden = false;
     render();
     if(state.here >= 0) setTimeout(function(){ applyHere(true); }, 350);
@@ -1184,7 +1228,7 @@ details.deep .insight:first-of-type{margin-top:0;border-top:0;padding-top:0}
     });
   }
   // infância
-  var kids = LEVELS.filter(function(l){ return l.words && l.c.key !== 'english'; });
+  var kids = LEVELS.filter(function(l){ return l.words && l.c.idx < 3; });
   bars(document.getElementById('kidsChart'), kids, function(l){ return 'var(' + l.c.v + ')'; }, false);
   document.getElementById('kidsLegend').innerHTML = COURSES.slice(0, 3).map(function(c){ return '<span><i style="background:var(' + c.v + ')"></i>' + c.name + '</span>'; }).join('');
   function of(key){ return kids.filter(function(l){ return l.c.key === key; }); }
