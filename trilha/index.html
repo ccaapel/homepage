@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Jornada do Aluno · CCAA Pelotas</title>
+<title>CCAA Pelotas - Cursos</title>
 <meta name="description" content="Do Baby Class ao English 11 e o Español: todos os materiais, níveis e certificados do CCAA Pelotas, semestre a semestre.">
 <meta name="theme-color" content="#1aa0dc">
 <link rel="icon" type="image/png" href="img/favicon.png">
 <link rel="apple-touch-icon" href="img/ccaa-logo.png">
-<meta property="og:title" content="Jornada do Aluno · CCAA Pelotas">
+<meta property="og:title" content="CCAA Pelotas - Cursos">
 <meta property="og:description" content="Veja todos os níveis e materiais, do Baby Class ao English 11.">
 <meta property="og:image" content="img/ccaa-logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -38,6 +38,7 @@
   --series-preteen:#1baf7a;
   --series-english:#4a3aa7;
   --series-espanol:#c8102e;
+  --series-teachers:#13235b;
   color-scheme:light;
 }
 @media (prefers-color-scheme: dark){
@@ -46,7 +47,7 @@
     --brand:#38b3ea; --brand-ink:#7fd0f5; --red:#ff4d55; --navy:#2a3c86;
     --ground:#0f1528; --dots:rgba(255,255,255,.05);
     --road:#2c3346; --road-edge:#3a4258; --road-line:rgba(255,255,255,.55); --shadow:rgba(0,0,0,.5);
-    --series-baby:#3987e5; --series-kids:#d95926; --series-preteen:#199e70; --series-english:#9085e9; --series-espanol:#e66767;
+    --series-baby:#3987e5; --series-kids:#d95926; --series-preteen:#199e70; --series-english:#9085e9; --series-espanol:#e66767; --series-teachers:#7f93d8;
     color-scheme:dark;
   }
 }
@@ -55,7 +56,7 @@
   --brand:#38b3ea; --brand-ink:#7fd0f5; --red:#ff4d55; --navy:#2a3c86;
   --ground:#0f1528; --dots:rgba(255,255,255,.05);
   --road:#2c3346; --road-edge:#3a4258; --road-line:rgba(255,255,255,.55); --shadow:rgba(0,0,0,.5);
-  --series-baby:#3987e5; --series-kids:#d95926; --series-preteen:#199e70; --series-english:#9085e9; --series-espanol:#e66767;
+  --series-baby:#3987e5; --series-kids:#d95926; --series-preteen:#199e70; --series-english:#9085e9; --series-espanol:#e66767; --series-teachers:#7f93d8;
   color-scheme:dark;
 }
 *{box-sizing:border-box}
@@ -453,6 +454,16 @@ details.deep .insight:first-of-type{margin-top:0;border-top:0;padding-top:0}
 .gallery figure{flex:0 0 46%;margin:0;scroll-snap-align:start;position:relative;border-radius:14px;overflow:hidden;cursor:zoom-in;background:#ddd}
 .gallery img{display:block;width:100%;aspect-ratio:3/4;object-fit:cover}
 @media (min-width:640px){.gallery figure{flex-basis:31%}}
+.gal-wrap{position:relative}
+.gal-arrow{
+  position:absolute;top:50%;z-index:3;transform:translateY(-50%);
+  width:34px;height:34px;border-radius:50%;border:0;cursor:pointer;
+  background:rgba(255,255,255,.72);color:#121a33;font-size:20px;line-height:1;
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);box-shadow:0 2px 10px rgba(0,0,0,.18);
+  opacity:.85;transition:opacity .2s;display:flex;align-items:center;justify-content:center;padding-bottom:2px;
+}
+.gal-arrow:hover{opacity:1}
+.gal-prev{left:8px}.gal-next{right:8px}
 .gal-hint{font-size:11.5px;color:var(--ink-mute);margin:6px 0 16px;text-align:center}
 .lightbox{position:fixed;inset:0;z-index:130;background:rgba(5,8,18,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px}
 .lightbox img{max-width:100%;max-height:78vh;border-radius:12px;object-fit:contain}
@@ -481,25 +492,20 @@ details.deep .insight:first-of-type{margin-top:0;border-top:0;padding-top:0}
 <main class="page">
   <section class="hero">
     <p class="kicker">Jornada do aluno</p>
-    <h1>Do primeiro contato com o idioma ao <em>certificado final</em>, semestre a semestre</h1>
+    <h1>Do primeiro <em>hello</em> à formação de professor, no coração de Pelotas</h1>
     <div class="social" id="heroSocial"></div>
     <p class="lede">Cada curso recebe o aluno pela <b>idade</b>, sem exigir os níveis anteriores, e a partir dos 12 anos o <b>teste de nivelamento</b> encaixa quem já possui conhecimento. Escolha o curso e veja o material real de cada semestre, o que se aprende e o que vem depois!</p>
-    <div class="how">
-      <div><b>Escolha o curso</b><span>pela idade de quem vai estudar</span></div>
-      <div><b>Toque no material</b><span>e veja o que se aprende no semestre</span></div>
-      <div><b>Fale com a gente</b><span>pelo WhatsApp e agende a aula experimental</span></div>
-    </div>
     <div class="facts">
-      <div class="fact"><b>Inglês e Espanhol</b><span>4 cursos de inglês em sequência, Español a partir dos 12</span></div>
-      <div class="fact"><b>27</b><span>semestres do Baby Class 1 ao English 11</span></div>
-      <div class="fact"><b>A1 → C1</b><span>no Quadro Europeu (CEFR) ao fim do English</span></div>
-      <div class="fact"><b>TOEFL®</b><span>gratuito para quem conclui o curso completo</span></div>
+      <div class="fact"><b>3 anos</b><span>a idade em que a jornada pode começar, no Baby Class</span></div>
+      <div class="fact"><b>A1 → C1</b><span>no Quadro Europeu (CEFR) ao fim do English Course</span></div>
+      <div class="fact"><b>TOEFL®</b><span>gratuito pra quem conclui o curso completo</span></div>
+      <div class="fact"><b>Teachers'</b><span>a formação de professor, aberta a quem termina o English</span></div>
     </div>
   </section>
 
   <section class="choose" id="choose">
     <h2>Por onde você quer começar?</h2>
-    <p class="sub">A trilha abre a partir do curso escolhido. Dá pra trocar ou ver tudo a qualquer momento.</p>
+    <p class="sub">Toque no curso e a trilha abre a partir dele.</p>
     <div class="course-grid" id="courseGrid"></div>
   </section>
 
@@ -563,6 +569,9 @@ details.deep .insight:first-of-type{margin-top:0;border-top:0;padding-top:0}
     <h2 class="sec-h">Conheça o CCAA Pelotas</h2>
     <p class="sec-sub">Inglês e espanhol num prédio histórico restaurado no Centro de Pelotas, com 15 salas de aula, espaço de convivência e atividades que vão além do livro.</p>
     <figure class="hero-photo" data-i="0"><img src="img/escola-fachada.jpg" alt="Fachada do CCAA Pelotas" loading="lazy"><figcaption>Prédio histórico restaurado na Rua Gonçalves Chaves</figcaption></figure>
+    <div class="gal-wrap">
+    <button class="gal-arrow gal-prev" type="button" aria-label="Fotos anteriores" hidden>‹</button>
+    <button class="gal-arrow gal-next" type="button" aria-label="Próximas fotos">›</button>
     <div class="gallery" id="gallery">
       <figure data-i="1"><img src="img/escola-recepcao.jpg" alt="Recepção com rampa de acesso" loading="lazy"><figcaption>Recepção com rampa de acesso</figcaption></figure>
       <figure data-i="2"><img src="img/escola-entrada.jpg" alt="Entrada com o piso de ladrilho original" loading="lazy"><figcaption>Entrada com o piso de ladrilho original</figcaption></figure>
@@ -574,7 +583,8 @@ details.deep .insight:first-of-type{margin-top:0;border-top:0;padding-top:0}
       <figure data-i="8"><img src="img/escola-escada.jpg" alt="Acesso às salas do andar superior" loading="lazy"><figcaption>Acesso às salas do andar superior</figcaption></figure>
       <figure data-i="9"><img src="img/escola-acervo.jpg" alt="Sala com acervo histórico do prédio" loading="lazy"><figcaption>Sala com acervo histórico do prédio</figcaption></figure>
     </div>
-    <p class="gal-hint">Deslize pro lado pra ver mais fotos · toque pra ampliar</p>
+    </div>
+    <p class="gal-hint">Toque numa foto pra ampliar</p>
     <div class="map">
       <iframe title="Mapa do CCAA Pelotas" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps?q=CCAA%20Pelotas%2C%20R.%20Gon%C3%A7alves%20Chaves%2C%20551%2C%20Centro%2C%20Pelotas%20-%20RS&output=embed"></iframe>
       <div class="map-bar">
@@ -587,9 +597,9 @@ details.deep .insight:first-of-type{margin-top:0;border-top:0;padding-top:0}
       <div class="feat-item" style="--fc:#1fa855"><div class="fi">☘</div><b>Agenda cultural o ano todo</b><p>Datas da cultura de língua inglesa viram atividade na escola.</p><div class="events"><span>St. Patrick's Day</span><span>Páscoa</span><span>Halloween</span></div></div>
       <div class="feat-item" style="--fc:var(--brand)"><div class="fi">⇄</div><b>Aula híbrida</b><p>Presencial ou online a cada aula, com o mesmo conteúdo e o mesmo material.</p></div>
       <div class="feat-item" style="--fc:#4a3aa7"><div class="fi">↺</div><b>Reforço e reposição gratuitos</b><p>Faltou aula? O aluno repõe sem custo e não fica atrás da turma.</p></div>
-      <div class="feat-item" style="--fc:#d7191f"><div class="fi">✦</div><b>Peter, a IA do CCAA</b><p>Tira dúvidas e conversa em inglês com o aluno fora do horário de aula.</p></div>
+      <div class="feat-item" style="--fc:#d7191f"><div class="fi">✦</div><b>Amigo de Conversa</b><p>Um parceiro de prática pra conversar em inglês fora da sala, ganhando naturalidade e confiança na fala.</p></div>
       <div class="feat-item" style="--fc:#e9a21f"><div class="fi">★</div><b>Certificado a cada semestre</b><p>Todo nível concluído rende certificado de promoção, sem custo.</p></div>
-      <div class="feat-item" style="--fc:#2a78d6"><div class="fi">◎</div><b>Escola gamificada</b><p>O aluno ganha moedas e cumpre missões ao longo do semestre.</p></div>
+      <div class="feat-item" style="--fc:#2a78d6"><div class="fi">◎</div><b>Escola gamificada</b><p>Cada missão cumprida no semestre vira moeda, e as moedas viram prêmios de verdade, retirados aqui na escola.</p></div>
       <div class="feat-item" style="--fc:#57607a"><div class="fi">▦</div><b>15 salas de aula</b><p>Climatizadas, com sinalização em três idiomas.</p></div>
       <div class="feat-item wide" style="--fc:#13235b"><div class="fi">✓</div><b>2x melhor em atendimento no Reclame Aqui</b><p>Eleito na categoria Escola de Idiomas em 2025.</p></div>
     </div>
@@ -598,10 +608,10 @@ details.deep .insight:first-of-type{margin-top:0;border-top:0;padding-top:0}
   <footer class="foot">
     <div class="contact">
       <img class="logo" src="img/ccaa-logo.png" alt="">
-      <div class="contact-txt"><b>Fale com o CCAA Pelotas</b><span>Aula experimental, matrícula e teste de nivelamento</span></div>
+      <div class="contact-txt"><b>Fale com o CCAA Pelotas</b><span>A gente responde por aqui mesmo</span></div>
       <div class="social" id="footSocial"></div>
     </div>
-    <p class="foot-note">CCAA Pelotas · Baby Class 1 ao 6 · Kids' Course 1 ao 8 · Preteen Course 1 e 2 · English Course 1 ao 11 · Español 1 ao 6<br>Idades consideradas completas até 31/03 do ano corrente.</p>
+
   </footer>
 </main>
 
@@ -805,6 +815,13 @@ details.deep .insight:first-of-type{margin-top:0;border-top:0;padding-top:0}
       works:"Cada aula parte de um vídeo, de textos de gêneros diferentes, de um case ou de um artigo. Na prova oral do 10 e do 11 não há texto pra ler: o professor avalia habilidade comunicativa, proficiência e pronúncia em 9 perguntas."
     },
     {
+      course:"Teachers' Course", n:'TC', single:true, label:'Formação de professores', color:'#13235b', img:'img/teachers.jpg',
+      age:'a partir de 16 anos', grade:'depois do English 11 · 1 semestre', words:null,
+      stats:[['40','aulas no semestre'],['1h30','por aula'],['3 a 12','alunos por turma']],
+      does:'Forma professores de inglês na metodologia CCAA e também atende quem quer levar o próprio inglês a outro patamar.',
+      works:'O curso tem dois componentes, nessa ordem: primeiro o Language Component, depois o Didactics Component. Pra entrar, é preciso ter 16 anos ou mais, estar cursando ou ter concluído o ensino médio e ter média 70 no último nível do inglês. Quem estudou fora do CCAA faz a prova de seleção de candidatos a professor.'
+    },
+    {
       course:'Español', n:1, color:'#c8102e', img:'img/esp1.jpg', cefr:'A1/A2',
       age:"a partir de 12 anos", grade:'Español Internacional 1', words:790, classes:38,
       does:"Já se apresenta, fala de uma receita, organiza um evento, convida e diz as horas, compra roupa e pela internet e faz check-in num hotel.",
@@ -846,9 +863,11 @@ details.deep .insight:first-of-type{margin-top:0;border-top:0;padding-top:0}
     { key:'kids',    name:"Kids' Course",   v:'--series-kids',    age:'6 a 9 anos',            sem:'8 semestres',  start:'6 anos',  sub:'6 a 9 anos · Amazing Adventures', thumb:'img/kit2.jpg' },
     { key:'preteen', name:'Preteen Course', v:'--series-preteen', age:'10 e 11 anos',          sem:'2 semestres',  start:'10 anos', sub:'10 e 11 anos · Password Communication', thumb:'img/preteen1.jpg' },
     { key:'espanol', name:'Español', v:'--series-espanol', age:'12 anos em diante e adultos', sem:'6 semestres', start:'12 anos ou mais', sub:'12 anos em diante · Español Internacional', thumb:'img/esp1.jpg', separate:true },
+    { key:'teachers', name:"Teachers' Course", v:'--series-teachers', age:'16 anos ou mais, depois do English', sem:'1 semestre', start:'16 anos', sub:'16 anos ou mais · formação de professores', thumb:'img/teachers.jpg', wide:true },
     { key:'english', name:'English Course', v:'--series-english', age:'12 anos em diante e adultos', sem:'11 semestres', start:'12 anos ou mais', sub:'12 anos em diante · To the Top e Mastering English', thumb:'img/eng1.jpg' }
   ];
-  COURSES.push(COURSES.splice(3, 1)[0]); // Español vai pro fim: trilha paralela, não continuação do English
+  // ordem final: Baby, Kids, Preteen, English, Teachers e, por último, o Español (trilha paralela)
+  COURSES = ['baby','kids','preteen','english','teachers','espanol'].map(function(k){ return COURSES.filter(function(c){ return c.key === k; })[0]; });
   var byName = {}; COURSES.forEach(function(c, i){ c.idx = i; byName[c.name] = c; });
   LEVELS.forEach(function(l, i){
     l.i = i;
@@ -859,12 +878,15 @@ details.deep .insight:first-of-type{margin-top:0;border-top:0;padding-top:0}
   var lastOfCourse = {}; LEVELS.forEach(function(l){ lastOfCourse[l.course] = l.i; });
 
   function shortName(l){
+    if(l.single) return 'Teachers';
     var tag = { baby:'Baby', kids:'Kids', preteen:'Preteen', english:'English', espanol:'Español' }[l.c.key];
     return tag + ' ' + l.n;
   }
-  function fullName(l){ return l.course + ' ' + l.n; }
-  function classDur(l){ return { baby:'45min', kids:'1h', preteen:'1h10', english:'1h15', espanol:'1h' }[l.c.key]; }
+  function fullName(l){ return l.single ? l.course : l.course + ' ' + l.n; }
+  function classDur(l){ return { baby:'45min', kids:'1h', preteen:'1h10', english:'1h15', espanol:'1h', teachers:'1h30' }[l.c.key]; }
   function detailBody(l){
+    if(l.stats) return '<div class="stat-row">' + l.stats.map(function(s){ return '<div class="stat"><b>' + s[0] + '</b><span>' + s[1] + '</span></div>'; }).join('') + '</div>' +
+      '<p class="does">' + l.does + '</p><p class="works">' + l.works + '</p>';
     if(!l.words) return '<p class="does soon">' + l.note + '</p>';
     return '<div class="stat-row">' +
         '<div class="stat"><b>' + l.words + '</b><span>palavras novas</span></div>' +
@@ -877,6 +899,7 @@ details.deep .insight:first-of-type{margin-top:0;border-top:0;padding-top:0}
   var CERT_ICON = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="9" r="6"/><path d="M8.5 13.8 7 22l5-3 5 3-1.5-8.2"/></svg>';
   function certText(l){
     var t = 'Ao fim do semestre o aluno recebe o <b>certificado de promoção de nível</b>, sem custo.';
+    if(l.single) return CERT_ICON + '<span>Ao concluir, o aluno recebe o <b>certificado de conclusão do Teachers\' Course</b>.</span>';
     if(lastOfCourse[l.course] === l.i){
       t = 'Último nível do ' + l.course + ': além do certificado de promoção, o aluno recebe o <b>certificado de conclusão do curso</b>.';
       if(l.c.key === 'english') t += ' Quem conclui o curso completo faz a prova do <b>TOEFL®</b> gratuitamente.';
@@ -901,10 +924,11 @@ details.deep .insight:first-of-type{margin-top:0;border-top:0;padding-top:0}
   COURSES.forEach(function(c){
     var b = document.createElement('button');
     b.type = 'button';
-    b.className = 'course-card' + (c.separate ? ' wide' : '');
+    if(c.separate) return; // Español oculto por enquanto
+    b.className = 'course-card' + (c.wide ? ' wide' : '');
     b.style.setProperty('--cc', 'var(' + c.v + ')');
     b.innerHTML = '<span class="cc-img"><img src="' + c.thumb + '" alt="" loading="lazy"></span>' +
-      '<span class="cc-body"><b>' + c.name + '</b><span>' + c.age + (c.separate ? ' · curso de espanhol, independente do inglês' : '') + '</span><small>' + c.sem + ' →</small></span>';
+      '<span class="cc-body"><b>' + c.name + '</b><span>' + c.age + (c.wide ? ' · formação de professores' : '') + '</span><small>' + c.sem + ' →</small></span>';
     b.addEventListener('click', function(){ choose(c.key, true); });
     grid.appendChild(b);
   });
@@ -915,8 +939,8 @@ details.deep .insight:first-of-type{margin-top:0;border-top:0;padding-top:0}
   full.innerHTML = '<span class="cc-img">' + COURSES.filter(function(c){ return !c.separate; }).map(function(c){ return '<img src="' + c.thumb + '" alt="" loading="lazy">'; }).join('') + '</span>' +
     '<span class="cc-body"><b>Trilha completa do inglês</b><span>Do Baby Class 1 ao English 11, os 4 cursos em sequência</span><small>27 semestres →</small></span>';
   full.addEventListener('click', function(){ choose('all', true); });
+  full.hidden = true; // trilha completa oculta por enquanto
   grid.appendChild(full);
-  grid.appendChild(grid.querySelector('.course-card.wide'));
 
   /* ---------- trilha ---------- */
   var trail = document.getElementById('trail');
@@ -954,7 +978,7 @@ details.deep .insight:first-of-type{margin-top:0;border-top:0;padding-top:0}
       '</button>' +
       '<div class="st-label">' +
         '<span class="course">' + l.course + '</span>' +
-        '<span class="name">Nível ' + l.n + (l.cefr ? '<span class="cefr">' + l.cefr + '</span>' : '') + '</span>' +
+        '<span class="name">' + (l.label || 'Nível ' + l.n) + (l.cefr ? '<span class="cefr">' + (l.c.key === 'espanol' ? 'QECR ' : '') + l.cefr + '</span>' : '') + '</span>' +
         '<span class="meta">' + l.age + ' · ' + l.grade + '</span>' +
         '<span class="go">ver resumo <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></span>' +
       '</div>';
@@ -1018,7 +1042,7 @@ details.deep .insight:first-of-type{margin-top:0;border-top:0;padding-top:0}
   var chipsWrap = document.getElementById('nowChips');
   var clearBtn = document.getElementById('clearHere');
   var state = { course:null, showPrev:false, here:-1 };
-  var SEGS = COURSES.filter(function(c){ return !c.separate; }).map(function(c){ return { key:c.key, label:c.name }; }).concat([{ key:'all', label:'Trilha completa' }, { key:'espanol', label:'Español' }]);
+  var SEGS = COURSES.filter(function(c){ return !c.separate; }).map(function(c){ return { key:c.key, label:c.name }; }).concat([]);
   SEGS.forEach(function(s){
     var b = document.createElement('button');
     b.type = 'button'; b.dataset.key = s.key; b.textContent = s.label; b.setAttribute('role', 'tab');
@@ -1160,7 +1184,7 @@ details.deep .insight:first-of-type{margin-top:0;border-top:0;padding-top:0}
     document.getElementById('sheetNum').textContent = l.n;
     document.getElementById('sheetCourse').textContent = l.course;
     var ce = document.getElementById('sheetCefr');
-    ce.hidden = !l.cefr; ce.textContent = l.cefr ? 'CEFR ' + l.cefr : '';
+    ce.hidden = !l.cefr; ce.textContent = !l.cefr ? '' : (l.c.key === 'espanol' ? 'QECR ' + l.cefr + ' · Quadro Europeu Comum de Referência' : 'CEFR ' + l.cefr);
     document.getElementById('sheetTitle').textContent = fullName(l);
     document.getElementById('sheetMeta').textContent = l.age + ' · ' + l.grade;
     document.getElementById('sheetDetail').innerHTML = detailBody(l);
@@ -1249,6 +1273,14 @@ details.deep .insight:first-of-type{margin-top:0;border-top:0;padding-top:0}
     'Os saltos do 8 e do Mastering acompanham a chegada de artigos, vídeos e cases nas lições. Quem acha que "parou de aprender" no meio do English está, na prática, consolidando.';
 
   /* ---------- galeria da escola ---------- */
+  var gal = document.getElementById('gallery');
+  var gPrev = document.querySelector('.gal-prev'), gNext = document.querySelector('.gal-next');
+  function galStep(dir){ var f = gal.querySelector('figure'); gal.scrollBy({ left: dir * (f.offsetWidth + 8) * 2, behavior:'smooth' }); }
+  function galArrows(){ gPrev.hidden = gal.scrollLeft < 8; gNext.hidden = gal.scrollLeft + gal.clientWidth > gal.scrollWidth - 8; }
+  gPrev.addEventListener('click', function(){ galStep(-1); });
+  gNext.addEventListener('click', function(){ galStep(1); });
+  gal.addEventListener('scroll', galArrows, { passive:true });
+  galArrows();
   var figs = [].slice.call(document.querySelectorAll('#escola figure'));
   var lb = document.getElementById('lightbox'), lbI = 0;
   function lbShow(i){
