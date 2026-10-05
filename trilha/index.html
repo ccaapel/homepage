@@ -685,7 +685,7 @@ details.deep .insight:first-of-type{margin-top:0;border-top:0;padding-top:0}
       <div class="qa-row"><p class="qa-q">E se faltar aula ou surgir dificuldade?</p><div class="qa-a"><b>Reposição e reforço gratuitos</b><p>O aluno repõe o conteúdo e tem aula de apoio sem custo, sem ficar pra trás da turma.</p></div></div>
       <div class="qa-row"><p class="qa-q">Num dia corrido, dá pra assistir de casa?</p><div class="qa-a"><b>Sistema híbrido, aula por aula</b><p>Presencial ou online ao vivo: a escolha é feita a cada aula, com o mesmo conteúdo e o mesmo material.</p></div></div>
       <div class="qa-row"><p class="qa-q">Como acompanhar a evolução?</p><div class="qa-a"><b>Certificado a cada semestre</b><p>Cada nível concluído rende certificado, e os níveis têm equivalência no Quadro Europeu: do A1 ao C1 no inglês, do A1 ao B2 no espanhol.</p></div></div>
-      <div class="qa-row"><p class="qa-q">O curso leva a uma certificação internacional?</p><div class="qa-a"><b>TOEFL® gratuito ao concluir o inglês</b><p>Quem conclui o curso completo de inglês faz a prova sem custo, junto com certificado e diploma. Em 2024, o CCAA Pelotas teve a maior média no TOEFL. No espanhol, o curso prepara para o DELE e o SIELE.</p></div></div>
+      <div class="qa-row"><p class="qa-q">O curso leva a uma certificação internacional?</p><div class="qa-a"><b>TOEFL® gratuito ao concluir o inglês</b><p>Quem conclui o curso completo de inglês faz a prova sem custo, junto com certificado e diploma. Em 2024, o CCAA Pelotas teve a maior média no TOEFL. No espanhol, o curso prepara do início ao fim para o DELE e o SIELE.</p></div></div>
       <div class="qa-row"><p class="qa-q">Quem forma os professores?</p><div class="qa-a"><b>O próprio CCAA, no Teachers' Course</b><p>A formação tem livro, metodologia e aulas modelo próprios, os mesmos que aparecem no fim da trilha.</p></div></div>
     </div>
   </section>
@@ -705,7 +705,7 @@ details.deep .insight:first-of-type{margin-top:0;border-top:0;padding-top:0}
       <div class="feat-item" style="--fc:#1fa855"><div class="fi">☘</div><b>Agenda cultural o ano todo</b><p>Datas da cultura de língua inglesa viram atividade na escola.</p><div class="events"><span>St. Patrick's Day</span><span>Páscoa</span><span>Halloween</span></div></div>
       <div class="feat-item" style="--fc:#d7191f"><div class="fi">✦</div><b>Amigo de Conversa</b><p>Um parceiro de prática pra conversar em inglês fora da sala, ganhando naturalidade e confiança na fala.</p></div>
       <div class="feat-item" style="--fc:#2a78d6"><div class="fi">◎</div><b>Escola gamificada</b><p>Cada missão cumprida no semestre vira moeda, e as moedas viram prêmios de verdade, retirados aqui na escola.</p></div>
-      <div class="feat-item wide" style="--fc:#57607a"><div class="fi">▦</div><b>15 salas de aula</b><p>Climatizadas, com sinalização em três idiomas.</p></div>
+      <div class="feat-item wide" style="--fc:#57607a"><div class="fi">▦</div><b>15 salas de aula</b><p>Climatizadas, com sala de jogos e espaço de convivência para aproveitar antes e depois da aula.</p></div>
     </div>
   </section>
 
@@ -1019,7 +1019,7 @@ details.deep .insight:first-of-type{margin-top:0;border-top:0;padding-top:0}
     if(lastOfCourse[l.course] === l.i){
       t = 'Último nível do ' + l.course + ': além do certificado de promoção, o aluno recebe o <b>certificado de conclusão do curso</b>.';
       if(l.c.key === 'english') t += ' Quem conclui o curso completo faz a prova do <b>TOEFL®</b> gratuitamente.';
-      if(l.c.key === 'espanol') t += ' O curso prepara para os exames internacionais <b>DELE</b> e <b>SIELE</b>.';
+      if(l.c.key === 'espanol') t += ' Do primeiro ao último nível, o curso prepara o aluno para os exames internacionais <b>DELE</b> e <b>SIELE</b>, que são feitos à parte.';
     }
     return CERT_ICON + '<span>' + t + '</span>';
   }
@@ -1200,7 +1200,7 @@ details.deep .insight:first-of-type{margin-top:0;border-top:0;padding-top:0}
     var c = state.course === 'all' ? null : COURSES[from];
     document.getElementById('startAge').textContent = state.showPrev || !c ? '3 anos' : c.start;
     var count = LEVELS.filter(function(l){ return shown(l.c) && !/alternativa/.test(l.age); }).length;
-    document.querySelector('#trailEnd b').textContent = esp ? 'Certificado de conclusão · DELE e SIELE' : 'Certificado de conclusão e TOEFL®';
+    document.querySelector('#trailEnd b').textContent = esp ? 'Certificado de conclusão do Español' : 'Certificado de conclusão e TOEFL®';
     document.getElementById('trailTitle').textContent = esp ? 'A trilha do Español' : (c ? 'A trilha a partir do ' + c.name : 'A trilha completa do inglês');
     document.getElementById('trailSub').textContent = esp ? '6 semestres até o certificado final. Os 2 primeiros já estão em sala, e os próximos têm data marcada.' : count + ' semestres até o certificado final. Toque em qualquer kit pra ver o resumo do nível.';
     if(from > 0 && state.course !== 'all' && !esp){
