@@ -443,6 +443,47 @@ details.deep .insight:first-of-type{margin-top:0;border-top:0;padding-top:0}
 @media (max-width:560px){.age-pick{flex-direction:column;align-items:stretch;gap:8px}.age-row{display:grid;grid-template-columns:repeat(5,1fr);overflow:visible}.age-row button{min-width:0;padding:0}}
 .sheet-wa{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:12px;padding:12px 14px;border-radius:12px;background:#1fa855;color:#fff;font-size:14px;font-weight:800;text-decoration:none}
 .sheet-wa:hover{background:#178f47}
+.journey{margin-top:40px;padding-top:26px;border-top:1px solid var(--line)}
+.jr-ctl{display:grid;gap:10px;padding:12px;border-radius:14px;background:var(--paper);border:1px solid var(--line)}
+.jr-line{display:flex;align-items:center;gap:10px;min-width:0}
+.jr-split{flex-wrap:wrap;gap:10px 22px}
+.jr-opt{display:flex;align-items:center;gap:10px}
+.seg-mini{display:flex;padding:3px;border-radius:999px;background:var(--bg);border:1px solid var(--line)}
+.seg-mini button{border:0;background:none;color:var(--ink-soft);font:inherit;font-size:12.5px;font-weight:800;padding:7px 12px;border-radius:999px;cursor:pointer;white-space:nowrap}
+.seg-mini button.on{background:var(--ink);color:var(--paper)}
+.jr-hero{margin-top:12px;padding:18px;border-radius:16px;color:#fff;background:linear-gradient(135deg,#13235b,#1b3a8c 60%,#1aa0dc);position:relative;overflow:hidden}
+.jr-hero::after{content:"";position:absolute;right:-40px;top:-40px;width:160px;height:160px;border-radius:50%;background:rgba(255,255,255,.07)}
+.jr-hero small{display:block;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;opacity:.75}
+.jr-hero b{display:block;font-size:26px;line-height:1.15;font-weight:800;letter-spacing:-.01em;margin:6px 0 4px}
+.jr-hero span{font-size:13.5px;opacity:.9}
+.jr-stats{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;position:relative;z-index:1}
+.jr-stats i{font-style:normal;font-size:12px;font-weight:700;padding:5px 10px;border-radius:999px;background:rgba(255,255,255,.14)}
+.jr-list{list-style:none;margin:14px 0 0;padding:0;position:relative}
+.jr-list::before{content:"";position:absolute;left:83px;top:10px;bottom:10px;width:2px;background:var(--line)}
+.jr-item{display:grid;grid-template-columns:70px 28px 1fr;align-items:start;column-gap:0}
+.jr-when{padding-top:11px;text-align:right;padding-right:10px}
+.jr-when b{display:block;font-size:14px;font-weight:800}
+.jr-when span{font-size:11px;color:var(--ink-mute)}
+.jr-dot{width:14px;height:14px;margin:15px auto 0;border-radius:50%;background:var(--c);box-shadow:0 0 0 4px var(--bg),0 0 0 5px color-mix(in srgb,var(--c) 40%,transparent);position:relative;z-index:1}
+.jr-card{margin:4px 0 6px;border-radius:14px;background:var(--paper);border:1px solid var(--line);overflow:hidden}
+.jr-card > button{display:flex;align-items:center;gap:8px;width:100%;padding:10px 12px;border:0;background:none;color:var(--ink);font:inherit;text-align:left;cursor:pointer}
+.jr-card > button .jr-t{flex:1;min-width:0}
+.jr-card > button b{display:block;font-size:14px}
+.jr-card > button small{display:block;font-size:12px;color:var(--ink-soft);margin-top:1px}
+.jr-card > button::after{content:"+";font-size:18px;font-weight:700;color:var(--ink-mute);transition:transform .2s}
+.jr-card.open > button::after{transform:rotate(45deg)}
+.jr-tag{flex:none;font-size:10.5px;font-weight:800;padding:3px 7px;border-radius:999px;color:var(--c);background:color-mix(in srgb,var(--c) 12%,transparent)}
+.jr-body{display:none;padding:0 12px 12px;font-size:13px;line-height:1.55;color:var(--ink-soft)}
+.jr-card.open .jr-body{display:block}
+.jr-body p{margin:0 0 8px}
+.jr-body button{border:0;background:none;padding:0;color:var(--brand-ink);font:inherit;font-size:12.5px;font-weight:800;cursor:pointer}
+.jr-gap{grid-column:3;font-size:11.5px;color:var(--ink-mute);padding:0 0 4px 12px}
+.jr-item.goal .jr-card{border-color:color-mix(in srgb,var(--c) 45%,var(--line));box-shadow:0 6px 18px color-mix(in srgb,var(--c) 14%,transparent)}
+.jr-item.opt .jr-card{border-style:dashed}
+.jr-note{margin:10px 0 0;font-size:12.5px;line-height:1.55;color:var(--ink-soft);padding:10px 12px;border-radius:12px;background:color-mix(in srgb,var(--brand) 7%,transparent)}
+.jr-note:empty{display:none}
+.jr-wa{margin-top:12px}
+@media (max-width:560px){.jr-line:first-child{flex-direction:column;align-items:stretch;gap:8px}.jr-item{grid-template-columns:58px 24px 1fr}.jr-list::before{left:69px}.jr-hero b{font-size:22px}}
 .why{margin-top:40px;padding-top:26px;border-top:1px solid var(--line)}
 .rep{display:grid;grid-template-columns:auto 1fr;gap:12px 20px;align-items:center;margin-top:12px;padding:16px 18px;border-radius:16px;background:var(--paper);border:1px solid var(--line)}
 .rep-score{text-align:center;padding-right:18px;border-right:1px solid var(--line)}
@@ -637,7 +678,7 @@ details.deep .insight:first-of-type{margin-top:0;border-top:0;padding-top:0}
     </div>
   </section>
 
-  <details class="deep" id="deep">
+  <details class="deep" id="deep" hidden>
   <summary>Quer entender a fundo? Veja como o vocabulário evolui</summary>
   <section class="insight" id="insKids">
     <h2 class="sec-h">Na infância, o vocabulário acelera</h2>
@@ -665,6 +706,22 @@ details.deep .insight:first-of-type{margin-top:0;border-top:0;padding-top:0}
     </div>
   </section>
   </details>
+
+  <section class="journey" id="jornada">
+    <h2 class="sec-h">Onde o aluno chega</h2>
+    <p class="sec-sub">Escolha a idade de início e veja, ano a ano, cada etapa até a conclusão. Toque numa etapa pra ver o que o aluno já consegue fazer.</p>
+    <div class="jr-ctl">
+      <div class="jr-line"><span class="age-l">Idade</span><div class="age-row" id="jrAges"></div></div>
+      <div class="jr-line jr-split">
+        <div class="jr-opt"><span class="age-l">Início</span><div class="seg-mini" id="jrStart"></div></div>
+        <div class="jr-opt" id="jrLangWrap" hidden><span class="age-l">Idioma</span><div class="seg-mini" id="jrLang"></div></div>
+      </div>
+    </div>
+    <div class="jr-hero" id="jrHero"></div>
+    <ol class="jr-list" id="jrList"></ol>
+    <p class="jr-note" id="jrNote"></p>
+    <a class="sheet-wa jr-wa" id="jrWa" href="https://wa.me/555330251919" target="_blank" rel="noopener"><span id="jrWaTxt">Quero começar</span></a>
+  </section>
 
   <section class="why" id="porque">
     <h2 class="sec-h">Por que o CCAA</h2>
@@ -1214,7 +1271,7 @@ details.deep .insight:first-of-type{margin-top:0;border-top:0;padding-top:0}
       el.hidden = k.idx < firstVisible;
     });
     document.getElementById('insEnglish').hidden = esp;
-    document.getElementById('deep').hidden = esp;
+    document.getElementById('deep').hidden = true; // gráfico de vocabulário guardado; a jornada ocupa o lugar
     applyHere(false);
     requestAnimationFrame(drawTrail);
   }
@@ -1229,6 +1286,111 @@ details.deep .insight:first-of-type{margin-top:0;border-top:0;padding-top:0}
     if(scroll) trailHead.scrollIntoView({ behavior:'smooth', block:'start' });
   }
   prevToggle.addEventListener('click', function(){ state.showPrev = !state.showPrev; render(); });
+
+  /* ---------- jornada: onde o aluno chega ---------- */
+  var JR = { age:6, start:0, lang:'en' };
+  var JR_AGES = [3,4,5,6,7,8,9,10,11,12,'13+'];
+  var JR_FIRST = { 3:'baby-1', 4:'baby-3', 5:'baby-5', 6:'kids-1', 7:'kids-3', 8:'kids-5', 9:'kids-7', 10:'preteen-1', 11:'preteen-1', 12:'english-1', '13+':'english-1' };
+  var jrNowYear = 2027;
+  var bySlug = {}; LEVELS.forEach(function(l){ bySlug[l.slug] = l; });
+  function jrSeq(){
+    var out = [], first;
+    if(JR.lang === 'es'){
+      LEVELS.forEach(function(l){ if(l.c.key === 'espanol') out.push(l); });
+      return out;
+    }
+    first = bySlug[JR_FIRST[JR.age]].i;
+    for(var i = first; i < LEVELS.length; i++){
+      var l = LEVELS[i];
+      if(l.c.key === 'teachers' || l.c.key === 'espanol') break;
+      if(/alternativa/.test(l.age)) continue;
+      out.push(l);
+    }
+    return out;
+  }
+  function jrMilestone(seq, k){
+    var l = seq[k];
+    if(k === 0 || k === seq.length - 1) return true;
+    if(seq[k-1].c.key !== l.c.key) return true;
+    if(l.c.key === 'english' && (l.n === 6 || l.n === 10)) return true;
+    if(l.c.key === 'espanol' && (l.n === 3 || l.n === 5)) return true;
+    return false;
+  }
+  function jrWhen(k){
+    var t = k + JR.start;
+    return { year: jrNowYear + Math.floor(t / 2), sem: (t % 2) + 1 };
+  }
+  function jrAge(k){ return typeof JR.age === 'number' ? JR.age + Math.floor((k + JR.start) / 2) : null; }
+  function jrSemText(n){ var y = Math.floor(n / 2), h = n % 2; return (y ? y + (y > 1 ? ' anos' : ' ano') : '') + (y && h ? ' e meio' : (!y && h ? '1 semestre' : '')); }
+  function jrRender(){
+    var seq = jrSeq(), last = seq.length - 1, adult = JR.age === '13+';
+    var lw = jrWhen(last), la = jrAge(last);
+    document.getElementById('jrLangWrap').hidden = !(JR.age === 12 || adult);
+    if(!(JR.age === 12 || adult)) JR.lang = 'en';
+    jrLangBtns.forEach(function(b){ b.classList.toggle('on', b.dataset.k === JR.lang); });
+    jrAgeBtns.forEach(function(b){ b.classList.toggle('on', String(b.dataset.k) === String(JR.age)); });
+    jrStartBtns.forEach(function(b){ b.classList.toggle('on', +b.dataset.k === JR.start); });
+    var es = JR.lang === 'es', end = seq[last];
+    var head = es ? 'Conclui o Español ' : 'Conclui o inglês ';
+    head += la !== null ? 'aos ' + la + ' anos' : 'em ' + jrSemText(seq.length);
+    var sub = lw.sem + 'º semestre de ' + lw.year + ' · nível ' + (es ? 'QECR ' : '') + end.cefr + (es ? ' · preparação para DELE e SIELE' : ' · TOEFL® gratuito');
+    var courses = []; seq.forEach(function(l){ if(courses.indexOf(l.course) < 0) courses.push(l.course); });
+    document.getElementById('jrHero').innerHTML = '<small>Começando ' + (adult ? 'agora' : 'aos ' + JR.age + ' anos') + ', no ' + (JR.start ? '2º' : '1º') + ' semestre de ' + jrNowYear + '</small>' +
+      '<b>' + head + '</b><span>' + sub + '</span>' +
+      '<div class="jr-stats"><i>' + seq.length + ' semestres</i><i>' + courses.length + (courses.length > 1 ? ' cursos' : ' curso') + '</i><i>certificado a cada semestre</i></div>';
+    var list = document.getElementById('jrList'); list.innerHTML = '';
+    var skipped = 0, html = '';
+    seq.forEach(function(l, k){
+      if(!jrMilestone(seq, k)){ skipped++; return; }
+      if(skipped){ html += '<li class="jr-item"><span></span><span></span><span class="jr-gap">+ ' + skipped + (skipped > 1 ? ' semestres' : ' semestre') + ' entre as etapas</span></li>'; skipped = 0; }
+      var w = jrWhen(k), a = jrAge(k), goal = k === last;
+      var what = l.soon ? 'Lançamento previsto para ' + l.soonLong + '. ' + l.note : (l.does || '');
+      html += '<li class="jr-item' + (goal ? ' goal' : '') + '" style="--c:' + l.color + '">' +
+        '<div class="jr-when"><b>' + w.year + '</b><span>' + w.sem + 'º sem.</span></div><span class="jr-dot"></span>' +
+        '<div class="jr-card"><button type="button" aria-expanded="false"><span class="jr-t"><b>' + fullName(l) + '</b><small>' + (a !== null ? a + ' anos · ' : '') + (goal ? 'conclusão do curso' : (k === 0 ? 'ponto de partida' : (l.c.sub.split(' · ')[1] || l.grade))) + '</small></span>' +
+        (l.cefr ? '<span class="jr-tag">' + (l.c.key === 'espanol' ? 'QECR ' : '') + l.cefr + '</span>' : '') + '</button>' +
+        '<div class="jr-body"><p>' + what + '</p><button type="button" data-open="' + l.i + '">Ver o material deste nível ›</button></div></div></li>';
+    });
+    if(!es){
+      var tc = LEVELS.filter(function(l){ return l.single; })[0], tw = jrWhen(last + 1), ta = jrAge(last + 1);
+      if(ta === null || ta >= 16) html += '<li class="jr-item opt" style="--c:' + tc.color + '"><div class="jr-when"><b>' + tw.year + '</b><span>opcional</span></div><span class="jr-dot"></span>' +
+        '<div class="jr-card"><button type="button" aria-expanded="false"><span class="jr-t"><b>Teachers\' Course</b><small>' + (ta !== null ? ta + ' anos · ' : '') + 'formação de professores, se quiser ir além</small></span></button>' +
+        '<div class="jr-body"><p>' + tc.does + '</p><button type="button" data-open="' + tc.i + '">Ver o material deste nível ›</button></div></div></li>';
+    }
+    list.innerHTML = html;
+    var note = '';
+    if(typeof JR.age === 'number' && JR.age < 6) note = 'Começar no Baby Class não antecipa a conclusão, porque cada curso acompanha a idade da criança. O ganho está na base: ' + (6 - JR.age) + (6 - JR.age > 1 ? ' anos' : ' ano') + ' de inglês antes de chegar ao Kids\' Course, quando o idioma já é familiar.';
+    else if(JR.age === 11) note = 'Aos 11 anos, o aluno novo entra no Preteen Course e segue para o English aos 12. Se já tiver conhecimento, a escola confirma o nível no teste de nivelamento.';
+    else if(es) note = 'Os níveis 3 a 6 do Español têm lançamento marcado, sempre antes de a turma precisar deles.';
+    else if(JR.age === 12 || adult) note = 'Quem já sabe um pouco faz o teste de nivelamento e pode começar num nível acima, encurtando o caminho.';
+    note += (note ? ' ' : '') + 'A conta considera semestres seguidos, sem pausas.';
+    document.getElementById('jrNote').textContent = note;
+    var who = adult ? 'para mim' : 'para uma criança de ' + JR.age + ' anos';
+    if(JR.age === 12) who = 'para quem tem 12 anos';
+    document.getElementById('jrWaTxt').textContent = 'Quero começar no ' + (JR.start ? '2º' : '1º') + ' semestre de ' + jrNowYear;
+    document.getElementById('jrWa').href = 'https://wa.me/555330251919?text=' + encodeURIComponent('Olá! Vi no site do CCAA Pelotas a jornada ' + (es ? 'do Español ' : 'do inglês ') + who + ' e quero saber das turmas para o ' + (JR.start ? '2º' : '1º') + ' semestre de ' + jrNowYear + '.');
+  }
+  function jrBtns(wrapId, items, onPick){
+    var w = document.getElementById(wrapId);
+    return items.map(function(it){
+      var b = document.createElement('button'); b.type = 'button';
+      b.dataset.k = it[0]; b.textContent = it[1];
+      b.addEventListener('click', function(){ onPick(it[0]); jrRender(); });
+      w.appendChild(b); return b;
+    });
+  }
+  var jrAgeBtns = jrBtns('jrAges', JR_AGES.map(function(a){ return [a, String(a)]; }), function(k){ JR.age = k; });
+  var jrStartBtns = jrBtns('jrStart', [[0, '1º sem. ' + jrNowYear], [1, '2º sem. ' + jrNowYear]], function(k){ JR.start = +k; });
+  var jrLangBtns = jrBtns('jrLang', [['en', 'Inglês'], ['es', 'Español']], function(k){ JR.lang = k; });
+  document.getElementById('jrList').addEventListener('click', function(e){
+    var open = e.target.closest('[data-open]');
+    if(open){ var l = LEVELS[+open.dataset.open]; choose(l.c.key, false); openSheet(l.i); return; }
+    var btn = e.target.closest('.jr-card > button');
+    if(!btn) return;
+    var card = btn.parentNode, on = !card.classList.contains('open');
+    card.classList.toggle('open', on); btn.setAttribute('aria-expanded', on);
+  });
+  jrRender();
 
   /* ---------- localizador por idade ---------- */
   var AGES = [
