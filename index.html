@@ -1807,6 +1807,12 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
           <span class="launcher-desc">Equiparações, aulas de apoio, nivelamentos e provas.</span>
           <span class="launcher-acao">Abrir ferramenta →</span>
         </button>
+        <button class="launcher-card" id="launchCertificados" type="button">
+          <span class="launcher-tag tag-pedagogico">Secretaria</span>
+          <span class="launcher-titulo">Certificados</span>
+          <span class="launcher-desc">Certificado de nível e de conclusão, um aluno por vez, em Word.</span>
+          <span class="launcher-acao">Abrir ferramenta →</span>
+        </button>
         <button class="launcher-card" id="launchFinanceiro" type="button" style="display:none">
           <span class="launcher-tag tag-financeiro">Financeiro</span>
           <span class="launcher-titulo">Painel Financeiro</span>
@@ -2525,7 +2531,7 @@ function jsonpCall(baseUrl, onSuccess, onError){
 // O arquivo versao.json é buscado com um número único a cada acesso (impossível
 // de ficar preso em cache). Se a versão publicada for maior que a desta cópia,
 // a página recarrega sozinha já apontando para a versão nova.
-const VERSAO_SITE = 30;
+const VERSAO_SITE = 31;
 (function verificarVersao(){
   try{
     const base = '/' + (location.pathname.split('/')[1] || '') ;
@@ -2867,6 +2873,7 @@ document.getElementById('toolGateOverlay').addEventListener('click', e=>{ if(e.t
 function abrirControle(){ abrirFerramenta('Controle de Aplicações', hubBase()+'controledeaplicacoes/'); }
 function abrirFinanceiro(){ abrirFerramenta('Painel Financeiro', hubBase()+'financeiro/'); }
 function abrirComercial(){ abrirFerramenta('Painel Comercial', hubBase()+'comercial/'); }
+function abrirCertificados(){ abrirFerramenta('Certificados', hubBase()+'certificados/'); }
 
 function voltarAoMenu(){
   document.getElementById('painelBox').style.display = 'none';
@@ -4141,6 +4148,7 @@ document.getElementById('matNome').addEventListener('change', ()=>{
     else if(path.includes('controledeaplicacoes')) app = 'controle';
     else if(path.includes('financeiro')) app = 'financeiro';
     else if(path.includes('comercial')) app = 'comercial';
+    else if(path.includes('certificados')) app = 'certificados';
   }
   if(!app) return;
   if(!hubAutenticado()) return; // sem autenticação prévia, fica na home com login normal
@@ -4158,8 +4166,10 @@ document.getElementById('matNome').addEventListener('change', ()=>{
                 : app==='comercial' ? iniciarComercialApp
                 : app==='alunos2' ? iniciarAlunosAtivosApp
                 : app==='materiais' ? iniciarMateriaisApp
+                : app==='certificados' ? ()=>location.replace(hubBase().replace(/certificados\/$/,'')+'certificados/')
                 : iniciarFinanceiroApp;
   const nome = (app==='financeiro') ? 'Painel Financeiro'
+             : (app==='certificados') ? 'Certificados'
              : (app==='comercial')  ? 'Painel Comercial'
              : 'Controle de Aplicações';
   // Acesso direto por URL: mostra o MESMO gate padronizado ("Acesso restrito ·
@@ -4183,6 +4193,7 @@ document.getElementById('pedCardHorarios').addEventListener('click', pedAbrirHor
 document.getElementById('btnVoltarPedagogico').addEventListener('click', pedMostrarMenu);
 document.getElementById('launchFinanceiro').addEventListener('click', abrirFinanceiro);
 document.getElementById('launchComercial').addEventListener('click', abrirComercial);
+document.getElementById('launchCertificados').addEventListener('click', abrirCertificados);
 document.getElementById('launchMkt').addEventListener('click', ()=> abrirFerramenta('Painel de Marketing', 'https://ccaapel.github.io/mkt/'));
 
 // Mantidos apenas para enriquecer o autocomplete de aluno no drawer (nascimento/idade)
