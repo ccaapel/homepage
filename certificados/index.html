@@ -21,12 +21,15 @@ try { document.documentElement.setAttribute('data-theme', localStorage.getItem('
   --ccaa-blue:oklch(48.7% 0.160 259.2); --ccaa-red:oklch(60.3% 0.206 22.3);
   --live:oklch(62.7% 0.170 149.2); --soon:oklch(66.6% 0.157 58.3);
   --gold:oklch(72% 0.120 80);
+  /* o papel é sempre papel: não muda com o tema */
+  --paper:#FFFDF8; --ink:#14284B; --ink-dim:#6B7690; --navy:#0F2D5F;
 }
 [data-theme="light"]{
   --bg:oklch(97.6% 0.006 264.5); --surface:#FFFFFF; --surface-2:#F6F8FC;
   --border:#E4E9F1; --border-strong:#CBD4E3;
   --text:oklch(20.5% 0.030 264.5); --text-mute:#4E576E; --text-dim:#828BA1;
   --shadow-card:0 1px 3px rgba(15,45,95,0.06),0 1px 2px rgba(15,45,95,0.04);
+  --glow:color-mix(in oklch, var(--ccaa-blue) 10%, transparent);
   color-scheme:light;
 }
 [data-theme="dark"]{
@@ -35,40 +38,81 @@ try { document.documentElement.setAttribute('data-theme', localStorage.getItem('
   --text:oklch(95.8% 0.013 266.7); --text-mute:oklch(76.4% 0.039 268.8); --text-dim:oklch(59.1% 0.046 268.7);
   --ccaa-blue:oklch(64.7% 0.160 258.3); --gold:oklch(78% 0.120 80);
   --shadow-card:0 1px 3px rgba(0,0,0,0.4);
+  --glow:color-mix(in oklch, var(--ccaa-blue) 22%, transparent);
   color-scheme:dark;
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 [hidden]{display:none!important}
-body{background:var(--bg);color:var(--text);font:16px/1.5 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh}
-.topo{display:flex;align-items:center;gap:12px;padding:14px 20px;border-bottom:1px solid var(--border);background:var(--surface)}
+body{
+  color:var(--text);font:16px/1.5 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh;
+  background:radial-gradient(1100px 480px at 78% -12%, var(--glow), transparent 70%), var(--bg);
+  background-attachment:fixed;
+}
+
+/* ---------- topo ---------- */
+.topo{display:flex;align-items:center;gap:14px;padding:12px 20px;border-bottom:1px solid var(--border);
+  background:color-mix(in srgb, var(--surface) 82%, transparent);backdrop-filter:blur(10px);position:sticky;top:0;z-index:20}
 .topo img{width:34px;height:34px;border-radius:9px}
-.topo h1{font:800 19px/1 "Bricolage Grotesque",Inter,sans-serif;letter-spacing:-.01em}
-.topo a{margin-left:auto;color:var(--text-mute);text-decoration:none;font-weight:600;font-size:14px}
-.topo a:hover{color:var(--ccaa-blue)}
-.wrap{max-width:1060px;margin:0 auto;padding:22px 16px 56px;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:20px;align-items:start}
-@media (max-width:840px){.wrap{grid-template-columns:minmax(0,1fr)}}
+.marca{display:grid;line-height:1.1}
+.marca h1{font:800 19px/1.1 "Bricolage Grotesque",Inter,sans-serif;letter-spacing:-.01em}
+.marca span{font-size:12px;color:var(--text-dim);font-weight:600;letter-spacing:.03em}
+.abas{display:flex;gap:4px;background:var(--surface-2);border:1px solid var(--border);border-radius:99px;padding:4px;margin-left:14px}
+.abas button{font:inherit;font-weight:700;font-size:14px;border:0;border-radius:99px;padding:7px 16px;cursor:pointer;background:transparent;color:var(--text-mute)}
+.abas button[aria-selected=true]{background:var(--ccaa-blue);color:#fff}
+.abas button .qtd{font-size:11px;font-weight:800;margin-left:6px;padding:1px 7px;border-radius:99px;background:color-mix(in srgb,#fff 22%,transparent)}
+.acoes-topo{margin-left:auto;display:flex;align-items:center;gap:6px}
+.icone{font:inherit;border:1px solid var(--border);background:var(--surface-2);color:var(--text-mute);border-radius:99px;width:36px;height:36px;cursor:pointer;display:grid;place-items:center}
+.icone:hover{color:var(--ccaa-blue);border-color:var(--ccaa-blue)}
+.voltar{color:var(--text-mute);text-decoration:none;font-weight:600;font-size:14px;padding:8px 10px}
+.voltar:hover{color:var(--ccaa-blue)}
+@media (max-width:640px){
+  .topo{flex-wrap:wrap;padding:10px 14px;gap:10px}
+  .abas{order:3;margin:0;width:100%}
+  .abas button{flex:1}
+  .marca span{display:none}
+}
+
+/* ---------- layout ---------- */
+.wrap{max-width:1120px;margin:0 auto;padding:22px 16px 64px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:22px;align-items:start}
+@media (max-width:880px){.wrap{grid-template-columns:minmax(0,1fr)}}
 form,.cartao{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-lg);padding:20px;display:grid;gap:18px;min-width:0;box-shadow:var(--shadow-card)}
+
+/* ---------- zona de colagem ---------- */
+.cola{position:relative;border:2px dashed var(--border-strong);border-radius:var(--r-md);padding:16px;display:grid;gap:10px;
+  background:color-mix(in srgb, var(--ccaa-blue) 4%, var(--surface-2));transition:border-color .2s, background .2s}
+.cola:focus-within,.cola.sobre{border-color:var(--ccaa-blue);background:color-mix(in srgb, var(--ccaa-blue) 9%, var(--surface-2))}
+.cola-topo{display:flex;align-items:center;gap:12px}
+.cola-ic{width:40px;height:40px;border-radius:11px;display:grid;place-items:center;flex:none;color:var(--ccaa-blue);background:color-mix(in srgb,var(--ccaa-blue) 14%,transparent)}
+.cola-tx strong{display:block;font-size:15px}
+.cola-tx span{font-size:13px;color:var(--text-dim)}
+kbd{font:700 11.5px/1 Inter,sans-serif;padding:3px 6px;border-radius:6px;border:1px solid var(--border-strong);border-bottom-width:2px;background:var(--surface);color:var(--text-mute)}
+.cola textarea{min-height:46px;max-height:160px;font-size:13.5px;background:var(--surface);border-style:solid}
+.chips{display:flex;flex-wrap:wrap;gap:6px;min-height:0}
+.chip{font-size:12.5px;font-weight:700;padding:3px 10px;border-radius:99px;background:color-mix(in srgb,var(--live) 16%,transparent);color:var(--live);animation:pop .3s cubic-bezier(.2,1.6,.4,1) both}
+.chip.aviso{background:color-mix(in srgb,var(--soon) 16%,transparent);color:var(--soon)}
+.chip:nth-child(2){animation-delay:.04s}.chip:nth-child(3){animation-delay:.08s}.chip:nth-child(4){animation-delay:.12s}.chip:nth-child(5){animation-delay:.16s}.chip:nth-child(n+6){animation-delay:.2s}
+@keyframes pop{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:none}}
+
+/* ---------- campos ---------- */
 .lbl{font-weight:700;font-size:14px;display:block;margin-bottom:7px}
-.seg{display:flex;flex-wrap:wrap;gap:8px}
-.seg{position:relative}
+.seg{display:flex;flex-wrap:wrap;gap:8px;position:relative}
 .seg.cursos{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
 .seg input{position:absolute;opacity:0;pointer-events:none;width:1px;height:1px;left:0;top:0}
-.seg label{flex:1 1 auto;min-width:88px;text-align:center;padding:10px 12px;border:1.5px solid var(--border-strong);border-radius:var(--r-sm);cursor:pointer;font-weight:600;font-size:14px;background:var(--surface-2);user-select:none}
+.seg label{flex:1 1 auto;min-width:88px;text-align:center;padding:10px 12px;border:1.5px solid var(--border-strong);border-radius:var(--r-sm);cursor:pointer;font-weight:600;font-size:14px;background:var(--surface-2);user-select:none;transition:transform .12s}
+.seg label:active{transform:scale(.97)}
 .seg input:checked+label{border-color:var(--ccaa-blue);background:color-mix(in srgb,var(--ccaa-blue) 14%,transparent);color:var(--ccaa-blue)}
 .seg input:focus-visible+label{outline:2px solid var(--ccaa-blue);outline-offset:2px}
 .seg input:disabled+label{opacity:.35;cursor:not-allowed}
-.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:12px}
 .field{display:grid;gap:6px;min-width:0;align-content:start}
 .field>span{font-weight:700;font-size:14px;display:flex;gap:8px;align-items:center}
 .field small{color:var(--text-dim);font-size:12.5px;font-weight:600;letter-spacing:.04em}
 input,select,textarea{font:inherit;font-size:16px;color:var(--text);background:var(--surface-2);border:1.5px solid var(--border-strong);border-radius:var(--r-sm);padding:10px 12px;width:100%}
-textarea{resize:vertical;min-height:64px;font-size:14px}
+textarea{resize:vertical}
 input.num{font-variant-numeric:tabular-nums}
 input[aria-invalid=true]{border-color:var(--ccaa-red)}
 input:focus,select:focus,textarea:focus{outline:none;border-color:var(--ccaa-blue)}
 button:focus-visible{outline:2px solid var(--ccaa-blue);outline-offset:2px}
-.colar{border-style:dashed}
-.preenchido{font-size:13px;color:var(--live);font-weight:600;min-height:1.2em}
 .selo{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:2px 8px;border-radius:99px;background:color-mix(in srgb,var(--soon) 18%,transparent);color:var(--soon)}
 .calc{font-size:13px;color:var(--text-dim)}
 .alerta{border-radius:var(--r-sm);padding:11px 13px;font-size:14px;display:grid;gap:8px}
@@ -76,37 +120,140 @@ button:focus-visible{outline:2px solid var(--ccaa-blue);outline-offset:2px}
 .alerta.aviso{background:color-mix(in srgb,var(--soon) 15%,transparent);color:var(--soon)}
 .alerta label{display:flex;gap:8px;align-items:flex-start;font-weight:600;cursor:pointer;color:var(--text)}
 .alerta input{width:auto;margin-top:4px}
-aside{display:grid;gap:14px;position:sticky;top:16px;min-width:0}
-@media (max-width:840px){aside{position:static}}
-.folha{background:var(--surface);border:1.5px solid var(--border);border-top:6px solid var(--border-strong);border-radius:var(--r-md);padding:20px;display:grid;gap:12px;box-shadow:var(--shadow-card)}
-.folha.dourada{border-top-color:var(--gold)}
-.folha h2{font:800 17px/1.2 "Bricolage Grotesque",Inter,sans-serif}
-.folha .papel{font-size:13px;color:var(--text-dim);font-weight:600}
-dl{display:grid;grid-template-columns:auto minmax(0,1fr);gap:6px 14px;font-size:14px}
-dt{color:var(--text-dim)}
-dd{font-weight:600;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
-dd.vazio{color:var(--text-dim);font-weight:400}
-.btn{font:inherit;font-weight:700;font-size:15px;border:0;border-radius:var(--r-sm);padding:13px 16px;cursor:pointer;background:var(--ccaa-blue);color:#fff;width:100%}
+
+/* ---------- tabela da turma ---------- */
+.tab-wrap{overflow-x:auto;border:1.5px solid var(--border);border-radius:var(--r-md)}
+table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:520px}
+th{font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--text-dim);text-align:left;padding:9px 10px;background:var(--surface-2);border-bottom:1px solid var(--border)}
+td{padding:9px 10px;border-bottom:1px solid var(--border);vertical-align:top;font-variant-numeric:tabular-nums}
+tr:last-child td{border-bottom:0}
+td.n{color:var(--text-dim);width:28px}
+td .mot{display:block;font-size:12px;margin-top:3px;font-weight:600}
+td .mot.erro{color:var(--ccaa-red)} td .mot.aviso{color:var(--soon)}
+tr.fora td:not(:last-child){opacity:.55}
+.st{font-size:11.5px;font-weight:800;padding:2px 9px;border-radius:99px;white-space:nowrap}
+.st.ok{background:color-mix(in srgb,var(--live) 16%,transparent);color:var(--live)}
+.st.fora{background:color-mix(in srgb,var(--ccaa-red) 14%,transparent);color:var(--ccaa-red)}
+.vazio-turma{text-align:center;padding:26px 16px;color:var(--text-dim);font-size:14px;line-height:1.6;border:1.5px dashed var(--border-strong);border-radius:var(--r-md)}
+
+/* ---------- lateral ---------- */
+aside{display:grid;gap:16px;position:sticky;top:78px;min-width:0}
+@media (max-width:880px){aside{position:static}}
+.folha{display:grid;gap:10px}
+.folha-cab{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.folha-cab h2{font:800 15px/1.2 "Bricolage Grotesque",Inter,sans-serif}
+.folha-cab span{font-size:12.5px;color:var(--text-dim);font-weight:600}
+
+/* o papel: uma prévia viva do certificado */
+.papel{position:relative;background:var(--paper);color:var(--ink);border-radius:6px;padding:7%;overflow:hidden;
+  box-shadow:0 1px 0 rgba(0,0,0,.04),0 12px 32px -12px rgba(15,45,95,.35),0 2px 6px rgba(15,45,95,.12);
+  display:grid;align-content:center;justify-items:center;text-align:center;gap:6px;container-type:inline-size;
+  transition:transform .35s cubic-bezier(.2,.8,.2,1)}
+.papel.retrato{aspect-ratio:3/3.6}
+.papel.paisagem{aspect-ratio:1.414/1;background:linear-gradient(135deg,#FBF1D2 0%,#F3DE9E 38%,#FBF3DA 55%,#EDD38A 100%)}
+.papel::before{content:"";position:absolute;inset:4.5%;border:1.5px solid color-mix(in srgb,var(--navy) 55%,transparent);outline:1px solid color-mix(in srgb,var(--navy) 30%,transparent);outline-offset:3px;border-radius:2px;pointer-events:none}
+.papel.paisagem::before{border-color:#A9832A;outline-color:#C9A54A}
+.papel .logo{width:clamp(22px,9cqw,40px);height:auto;border-radius:6px;margin-bottom:2px}
+.papel .titulo{font:800 clamp(11px,5.4cqw,24px)/1 "Bricolage Grotesque",Inter,sans-serif;letter-spacing:.18em;color:var(--navy)}
+.papel.paisagem .titulo{color:#6E5214}
+.papel .sub{font-size:clamp(8px,2.7cqw,12px);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-dim);font-weight:600}
+.papel .que{font-size:clamp(8px,2.8cqw,13px);color:var(--ink-dim);margin-top:4%}
+.papel .nome{font:800 clamp(12px,calc(9cqw - var(--len,20) * .12cqw),36px)/1.1 "Bricolage Grotesque",Inter,sans-serif;color:var(--ink);
+  padding:0 2% 4px;border-bottom:1.5px solid color-mix(in srgb,var(--ink) 25%,transparent);min-width:62%;overflow-wrap:anywhere}
+.papel .nome.ph{color:color-mix(in srgb,var(--ink) 28%,transparent)}
+.papel .texto{font-size:clamp(8px,2.9cqw,13.5px);color:var(--ink);max-width:88%}
+.papel .texto b{color:var(--navy);letter-spacing:.06em}
+.papel .notas{display:flex;justify-content:center;gap:clamp(4px,2.4cqw,14px);margin-top:4%;flex-wrap:wrap}
+.papel .nota{display:grid;gap:1px;min-width:18%}
+.papel .nota i{font-style:normal;font-size:clamp(6.5px,2cqw,10px);text-transform:uppercase;letter-spacing:.08em;color:var(--ink-dim);font-weight:700}
+.papel .nota b{font-size:clamp(9px,3.6cqw,16px);font-variant-numeric:tabular-nums;color:var(--ink)}
+.papel .nota.media b{color:var(--navy)}
+.papel .nota b.ph{color:color-mix(in srgb,var(--ink) 25%,transparent)}
+.papel .rodape{display:flex;justify-content:space-between;width:86%;margin-top:6%;font-size:clamp(7px,2.2cqw,11px);color:var(--ink-dim)}
+.papel .rodape span{border-top:1px solid color-mix(in srgb,var(--ink) 30%,transparent);padding-top:3px;min-width:34%}
+/* carimbo: aparece quando o .docx sai */
+.carimbo{position:absolute;right:7%;bottom:9%;width:27cqw;aspect-ratio:1;border-radius:50%;display:grid;place-items:center;
+  border:3px double currentColor;color:oklch(52% 0.19 25);font:800 clamp(8px,3.1cqw,14px)/1.05 "Bricolage Grotesque",Inter,sans-serif;
+  letter-spacing:.1em;text-transform:uppercase;transform:rotate(-14deg);opacity:.85;mix-blend-mode:multiply;
+  animation:carimbar .5s cubic-bezier(.2,1.4,.4,1) both;pointer-events:none}
+.carimbo small{display:block;font:700 clamp(6px,1.8cqw,9px)/1.2 Inter,sans-serif;letter-spacing:.08em}
+@keyframes carimbar{0%{opacity:0;transform:rotate(-24deg) scale(2.4)}60%{opacity:.95;transform:rotate(-12deg) scale(.92)}100%{opacity:.85;transform:rotate(-14deg) scale(1)}}
+.marca-prev{font-size:11.5px;color:var(--text-dim);text-align:center}
+
+.btn{font:inherit;font-weight:700;font-size:15px;border:0;border-radius:var(--r-sm);padding:13px 16px;cursor:pointer;background:var(--ccaa-blue);color:#fff;width:100%;
+  display:flex;align-items:center;justify-content:center;gap:10px;transition:transform .12s, filter .15s}
+.btn:hover:not(:disabled){filter:brightness(1.08)}
+.btn:active:not(:disabled){transform:scale(.985)}
 .btn:disabled{opacity:.35;cursor:not-allowed}
+.btn.ouro{background:linear-gradient(135deg,#B8892B,#D9B24E);color:#2A1E05}
 .btn.sec{background:transparent;color:var(--ccaa-blue);border:1.5px solid var(--ccaa-blue)}
+.btn kbd{background:color-mix(in srgb,#fff 20%,transparent);border-color:color-mix(in srgb,#fff 35%,transparent);color:inherit}
 .status{font-size:14px;min-height:1.4em;font-weight:600;color:var(--text-mute)}
 .status.ok{color:var(--live)} .status.erro{color:var(--ccaa-red)}
-@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* resumo da turma */
+.placar{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.placar div{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-md);padding:12px;display:grid;gap:2px}
+.placar b{font:800 26px/1 "Bricolage Grotesque",Inter,sans-serif;font-variant-numeric:tabular-nums}
+.placar span{font-size:12px;color:var(--text-dim);font-weight:600}
+.placar .ok b{color:var(--live)} .placar .fora b{color:var(--ccaa-red)} .placar .av b{color:var(--soon)}
+.pilha{position:relative;height:clamp(230px,34vw,300px);margin-bottom:14px;display:grid;place-items:center}
+.pilha .papel{position:absolute;width:44%;padding:5%}
+.pilha .papel:nth-child(1){transform:rotate(-7deg) translateX(-24%)}
+.pilha .papel:nth-child(2){transform:rotate(5deg) translateX(22%)}
+.pilha .papel:nth-child(3){transform:rotate(-1deg)}
+.pilha .papel .nome{font-size:clamp(9px,7cqw,15px)}
+
+/* histórico da sessão */
+.hist h3{font:800 14px/1.2 "Bricolage Grotesque",Inter,sans-serif;margin-bottom:8px;display:flex;justify-content:space-between}
+.hist h3 span{color:var(--text-dim);font:600 12px Inter,sans-serif}
+.hist ul{list-style:none;display:grid;gap:6px;max-height:220px;overflow:auto}
+.hist li{display:flex;align-items:center;gap:10px;font-size:13px;padding:8px 10px;border-radius:var(--r-sm);background:var(--surface-2);border:1px solid var(--border)}
+.hist li .bola{width:9px;height:9px;border-radius:50%;background:var(--ccaa-blue);flex:none}
+.hist li .bola.ouro{background:var(--gold)}
+.hist li div{min-width:0;flex:1}
+.hist li b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hist li small{color:var(--text-dim)}
+.hist li button{font:inherit;font-size:12px;font-weight:700;border:1px solid var(--border-strong);background:transparent;color:var(--text-mute);border-radius:8px;padding:4px 9px;cursor:pointer}
+.hist li button:hover{color:var(--ccaa-blue);border-color:var(--ccaa-blue)}
+
+.dica{font-size:12.5px;color:var(--text-dim);line-height:1.6}
+
+@media (hover:hover) and (prefers-reduced-motion:no-preference){
+  .folha:hover .papel{transform:perspective(900px) rotateX(2deg) rotateY(-3deg) translateY(-2px)}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
 <body>
 <header class="topo">
   <img src="https://ccaapel.github.io/mkt/assets/ccaa-logo.png?v=5" alt="CCAA">
-  <h1>Certificados</h1>
-  <a href="../">‹ Ferramentas</a>
+  <div class="marca"><h1>Certificados</h1><span>CCAA Pelotas</span></div>
+  <nav class="abas" role="tablist" aria-label="Modo">
+    <button role="tab" id="abaUm" aria-selected="true" type="button">Um aluno</button>
+    <button role="tab" id="abaTurma" aria-selected="false" type="button">Turma inteira<span class="qtd" id="qtdTurma" hidden></span></button>
+  </nav>
+  <div class="acoes-topo">
+    <button class="icone" id="tema" type="button" title="Alternar tema claro/escuro" aria-label="Alternar tema">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.5M12 19.5V22M4.2 4.2l1.8 1.8M18 18l1.8 1.8M2 12h2.5M19.5 12H22M4.2 19.8 6 18M18 6l1.8-1.8"/></svg>
+    </button>
+    <a class="voltar" href="../">‹ Ferramentas</a>
+  </div>
 </header>
 
 <main class="wrap">
   <form id="f" novalidate>
-    <label class="field"><span>Colar do Sponte</span>
-      <textarea id="cola" class="colar" rows="2" placeholder="Na tela de notas do aluno: Ctrl+A, Ctrl+C e cole aqui"></textarea>
-      <span class="preenchido" id="preenchido" role="status"></span>
-    </label>
+    <div class="cola" id="zona">
+      <div class="cola-topo">
+        <div class="cola-ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></svg></div>
+        <div class="cola-tx">
+          <strong>Cole do Sponte</strong>
+          <span><kbd>Ctrl</kbd> <kbd>V</kbd> em qualquer lugar da página · um aluno ou a turma inteira</span>
+        </div>
+      </div>
+      <textarea id="cola" rows="2" placeholder="Tela de notas do aluno (ou da turma): Ctrl+A, Ctrl+C e cole aqui. Também dá para arrastar um .csv." aria-label="Texto copiado do Sponte"></textarea>
+      <div class="chips" id="chips" role="status" aria-live="polite"></div>
+    </div>
 
     <div><span class="lbl">Curso</span><div class="seg cursos" id="segCurso"></div></div>
 
@@ -126,27 +273,38 @@ dd.vazio{color:var(--text-dim);font-weight:400}
       <label class="field"><span>Ano</span><input id="ano" class="num" inputmode="numeric" maxlength="4" autocomplete="off"></label>
     </div>
 
-    <label class="field"><span>Aluno</span>
-      <input id="nome" autocomplete="off" autocapitalize="words" placeholder="Nome completo">
-    </label>
-
-    <div id="wNotas" class="row">
-      <label class="field"><small>PPE</small><input id="ppe" class="num" inputmode="decimal" autocomplete="off"></label>
-      <label class="field"><small>PFE</small><input id="pfe" class="num" inputmode="decimal" autocomplete="off"></label>
-      <label class="field"><small>PFO</small><input id="pfo" class="num" inputmode="decimal" autocomplete="off"></label>
-      <label class="field" id="wMedia"><small>MÉDIA <span class="selo" id="seloCalc" hidden>calculada</span></small><input id="media" class="num" inputmode="decimal" autocomplete="off"></label>
-    </div>
-    <p class="calc" id="calc" hidden></p>
-
     <label class="field" id="wPer"><span>Níveis cursados no CCAA</span><select id="periodos"></select></label>
 
-    <div id="avisos" hidden></div>
+    <!-- um aluno -->
+    <div id="blocoUm" style="display:grid;gap:18px">
+      <label class="field"><span>Aluno</span>
+        <input id="nome" autocomplete="off" autocapitalize="words" placeholder="Nome completo">
+      </label>
+      <div id="wNotas" class="row">
+        <label class="field"><small>PPE</small><input id="ppe" class="num" inputmode="decimal" autocomplete="off"></label>
+        <label class="field"><small>PFE</small><input id="pfe" class="num" inputmode="decimal" autocomplete="off"></label>
+        <label class="field"><small>PFO</small><input id="pfo" class="num" inputmode="decimal" autocomplete="off"></label>
+        <label class="field" id="wMedia"><small>MÉDIA <span class="selo" id="seloCalc" hidden>calculada</span></small><input id="media" class="num" inputmode="decimal" autocomplete="off"></label>
+      </div>
+      <p class="calc" id="calc" hidden></p>
+      <div id="avisos" hidden></div>
+    </div>
+
+    <!-- turma inteira -->
+    <div id="blocoTurma" hidden style="display:grid;gap:12px">
+      <div id="tabela"></div>
+      <div id="avisosTurma" hidden></div>
+    </div>
   </form>
 
   <aside>
-    <div id="folhas"></div>
-    <p class="status" id="status" role="status"></p>
-    <button class="btn sec" id="proximo" type="button" hidden>Próximo aluno</button>
+    <div id="lado"></div>
+    <p class="status" id="status" role="status" aria-live="polite"></p>
+    <button class="btn sec" id="proximo" type="button" hidden>Próximo aluno <kbd>Esc</kbd></button>
+    <section class="cartao hist" id="hist" hidden>
+      <h3>Nesta sessão <span id="histQtd"></span></h3>
+      <ul id="histLista"></ul>
+    </section>
   </aside>
 </main>
 
@@ -155,6 +313,8 @@ dd.vazio{color:var(--text-dim);font-weight:400}
 <script>
 const $ = id => document.getElementById(id);
 const C = CertGen.CURSOS;
+const LOGO = 'https://ccaapel.github.io/mkt/assets/ccaa-logo.png?v=5';
+const esc = s => String(s).replace(/[&<>"]/g, ch => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'})[ch]);
 
 /* modelos .docx: baixados do próprio site só quando precisa, e guardados */
 const templates = {};
@@ -165,6 +325,7 @@ async function carregarModelo(tipo) {
     templates[tipo] = await r.arrayBuffer();
   }
 }
+const tipoModelo = (cfg, kind, nivel) => (cfg[kind] === 'kids_promo' && nivel === 1) ? 'kids1_promo' : cfg[kind];
 
 /* ---------- controles ---------- */
 for (const [k, c] of Object.entries(C))
@@ -179,6 +340,10 @@ $('ano').value = salvo.ano || String(hoje.getFullYear());
 const val = n => (document.querySelector(`input[name=${n}]:checked`) || {}).value;
 const curso = () => C[val('curso')];
 let tipoManual = false, mediaCalculada = false;
+let modo = 'um';            // 'um' | 'turma'
+let turma = [];             // alunos lidos da colagem da turma
+let conf = null, confTurma = null;
+const emitidos = new Set(); // kinds já baixados para o estado atual (carimbo)
 
 function montarNiveis() {
   const c = curso(), atual = +$('nivel').value || +salvo.nivel;
@@ -199,24 +364,84 @@ function ajustarTipo() {
   if (!tipoManual || !t || $(`t-${t}`).disabled) t = !c.promo ? 'curso' : (ultimo ? 'ambos' : 'nivel');
   $(`t-${t}`).checked = true;
 }
-
-/* ---------- colar do Sponte ---------- */
-function aplicarColagem() {
-  const r = CertGen.lerTextoSponte($('cola').value), feito = [];
-  if (r.nivel && curso().max && r.nivel <= curso().max) { $('nivel').value = r.nivel; feito.push('nível ' + r.nivel); tipoManual = false; ajustarTipo(); }
-  if (r.semestre) { $('semestre').value = r.semestre; $('ano').value = r.ano; feito.push(`${r.semestre}º sem/${r.ano}`); }
-  if (r.nome) { $('nome').value = ajustarNome(r.nome); feito.push('aluno'); }
-  for (const k of ['ppe', 'pfe', 'pfo', 'media']) if (r[k]) { $(k).value = r[k]; feito.push(k === 'media' ? 'média' : k.toUpperCase()); }
-  if (r.media) mediaCalculada = false;
-  $('preenchido').textContent = $('cola').value.trim()
-    ? (feito.length ? 'Preenchido: ' + feito.join(', ') : 'Não reconheci dados nesse texto. Preencha abaixo.') : '';
-  $('preenchido').style.color = feito.length ? '' : 'var(--soon)';
-  if (r.situacao && !/aprovad/i.test(r.situacao)) $('preenchido').textContent += ` · Situação no Sponte: ${r.situacao}`;
-  atualizar();
-}
 function ajustarNome(n) {
-  n = n.trim().replace(/\s+/g, ' ');
+  n = String(n || '').trim().replace(/\s+/g, ' ');
   return (n === n.toUpperCase() || n === n.toLowerCase()) ? CertGen.tituloNome(n) : n;
+}
+
+/* ---------- colagem: um aluno ou a turma inteira ---------- */
+const SIT = /\b(aprovad[oa]|reprovad[oa]|parcial|cursando)\b/i;
+const cap = s => s[0].toUpperCase() + s.slice(1).toLowerCase();
+// Lê uma lista de alunos (Sponte, Excel ou CSV). Com cabeçalho usa os nomes das colunas;
+// sem cabeçalho, pega cada linha que tenha um nome seguido de 3+ notas.
+function lerTurma(txt) {
+  const linhas = String(txt || '').replace(/\u00a0/g, ' ').split(/\r?\n/);
+  const iCab = linhas.findIndex(l => /\bppe\b/i.test(l) && /\b(aluno|nome|student)\b/i.test(CertGen.semAcento(l)));
+  let rows = [];
+  if (iCab >= 0) {
+    rows = CertGen.lerColagem(linhas.slice(iCab).join('\n'))
+      .filter(r => ['ppe', 'pfe', 'pfo', 'media'].some(k => /\d/.test(r[k] || '')));
+  }
+  if (!rows.length) {
+    const NUM = /(?:^|[\s;|])(\d{1,3}(?:[.,]\d{1,2})?)(?=$|[\s;|])/g;
+    for (const l0 of linhas) {
+      const l = l0.replace(/^\s*\d+\s*[-–.)]?\s+(?=\p{L})/u, '');   // tira o nº da linha ("1 - Maria")
+      const ns = [...l.matchAll(NUM)].map(m => m[1]);
+      if (ns.length < 3) continue;
+      const antes = l.slice(0, l.search(/[\s;|]\d/)).replace(/[\t;|]+/g, ' ').trim();
+      if (!/^[\p{L}' ]{5,80}$/u.test(antes)) continue;
+      const s = SIT.exec(l);
+      rows.push({nome: antes, ppe: ns[0], pfe: ns[1], pfo: ns[2], media: ns[3] || '', situacao: s ? cap(s[1]) : ''});
+    }
+  }
+  return rows.map(r => Object.assign({}, r, {nome: ajustarNome(r.nome), situacao: r.situacao ? cap(r.situacao) : ''}));
+}
+// Só vira "turma" quando há pelo menos 2 nomes diferentes, cada um com nome e sobrenome
+// (evita confundir com linhas de disciplina da tela de um aluno só).
+function pareceTurma(rows) {
+  const nomes = new Set(rows.filter(r => r.nome.split(' ').length >= 2).map(r => CertGen.chave(r.nome)));
+  return nomes.size >= 2;
+}
+
+function receberColagem(txt, origem) {
+  if (origem !== 'campo') $('cola').value = txt;
+  const info = CertGen.lerTextoSponte(txt), chips = [];
+  const rows = lerTurma(txt);
+  // dados da turma (nível, semestre, ano) valem para os dois modos
+  if (info.nivel && curso().max && info.nivel <= curso().max) { $('nivel').value = info.nivel; tipoManual = false; ajustarTipo(); chips.push('nível ' + info.nivel); }
+  if (info.semestre) { $('semestre').value = info.semestre; $('ano').value = info.ano; chips.push(`${info.semestre}º sem / ${info.ano}`); }
+
+  if (pareceTurma(rows)) {
+    turma = rows; trocarModo('turma', true);
+    chips.push(`${rows.length} alunos`);
+  } else {
+    turma = rows;
+    if (modo === 'turma' && rows.length) chips.push(`${rows.length} aluno`);
+    if (modo === 'um') {
+      if (info.nome) { $('nome').value = ajustarNome(info.nome); chips.push('aluno'); }
+      for (const k of ['ppe', 'pfe', 'pfo', 'media']) if (info[k]) { $(k).value = info[k]; chips.push(k === 'media' ? 'média' : k.toUpperCase()); }
+      if (info.media) mediaCalculada = false;
+    }
+  }
+  const temTexto = txt.trim().length > 0;
+  let html = chips.map(c => `<span class="chip">✓ ${esc(c)}</span>`).join('');
+  if (temTexto && !chips.length) html = '<span class="chip aviso">Não reconheci dados nesse texto. Preencha abaixo.</span>';
+  if (modo === 'um' && info.situacao && !/aprovad/i.test(info.situacao)) html += `<span class="chip aviso">Sponte: ${esc(info.situacao)}</span>`;
+  $('chips').innerHTML = temTexto ? html : '';
+  limpar(); atualizar();
+}
+
+/* ---------- modo ---------- */
+function trocarModo(m, auto) {
+  modo = m;
+  $('abaUm').setAttribute('aria-selected', m === 'um');
+  $('abaTurma').setAttribute('aria-selected', m === 'turma');
+  $('blocoUm').hidden = m !== 'um';
+  $('blocoTurma').hidden = m !== 'turma';
+  $('proximo').hidden = true;
+  if (!auto) { const st = $('status'); st.className = 'status'; st.textContent = ''; }
+  if (!auto && m === 'turma' && !turma.length) turma = lerTurma($('cola').value);
+  emitidos.clear();
 }
 
 /* ---------- regras ---------- */
@@ -225,16 +450,21 @@ function ler() {
           nome: $('nome').value, ppe: $('ppe').value, pfe: $('pfe').value, pfo: $('pfo').value, media: $('media').value,
           periodos: $('periodos').value, aceitarDivergencia: !!($('aceito') && $('aceito').checked)};
 }
-let conf = null;
 function atualizar() {
   const d = ler(), c = C[d.curso];
-  const comNotas = d.tipo !== 'curso' && c.notas, comPer = d.tipo !== 'nivel' && !!c.horas;
   $('wNivel').hidden = !c.max || d.tipo === 'curso';
+  $('wPer').hidden = !(d.tipo !== 'nivel' && c.horas);
+  try { localStorage.setItem('ccaa_cert', JSON.stringify({curso: d.curso, semestre: d.semestre, ano: d.ano, nivel: d.nivel})); } catch (e) {}
+  $('qtdTurma').hidden = !turma.length; $('qtdTurma').textContent = turma.length;
+  if (modo === 'um') atualizarUm(d, c); else atualizarTurma(d, c);
+}
+
+function atualizarUm(d, c) {
+  const comNotas = d.tipo !== 'curso' && c.notas;
   $('wNotas').hidden = !comNotas && !c.media;
   ['ppe', 'pfe', 'pfo'].forEach(k => $(k).closest('label').hidden = !comNotas);
-  $('wMedia').hidden = !c.media; $('wPer').hidden = !comPer;
+  $('wMedia').hidden = !c.media;
   if (!comNotas) d.ppe = d.pfe = d.pfo = '';
-  try { localStorage.setItem('ccaa_cert', JSON.stringify({curso: d.curso, semestre: d.semestre, ano: d.ano, nivel: d.nivel})); } catch (e) {}
 
   // média: preenche pela conta quando ninguém digitou; a do Sponte sempre vence
   $('calc').hidden = true;
@@ -274,80 +504,244 @@ function atualizar() {
     $('aceito').onchange = atualizar;
   }
   av.hidden = !av.children.length;
-  resumo(d, c, falta);
-}
-const esc = s => String(s).replace(/[&<>]/g, ch => ({'&': '&amp;', '<': '&lt;', '>': '&gt;'})[ch]);
 
-function resumo(d, c, falta) {
-  const mes = d.semestre === '1' ? '07' : '12', nv = +d.nivel, nomes = c.lang === 'es' ? CertGen.NIVEL_ES : CertGen.NIVEL_EN;
   const kinds = d.tipo === 'ambos' ? ['promo', 'conc'] : [d.tipo === 'nivel' ? 'promo' : 'conc'];
-  const f = v => CertGen.notaOk(v).v || '';
-  const li = (k, v) => `<dt>${k}</dt><dd${v ? '' : ' class="vazio"'}>${v ? esc(v) : '—'}</dd>`;
-  $('folhas').innerHTML = kinds.map(kind => {
-    const conc = kind === 'conc';
-    let dl = li('Aluno', d.nome.trim().replace(/\s+/g, ' '));
-    if (!conc) {
-      dl += li('Nível', `${nomes[nv]} (${nv})`);
-      if (c.notas) {
-        const rot = d.curso === 'kids' && nv === 1 ? ['Midterm Oral', 'Final Oral', 'Final Written'] : ['Midterm', 'Oral [2x]', 'Final'];
-        dl += li(rot[0], f(d.ppe)) + li(rot[1], f(d.pfo)) + li(rot[2], f(d.pfe));
-      }
-    } else if (c.horas) dl += li('Carga horária', `${c.horas[+d.periodos || c.max]} horas`);
-    if (c.media) dl += li('Média', f(d.media));
-    dl += li('Data', /^20\d{2}$/.test(d.ano) ? `${mes}/${d.ano}` : '');
-    return `<section class="folha${conc ? ' dourada' : ''}">
-      <h2>${conc ? 'Conclusão de curso' : 'Nível'} · ${c.nome}</h2>
-      <dl>${dl}</dl>
-      <span class="papel">${conc ? 'Papel dourado · paisagem' : 'Papel comum · retrato'}</span>
-      <button class="btn" type="button" data-kind="${kind}"${conf ? '' : ' disabled'}>Baixar .docx</button>
-    </section>`;
-  }).join('');
-  $('folhas').querySelectorAll('button[data-kind]').forEach(b => b.onclick = () => baixar(b.dataset.kind));
+  $('lado').innerHTML = kinds.map((k, i) => folhaHTML(k, d, c, i === 0)).join('') +
+    '<p class="marca-prev">Prévia ilustrativa · o .docx sai no modelo oficial do CCAA</p>';
+  $('lado').querySelectorAll('button[data-kind]').forEach(b => b.onclick = () => baixarUm(b.dataset.kind));
   const st = $('status');
   if (!st.classList.contains('ok')) { st.className = 'status'; st.textContent = !conf && falta.length ? 'Falta: ' + falta.join(', ') : ''; }
 }
 
+/* ---------- o papel (prévia viva) ---------- */
+function textos(c) {
+  return c.lang === 'es'
+    ? {cert: 'CERTIFICADO', promo: 'de nivel', conc: 'de conclusión', que: 'Certificamos que', nivel: n => `concluyó el nivel <b>${n}</b> del curso de ${c.nome}`,
+       curso: `concluyó el curso de ${c.nome}`, horas: 'horas', media: 'Promedio', data: 'Fecha', ass: 'Dirección'}
+    : {cert: 'CERTIFICATE', promo: 'of achievement', conc: 'of completion', que: 'This is to certify that', nivel: n => `has completed level <b>${n}</b> of the ${c.nome} course`,
+       curso: `has completed the ${c.nome} course`, horas: 'hours', media: 'Average', data: 'Date', ass: 'Director'};
+}
+function papelHTML(kind, d, c, opts = {}) {
+  const conc = kind === 'conc', nv = +d.nivel, T = textos(c);
+  const nomes = c.lang === 'es' ? CertGen.NIVEL_ES : CertGen.NIVEL_EN;
+  const nome = String(d.nome || '').trim().replace(/\s+/g, ' ');
+  const f = v => CertGen.notaOk(v).v;
+  const nota = (rot, v, cls = '') => `<div class="nota ${cls}"><i>${rot}</i><b${v ? '' : ' class="ph"'}>${v ? esc(v) : '00,00'}</b></div>`;
+  let notas = '';
+  if (!conc && c.notas) {
+    const rot = d.curso === 'kids' && nv === 1 ? ['Midterm Oral', 'Final Oral', 'Final Written'] : ['Midterm', 'Oral [2x]', 'Final'];
+    notas += nota(rot[0], f(d.ppe)) + nota(rot[1], f(d.pfo)) + nota(rot[2], f(d.pfe));
+  }
+  if (conc && c.horas) notas += `<div class="nota"><i>${T.horas}</i><b>${c.horas[+d.periodos || c.max]}</b></div>`;
+  if (c.media) notas += nota(T.media, f(d.media), 'media');
+  const mes = d.semestre === '1' ? '07' : '12';
+  const data = /^20\d{2}$/.test(d.ano) ? `${mes}/${d.ano}` : '—';
+  const texto = conc || !c.max ? T.curso : T.nivel(nomes[nv] || '—');
+  const carimbo = opts.carimbo ? `<div class="carimbo"><div>Emitido<small>${new Date().toLocaleDateString('pt-BR')}</small></div></div>` : '';
+  return `<div class="papel ${conc ? 'paisagem' : 'retrato'}" style="--len:${Math.max(nome.length, 12)}">
+    <img class="logo" src="${LOGO}" alt="">
+    <div class="titulo">${T.cert}</div><div class="sub">${conc ? T.conc : T.promo}</div>
+    <div class="que">${T.que}</div>
+    <div class="nome${nome ? '' : ' ph'}">${nome ? esc(nome) : 'Nome do aluno'}</div>
+    <div class="texto">${texto}</div>
+    ${notas ? `<div class="notas">${notas}</div>` : ''}
+    <div class="rodape"><span>${T.data}: ${data}</span><span>${T.ass}</span></div>
+    ${carimbo}
+  </div>`;
+}
+function folhaHTML(kind, d, c, primeiro) {
+  const conc = kind === 'conc';
+  return `<section class="folha">
+    <div class="folha-cab"><h2>${conc ? 'Conclusão de curso' : 'Nível'} · ${c.nome}</h2><span>${conc ? 'papel dourado · paisagem' : 'papel comum · retrato'}</span></div>
+    ${papelHTML(kind, d, c, {carimbo: emitidos.has(kind)})}
+    <button class="btn${conc ? ' ouro' : ''}" type="button" data-kind="${kind}"${conf ? '' : ' disabled'}>
+      ${emitidos.has(kind) ? 'Baixar de novo' : 'Baixar .docx'}${primeiro ? ' <kbd>Enter</kbd>' : ''}</button>
+  </section>`;
+}
+
+/* ---------- turma inteira ---------- */
+function turmaStr(d, c) { return `${c.max ? +d.nivel : 'T'}.1 (${d.semestre === '1' ? 1 : 2}/${String(d.ano).slice(2)})`; }
+// Sem coluna de média (ex.: colou só PPE/PFE/PFO)? Calcula como no modo "Um aluno".
+function comMedia(a) {
+  const d = ler();
+  if (String(a.media || '').trim() || !CertGen.usaFormulaOral2x(d.curso, +d.nivel)) return a;
+  const n = ['ppe', 'pfe', 'pfo'].map(k => CertGen.notaOk(a[k]));
+  return n.every(x => x.v) ? Object.assign({}, a, {media: CertGen.mediaCalculada(n[0].v, n[1].v, n[2].v)}) : a;
+}
+function atualizarTurma(d, c) {
+  confTurma = null;
+  const st = $('status'); if (!st.classList.contains('ok')) { st.className = 'status'; st.textContent = ''; }
+  const av = $('avisosTurma'); av.replaceChildren(); av.hidden = true;
+  if (!turma.length) {
+    $('tabela').innerHTML = `<div class="vazio-turma"><b>Cole a lista da turma</b><br>No Sponte, abra o lançamento de notas da turma, selecione a tabela (ou <kbd>Ctrl</kbd> <kbd>A</kbd>), copie e aperte <kbd>Ctrl</kbd> <kbd>V</kbd> aqui.<br>Também aceita colar do Excel ou um .csv com <i>Aluno, PPE, PFE, PFO, Média, Situação</i>.</div>`;
+    $('lado').innerHTML = `<section class="cartao"><div class="pilha">${[0, 1, 2].map(() => papelHTML('promo', {nome: '', nivel: d.nivel, semestre: d.semestre, ano: d.ano, curso: d.curso}, c)).join('')}</div>
+      <p class="dica" style="text-align:center">Todos os certificados da turma saem num único .docx, um por página, em ordem alfabética.</p></section>`;
+    return;
+  }
+  let r;
+  try {
+    r = CertGen.conferir({curso: d.curso, turma: turmaStr(d, c), nivel: c.max ? +d.nivel : null, modo: d.tipo,
+      periodos: d.periodos || (c.horas ? c.max : ''), aceitarDivergencia: !!($('aceitoTurma') && $('aceitoTurma').checked)}, turma.map(comMedia));
+  } catch (e) {
+    $('tabela').innerHTML = `<div class="alerta erro">${esc(e.message)}</div>`; $('lado').innerHTML = ''; return;
+  }
+  const f = v => CertGen.notaOk(v).v || esc(v || '—');
+  const comNotas = d.tipo !== 'curso' && c.notas;
+  let diverg = 0;
+  const linhas = r.alunos.map((al, i) => {
+    const src = comMedia(turma[i] || {});
+    const motivos = al.motivos.map(m => m.replace(/: conferir digitação$/, ''));
+    if (al.motivos.some(m => /difere da calculada/.test(m)) || al.alertas.some(m => /difere da calculada/.test(m))) diverg++;
+    const alertas = al.alertas.filter(m => !/difere da calculada/.test(m) || al.ok);
+    return `<tr class="${al.ok ? '' : 'fora'}">
+      <td class="n">${i + 1}</td>
+      <td><b>${esc(al.nome || '(sem nome)')}</b>
+        ${motivos.map(m => `<span class="mot erro">${esc(m)}</span>`).join('')}
+        ${alertas.map(m => `<span class="mot aviso">${esc(m)}</span>`).join('')}</td>
+      ${comNotas ? `<td>${f(src.ppe)}</td><td>${f(src.pfe)}</td><td>${f(src.pfo)}</td>` : ''}
+      ${c.media ? `<td><b>${f(src.media)}</b></td>` : ''}
+      <td><span class="st ${al.ok ? 'ok' : 'fora'}">${al.ok ? 'pronto' : 'fica de fora'}</span></td>
+    </tr>`;
+  }).join('');
+  $('tabela').innerHTML = `<div class="tab-wrap"><table>
+    <thead><tr><th></th><th>Aluno</th>${comNotas ? '<th>PPE</th><th>PFE</th><th>PFO</th>' : ''}${c.media ? '<th>Média</th>' : ''}<th></th></tr></thead>
+    <tbody>${linhas}</tbody></table></div>`;
+  if (diverg) {
+    av.insertAdjacentHTML('beforeend', `<div class="alerta aviso"><span>${diverg} média${diverg > 1 ? 's' : ''} não bate${diverg > 1 ? 'm' : ''} com a conta das notas.</span>
+      <label for="aceitoTurma"><input type="checkbox" id="aceitoTurma"${d.aceitarDivergencia || ($('aceitoTurma') && $('aceitoTurma').checked) ? ' checked' : ''}> As médias do Sponte estão certas (recuperação ou ajuste)</label></div>`);
+    av.hidden = false;
+  }
+  const keep = $('aceitoTurma') && $('aceitoTurma').checked;
+  if (av.querySelector('#aceitoTurma')) { av.querySelector('#aceitoTurma').checked = keep || av.querySelector('#aceitoTurma').checked; av.querySelector('#aceitoTurma').onchange = atualizar; }
+
+  const ok = r.alunos.filter(a => a.ok), fora = r.alunos.length - ok.length, avisos = ok.filter(a => a.alertas.length).length;
+  if (ok.length) confTurma = r;
+  const kinds = d.tipo === 'ambos' ? ['promo', 'conc'] : [d.tipo === 'nivel' ? 'promo' : 'conc'];
+  const amostra = ok.slice(0, 3).reverse();
+  const pilha = (amostra.length ? amostra : [{nome: ''}]).map(a => papelHTML(kinds[kinds.length - 1], Object.assign({}, d, {nome: a.nome, ppe: '', pfe: '', pfo: '', media: a.media || ''}), c, {carimbo: emitidos.size > 0})).join('');
+  $('lado').innerHTML = `<section class="cartao">
+    <div class="pilha">${pilha}</div>
+    <div class="placar">
+      <div class="ok"><b>${ok.length}</b><span>prontos</span></div>
+      <div class="fora"><b>${fora}</b><span>ficam de fora</span></div>
+      <div class="av"><b>${avisos}</b><span>com aviso</span></div>
+    </div>
+    ${kinds.map((k, i) => `<button class="btn${k === 'conc' ? ' ouro' : ''}" type="button" data-kind="${k}"${ok.length ? '' : ' disabled'}>
+      Baixar ${ok.length} ${k === 'conc' ? (ok.length === 1 ? 'conclusão' : 'conclusões') : (ok.length === 1 ? 'nível' : 'níveis')} · ${k === 'conc' ? 'dourado' : 'comum'}${i === 0 ? ' <kbd>Enter</kbd>' : ''}</button>`).join('')}
+    ${fora ? `<p class="dica">${fora === 1 ? "O marcado em vermelho na lista não entra" : `Os ${fora} marcados em vermelho na lista não entram`} no arquivo. Corrija no Sponte e cole de novo, se for o caso.</p>` : ''}
+  </section>`;
+  $('lado').querySelectorAll('button[data-kind]').forEach(b => b.onclick = () => baixarTurma(b.dataset.kind));
+}
+
 /* ---------- geração ---------- */
-async function baixar(kind) {
+function salvarArquivo(dados, nome) {
+  const blob = new Blob([dados], {type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = nome; document.body.append(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  return blob;
+}
+const historico = [];
+function registrar(item) {
+  historico.unshift(item);
+  $('hist').hidden = false; $('histQtd').textContent = historico.reduce((s, h) => s + h.qtd, 0) + ' certificado' + (historico.reduce((s, h) => s + h.qtd, 0) > 1 ? 's' : '');
+  $('histLista').innerHTML = historico.map((h, i) => `<li><span class="bola${h.ouro ? ' ouro' : ''}"></span>
+    <div><b>${esc(h.titulo)}</b><small>${esc(h.sub)} · ${h.hora}</small></div>
+    <button type="button" data-h="${i}">baixar</button></li>`).join('');
+  $('histLista').querySelectorAll('button[data-h]').forEach(b => b.onclick = () => {
+    const h = historico[+b.dataset.h], a = document.createElement('a');
+    a.href = URL.createObjectURL(h.blob); a.download = h.arquivo; document.body.append(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  });
+}
+const agora = () => new Date().toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'});
+
+async function baixarUm(kind) {
   if (!conf) return;
   const st = $('status'); st.className = 'status'; st.textContent = 'Gerando…';
   try {
-    let tipo = conf.cfg[kind];
-    if (tipo === 'kids_promo' && conf.nivel === 1) tipo = 'kids1_promo';
-    await carregarModelo(tipo);
+    await carregarModelo(tipoModelo(conf.cfg, kind, conf.nivel));
     const r = await CertGen.gerar(JSZip, templates, Object.assign({}, conf, {modo: kind === 'promo' ? 'nivel' : 'curso'}));
     const al = conf.alunos[0], c = conf.cfg;
     const arq = CertGen.semAcento(al.nome).replace(/[^A-Za-z ]/g, '').trim().split(/\s+/).join('_');
-    const nome = `Certificado_${arq}_${kind === 'promo' ? c.nome + '_nivel' + conf.nivel : c.nome + '_conclusao'}.docx`;
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(new Blob([r[kind].dados], {type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'}));
-    a.download = nome; document.body.append(a); a.click(); a.remove();
-    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
-    st.className = 'status ok'; st.textContent = `Baixado. Imprimir em ${kind === 'promo' ? 'papel comum' : 'papel dourado'}.`;
+    const nome = `Certificado_${arq}_${kind === 'promo' ? CertGen.semAcento(c.nome) + '_nivel' + conf.nivel : CertGen.semAcento(c.nome) + '_conclusao'}.docx`;
+    const blob = salvarArquivo(r[kind].dados, nome);
+    registrar({titulo: al.nome, sub: kind === 'promo' ? `${c.nome} nível ${conf.nivel}` : `${c.nome} · conclusão`, hora: agora(), blob, arquivo: nome, qtd: 1, ouro: kind === 'conc'});
+    emitidos.add(kind);
+    st.className = 'status ok'; st.textContent = `Pronto. Imprimir em ${kind === 'promo' ? 'papel comum' : 'papel dourado'}.`;
     $('proximo').hidden = false;
+    atualizar();
+  } catch (e) { st.className = 'status erro'; st.textContent = e.message; }
+}
+async function baixarTurma(kind) {
+  if (!confTurma) return;
+  const st = $('status'); st.className = 'status'; st.textContent = 'Gerando a turma…';
+  try {
+    await carregarModelo(tipoModelo(confTurma.cfg, kind, confTurma.nivel));
+    const r = await CertGen.gerar(JSZip, templates, Object.assign({}, confTurma, {modo: kind === 'promo' ? 'nivel' : 'curso'}));
+    const c = confTurma.cfg, q = r[kind].quantidade, d = ler();
+    const nome = `${kind === 'promo' ? '1_papel_COMUM' : '2_papel_DOURADO'}_${CertGen.semAcento(c.nome)}${kind === 'promo' && confTurma.nivel ? '_nivel' + confTurma.nivel : '_conclusao'}_${d.semestre}sem${d.ano}_${q}alunos.docx`;
+    const blob = salvarArquivo(r[kind].dados, nome);
+    registrar({titulo: `Turma · ${c.nome}${confTurma.nivel ? ' ' + confTurma.nivel : ''}`, sub: `${q} ${kind === 'promo' ? 'níveis' : 'conclusões'}`, hora: agora(), blob, arquivo: nome, qtd: q, ouro: kind === 'conc'});
+    emitidos.add(kind);
+    st.className = 'status ok'; st.textContent = `${q} certificado${q > 1 ? 's' : ''} num só arquivo. Imprimir em ${kind === 'promo' ? 'papel comum' : 'papel dourado'}.`;
+    atualizar();
   } catch (e) { st.className = 'status erro'; st.textContent = e.message; }
 }
 function proximo() {
   ['cola', 'nome', 'ppe', 'pfe', 'pfo', 'media'].forEach(id => $(id).value = '');
-  $('periodos').value = ''; $('preenchido').textContent = ''; mediaCalculada = false;
+  $('periodos').value = ''; $('chips').innerHTML = ''; mediaCalculada = false; turma = [];
   $('status').className = 'status'; $('status').textContent = ''; $('proximo').hidden = true;
-  atualizar(); $('cola').focus();
+  emitidos.clear(); atualizar(); $('cola').focus();
 }
 
 /* ---------- eventos ---------- */
-function limpar() { const st = $('status'); if (st.classList.contains('ok')) { st.className = 'status'; st.textContent = ''; $('proximo').hidden = true; } }
+function limpar() {
+  emitidos.clear();
+  const st = $('status'); if (st.classList.contains('ok')) { st.className = 'status'; st.textContent = ''; $('proximo').hidden = true; }
+}
 document.querySelectorAll('input[name=curso]').forEach(r => r.addEventListener('change', () => { tipoManual = false; montarNiveis(); ajustarTipo(); limpar(); atualizar(); }));
 document.querySelectorAll('input[name=tipo]').forEach(r => r.addEventListener('change', () => { tipoManual = true; limpar(); atualizar(); }));
 $('nivel').addEventListener('change', () => { tipoManual = false; ajustarTipo(); limpar(); atualizar(); });
 ['semestre', 'ano', 'nome', 'ppe', 'pfe', 'pfo', 'periodos'].forEach(id => $(id).addEventListener('input', () => { limpar(); atualizar(); }));
 $('media').addEventListener('input', () => { mediaCalculada = false; limpar(); atualizar(); });
-$('cola').addEventListener('input', () => { limpar(); aplicarColagem(); });
+$('cola').addEventListener('input', () => receberColagem($('cola').value, 'campo'));
 $('nome').addEventListener('blur', () => { if ($('nome').value.trim()) { $('nome').value = ajustarNome($('nome').value); atualizar(); } });
 ['ppe', 'pfe', 'pfo', 'media'].forEach(id => $(id).addEventListener('blur', () => { const r = CertGen.notaOk($(id).value); if (r.v && r.v !== $(id).value) { $(id).value = r.v; atualizar(); } }));
-// Enter em qualquer campo baixa o certificado (o primeiro, se forem dois)
-$('f').addEventListener('submit', e => { e.preventDefault(); const b = document.querySelector('#folhas button[data-kind]:not(:disabled)'); if (b) b.click(); });
+
+// Ctrl+V em qualquer lugar (fora de um campo) vai direto para a colagem
+document.addEventListener('paste', e => {
+  if (e.target.closest && e.target.closest('input, textarea, select')) return;
+  const txt = (e.clipboardData || window.clipboardData).getData('text');
+  if (!txt || !txt.trim()) return;
+  e.preventDefault(); receberColagem(txt);
+});
+// arrastar texto ou um .csv/.txt para a página
+const zona = $('zona');
+document.addEventListener('dragover', e => { e.preventDefault(); zona.classList.add('sobre'); });
+document.addEventListener('dragleave', e => { if (!e.relatedTarget) zona.classList.remove('sobre'); });
+document.addEventListener('drop', async e => {
+  e.preventDefault(); zona.classList.remove('sobre');
+  const arq = e.dataTransfer.files && e.dataTransfer.files[0];
+  const txt = arq ? await arq.text() : e.dataTransfer.getData('text');
+  if (txt && txt.trim()) receberColagem(txt);
+});
+
+// Enter baixa o primeiro certificado; Esc passa para o próximo aluno
+$('f').addEventListener('submit', e => { e.preventDefault(); const b = document.querySelector('#lado button[data-kind]:not(:disabled)'); if (b) b.click(); });
 $('f').addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.tagName === 'INPUT') { e.preventDefault(); $('f').requestSubmit(); } });
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && modo === 'um' && !$('proximo').hidden) { e.preventDefault(); proximo(); }
+  if (e.key === 'Enter' && !e.target.closest('input, textarea, select, button, a')) { const b = document.querySelector('#lado button[data-kind]:not(:disabled)'); if (b) { e.preventDefault(); b.click(); } }
+});
 $('proximo').addEventListener('click', proximo);
+$('abaUm').addEventListener('click', () => { trocarModo('um'); atualizar(); });
+$('abaTurma').addEventListener('click', () => { trocarModo('turma'); atualizar(); });
+$('tema').addEventListener('click', () => {
+  const t = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+  document.documentElement.setAttribute('data-theme', t);
+  try { localStorage.setItem('ccaa_tema', t); } catch (e) {}
+});
 
 montarNiveis(); ajustarTipo(); atualizar(); $('cola').focus();
 </script>
