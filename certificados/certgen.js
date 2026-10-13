@@ -272,18 +272,24 @@
   /* Le o que a pessoa copiou da tela do Sponte (Ctrl+A, Ctrl+C, ou so a linha do aluno)
      e devolve so os campos que reconheceu com seguranca. Nunca inventa: o que nao achou fica de fora. */
   function lerTextoSponte(txt) {
-    const t = String(txt || "").replace(/ /g, " ");
+    const t = String(txt || "").replace(/\u00a0/g, " ");
     const r = {};
     const num = "(\\d{1,3}(?:[.,]\\d{1,2})?)";
     const turma = /(\d{1,2})\.\d[^\n()]{0,60}\((\d)\s*\/\s*(\d{2})\)/.exec(t);
     if (turma) { r.nivel = +turma[1]; r.semestre = turma[2]; r.ano = "20" + turma[3]; r.turma = turma[0].trim(); }
-    for (const k of ["PPE", "PFE", "PFO"]) {
-      const m = new RegExp("\\b" + k + "\\b[^\\d\\n]{0,40}" + num).exec(t);
-      if (m) r[k.toLowerCase()] = m[1];
+    // rotulo da tela: sigla (PPE) ou nome por extenso; o valor pode vir na mesma linha ou na seguinte
+    const ROT = {
+      pfe: "PFE|Prova\\s+Final\\s+Escrita|Final\\s+Escrita|Final\\s+Written",
+      pfo: "PFO|Prova\\s+Final\\s+Oral|Final\\s+Oral|Prova\\s+Oral|Oral(?:\\s*\\[?2x\\]?)?",
+      ppe: "PPE|Prova\\s+Parcial(?:\\s+Escrita)?|Parcial\\s+Escrita|Prova\\s+Escrita|Midterm(?:\\s+Oral)?",
+    };
+    for (const [k, rot] of Object.entries(ROT)) {
+      const m = new RegExp("(?:^|[^\\p{L}])(?:" + rot + ")(?![\\p{L}])[^\\d\\n]{0,40}(?:\\n[^\\d\\n]{0,20})?" + num, "iu").exec(t);
+      if (m) r[k] = m[1];
     }
     const med = new RegExp("(?:m[ée]dia(?:\\s+geral|\\s+final)?|nota\\s+final)[^\\d\\n]{0,40}" + num, "i").exec(t);
     if (med) r.media = med[1];
-    const sit = /\b(aprovad[oa]|reprovad[oa]|parcial|cursando)\b/i.exec(t);
+    const sit = /\b(aprovad[oa]|reprovad[oa]|parcial|cursando)\b/i.exec(t.replace(/prova\s+parcial|parcial\s+escrita/gi, ""));
     if (sit) r.situacao = sit[1][0].toUpperCase() + sit[1].slice(1).toLowerCase();
     const al = /\baluno\(?a?\)?\s*[:\-]\s*(?:\d+\s*[-–]\s*)?([\p{L}' ]{5,80})/iu.exec(t);
     if (al) r.nome = al[1].trim().replace(/\s+/g, " ");
