@@ -6,10 +6,8 @@
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#0F2D5F">
 <title>Certificados · CCAA Pelotas</title>
-<link rel="icon" type="image/png" href="https://ccaapel.github.io/mkt/assets/ccaa-logo.png?v=5">
+<link rel="icon" type="image/png" href="../img/favicon.png?v=2">
 <script>
-// Acesso só por quem passou pelo login das ferramentas (mesma sessão do painel)
-try { if (sessionStorage.getItem('ccaa_tools_authed') !== '1') location.replace('../?app=certificados'); } catch (e) { location.replace('../?app=certificados'); }
 try { document.documentElement.setAttribute('data-theme', localStorage.getItem('ccaa_tema') || 'dark'); } catch (e) {}
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -52,7 +50,7 @@ body{
 /* ---------- topo ---------- */
 .topo{display:flex;align-items:center;gap:14px;padding:12px 20px;border-bottom:1px solid var(--border);
   background:color-mix(in srgb, var(--surface) 82%, transparent);backdrop-filter:blur(10px);position:sticky;top:0;z-index:20}
-.topo img{width:34px;height:34px;border-radius:9px}
+.topo img{width:36px;height:36px;border-radius:10px;box-shadow:0 4px 14px -4px rgba(10,120,220,.55)}
 .marca{display:grid;line-height:1.1}
 .marca h1{font:800 19px/1.1 "Bricolage Grotesque",Inter,sans-serif;letter-spacing:-.01em}
 .marca span{font-size:12px;color:var(--text-dim);font-weight:600;letter-spacing:.03em}
@@ -178,6 +176,17 @@ aside{display:grid;gap:16px;position:sticky;top:78px;min-width:0}
   animation:carimbar .5s cubic-bezier(.2,1.4,.4,1) both;pointer-events:none}
 .carimbo small{display:block;font:700 clamp(6px,1.8cqw,9px)/1.2 Inter,sans-serif;letter-spacing:.08em}
 @keyframes carimbar{0%{opacity:0;transform:rotate(-24deg) scale(2.4)}60%{opacity:.95;transform:rotate(-12deg) scale(.92)}100%{opacity:.85;transform:rotate(-14deg) scale(1)}}
+/* prévia REAL: o próprio .docx desenhado na tela (docx-preview) */
+.doc{position:relative;container-type:inline-size;border-radius:6px;overflow:hidden;box-shadow:0 1px 0 rgba(255,255,255,.04),0 18px 40px -18px rgba(0,0,0,.55)}
+.doc .dx-wrapper{background:transparent!important;padding:0!important;display:block!important}
+.doc .dx-wrapper section.dx{margin:0!important;box-shadow:none!important;background:#F4F4F1!important}
+.doc.conc .dx-wrapper section.dx{background:linear-gradient(135deg,#FBF1D2 0%,#F3DE9E 38%,#FBF3DA 55%,#EDD38A 100%)!important}
+.doc .dx-wrapper section.dx+section.dx{margin-top:10px!important}
+.doc.real .papel,.doc.real .pilha{display:none}
+.doc.turma.real{max-height:min(70vh,640px);overflow:auto;scrollbar-width:thin}
+.doc .carimbo{z-index:2}
+.auto{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--text-mute);font-weight:600;cursor:pointer}
+.auto input{accent-color:var(--ccaa-blue);width:15px;height:15px}
 .marca-prev{font-size:11.5px;color:var(--text-dim);text-align:center}
 
 .btn{font:inherit;font-weight:700;font-size:15px;border:0;border-radius:var(--r-sm);padding:13px 16px;cursor:pointer;background:var(--ccaa-blue);color:#fff;width:100%;
@@ -227,7 +236,7 @@ aside{display:grid;gap:16px;position:sticky;top:78px;min-width:0}
 </head>
 <body>
 <header class="topo">
-  <img src="https://ccaapel.github.io/mkt/assets/ccaa-logo.png?v=5" alt="CCAA">
+  <img src="../img/ccaa-logo.png?v=2" alt="CCAA">
   <div class="marca"><h1>Certificados</h1><span>CCAA Pelotas</span></div>
   <nav class="abas" role="tablist" aria-label="Modo">
     <button role="tab" id="abaUm" aria-selected="true" type="button">Um aluno</button>
@@ -253,6 +262,7 @@ aside{display:grid;gap:16px;position:sticky;top:78px;min-width:0}
       </div>
       <textarea id="cola" rows="2" placeholder="Tela de notas do aluno (ou da turma): Ctrl+A, Ctrl+C e cole aqui. Também dá para arrastar um .csv." aria-label="Texto copiado do Sponte"></textarea>
       <div class="chips" id="chips" role="status" aria-live="polite"></div>
+      <label class="auto"><input type="checkbox" id="auto"> Baixar sozinho ao colar, quando estiver tudo certo</label>
     </div>
 
     <div><span class="lbl">Curso</span><div class="seg cursos" id="segCurso"></div></div>
@@ -309,11 +319,12 @@ aside{display:grid;gap:16px;position:sticky;top:78px;min-width:0}
 </main>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<script src="certgen.js?v=1"></script>
+<script src="https://cdn.jsdelivr.net/npm/docx-preview@0.3.5/dist/docx-preview.min.js"></script>
+<script src="certgen.js?v=2"></script>
 <script>
 const $ = id => document.getElementById(id);
 const C = CertGen.CURSOS;
-const LOGO = 'https://ccaapel.github.io/mkt/assets/ccaa-logo.png?v=5';
+const LOGO = '../img/ccaa-logo.png?v=2';
 const esc = s => String(s).replace(/[&<>"]/g, ch => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'})[ch]);
 
 /* modelos .docx: baixados do próprio site só quando precisa, e guardados */
@@ -421,6 +432,7 @@ function receberColagem(txt, origem) {
       if (info.nome) { $('nome').value = ajustarNome(info.nome); chips.push('aluno'); }
       for (const k of ['ppe', 'pfe', 'pfo', 'media']) if (info[k]) { $(k).value = info[k]; chips.push(k === 'media' ? 'média' : k.toUpperCase()); }
       if (info.media) mediaCalculada = false;
+      else if (info.ppe && info.pfe && info.pfo) { $('media').value = ''; mediaCalculada = true; chips.push('média calculada'); }
     }
   }
   const temTexto = txt.trim().length > 0;
@@ -429,6 +441,11 @@ function receberColagem(txt, origem) {
   if (modo === 'um' && info.situacao && !/aprovad/i.test(info.situacao)) html += `<span class="chip aviso">Sponte: ${esc(info.situacao)}</span>`;
   $('chips').innerHTML = temTexto ? html : '';
   limpar(); atualizar();
+  // "gera na hora": colou um aluno completo e sem pendência → já baixa
+  if (origem !== 'campo' && $('auto').checked && modo === 'um' && conf && !$('aceito')) {
+    const d = ler();
+    (d.tipo === 'ambos' ? ['promo', 'conc'] : [d.tipo === 'nivel' ? 'promo' : 'conc']).reduce((p, k) => p.then(() => baixarUm(k)), Promise.resolve());
+  }
 }
 
 /* ---------- modo ---------- */
@@ -507,11 +524,62 @@ function atualizarUm(d, c) {
 
   const kinds = d.tipo === 'ambos' ? ['promo', 'conc'] : [d.tipo === 'nivel' ? 'promo' : 'conc'];
   $('lado').innerHTML = kinds.map((k, i) => folhaHTML(k, d, c, i === 0)).join('') +
-    '<p class="marca-prev">Prévia ilustrativa · o .docx sai no modelo oficial do CCAA</p>';
+    '<p class="marca-prev" id="marcaPrev">Este é o certificado de verdade, no modelo oficial do CCAA NET</p>';
   $('lado').querySelectorAll('button[data-kind]').forEach(b => b.onclick = () => baixarUm(b.dataset.kind));
+  for (const k of kinds) previaReal(k, d, c);
   const st = $('status');
   if (!st.classList.contains('ok')) { st.className = 'status'; st.textContent = !conf && falta.length ? 'Falta: ' + falta.join(', ') : ''; }
 }
+
+/* ---------- prévia REAL (o .docx oficial desenhado na tela) ---------- */
+const cacheDoc = new Map(), chaveAtual = {}, timers = {};
+async function renderDocx(bytes) {
+  const zip = await JSZip.loadAsync(bytes);
+  // a assinatura vem num bloco "mc:AlternateContent" que o leitor não entende: abre a caixa
+  const xml = (await zip.file('word/document.xml').async('string'))
+    .replace(/<mc:AlternateContent[^>]*>\s*<mc:Choice[^>]*>([\s\S]*?)<\/mc:Choice>[\s\S]*?<\/mc:AlternateContent>/g, '$1');
+  zip.file('word/document.xml', xml);
+  const el = document.createElement('div');
+  await docx.renderAsync(await zip.generateAsync({type: 'blob'}), el, null,
+    {className: 'dx', inWrapper: true, breakPages: true, ignoreLastRenderedPageBreak: true, renderHeaders: false, renderFooters: false});
+  return el;
+}
+function mostrarDoc(kind, el) {
+  const slot = $('lado').querySelector(`.doc[data-kind="${kind}"]`);
+  if (!slot) return;
+  slot.querySelectorAll('.dx-real').forEach(n => n.remove());
+  el.classList.add('dx-real');
+  slot.prepend(el);
+  slot.classList.add('real');
+  const sec = el.querySelector('section'); if (!sec) return;
+  el.style.zoom = '';
+  el.style.zoom = slot.clientWidth / sec.offsetWidth;
+}
+function previaReal(kind, d, c) {
+  if (typeof docx === 'undefined' || typeof JSZip === 'undefined') return;   // sem a biblioteca: fica o desenho
+  const comNotas = kind === 'promo' && c.notas;
+  const ph = v => CertGen.notaOk(v).v || '00,00';
+  const nome = d.nome.trim().split(/\s+/).length >= 2 ? ajustarNome(d.nome) : 'Nome do Aluno';
+  const dd = Object.assign({}, d, {nome, tipo: kind === 'promo' ? 'nivel' : 'curso', aceitarDivergencia: true,
+    ppe: comNotas ? ph(d.ppe) : '', pfe: comNotas ? ph(d.pfe) : '', pfo: comNotas ? ph(d.pfo) : '', media: c.media ? ph(d.media) : ''});
+  const chave = JSON.stringify(dd);
+  chaveAtual[kind] = chave;
+  if (cacheDoc.has(chave)) return mostrarDoc(kind, cacheDoc.get(chave));
+  clearTimeout(timers[kind]);
+  timers[kind] = setTimeout(async () => {
+    try {
+      const r = CertGen.conferirAluno(dd);
+      r.alunos.forEach(a => a.ok = true);
+      await carregarModelo(tipoModelo(r.cfg, kind, r.nivel));
+      const g = await CertGen.gerar(JSZip, templates, Object.assign({}, r, {modo: kind === 'promo' ? 'nivel' : 'curso'}));
+      const el = await renderDocx(g[kind].dados);
+      cacheDoc.set(chave, el);
+      if (cacheDoc.size > 30) cacheDoc.delete(cacheDoc.keys().next().value);
+      if (chaveAtual[kind] === chave) mostrarDoc(kind, el);
+    } catch (e) { console.warn('prévia', e); }
+  }, 150);
+}
+addEventListener('resize', () => $('lado').querySelectorAll('.doc.real').forEach(s => { const el = s.querySelector('.dx-real'); if (el) mostrarDoc(s.dataset.kind, el); }));
 
 /* ---------- o papel (prévia viva) ---------- */
 function textos(c) {
@@ -553,7 +621,7 @@ function folhaHTML(kind, d, c, primeiro) {
   const conc = kind === 'conc';
   return `<section class="folha">
     <div class="folha-cab"><h2>${conc ? 'Conclusão de curso' : 'Nível'} · ${c.nome}</h2><span>${conc ? 'papel dourado · paisagem' : 'papel comum · retrato'}</span></div>
-    ${papelHTML(kind, d, c, {carimbo: emitidos.has(kind)})}
+    <div class="doc ${kind}" data-kind="${kind}">${papelHTML(kind, d, c)}${emitidos.has(kind) ? `<div class="carimbo"><div>Emitido<small>${new Date().toLocaleDateString('pt-BR')}</small></div></div>` : ''}</div>
     <button class="btn${conc ? ' ouro' : ''}" type="button" data-kind="${kind}"${conf ? '' : ' disabled'}>
       ${emitidos.has(kind) ? 'Baixar de novo' : 'Baixar .docx'}${primeiro ? ' <kbd>Enter</kbd>' : ''}</button>
   </section>`;
@@ -620,7 +688,7 @@ function atualizarTurma(d, c) {
   const amostra = ok.slice(0, 3).reverse();
   const pilha = (amostra.length ? amostra : [{nome: ''}]).map(a => papelHTML(kinds[kinds.length - 1], Object.assign({}, d, {nome: a.nome, ppe: '', pfe: '', pfo: '', media: a.media || ''}), c, {carimbo: emitidos.size > 0})).join('');
   $('lado').innerHTML = `<section class="cartao">
-    <div class="pilha">${pilha}</div>
+    <div class="doc turma ${kinds[0]}" data-kind="${kinds[0]}"><div class="pilha">${pilha}</div></div>
     <div class="placar">
       <div class="ok"><b>${ok.length}</b><span>prontos</span></div>
       <div class="fora"><b>${fora}</b><span>ficam de fora</span></div>
@@ -631,6 +699,24 @@ function atualizarTurma(d, c) {
     ${fora ? `<p class="dica">${fora === 1 ? "O marcado em vermelho na lista não entra" : `Os ${fora} marcados em vermelho na lista não entram`} no arquivo. Corrija no Sponte e cole de novo, se for o caso.</p>` : ''}
   </section>`;
   $('lado').querySelectorAll('button[data-kind]').forEach(b => b.onclick = () => baixarTurma(b.dataset.kind));
+  if (ok.length) previaTurma(kinds[0], r);
+}
+// turma: desenha o arquivo de verdade (todas as páginas, em ordem alfabética), com rolagem
+function previaTurma(kind, r) {
+  if (typeof docx === 'undefined') return;
+  const chave = 'T' + kind + JSON.stringify(r.alunos.filter(a => a.ok)) + r.nivel + r.cfgTurma + r.mes + r.ano;
+  chaveAtual[kind] = chave;
+  if (cacheDoc.has(chave)) return mostrarDoc(kind, cacheDoc.get(chave));
+  clearTimeout(timers[kind]);
+  timers[kind] = setTimeout(async () => {
+    try {
+      await carregarModelo(tipoModelo(r.cfg, kind, r.nivel));
+      const g = await CertGen.gerar(JSZip, templates, Object.assign({}, r, {modo: kind === 'promo' ? 'nivel' : 'curso'}));
+      const el = await renderDocx(g[kind].dados);
+      cacheDoc.set(chave, el);
+      if (chaveAtual[kind] === chave) mostrarDoc(kind, el);
+    } catch (e) { console.warn('prévia turma', e); }
+  }, 200);
 }
 
 /* ---------- geração ---------- */
@@ -696,6 +782,8 @@ function proximo() {
 }
 
 /* ---------- eventos ---------- */
+try { $('auto').checked = localStorage.getItem('ccaa_cert_auto') !== '0'; } catch (e) { $('auto').checked = true; }
+$('auto').addEventListener('change', () => { try { localStorage.setItem('ccaa_cert_auto', $('auto').checked ? '1' : '0'); } catch (e) {} });
 function limpar() {
   emitidos.clear();
   const st = $('status'); if (st.classList.contains('ok')) { st.className = 'status'; st.textContent = ''; $('proximo').hidden = true; }

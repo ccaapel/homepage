@@ -14,7 +14,7 @@
   })();
 </script>
 <title>Ferramentas CCAA Pelotas</title>
-<link rel="icon" type="image/png" href="https://ccaapel.github.io/mkt/assets/ccaa-logo.png?v=5">
+<link rel="icon" type="image/png" href="https://ccaapel.github.io/homepage/img/favicon.png?v=2">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Playfair+Display:wght@700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -126,8 +126,8 @@ body {
   display:flex; flex-direction:column; align-items:center; gap:7px; text-align:center;
 }
 .brand-logo {
-  height:46px; width:auto; object-fit:contain; border-radius:8px;
-  background:#0E0F1A; padding:3px 6px;
+  height:46px; width:46px; object-fit:cover; border-radius:12px;
+  box-shadow:0 6px 18px -6px color-mix(in srgb,var(--ccaa-blue) 60%,transparent);
 }
 .brand-title { font-family:'Bricolage Grotesque',sans-serif; font-size:clamp(18px, 1rem + 1.2vw, 23px); font-weight:800; letter-spacing:-0.025em; color:var(--text); line-height:1; }
 .brand-sub-row { display:flex; align-items:center; gap:9px; flex-wrap:wrap; justify-content:center; }
@@ -1037,7 +1037,7 @@ html.locked .app { display:none !important; }
 
 <div id="gate" role="dialog" aria-modal="true" aria-labelledby="gateTitle">
   <div class="gate-card">
-    <img class="gate-logo" src="https://ccaapel.github.io/mkt/assets/ccaa-logo.png?v=5" alt="CCAA">
+    <img class="gate-logo" src="https://ccaapel.github.io/homepage/img/ccaa-logo.png?v=2" alt="CCAA">
     <h1 id="gateTitle">CCAA Pelotas 2027/1</h1>
     <div class="gate-sub">Acesso restrito &middot; informe seus dados</div>
     <div class="gate-field">
@@ -1064,7 +1064,7 @@ html.locked .app { display:none !important; }
       </button>
     </div>
     <div class="brand">
-      <img class="brand-logo" src="https://ccaapel.github.io/mkt/assets/ccaa-logo.png?v=5" alt="CCAA">
+      <img class="brand-logo" src="https://ccaapel.github.io/homepage/img/ccaa-logo.png?v=2" alt="CCAA">
       <div class="brand-title">CCAA Pelotas 2027/1</div>
       <div class="brand-sub-row">
         <span class="brand-sub">Aulas on-line &middot; Quadro de horários</span>
@@ -1781,7 +1781,7 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
 
   <div class="interno-body" id="loginBox">
     <div class="login-box">
-      <img src="https://ccaapel.github.io/mkt/assets/ccaa-logo.png?v=5" alt="CCAA" style="width:64px;height:64px;object-fit:contain;border-radius:14px;display:block;margin:0 auto 14px;box-shadow:0 4px 16px color-mix(in srgb,var(--ccaa-blue) 22%,transparent)">
+      <img src="https://ccaapel.github.io/homepage/img/ccaa-logo.png?v=2" alt="CCAA" style="width:64px;height:64px;object-fit:contain;border-radius:14px;display:block;margin:0 auto 14px;box-shadow:0 4px 16px color-mix(in srgb,var(--ccaa-blue) 22%,transparent)">
       <h3 style="font-family:'Bricolage Grotesque',sans-serif;font-size:20px;font-weight:800;margin-bottom:4px">Ferramentas CCAA Pelotas</h3>
       <p>Digite a senha de acesso para continuar</p>
       <input class="login-input" type="password" id="loginInput" placeholder="Senha" autocomplete="off">
@@ -1793,7 +1793,7 @@ document.getElementById('btnInterno').addEventListener('click',()=>{
   <!-- Launcher: menu de ferramentas (aparece após a senha) -->
   <div class="interno-body launcher-body" id="launcherBox" style="display:none">
     <div class="launcher-center">
-      <img src="https://ccaapel.github.io/mkt/assets/ccaa-logo.png?v=5" alt="CCAA" class="launcher-logo">
+      <img src="https://ccaapel.github.io/homepage/img/ccaa-logo.png?v=2" alt="CCAA" class="launcher-logo">
       <h3 class="launcher-h3">Ferramentas CCAA Pelotas</h3>
       <p class="launcher-sub">Escolha a ferramenta que deseja abrir.</p>
       <div id="hubBuscaWrap" style="position:relative;max-width:420px;margin:-10px auto 24px">
@@ -2531,7 +2531,7 @@ function jsonpCall(baseUrl, onSuccess, onError){
 // O arquivo versao.json é buscado com um número único a cada acesso (impossível
 // de ficar preso em cache). Se a versão publicada for maior que a desta cópia,
 // a página recarrega sozinha já apontando para a versão nova.
-const VERSAO_SITE = 31;
+const VERSAO_SITE = 32;
 (function verificarVersao(){
   try{
     const base = '/' + (location.pathname.split('/')[1] || '') ;
@@ -2873,7 +2873,8 @@ document.getElementById('toolGateOverlay').addEventListener('click', e=>{ if(e.t
 function abrirControle(){ abrirFerramenta('Controle de Aplicações', hubBase()+'controledeaplicacoes/'); }
 function abrirFinanceiro(){ abrirFerramenta('Painel Financeiro', hubBase()+'financeiro/'); }
 function abrirComercial(){ abrirFerramenta('Painel Comercial', hubBase()+'comercial/'); }
-function abrirCertificados(){ abrirFerramenta('Certificados', hubBase()+'certificados/'); }
+// Certificados é livre (sem senha): abre direto
+function abrirCertificados(){ window.open(hubBase()+'certificados/', '_blank'); }
 
 function voltarAoMenu(){
   document.getElementById('painelBox').style.display = 'none';
@@ -3767,7 +3768,7 @@ function docHoje_(){ const h=new Date(); return ('0'+h.getDate()).slice(-2)+'/'+
 function docCCAA_(titulo, subtitulo, corpo){
   return `<div>
     <div style="display:flex;align-items:center;gap:14px;border-bottom:3px solid ${DOC_CORES.azul};padding-bottom:12px;margin-bottom:20px">
-      <img src="https://ccaapel.github.io/mkt/assets/ccaa-logo.png?v=5" alt="CCAA" style="width:46px;height:46px;object-fit:contain;border-radius:10px">
+      <img src="https://ccaapel.github.io/homepage/img/ccaa-logo.png?v=2" alt="CCAA" style="width:46px;height:46px;object-fit:contain;border-radius:10px">
       <div>
         <div style="font-size:10.5px;color:${DOC_CORES.dim};letter-spacing:.08em;text-transform:uppercase;font-weight:700">CCAA Pelotas · 2026/2</div>
         <div style="font-size:21px;font-weight:800;color:${DOC_CORES.azul};margin-top:1px">${titulo}</div>
@@ -3997,7 +3998,7 @@ function matTermoHTML_(m){
   const via = (titulo)=>`
     <div style="border:1.5px solid ${DOC_CORES.azul};border-radius:10px;padding:20px 24px;margin-bottom:24px;page-break-inside:avoid">
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;border-bottom:2px solid ${DOC_CORES.azul};padding-bottom:10px">
-        <img src="https://ccaapel.github.io/mkt/assets/ccaa-logo.png?v=5" alt="CCAA" style="width:34px;height:34px;object-fit:contain;border-radius:8px">
+        <img src="https://ccaapel.github.io/homepage/img/ccaa-logo.png?v=2" alt="CCAA" style="width:34px;height:34px;object-fit:contain;border-radius:8px">
         <div style="flex:1">
           <div style="font-size:10px;color:${DOC_CORES.dim};letter-spacing:.08em;text-transform:uppercase;font-weight:700">CCAA Pelotas · 2026/2</div>
           <strong style="font-size:14.5px;color:${DOC_CORES.azul}">Termo de Entrega de Material</strong>
@@ -4151,6 +4152,7 @@ document.getElementById('matNome').addEventListener('change', ()=>{
     else if(path.includes('certificados')) app = 'certificados';
   }
   if(!app) return;
+  if(app==='certificados'){ location.replace(hubBase().replace(/certificados\/$/,'')+'certificados/'); return; } // livre, sem senha
   if(!hubAutenticado()) return; // sem autenticação prévia, fica na home com login normal
 
   // URL bonita na barra (sem ?app=)
