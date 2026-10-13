@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0F2D5F">
+<title>Certificados · CCAA Pelotas</title>
+<link rel="icon" type="image/png" href="https://ccaapel.github.io/mkt/assets/ccaa-logo.png?v=5">
+<script>
+// Acesso só por quem passou pelo login das ferramentas (mesma sessão do painel)
+try { if (sessionStorage.getItem('ccaa_tools_authed') !== '1') location.replace('../?app=certificados'); } catch (e) { location.replace('../?app=certificados'); }
+try { document.documentElement.setAttribute('data-theme', localStorage.getItem('ccaa_tema') || 'dark'); } catch (e) {}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Mesmos tokens do index.html (fonte única de decisões visuais do site) */
+:root{
+  --r-sm:10px; --r-md:13px; --r-lg:18px;
+  --ccaa-blue:oklch(48.7% 0.160 259.2); --ccaa-red:oklch(60.3% 0.206 22.3);
+  --live:oklch(62.7% 0.170 149.2); --soon:oklch(66.6% 0.157 58.3);
+  --gold:oklch(72% 0.120 80);
+}
+[data-theme="light"]{
+  --bg:oklch(97.6% 0.006 264.5); --surface:#FFFFFF; --surface-2:#F6F8FC;
+  --border:#E4E9F1; --border-strong:#CBD4E3;
+  --text:oklch(20.5% 0.030 264.5); --text-mute:#4E576E; --text-dim:#828BA1;
+  --shadow-card:0 1px 3px rgba(15,45,95,0.06),0 1px 2px rgba(15,45,95,0.04);
+  color-scheme:light;
+}
+[data-theme="dark"]{
+  --bg:oklch(16.5% 0.028 264.5); --surface:oklch(21.5% 0.030 264.5); --surface-2:oklch(24.8% 0.032 264.5);
+  --border:rgba(255,255,255,0.08); --border-strong:rgba(255,255,255,0.15);
+  --text:oklch(95.8% 0.013 266.7); --text-mute:oklch(76.4% 0.039 268.8); --text-dim:oklch(59.1% 0.046 268.7);
+  --ccaa-blue:oklch(64.7% 0.160 258.3); --gold:oklch(78% 0.120 80);
+  --shadow-card:0 1px 3px rgba(0,0,0,0.4);
+  color-scheme:dark;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--text);font:16px/1.5 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh}
+.topo{display:flex;align-items:center;gap:12px;padding:14px 20px;border-bottom:1px solid var(--border);background:var(--surface)}
+.topo img{width:34px;height:34px;border-radius:9px}
+.topo h1{font:800 19px/1 "Bricolage Grotesque",Inter,sans-serif;letter-spacing:-.01em}
+.topo a{margin-left:auto;color:var(--text-mute);text-decoration:none;font-weight:600;font-size:14px}
+.topo a:hover{color:var(--ccaa-blue)}
+.wrap{max-width:1060px;margin:0 auto;padding:22px 16px 56px;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:20px;align-items:start}
+@media (max-width:840px){.wrap{grid-template-columns:minmax(0,1fr)}}
+form,.cartao{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-lg);padding:20px;display:grid;gap:18px;min-width:0;box-shadow:var(--shadow-card)}
+.lbl{font-weight:700;font-size:14px;display:block;margin-bottom:7px}
+.seg{display:flex;flex-wrap:wrap;gap:8px}
+.seg{position:relative}
+.seg.cursos{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
+.seg input{position:absolute;opacity:0;pointer-events:none;width:1px;height:1px;left:0;top:0}
+.seg label{flex:1 1 auto;min-width:88px;text-align:center;padding:10px 12px;border:1.5px solid var(--border-strong);border-radius:var(--r-sm);cursor:pointer;font-weight:600;font-size:14px;background:var(--surface-2);user-select:none}
+.seg input:checked+label{border-color:var(--ccaa-blue);background:color-mix(in srgb,var(--ccaa-blue) 14%,transparent);color:var(--ccaa-blue)}
+.seg input:focus-visible+label{outline:2px solid var(--ccaa-blue);outline-offset:2px}
+.seg input:disabled+label{opacity:.35;cursor:not-allowed}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px}
+.field{display:grid;gap:6px;min-width:0;align-content:start}
+.field>span{font-weight:700;font-size:14px;display:flex;gap:8px;align-items:center}
+.field small{color:var(--text-dim);font-size:12.5px;font-weight:600;letter-spacing:.04em}
+input,select,textarea{font:inherit;font-size:16px;color:var(--text);background:var(--surface-2);border:1.5px solid var(--border-strong);border-radius:var(--r-sm);padding:10px 12px;width:100%}
+textarea{resize:vertical;min-height:64px;font-size:14px}
+input.num{font-variant-numeric:tabular-nums}
+input[aria-invalid=true]{border-color:var(--ccaa-red)}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--ccaa-blue)}
+button:focus-visible{outline:2px solid var(--ccaa-blue);outline-offset:2px}
+.colar{border-style:dashed}
+.preenchido{font-size:13px;color:var(--live);font-weight:600;min-height:1.2em}
+.selo{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:2px 8px;border-radius:99px;background:color-mix(in srgb,var(--soon) 18%,transparent);color:var(--soon)}
+.calc{font-size:13px;color:var(--text-dim)}
+.alerta{border-radius:var(--r-sm);padding:11px 13px;font-size:14px;display:grid;gap:8px}
+.alerta.erro{background:color-mix(in srgb,var(--ccaa-red) 14%,transparent);color:var(--ccaa-red)}
+.alerta.aviso{background:color-mix(in srgb,var(--soon) 15%,transparent);color:var(--soon)}
+.alerta label{display:flex;gap:8px;align-items:flex-start;font-weight:600;cursor:pointer;color:var(--text)}
+.alerta input{width:auto;margin-top:4px}
+aside{display:grid;gap:14px;position:sticky;top:16px;min-width:0}
+@media (max-width:840px){aside{position:static}}
+.folha{background:var(--surface);border:1.5px solid var(--border);border-top:6px solid var(--border-strong);border-radius:var(--r-md);padding:20px;display:grid;gap:12px;box-shadow:var(--shadow-card)}
+.folha.dourada{border-top-color:var(--gold)}
+.folha h2{font:800 17px/1.2 "Bricolage Grotesque",Inter,sans-serif}
+.folha .papel{font-size:13px;color:var(--text-dim);font-weight:600}
+dl{display:grid;grid-template-columns:auto minmax(0,1fr);gap:6px 14px;font-size:14px}
+dt{color:var(--text-dim)}
+dd{font-weight:600;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+dd.vazio{color:var(--text-dim);font-weight:400}
+.btn{font:inherit;font-weight:700;font-size:15px;border:0;border-radius:var(--r-sm);padding:13px 16px;cursor:pointer;background:var(--ccaa-blue);color:#fff;width:100%}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+.btn.sec{background:transparent;color:var(--ccaa-blue);border:1.5px solid var(--ccaa-blue)}
+.status{font-size:14px;min-height:1.4em;font-weight:600;color:var(--text-mute)}
+.status.ok{color:var(--live)} .status.erro{color:var(--ccaa-red)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header class="topo">
+  <img src="https://ccaapel.github.io/mkt/assets/ccaa-logo.png?v=5" alt="CCAA">
+  <h1>Certificados</h1>
+  <a href="../">‹ Ferramentas</a>
+</header>
+
+<main class="wrap">
+  <form id="f" novalidate>
+    <label class="field"><span>Colar do Sponte</span>
+      <textarea id="cola" class="colar" rows="2" placeholder="Na tela de notas do aluno: Ctrl+A, Ctrl+C e cole aqui"></textarea>
+      <span class="preenchido" id="preenchido" role="status"></span>
+    </label>
+
+    <div><span class="lbl">Curso</span><div class="seg cursos" id="segCurso"></div></div>
+
+    <div><span class="lbl">Certificado</span>
+      <div class="seg">
+        <input type="radio" name="tipo" id="t-nivel" value="nivel"><label for="t-nivel">Nível</label>
+        <input type="radio" name="tipo" id="t-curso" value="curso"><label for="t-curso">Conclusão</label>
+        <input type="radio" name="tipo" id="t-ambos" value="ambos"><label for="t-ambos">Os dois</label>
+      </div>
+    </div>
+
+    <div class="row">
+      <label class="field" id="wNivel"><span>Nível</span><select id="nivel"></select></label>
+      <label class="field"><span>Semestre</span>
+        <select id="semestre"><option value="1">1º (julho)</option><option value="2">2º (dezembro)</option></select>
+      </label>
+      <label class="field"><span>Ano</span><input id="ano" class="num" inputmode="numeric" maxlength="4" autocomplete="off"></label>
+    </div>
+
+    <label class="field"><span>Aluno</span>
+      <input id="nome" autocomplete="off" autocapitalize="words" placeholder="Nome completo">
+    </label>
+
+    <div id="wNotas" class="row">
+      <label class="field"><small>PPE</small><input id="ppe" class="num" inputmode="decimal" autocomplete="off"></label>
+      <label class="field"><small>PFE</small><input id="pfe" class="num" inputmode="decimal" autocomplete="off"></label>
+      <label class="field"><small>PFO</small><input id="pfo" class="num" inputmode="decimal" autocomplete="off"></label>
+      <label class="field" id="wMedia"><small>MÉDIA <span class="selo" id="seloCalc" hidden>calculada</span></small><input id="media" class="num" inputmode="decimal" autocomplete="off"></label>
+    </div>
+    <p class="calc" id="calc" hidden></p>
+
+    <label class="field" id="wPer"><span>Níveis cursados no CCAA</span><select id="periodos"></select></label>
+
+    <div id="avisos" hidden></div>
+  </form>
+
+  <aside>
+    <div id="folhas"></div>
+    <p class="status" id="status" role="status"></p>
+    <button class="btn sec" id="proximo" type="button" hidden>Próximo aluno</button>
+  </aside>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="certgen.js?v=1"></script>
+<script>
+const $ = id => document.getElementById(id);
+const C = CertGen.CURSOS;
+
+/* modelos .docx: baixados do próprio site só quando precisa, e guardados */
+const templates = {};
+async function carregarModelo(tipo) {
+  if (!templates[tipo]) {
+    const r = await fetch(`modelos/TPL_${tipo}.docx?v=1`);
+    if (!r.ok) throw new Error('Não consegui baixar o modelo do certificado. Verifique a internet e tente de novo.');
+    templates[tipo] = await r.arrayBuffer();
+  }
+}
+
+/* ---------- controles ---------- */
+for (const [k, c] of Object.entries(C))
+  $('segCurso').insertAdjacentHTML('beforeend', `<input type="radio" name="curso" id="c-${k}" value="${k}"><label for="c-${k}">${c.nome}</label>`);
+const hoje = new Date();
+let salvo = {};
+try { salvo = JSON.parse(localStorage.getItem('ccaa_cert') || '{}'); } catch (e) {}
+($(`c-${salvo.curso}`) || $('c-english')).checked = true;
+$('semestre').value = salvo.semestre || (hoje.getMonth() < 6 ? '1' : '2');
+$('ano').value = salvo.ano || String(hoje.getFullYear());
+
+const val = n => (document.querySelector(`input[name=${n}]:checked`) || {}).value;
+const curso = () => C[val('curso')];
+let tipoManual = false, mediaCalculada = false;
+
+function montarNiveis() {
+  const c = curso(), atual = +$('nivel').value || +salvo.nivel;
+  $('nivel').replaceChildren();
+  for (let n = 1; n <= c.max; n++) $('nivel').add(new Option(n === c.max ? `${n} (último)` : String(n), n));
+  if (atual && atual <= c.max) $('nivel').value = atual;
+  const p = $('periodos'); p.replaceChildren();
+  if (c.horas) {
+    p.add(new Option(`Curso completo · ${c.horas[c.max]} h`, ''));
+    for (let n = c.max - 1; n >= 1; n--) p.add(new Option(`${n} · ${c.horas[n]} h`, n));
+  }
+}
+function ajustarTipo() {
+  const c = curso(), ultimo = c.max && +$('nivel').value === c.max;
+  $('t-nivel').disabled = !c.promo;
+  $('t-ambos').disabled = !c.promo || !ultimo;
+  let t = val('tipo');
+  if (!tipoManual || !t || $(`t-${t}`).disabled) t = !c.promo ? 'curso' : (ultimo ? 'ambos' : 'nivel');
+  $(`t-${t}`).checked = true;
+}
+
+/* ---------- colar do Sponte ---------- */
+function aplicarColagem() {
+  const r = CertGen.lerTextoSponte($('cola').value), feito = [];
+  if (r.nivel && curso().max && r.nivel <= curso().max) { $('nivel').value = r.nivel; feito.push('nível ' + r.nivel); tipoManual = false; ajustarTipo(); }
+  if (r.semestre) { $('semestre').value = r.semestre; $('ano').value = r.ano; feito.push(`${r.semestre}º sem/${r.ano}`); }
+  if (r.nome) { $('nome').value = ajustarNome(r.nome); feito.push('aluno'); }
+  for (const k of ['ppe', 'pfe', 'pfo', 'media']) if (r[k]) { $(k).value = r[k]; feito.push(k === 'media' ? 'média' : k.toUpperCase()); }
+  if (r.media) mediaCalculada = false;
+  $('preenchido').textContent = $('cola').value.trim()
+    ? (feito.length ? 'Preenchido: ' + feito.join(', ') : 'Não reconheci dados nesse texto. Preencha abaixo.') : '';
+  $('preenchido').style.color = feito.length ? '' : 'var(--soon)';
+  if (r.situacao && !/aprovad/i.test(r.situacao)) $('preenchido').textContent += ` · Situação no Sponte: ${r.situacao}`;
+  atualizar();
+}
+function ajustarNome(n) {
+  n = n.trim().replace(/\s+/g, ' ');
+  return (n === n.toUpperCase() || n === n.toLowerCase()) ? CertGen.tituloNome(n) : n;
+}
+
+/* ---------- regras ---------- */
+function ler() {
+  return {curso: val('curso'), tipo: val('tipo'), nivel: $('nivel').value, semestre: $('semestre').value, ano: $('ano').value,
+          nome: $('nome').value, ppe: $('ppe').value, pfe: $('pfe').value, pfo: $('pfo').value, media: $('media').value,
+          periodos: $('periodos').value, aceitarDivergencia: !!($('aceito') && $('aceito').checked)};
+}
+let conf = null;
+function atualizar() {
+  const d = ler(), c = C[d.curso];
+  const comNotas = d.tipo !== 'curso' && c.notas, comPer = d.tipo !== 'nivel' && !!c.horas;
+  $('wNivel').hidden = !c.max || d.tipo === 'curso';
+  $('wNotas').hidden = !comNotas && !c.media;
+  ['ppe', 'pfe', 'pfo'].forEach(k => $(k).closest('label').hidden = !comNotas);
+  $('wMedia').hidden = !c.media; $('wPer').hidden = !comPer;
+  if (!comNotas) d.ppe = d.pfe = d.pfo = '';
+  try { localStorage.setItem('ccaa_cert', JSON.stringify({curso: d.curso, semestre: d.semestre, ano: d.ano, nivel: d.nivel})); } catch (e) {}
+
+  // média: preenche pela conta quando ninguém digitou; a do Sponte sempre vence
+  $('calc').hidden = true;
+  if (comNotas && c.media && CertGen.usaFormulaOral2x(d.curso, +d.nivel)) {
+    const n = ['ppe', 'pfe', 'pfo'].map(k => CertGen.notaOk(d[k]));
+    if (n.every(x => x.v)) {
+      const m = CertGen.mediaCalculada(n[0].v, n[1].v, n[2].v);
+      if (!d.media.trim() || mediaCalculada) { $('media').value = d.media = m; mediaCalculada = true; }
+      else if (CertGen.notaOk(d.media).v !== m) { $('calc').textContent = `Pela conta das notas: ${m}`; $('calc').hidden = false; }
+    } else if (mediaCalculada) { $('media').value = d.media = ''; mediaCalculada = false; }
+  }
+  $('seloCalc').hidden = !mediaCalculada;
+
+  const falta = [];
+  if (d.nome.trim().split(/\s+/).filter(Boolean).length < 2) falta.push('nome completo');
+  if (comNotas) for (const k of ['ppe', 'pfe', 'pfo']) if (!d[k].trim()) falta.push(k.toUpperCase());
+  if (c.media && !d.media.trim()) falta.push('média');
+
+  let erros = [], divergente = null; conf = null;
+  try {
+    const r = CertGen.conferirAluno(d), al = r.alunos[0];
+    for (const m of [...al.motivos, ...al.alertas]) if (/difere da calculada/.test(m)) divergente = m;
+    for (const m of al.motivos) {
+      if (/vazia|nome vazio|difere da calculada/.test(m)) continue;
+      erros.push(m.replace(/^(PPE|PFE|PFO|média) /, '$1: ').replace('fora do formato', 'não é uma nota válida (ex: 91,48)').replace('maior que 100', 'passa de 100'));
+    }
+    if (al.ok && !falta.length) conf = r;
+  } catch (e) { erros.push(e.message); }
+  ['ppe', 'pfe', 'pfo', 'media'].forEach(k => { const v = $(k).value.trim(); $(k).setAttribute('aria-invalid', v && !CertGen.notaOk(v).v ? 'true' : 'false'); });
+
+  const av = $('avisos'); av.replaceChildren();
+  if (erros.length) av.insertAdjacentHTML('beforeend', `<div class="alerta erro">${erros.map(esc).join('<br>')}</div>`);
+  if (divergente) {
+    const calc = (divergente.match(/calculada ([\d,]+)/) || [])[1];
+    av.insertAdjacentHTML('beforeend', `<div class="alerta aviso"><span>A média não bate com a conta das notas (${calc}).</span>
+      <label for="aceito"><input type="checkbox" id="aceito"${d.aceitarDivergencia ? ' checked' : ''}> A média do Sponte está certa (recuperação ou ajuste)</label></div>`);
+    $('aceito').onchange = atualizar;
+  }
+  av.hidden = !av.children.length;
+  resumo(d, c, falta);
+}
+const esc = s => String(s).replace(/[&<>]/g, ch => ({'&': '&amp;', '<': '&lt;', '>': '&gt;'})[ch]);
+
+function resumo(d, c, falta) {
+  const mes = d.semestre === '1' ? '07' : '12', nv = +d.nivel, nomes = c.lang === 'es' ? CertGen.NIVEL_ES : CertGen.NIVEL_EN;
+  const kinds = d.tipo === 'ambos' ? ['promo', 'conc'] : [d.tipo === 'nivel' ? 'promo' : 'conc'];
+  const f = v => CertGen.notaOk(v).v || '';
+  const li = (k, v) => `<dt>${k}</dt><dd${v ? '' : ' class="vazio"'}>${v ? esc(v) : '—'}</dd>`;
+  $('folhas').innerHTML = kinds.map(kind => {
+    const conc = kind === 'conc';
+    let dl = li('Aluno', d.nome.trim().replace(/\s+/g, ' '));
+    if (!conc) {
+      dl += li('Nível', `${nomes[nv]} (${nv})`);
+      if (c.notas) {
+        const rot = d.curso === 'kids' && nv === 1 ? ['Midterm Oral', 'Final Oral', 'Final Written'] : ['Midterm', 'Oral [2x]', 'Final'];
+        dl += li(rot[0], f(d.ppe)) + li(rot[1], f(d.pfo)) + li(rot[2], f(d.pfe));
+      }
+    } else if (c.horas) dl += li('Carga horária', `${c.horas[+d.periodos || c.max]} horas`);
+    if (c.media) dl += li('Média', f(d.media));
+    dl += li('Data', /^20\d{2}$/.test(d.ano) ? `${mes}/${d.ano}` : '');
+    return `<section class="folha${conc ? ' dourada' : ''}">
+      <h2>${conc ? 'Conclusão de curso' : 'Nível'} · ${c.nome}</h2>
+      <dl>${dl}</dl>
+      <span class="papel">${conc ? 'Papel dourado · paisagem' : 'Papel comum · retrato'}</span>
+      <button class="btn" type="button" data-kind="${kind}"${conf ? '' : ' disabled'}>Baixar .docx</button>
+    </section>`;
+  }).join('');
+  $('folhas').querySelectorAll('button[data-kind]').forEach(b => b.onclick = () => baixar(b.dataset.kind));
+  const st = $('status');
+  if (!st.classList.contains('ok')) { st.className = 'status'; st.textContent = !conf && falta.length ? 'Falta: ' + falta.join(', ') : ''; }
+}
+
+/* ---------- geração ---------- */
+async function baixar(kind) {
+  if (!conf) return;
+  const st = $('status'); st.className = 'status'; st.textContent = 'Gerando…';
+  try {
+    let tipo = conf.cfg[kind];
+    if (tipo === 'kids_promo' && conf.nivel === 1) tipo = 'kids1_promo';
+    await carregarModelo(tipo);
+    const r = await CertGen.gerar(JSZip, templates, Object.assign({}, conf, {modo: kind === 'promo' ? 'nivel' : 'curso'}));
+    const al = conf.alunos[0], c = conf.cfg;
+    const arq = CertGen.semAcento(al.nome).replace(/[^A-Za-z ]/g, '').trim().split(/\s+/).join('_');
+    const nome = `Certificado_${arq}_${kind === 'promo' ? c.nome + '_nivel' + conf.nivel : c.nome + '_conclusao'}.docx`;
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([r[kind].dados], {type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'}));
+    a.download = nome; document.body.append(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    st.className = 'status ok'; st.textContent = `Baixado. Imprimir em ${kind === 'promo' ? 'papel comum' : 'papel dourado'}.`;
+    $('proximo').hidden = false;
+  } catch (e) { st.className = 'status erro'; st.textContent = e.message; }
+}
+function proximo() {
+  ['cola', 'nome', 'ppe', 'pfe', 'pfo', 'media'].forEach(id => $(id).value = '');
+  $('periodos').value = ''; $('preenchido').textContent = ''; mediaCalculada = false;
+  $('status').className = 'status'; $('status').textContent = ''; $('proximo').hidden = true;
+  atualizar(); $('cola').focus();
+}
+
+/* ---------- eventos ---------- */
+function limpar() { const st = $('status'); if (st.classList.contains('ok')) { st.className = 'status'; st.textContent = ''; $('proximo').hidden = true; } }
+document.querySelectorAll('input[name=curso]').forEach(r => r.addEventListener('change', () => { tipoManual = false; montarNiveis(); ajustarTipo(); limpar(); atualizar(); }));
+document.querySelectorAll('input[name=tipo]').forEach(r => r.addEventListener('change', () => { tipoManual = true; limpar(); atualizar(); }));
+$('nivel').addEventListener('change', () => { tipoManual = false; ajustarTipo(); limpar(); atualizar(); });
+['semestre', 'ano', 'nome', 'ppe', 'pfe', 'pfo', 'periodos'].forEach(id => $(id).addEventListener('input', () => { limpar(); atualizar(); }));
+$('media').addEventListener('input', () => { mediaCalculada = false; limpar(); atualizar(); });
+$('cola').addEventListener('input', () => { limpar(); aplicarColagem(); });
+$('nome').addEventListener('blur', () => { if ($('nome').value.trim()) { $('nome').value = ajustarNome($('nome').value); atualizar(); } });
+['ppe', 'pfe', 'pfo', 'media'].forEach(id => $(id).addEventListener('blur', () => { const r = CertGen.notaOk($(id).value); if (r.v && r.v !== $(id).value) { $(id).value = r.v; atualizar(); } }));
+// Enter em qualquer campo baixa o certificado (o primeiro, se forem dois)
+$('f').addEventListener('submit', e => { e.preventDefault(); const b = document.querySelector('#folhas button[data-kind]:not(:disabled)'); if (b) b.click(); });
+$('f').addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.tagName === 'INPUT') { e.preventDefault(); $('f').requestSubmit(); } });
+$('proximo').addEventListener('click', proximo);
+
+montarNiveis(); ajustarTipo(); atualizar(); $('cola').focus();
+</script>
+</body>
+</html>
