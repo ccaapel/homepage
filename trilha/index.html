@@ -584,6 +584,27 @@ details.deep .insight:first-of-type{margin-top:0;border-top:0;padding-top:0}
   transition:opacity .25s,transform .25s;z-index:120;pointer-events:none;
 }
 .toast.show{opacity:1;transform:translateX(-50%)}
+
+/* Chamada principal do topo: uma ação clara antes das redes sociais */
+.cover-cta{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 16px}
+.cta-main,.cta-alt{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 20px;border-radius:12px;font-size:15px;font-weight:800;text-decoration:none}
+.cta-main{background:#1fa855;color:#fff;box-shadow:0 6px 18px rgba(31,168,85,.4)}
+.cta-main:hover{background:#178f47}
+.cta-alt{background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.3);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+@media (max-width:420px){.cta-main,.cta-alt{flex:1 1 100%}}
+#choose{scroll-margin-top:70px}
+.map-bar a.map-go{display:inline-flex;align-items:center;min-height:44px;padding:0 14px;border-radius:10px;background:var(--brand);color:#fff}
+
+/* Toque no celular: alvo mínimo de 44px (recomendação Apple/WCAG 2.5.5) */
+@media (pointer:coarse){
+  .top-call{min-height:44px;padding:0 15px;font-size:13.5px}
+  .seg button{min-height:44px}
+  .age-row button{height:44px}
+  .story-head button{width:44px;height:44px;font-size:12px}
+  .gal-arrow{width:44px;height:44px}
+  .cover-scroll{min-height:44px}
+  .soc,.aula-tabs button,.sheet-wa{min-height:44px}
+}
 </style>
 </head>
 <body>
@@ -602,6 +623,10 @@ details.deep .insight:first-of-type{margin-top:0;border-top:0;padding-top:0}
     <p class="cover-tag">Inglês e Espanhol</p>
     <h1>CCAA Pelotas</h1>
     <p class="cover-sub">Um prédio histórico restaurado no coração de Pelotas, onde aprender um idioma acontece com calma, conforto e vontade de voltar.</p>
+    <div class="cover-cta">
+      <a class="cta-main" id="heroWa" href="https://wa.me/555330251919" target="_blank" rel="noopener">Agendar aula experimental</a>
+      <a class="cta-alt" href="#choose">Achar o curso pela idade</a>
+    </div>
     <div class="social" id="heroSocial"></div>
     <a class="cover-scroll" href="#tour">Conheça a escola <span aria-hidden="true">↓</span></a>
   </div>
@@ -752,7 +777,7 @@ details.deep .insight:first-of-type{margin-top:0;border-top:0;padding-top:0}
       <iframe title="Mapa do CCAA Pelotas" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps?q=CCAA%20Pelotas%2C%20R.%20Gon%C3%A7alves%20Chaves%2C%20551%2C%20Centro%2C%20Pelotas%20-%20RS&output=embed"></iframe>
       <div class="map-bar">
         <div><b>R. Gonçalves Chaves, 551</b><span>Centro · Pelotas/RS</span></div>
-        <a href="https://www.google.com/maps/search/?api=1&query=CCAA%20Pelotas%20R.%20Gon%C3%A7alves%20Chaves%20551%20Pelotas" target="_blank" rel="noopener">Como chegar →</a>
+        <a class="map-go" href="https://www.google.com/maps/dir/?api=1&destination=CCAA%20Pelotas%20R.%20Gon%C3%A7alves%20Chaves%20551%20Pelotas" target="_blank" rel="noopener">Traçar rota →</a>
       </div>
     </div>
     <div class="feat">
@@ -1477,6 +1502,8 @@ details.deep .insight:first-of-type{margin-top:0;border-top:0;padding-top:0}
   function syncWa(){
     var href = 'https://wa.me/555330251919?text=' + encodeURIComponent(waText());
     document.querySelectorAll('.wa-link').forEach(function(a){ a.href = href; });
+    var curso = state.course && state.course !== 'all' ? COURSES.filter(function(c){ return c.key === state.course; })[0] : null;
+    document.getElementById('heroWa').href = 'https://wa.me/555330251919?text=' + encodeURIComponent('Olá! Vi o site do CCAA Pelotas e quero agendar uma aula experimental' + (curso ? ' do ' + curso.name : '') + '.');
   }
   function writeHash(){
     syncWa();
